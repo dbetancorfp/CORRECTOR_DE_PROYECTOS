@@ -30,9 +30,10 @@
   </div>
 
   <div class="callout">
-    <strong>Estado actual:</strong> prototipado HTML. Los ficheros en
-    <code>html-source-prototype/</code> definen las pantallas. La implementación
-    sigue la metodología RAG Spec-Driven descrita en esta documentación.
+    <strong>Estado actual:</strong> prototipado HTML completado y anotado.
+    Los 10 ficheros de <code>html-source-prototype/</code> tienen sus 80 elementos
+    marcados con <code>data-element-id</code>. El registro de elementos está en
+    <code>boceto-elements.md</code>. Siguiente paso: entrevista de cliente → Agente 2.
   </div>
 
   <div class="cards">
@@ -49,7 +50,12 @@
     <a class="card" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/tree/main/html-source-prototype" target="_blank">
       <span class="icon">🎨</span>
       <h3>Prototipos HTML</h3>
-      <p>Bocetos visuales de todas las pantallas (abrir en el navegador).</p>
+      <p>10 pantallas anotadas con <code>data-element-id</code> (80 elementos).</p>
+    </a>
+    <a class="card" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/html-source-prototype/boceto-elements.md" target="_blank">
+      <span class="icon">🔢</span>
+      <h3>Registro de elementos</h3>
+      <p><code>boceto-elements.md</code> — tabla completa de sketchNumbers por pantalla.</p>
     </a>
   </div>
 
@@ -69,7 +75,7 @@
   <h2>Cómo está construido</h2>
   <p>
     La implementación sigue la metodología <strong>RAG Spec-Driven Development</strong>:
-    los prototipos HTML se anotan con números de boceto (<code>sketchNumber</code>),
+    los prototipos HTML están anotados con números de boceto (<code>sketchNumber</code>),
     y un pipeline de 6 agentes Claude convierte esos bocetos más una conversación
     de requisitos en código backend + frontend completamente trazable y testado.
   </p>

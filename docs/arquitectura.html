@@ -65,7 +65,7 @@ Boceto (#N)
       <div class="num">2</div>
       <div class="body">
         <strong>Analista de Negocio</strong>
-        <span>Lee la conversación con el cliente y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber.</span>
+        <span>Lee la conversación con el cliente, <code>boceto-elements.md</code> y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber.</span>
         <span class="output">→ functional-spec.json · phase: func-spec</span>
       </div>
     </div>
@@ -210,7 +210,8 @@ npm run docs:build &amp;&amp; git push main        # → GitHub Pages</code></pr
   <h2>Estructura del repositorio (objetivo)</h2>
   <div class="tree">
 CORRECTOR_DE_PROYECTOS/
-├── html-source-prototype/   # Bocetos HTML (se anotarán con data-element-id)
+├── html-source-prototype/   # Bocetos HTML anotados con data-element-id (80 elementos, 10 pantallas)
+│   └── boceto-elements.md   # Registro de sketchNumbers — referencia para la entrevista de cliente
 ├── lib/
 │   ├── agents/              # 6 implementaciones de agente
 │   ├── schemas/             # Zod schemas (UISpec, FunctionalSpec, Reconciliation...)
