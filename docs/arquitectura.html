@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquitectura · Corrector de Proyectos</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Corrector de Proyectos</a>
+  <a href="guia.html">Guía</a>
+  <a href="arquitectura.html" class="active">Arquitectura</a>
+  <span class="spacer"></span>
+  <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">
+    ⌥ GitHub
+  </a>
+</nav>
+
+<main>
+  <h1>Arquitectura técnica</h1>
+  <p>
+    Esta aplicación se construye mediante un pipeline
+    <strong>RAG Spec-Driven Development</strong>: los prototipos HTML anotados
+    con números de boceto y una conversación de requisitos se convierten, a través
+    de 6 agentes Claude, en código backend + frontend completamente trazable y testado.
+  </p>
+
+  <!-- ── sketchNumber ── -->
+  <h2>El principio sketchNumber</h2>
+  <p>
+    Cada elemento interactivo de los prototipos recibe un atributo
+    <code>data-element-id="N"</code>. Ese entero — el <strong>sketchNumber</strong> —
+    es la clave foránea universal que vincula todos los artefactos del pipeline:
+  </p>
+  <div class="tree">
+Boceto (#N)
+    → UI Spec        { sketchNumber: N, type, states, interactions }
+    → Functional Spec { sketchNumber: N, behavior, businessRules, acceptanceCriteria }
+    → Use Case        UC-N: pasos referenciando #N
+    → Test (rojo)     describe('Element #N', () => { it('should...') })
+    → Código (verde)  class ElementN extends HTMLElement { ... }
+    → HTML            &lt;button data-element-id="N"&gt;
+  </div>
+  <div class="callout">
+    <strong>Invariante:</strong> ningún elemento puede aparecer en una fase posterior
+    si no estaba numerado en el boceto. Zero ambigüedad por diseño.
+  </div>
+
+  <!-- ── Pipeline ── -->
+  <h2>Pipeline: 6 agentes especializados</h2>
+  <div class="pipeline">
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <strong>Diseñador Front</strong>
+        <span>Lee el prototipo anotado y <code>boceto-metadata.json</code>. Genera la especificación visual de cada componente por sketchNumber.</span>
+        <span class="output">→ ui-spec.json · phase: ui-spec</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <strong>Analista de Negocio</strong>
+        <span>Lee la conversación con el cliente y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber.</span>
+        <span class="output">→ functional-spec.json · phase: func-spec</span>
+      </div>
+    </div>
+
+    <div class="step gate">
+      <div class="num">🚪</div>
+      <div class="body">
+        <strong>GATE HUMANO — Reconciliación</strong>
+        <span>Verifica que cada sketchNumber del boceto tenga su func-spec y viceversa. Sin elementos huérfanos. Requiere aprobación manual antes de continuar.</span>
+        <span class="output">→ reconciliation.json { valid: true }</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body">
+        <strong>Arquitecto de Requisitos</strong>
+        <span>Con las specs validadas genera los casos de uso, el DDL de PostgreSQL y los contratos de API.</span>
+        <span class="output">→ use-cases.md · schema.sql · api-contracts · phase: use-case</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">4</div>
+      <div class="body">
+        <strong>Ingeniero TDD</strong>
+        <span>Deriva tests de los <code>acceptanceCriteria</code>. Cada <code>describe()</code> referencia un sketchNumber. Los tests se escriben antes del código y deben fallar.</span>
+        <span class="output">→ tests/*.test.js (rojo ✗) · phase: test-red</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">5</div>
+      <div class="body">
+        <strong>Implementador</strong>
+        <span>Lee los tests rojos y los contratos de API. Genera solo el código suficiente para que los tests pasen. Backend Node.js + Frontend Web Components.</span>
+        <span class="output">→ src/ (backend + frontend) · phase: code</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">6</div>
+      <div class="body">
+        <strong>Revisor / QA</strong> <em style="color:var(--muted);font-weight:400">(opcional)</em>
+        <span>Valida calidad del código, convenciones OO y ausencia de dead code. Sugiere refactorizaciones.</span>
+        <span class="output">→ refactor suggestions</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── RAG ── -->
+  <h2>Capa RAG: PostgreSQL + pgvector</h2>
+  <p>
+    Cada artefacto generado se valida con un <strong>Zod schema</strong> y se persiste
+    en la tabla <code>knowledge_base</code>. Los agentes recuperan contexto mediante
+    búsqueda híbrida: similaridad vectorial + filtros estructurados.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Columna</th><th>Tipo</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>UUID</td><td>Clave primaria</td></tr>
+      <tr><td><code>content</code></td><td>TEXT</td><td>Artefacto JSON serializado</td></tr>
+      <tr><td><code>embedding</code></td><td>vector(1536)</td><td>OpenAI text-embedding-3-small · índice HNSW</td></tr>
+      <tr><td><code>phase</code></td><td>VARCHAR</td><td><code>ui-spec</code> · <code>func-spec</code> · <code>use-case</code> · <code>test-red</code> · <code>code</code></td></tr>
+      <tr><td><code>sketch_number</code></td><td>INT</td><td>Clave de trazabilidad</td></tr>
+      <tr><td><code>feature_id</code></td><td>TEXT</td><td>Identificador de funcionalidad (ej. <code>corrector-v1</code>)</td></tr>
+      <tr><td><code>agent</code></td><td>TEXT</td><td>Agente que generó la fila</td></tr>
+      <tr><td><code>version</code></td><td>INT</td><td>Versión incremental del artefacto</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Schemas Zod clave</h3>
+  <table>
+    <thead>
+      <tr><th>Schema</th><th>Campos principales</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>UISpecSchema</code></td>
+        <td><code>screens[].components[]</code> con <code>sketchNumber</code>, <code>type</code>, <code>props</code>, <code>states</code>, <code>interactions</code></td>
+      </tr>
+      <tr>
+        <td><code>FunctionalSpecSchema</code></td>
+        <td><code>elementSpecs[]</code> con <code>sketchNumber</code>, <code>behavior</code>, <code>businessRules</code>, <code>acceptanceCriteria</code>; más <code>globalRules[]</code></td>
+      </tr>
+      <tr>
+        <td><code>ReconciliationSchema</code></td>
+        <td><code>valid</code>, <code>boceto_numbers</code>, <code>spec_numbers</code>, <code>orphaned_sketch_elements</code>, <code>orphaned_spec_rules</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── Stack ── -->
+  <h2>Stack tecnológico</h2>
+  <table>
+    <thead>
+      <tr><th>Capa</th><th>Tecnología</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LLM / Agentes</td><td>Claude API (<code>claude-sonnet-4-6</code>)</td></tr>
+      <tr><td>Embeddings</td><td>OpenAI <code>text-embedding-3-small</code></td></tr>
+      <tr><td>Base de datos RAG</td><td>PostgreSQL 16 + pgvector 0.7</td></tr>
+      <tr><td>Backend</td><td>Node.js 20 LTS + Express</td></tr>
+      <tr><td>Validación</td><td>Zod 3.x</td></tr>
+      <tr><td>Frontend</td><td>Web Components OO + Tailwind CSS 3.x</td></tr>
+      <tr><td>Tests backend</td><td>Vitest + node-fetch</td></tr>
+      <tr><td>Tests frontend</td><td>@web/test-runner</td></tr>
+      <tr><td>Documentación</td><td>HTML estático + JSDoc · GitHub Pages</td></tr>
+      <tr><td>CI/CD</td><td>GitHub Actions</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── CLI ── -->
+  <h2>Workflow CLI (planificado)</h2>
+  <pre><code># 1. Generar UI Spec desde boceto anotado
+node cli run-agent designer-front --sketch boceto.png
+
+# 2. Analizar conversación de requisitos
+node cli run-agent business-analyst --conversation chat.md
+
+# 3. Reconciliación (gate humano)
+node cli reconcile --feature-id "corrector-v1"
+
+# 4. Casos de uso + esquema SQL + contratos API
+node cli run-agent requirement-architect --feature-id "corrector-v1"
+
+# 5. Tests (deben fallar)
+node cli run-agent tdd-engineer --feature-id "corrector-v1"
+npm test                                   # RED ✗
+
+# 6. Implementación
+node cli run-agent implementer --feature-id "corrector-v1"
+npm test                                   # GREEN ✅
+
+# 7. Publicar documentación
+npm run docs:build &amp;&amp; git push main        # → GitHub Pages</code></pre>
+
+  <!-- ── Estructura ── -->
+  <h2>Estructura del repositorio (objetivo)</h2>
+  <div class="tree">
+CORRECTOR_DE_PROYECTOS/
+├── html-source-prototype/   # Bocetos HTML (se anotarán con data-element-id)
+├── lib/
+│   ├── agents/              # 6 implementaciones de agente
+│   ├── schemas/             # Zod schemas (UISpec, FunctionalSpec, Reconciliation...)
+│   ├── tools/               # claude-client, rag-client, artifact-manager, handoff-validator
+│   └── orchestrator/        # State machine del pipeline
+├── cli/
+│   └── commands/            # create-project, run-agent, validate, reconcile, generate-docs
+├── docs/                    # Esta documentación (GitHub Pages)
+├── examples/                # Ejemplo completo: boceto → código generado
+└── .github/workflows/       # CI: validar specs + deploy docs + tests
+  </div>
+</main>
+
+<footer>
+  Corrector de Proyectos · David Betancor · IES Telesforo Bravo ·
+  <a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS">GitHub</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía · Corrector de Proyectos</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Corrector de Proyectos</a>
+  <a href="guia.html" class="active">Guía</a>
+  <a href="arquitectura.html">Arquitectura</a>
+  <span class="spacer"></span>
+  <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">
+    ⌥ GitHub
+  </a>
+</nav>
+
+<main>
+  <h1>Guía de la aplicación</h1>
+  <p>Referencia funcional: roles, pantallas y datos del dominio.</p>
+
+  <!-- ── Roles ── -->
+  <h2>Roles de usuario</h2>
+  <div class="roles">
+    <div class="role">
+      <h3>🔧 Admin</h3>
+      <p>
+        Configuración global del sistema: legislaciones, ciclos, módulos y
+        cuentas de profesorado. No gestiona alumnos ni proyectos directamente.
+      </p>
+    </div>
+    <div class="role">
+      <h3>👩‍🏫 Profesor</h3>
+      <p>
+        Gestión de clase: alumnos, proyectos y rúbrica. Puede corregir
+        proyectos, visualizar notas e imprimir actas.
+      </p>
+    </div>
+    <div class="role">
+      <h3>📄 Tutor</h3>
+      <p>
+        Perfil restringido de Profesor. Solo tiene acceso a imprimir actas de
+        notas; no puede gestionar ni corregir.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Flujo de pantallas ── -->
+  <h2>Flujo de pantallas</h2>
+  <div class="tree">
+index.html  (login)
+├── Admin → Panel de Gestión (pestañas)
+│   ├── Legislación   vista_admin-tab_legislacion_seleccionado.html
+│   ├── Ciclos        vista_admin-tab_ciclos_seleccionado.html
+│   ├── Módulos       vista_admin-tab_modulos_seleccionado.html
+│   └── Profesorado   vista_admin-tab_profesorado_seleccionado.html
+│
+└── Profesor → Landing   vista_profesor-landing.html
+    ├── Gestionar → Panel (pestañas)
+    │   ├── Alumnos    vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html
+    │   ├── Proyectos  vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html
+    │   └── Rúbrica    vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html
+    ├── Corregir       vista_profesor_landing-corregirProyecto.html  (pendiente)
+    ├── Visualizar notas
+    └── Imprimir notas  (solo Tutor)
+  </div>
+
+  <!-- ── Modelo de dominio ── -->
+  <h2>Modelo de dominio</h2>
+  <table>
+    <thead>
+      <tr><th>Entidad</th><th>Atributos principales</th><th>Relaciones</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Legislación</strong></td>
+        <td>abreviatura (ej. LOMLOE), año inicio, año fin</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>Ciclo</strong></td>
+        <td>nombre (ej. Desarrollo de aplicaciones web)</td>
+        <td>pertenece a una Legislación</td>
+      </tr>
+      <tr>
+        <td><strong>Módulo</strong></td>
+        <td>nombre, abreviatura (ej. DEW), horas semanales</td>
+        <td>pertenece a Ciclo y Legislación</td>
+      </tr>
+      <tr>
+        <td><strong>Profesor</strong></td>
+        <td>usuario, contraseña</td>
+        <td>asignado a un Ciclo y a uno o varios Módulos</td>
+      </tr>
+      <tr>
+        <td><strong>Alumno</strong></td>
+        <td>código anónimo (ej. JJ499)</td>
+        <td>pertenece a un Ciclo y Legislación</td>
+      </tr>
+      <tr>
+        <td><strong>Proyecto</strong></td>
+        <td>nombre</td>
+        <td>tiene lista de Alumnos</td>
+      </tr>
+      <tr>
+        <td><strong>Rúbrica</strong></td>
+        <td>puntuación máxima total</td>
+        <td>pertenece a un Proyecto; tiene ítems con 5 niveles</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Niveles de la rúbrica</h2>
+  <p>Cada ítem de la rúbrica tiene cinco niveles de calificación con valor numérico:</p>
+  <div class="tags">
+    <span class="tag">Excelente</span>
+    <span class="tag">Muy bien</span>
+    <span class="tag">Bien</span>
+    <span class="tag">Regular</span>
+    <span class="tag">Mal</span>
+  </div>
+
+  <!-- ── Notas clave ── -->
+  <h2>Notas de implementación</h2>
+  <table>
+    <thead>
+      <tr><th>Característica</th><th>Detalle</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Identificadores de alumno</td>
+        <td>Códigos anonimizados (ej. <code>JJ499</code>, <code>MnP454</code>), no nombres reales.</td>
+      </tr>
+      <tr>
+        <td>Filtros reactivos</td>
+        <td>Las listas de alumnos, proyectos y rúbrica filtran en tiempo real mientras el usuario escribe.</td>
+      </tr>
+      <tr>
+        <td>Importar alumnos</td>
+        <td>Acción "Subir lista de alumnos" — importación masiva desde fichero (CSV / Excel).</td>
+      </tr>
+      <tr>
+        <td>Importar rúbrica</td>
+        <td>Acción "Subir rúbrica" junto a la edición inline — rúbricas importables desde fichero.</td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+
+<footer>
+  Corrector de Proyectos · David Betancor · IES Telesforo Bravo ·
+  <a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS">GitHub</a>
+</footer>
+
+</body>
+</html>
