@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Corrector de Proyectos** is a web application for teachers in Spanish vocational education (FP - Formación Profesional) to manage and grade end-of-cycle student projects using a rubric-based scoring system.
 
-The project is currently at the **HTML prototype stage** — all files in `html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): each interactive element will receive a `data-element-id="N"` attribute (`sketchNumber`) before the pipeline begins. No build system, framework, or test runner is set up yet.
+The project is currently at the **HTML prototype stage** — all files in `corrector/01-boceto/html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): 80 interactive elements are annotated with `data-element-id="N"` (`sketchNumber`) across 10 screens. The element registry is at `corrector/01-boceto/html-source-prototype/boceto-elements.md`. No build system, framework, or test runner is set up yet.
 
-To view prototypes: open any `.html` file directly in a browser.
+To view prototypes: open any `.html` file in `corrector/01-boceto/html-source-prototype/` directly in a browser.
 
 ## User roles
 
@@ -62,7 +62,7 @@ This app is built using a **RAG Spec-Driven Development** pipeline. The process 
 
 ### The sketchNumber principle
 
-Every interactive element in `html-source-prototype/` will be annotated with a unique integer (`data-element-id="N"`). That number is the universal foreign key linking every artefact in the pipeline:
+Every interactive element in `corrector/01-boceto/html-source-prototype/` is annotated with a unique integer (`data-element-id="N"`). That number is the universal foreign key linking every artefact in the pipeline:
 
 ```
 Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (rojo) → Código (verde)

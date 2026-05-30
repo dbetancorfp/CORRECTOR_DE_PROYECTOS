@@ -1,8 +1,8 @@
 {
   "featureId": "corrector-v1",
   "description": "Corrector de Proyectos — aplicación para calificación de proyectos de fin de ciclo FP mediante rúbricas",
-  "boecetoPath": "../../html-source-prototype/",
-  "elementsRegistry": "../../html-source-prototype/boceto-elements.md",
+  "boecetoPath": "./html-source-prototype/",
+  "elementsRegistry": "./html-source-prototype/boceto-elements.md",
   "totalElements": 80,
   "screens": [
     {
