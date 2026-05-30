@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de proyectos</title>
+</head>
+<body>
+    <section>
+        <nav>
+            <img src="" alt="logo">
+            <div><p><h1>Corrector de proyectos</h1></p></div>
+            <div><p><h3>Bienvenido</h3></p></div>
+            <div><p><h4>Fulanito</h4></p></div>
+            <button type="button">Salir</button>
+        </nav>
+    </section>
+    <section>
+        <div><p><h2>Gestión</h2></p></div>
+        <!-- Tabs- tab Rúbrica seleccionado -->
+        <button type="button" id="pupils">Alumnos</button>
+        <button type="button" id="proyects">Proyectos</button>
+        <button type="button" id="items">Rúbrica</button>
+
+        <div>
+            <!--Filtros reactivos-->
+            <input type="text" name="filterProject" id="filterProject" placeholder="Filtrar por proyecto">
+            <input type="text" name="filterYear" id="filterYear" placeholder="Filtrar por año">
+            <input type="text" name="filterLaw" id="filterLaw" placeholder="Filtrar por legislación">
+            
+            <p>Nombre del proyecto</p>
+            <button type="button">Nuevo</button>
+        </div>
+        <div>
+          <table style="border: 1px solid black;">
+            <tr>
+                <th>Item</th>
+                <th>Excelente</th>
+                <th>Muy bien</th>
+                <th>Bien</th>
+                <th>Regular</th>
+                <th>Mal</th>
+            </tr>
+            <tr>
+                <td>Grupo 1</td>
+                <td>2</td>
+                <td>1.75</td>
+                <td>1</td>
+                <td>0.5</td>            
+                <td>0</td>
+            </tr>
+          </table>
+          <div>
+             <button type="button">Subir rúbrica</button>
+             <p>Puntuación máxima</p>
+             <p data-puntuacion="NotaMaximaRubrica">10</p>
+          </div> 
+        </div>
+    </section>
+</body>
+</html>
