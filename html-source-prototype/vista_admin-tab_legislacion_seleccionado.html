@@ -7,8 +7,8 @@
 </head>
 <body>
     <section>
-        <nav>
-            <img src="" alt="logo">
+        <nav data-element-id="5">
+            <img src="" alt="logo" data-element-id="4">
             <div><p><h1>Corrector de proyectos</h1></p></div>
             <div><p><h3>Bienvenido</h3></p></div>
             <div><p><h4>Fulanito</h4></p></div>
@@ -18,18 +18,20 @@
     <section>
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Legislación seleccionado -->
-        <button type="button" id="legislation">Legislación</button>
+         <div data-element-id="6">
+        <button type="button" id="legislation" >Legislación</button>
         <button type="button" id="cicles">Ciclos</button>
         <button type="button" id="modules">Módulos</button>
         <button type="button" id="teachers">Profesorado</button>
+        </div>
 
         <div>
             <label for="nameLaw"></label>
-            <input type="text" name="nameLaw" id="nameLaw" placeholder="Siglas de la legislación">
+            <input type="text" name="nameLaw" id="nameLaw" data-element-id="7" placeholder="Siglas de la legislación">
             <label for="academicYear"></label>
-            <input type="text" name="firstYearAcademicLaw" id="firstYearAcademicLaw" placeholder="Año de inicio de la legislación">
-            <input type="text" name="lastYearAcademicLaw" id="lastYearAcademicLaw" placeholder="Año de finalización de la legislación">
-            <button type="submit">Guardar</button>
+            <input type="text" name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="8" placeholder="Año de inicio de la legislación">
+            <input type="text" name="lastYearAcademicLaw" id="lastYearAcademicLaw" data-element-id="9" placeholder="Año de finalización de la legislación">
+            <button type="submit" data-element-id="10">Guardar</button>
         </div>
     </section>
 </body>
