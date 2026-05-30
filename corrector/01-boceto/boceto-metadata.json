@@ -1,0 +1,59 @@
+{
+  "featureId": "corrector-v1",
+  "description": "Corrector de Proyectos — aplicación para calificación de proyectos de fin de ciclo FP mediante rúbricas",
+  "boecetoPath": "../../html-source-prototype/",
+  "elementsRegistry": "../../html-source-prototype/boceto-elements.md",
+  "totalElements": 80,
+  "screens": [
+    {
+      "file": "index.html",
+      "label": "Login",
+      "sketchNumbers": [1, 2, 3]
+    },
+    {
+      "file": "vista_admin-tab_legislacion_seleccionado.html",
+      "label": "Admin · Tab Legislación",
+      "sketchNumbers": [4, 5, 6, 7, 8, 9, 10]
+    },
+    {
+      "file": "vista_admin-tab_ciclos_seleccionado.html",
+      "label": "Admin · Tab Ciclos",
+      "sketchNumbers": [11, 12, 13, 14, 15]
+    },
+    {
+      "file": "vista_admin-tab_modulos_seleccionado.html",
+      "label": "Admin · Tab Módulos",
+      "sketchNumbers": [16, 17, 18, 19, 20, 21, 22]
+    },
+    {
+      "file": "vista_admin-tab_profesorado_seleccionado.html",
+      "label": "Admin · Tab Profesorado",
+      "sketchNumbers": [23, 24, 25, 26, 27, 28, 29]
+    },
+    {
+      "file": "vista_profesor-landing.html",
+      "label": "Landing Profesor",
+      "sketchNumbers": [30]
+    },
+    {
+      "file": "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
+      "label": "Profesor · Tab Alumnos",
+      "sketchNumbers": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+    },
+    {
+      "file": "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
+      "label": "Profesor · Tab Proyectos",
+      "sketchNumbers": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+    },
+    {
+      "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
+      "label": "Profesor · Tab Rúbrica",
+      "sketchNumbers": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
+    },
+    {
+      "file": "vista_profesor_landing-corregirProyecto.html",
+      "label": "Corregir Proyecto",
+      "sketchNumbers": [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80]
+    }
+  ]
+}
