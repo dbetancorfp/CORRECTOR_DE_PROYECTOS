@@ -210,25 +210,25 @@ npm run docs:build &amp;&amp; git push main        # → GitHub Pages</code></pr
   <h2>Estructura del repositorio (objetivo)</h2>
   <div class="tree">
 CORRECTOR_DE_PROYECTOS/
-├── corrector/               # Workspace del pipeline para el proyecto real (corrector-v1)
+├── corrector/               # Workspace del pipeline — proyecto real (corrector-v1)
 │   ├── 01-boceto/
 │   │   ├── html-source-prototype/  # Bocetos HTML anotados (80 elementos, 10 pantallas)
 │   │   │   └── boceto-elements.md  # Registro de sketchNumbers
-│   │   └── boceto-metadata.json    # Mapa de sketchNumbers por pantalla
-│   ├── 02-conversacion-cliente/transcripcion.md
+│   │   └── boceto-metadata.json    # Mapa de sketchNumbers por pantalla (entrada Agente 1)
+│   ├── 02-conversacion-cliente/
+│   │   └── transcripcion.md        # Entrevista de cliente (entrada Agente 2)
 │   ├── 03-generated-artifacts/     # ui-spec.json, functional-spec.json, reconciliation.json
 │   ├── 04-use-cases/               # use-cases.md, schema.sql, api-contracts
 │   └── 05-implementation/          # backend (Express) + frontend (Web Components)
 ├── examples/                # Demos didácticas del pipeline (apps ficticias)
 ├── lib/
-│   ├── agents/              # 6 implementaciones de agente
-│   ├── schemas/             # Zod schemas (UISpec, FunctionalSpec, Reconciliation...)
-│   ├── tools/               # claude-client, rag-client, artifact-manager, handoff-validator
-│   └── orchestrator/        # State machine del pipeline
+│   ├── agents/              # 6 implementaciones de agente [PLANNED]
+│   ├── schemas/             # Zod schemas (UISpec, FunctionalSpec, Reconciliation…)
+│   ├── tools/               # claude-client, rag-client, artifact-manager… [PLANNED]
+│   └── orchestrator/        # State machine del pipeline [PLANNED]
 ├── cli/
-│   └── commands/            # create-project, run-agent, validate, reconcile, generate-docs
+│   └── commands/            # create-project, run-agent, validate, reconcile… [PLANNED]
 ├── docs/                    # Esta documentación (GitHub Pages)
-├── examples/                # Ejemplo completo: boceto → código generado
 └── .github/workflows/       # CI: validar specs + deploy docs + tests
   </div>
 </main>
