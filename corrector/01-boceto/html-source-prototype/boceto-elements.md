@@ -133,6 +133,19 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 | 62 | Celda Mal | celda editable | Valor numérico para la calificación Mal |
 | 63 | Botón Subir rúbrica | botón | Importa una rúbrica completa desde fichero |
 | 64 | Puntuación máxima | párrafo | Muestra la suma total máxima posible de la rúbrica (calculada automáticamente) |
+| 90 | Icono Borrar (ítem rúbrica) | celda | Elimina la fila del ítem de la rúbrica |
+
+---
+
+## vista_profesor-landing-ver_notas.html — Ver Notas (nuevo boceto)
+
+| # | Elemento | Tipo | Descripción |
+|---|----------|------|-------------|
+| 85 | Filtro año académico | select | Selector de año de inicio del curso; filtra los ciclos disponibles en #86 |
+| 86 | Filtro ciclo | select | Selector de ciclo, enlazado a #85; filtra los módulos disponibles en #87 |
+| 87 | Filtro módulo | select | Selector de módulo asignado al profesor, enlazado a #86 |
+| 88 | Botón Descarga PDF | botón | Genera y descarga el PDF con los datos filtrados por #85, #86 y #87 |
+| 89 | Tabla de resultados | tabla | Vista previa del PDF: columnas Proyecto, Nombre alumno, Niveles evaluados, Nota final |
 
 ---
 

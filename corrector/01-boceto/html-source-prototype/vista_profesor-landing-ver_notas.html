@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de proyectos</title>
+</head>
+<body>
+    <section>
+        <nav>
+            <img src="" alt="logo">
+            <div><p><h1>Corrector de proyectos</h1></p></div>
+            <div><p><h3>Bienvenido</h3></p></div>
+            <div><p><h4>Fulanito</h4></p></div>
+            <button type="button">Salir</button>
+        </nav>
+    </section>
+    <section>
+        <div><p><h2>Ver notas</h2></p></div>
+
+        <!-- Filtros enlazados: año → ciclo → módulo -->
+        <div>
+            <select name="filterYear" id="filterYear" data-element-id="85">
+                <option value="">Año académico</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+            </select>
+
+            <!-- Opciones de ciclo se cargan según el año seleccionado -->
+            <select name="filterCicle" id="filterCicle" data-element-id="86">
+                <option value="">Ciclo</option>
+                <option value="DAW">Desarrollo de Aplicaciones Web</option>
+                <option value="DAM">Desarrollo de Aplicaciones Multiplataforma</option>
+                <option value="ASR">Administración de Sistemas en Red</option>
+            </select>
+
+            <!-- Opciones de módulo se cargan según el ciclo seleccionado, limitadas a los módulos del profesor -->
+            <select name="filterModule" id="filterModule" data-element-id="87">
+                <option value="">Módulo</option>
+                <option value="DEW">Desarrollo Web en Entorno Cliente (DEW)</option>
+                <option value="DAW">Desarrollo Web en Entorno Servidor (DAW)</option>
+            </select>
+
+            <button type="button" data-element-id="88">Descarga PDF</button>
+        </div>
+
+        <!-- Vista previa de los datos que contendrá el PDF -->
+        <div>
+            <table style="border: 1px solid black;" data-element-id="89">
+                <tr>
+                    <th>Proyecto</th>
+                    <th>Nombre alumno</th>
+                    <th>Niveles evaluados</th>
+                    <th>Nota final</th>
+                </tr>
+                <tr>
+                    <td>Proyecto Alpha</td>
+                    <td>JJ499</td>
+                    <td>Excelente / Muy bien / Bien</td>
+                    <td>8.50</td>
+                </tr>
+                <tr>
+                    <td>Proyecto Alpha</td>
+                    <td>MnP454</td>
+                    <td>Muy bien / Bien / Regular</td>
+                    <td>6.25</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+</body>
+</html>

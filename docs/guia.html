@@ -42,8 +42,8 @@
     <div class="role">
       <h3>📄 Tutor</h3>
       <p>
-        Perfil restringido de Profesor. Solo tiene acceso a imprimir actas de
-        notas; no puede gestionar ni corregir.
+        Perfil restringido de Profesor. Puede visualizar notas e imprimir actas
+        en PDF. No puede gestionar alumnos/proyectos ni corregir.
       </p>
     </div>
   </div>
@@ -65,8 +65,8 @@ index.html  (login)
     │   ├── Proyectos  vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html
     │   └── Rúbrica    vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html
     ├── Corregir       vista_profesor_landing-corregirProyecto.html
-    ├── Visualizar notas
-    └── Imprimir notas  (solo Tutor)
+    ├── Ver notas      vista_profesor-landing-ver_notas.html
+    └── Imprimir notas  (Tutor — también puede Ver notas)
   </div>
 
   <!-- ── Modelo de dominio ── -->
@@ -84,32 +84,32 @@ index.html  (login)
       <tr>
         <td><strong>Ciclo</strong></td>
         <td>nombre (ej. Desarrollo de aplicaciones web)</td>
-        <td>pertenece a una Legislación</td>
+        <td>agrupa Módulos; no lleva Legislación propia</td>
       </tr>
       <tr>
         <td><strong>Módulo</strong></td>
-        <td>nombre, abreviatura (ej. DEW), horas semanales</td>
-        <td>pertenece a Ciclo y Legislación</td>
+        <td>nombre, siglas (ej. DEW, máx. 10 car. mayúsc.), horas semanales, legislación</td>
+        <td>pertenece a un Ciclo; tiene una Rúbrica y varios Proyectos</td>
       </tr>
       <tr>
         <td><strong>Profesor</strong></td>
-        <td>usuario, contraseña</td>
-        <td>asignado a un Ciclo y a uno o varios Módulos</td>
+        <td>usuario Consejería (ej. dbetqui), nombre completo, contraseña</td>
+        <td>puede tener Módulos de distintos Ciclos</td>
       </tr>
       <tr>
         <td><strong>Alumno</strong></td>
-        <td>código anónimo (ej. JJ499)</td>
-        <td>pertenece a un Ciclo y Legislación</td>
+        <td>identificador anónimo (ej. JJ499); nombre real en tabla segura separada</td>
+        <td>pertenece a un Ciclo y Legislación; asignado a un único Proyecto a la vez</td>
       </tr>
       <tr>
         <td><strong>Proyecto</strong></td>
-        <td>nombre</td>
-        <td>tiene lista de Alumnos</td>
+        <td>nombre, año académico (año de inicio, ej. 2025)</td>
+        <td>pertenece a un Módulo; agrupa 1–3 Alumnos</td>
       </tr>
       <tr>
         <td><strong>Rúbrica</strong></td>
-        <td>puntuación máxima total</td>
-        <td>pertenece a un Proyecto; tiene ítems con 5 niveles</td>
+        <td>ítems con 5 niveles; suma de "Excelente" = exactamente 10.00; Mal siempre = 0</td>
+        <td>pertenece a un Módulo (una rúbrica por módulo, aplica a todos sus proyectos)</td>
       </tr>
     </tbody>
   </table>
@@ -141,11 +141,11 @@ index.html  (login)
       </tr>
       <tr>
         <td>Importar alumnos</td>
-        <td>Acción "Subir lista de alumnos" — importación masiva desde fichero (CSV / Excel).</td>
+        <td>Acción "Subir lista de alumnos" — fichero YAML con campos <code>nombre_completo</code>, <code>identificador</code>, <code>ciclo</code>, <code>legislación</code>. Carga el identificador en la tabla principal y el nombre real en la tabla segura.</td>
       </tr>
       <tr>
         <td>Importar rúbrica</td>
-        <td>Acción "Subir rúbrica" junto a la edición inline — rúbricas importables desde fichero.</td>
+        <td>Acción "Subir rúbrica" — fichero YAML. Si ya existe rúbrica para el módulo, la sustituye completamente (previa confirmación).</td>
       </tr>
       <tr>
         <td>Corrección individual / grupal</td>
