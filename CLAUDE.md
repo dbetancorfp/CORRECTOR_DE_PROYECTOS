@@ -1,3 +1,5 @@
+alwaysApply: true 
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -9,6 +11,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The project is currently at the **HTML prototype stage** — all files in `corrector/01-boceto/html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): 80 interactive elements are annotated with `data-element-id="N"` (`sketchNumber`) across 10 screens. The element registry is at `corrector/01-boceto/html-source-prototype/boceto-elements.md`. No build system, framework, or test runner is set up yet.
 
 To view prototypes: open any `.html` file in `corrector/01-boceto/html-source-prototype/` directly in a browser.
+
+## Core Principles
+
+- **Small tasks, one at a time**: Always work in baby steps, one at a time. Never go forward more than one step.
+- **Test-Driven Development**: Start with failing tests for any new functionality (TDD), according to the task details.
+- **Type Safety**: All code must be fully typed.
+- **Clear Naming**: Use clear, descriptive names for all variables and functions.
+- **Incremental Changes**: Prefer incremental, focused changes over large, complex modifications.
+- **Question Assumptions**: Always question assumptions and inferences.
+- **Pattern Detection**: Detect and highlight repeated code patterns.
+
+## Language Standards
+
+**English Only**: All technical artifacts must always use English, including:
+
+- Code (variables, functions, classes, comments, error messages, log messages)
+- Documentation (README, guides, API docs)
+- Jira tickets (titles, descriptions, comments)
+- Data schemas and database names
+- Configuration files and scripts
+- Git commit messages
+- Test names and descriptions
 
 ## User roles
 
