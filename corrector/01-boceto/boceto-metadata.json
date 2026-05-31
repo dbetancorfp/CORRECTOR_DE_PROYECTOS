@@ -3,7 +3,9 @@
   "description": "Corrector de Proyectos — aplicación para calificación de proyectos de fin de ciclo FP mediante rúbricas",
   "boecetoPath": "./html-source-prototype/",
   "elementsRegistry": "./html-source-prototype/boceto-elements.md",
-  "totalElements": 80,
+  "totalElements": 90,
+  "deprecatedElements": [49],
+  "notes": "Elements #81–#84 (Legislación CRUD actions) and #85–#90 (Ver Notas screen + Rúbrica delete icon) added during BA client interview (2026-05-31). Element #49 deprecated: student assignment consolidated into project creation modal (#46). Element #53 corrected: filter operates on módulo, not proyecto.",
   "screens": [
     {
       "file": "index.html",
@@ -13,7 +15,7 @@
     {
       "file": "vista_admin-tab_legislacion_seleccionado.html",
       "label": "Admin · Tab Legislación",
-      "sketchNumbers": [4, 5, 6, 7, 8, 9, 10]
+      "sketchNumbers": [4, 5, 6, 7, 8, 9, 10, 81, 82, 83, 84]
     },
     {
       "file": "vista_admin-tab_ciclos_seleccionado.html",
@@ -48,7 +50,12 @@
     {
       "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
       "label": "Profesor · Tab Rúbrica",
-      "sketchNumbers": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
+      "sketchNumbers": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 90]
+    },
+    {
+      "file": "vista_profesor-landing-ver_notas.html",
+      "label": "Ver Notas",
+      "sketchNumbers": [85, 86, 87, 88, 89]
     },
     {
       "file": "vista_profesor_landing-corregirProyecto.html",

@@ -233,6 +233,20 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
   margin-top: .1rem;
 }
 .step.gate .num { background: #dc2626; }
+.step.done { border-color: #86efac; background: #f0fdf4; }
+.step.done .num { background: #16a34a; }
+.badge-done {
+  display: inline-block;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .1rem .5rem;
+  border-radius: 99px;
+  margin-left: .4rem;
+  vertical-align: middle;
+  font-family: var(--mono);
+}
 .step .body { flex: 1; }
 .step .body strong { display: block; margin-bottom: .2rem; color: var(--primary); }
 .step .body span { font-size: .87rem; color: var(--muted); }
