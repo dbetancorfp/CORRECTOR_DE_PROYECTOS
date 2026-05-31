@@ -254,10 +254,16 @@ Sigue estos pasos **en orden**. No omitas ninguno.
 
 ### Paso 1 — Leer contexto
 
-Lee estos tres ficheros:
+Lee estos ficheros **antes de procesar ninguna pantalla**:
+
 1. `corrector/01-boceto/boceto-metadata.json` — lista de pantallas y sus sketchNumbers
 2. `corrector/01-boceto/html-source-prototype/boceto-elements.md` — registro de todos los elementos
 3. `corrector/03-generated-artifacts/ui-spec.json` (si existe) — para evitar sobreescribir trabajo previo; si existe pregunta al usuario antes de continuar
+4. **Especificaciones técnicas JavaScript** — lee los siguientes ficheros para conocer los patrones de implementación que guiarán las `interactions` y `props` de cada componente:
+   - `corrector/00-especificaciones-tecnicas/day-03-dom-y-web-components.md` — Custom Elements, Shadow DOM, ciclo de vida, disposables, composedPath, slots
+   - `corrector/00-especificaciones-tecnicas/day-04-web-components-avanzados-y-performance.md` — CustomEvent con bubbles/composed, arquitectura presentacional/contenedor/servicio, Core Web Vitals
+
+   Los días 1 y 2 (`day-01`, `day-02`) son contexto de lenguaje general; léelos solo si necesitas aclarar algún patrón de asincronía o módulos durante el análisis.
 
 ### Paso 2 — Procesar pantallas
 
