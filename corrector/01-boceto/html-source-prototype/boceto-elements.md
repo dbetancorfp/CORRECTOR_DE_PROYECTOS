@@ -26,6 +26,10 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 | 8 | Campo año de inicio | input texto | Año de entrada en vigor de la legislación |
 | 9 | Campo año de finalización | input texto | Año en que deja de estar vigente la legislación |
 | 10 | Botón Guardar | botón submit | Persiste la nueva legislación introducida en los campos 7, 8 y 9 |
+| 81 | Botón Nuevo | botón | Abre el formulario para crear una nueva legislación (campos 7, 8 y 9) |
+| 82 | Tabla de legislaciones | tabla | Lista todas las legislaciones existentes con siglas, año inicio, año fin y acciones |
+| 83 | Icono Editar (legislación) | celda | Acción para editar la legislación de esa fila |
+| 84 | Icono Borrar (legislación) | celda | Acción para eliminar la legislación de esa fila |
 
 ---
 

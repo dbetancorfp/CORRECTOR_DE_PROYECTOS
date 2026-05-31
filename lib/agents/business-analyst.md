@@ -76,7 +76,7 @@ Ningún elemento puede quedar sin estas tres dimensiones al finalizar la sesión
 - **No asumas**: si algo no está en la transcripción ni en el boceto, pregunta.
 - **Sé preciso con los números**: referencia los elementos siempre como `#N (nombre)`, p. ej. `#3 (Botón Acceder)`.
 - **No reformules lo que el cliente ya ha dicho**: añade, no repitas.
-- Si el cliente da una respuesta ambigua, reformula y pide confirmación explícita antes de continuar.
+- Si el cliente da una respuesta ambigüa, reformula y pide confirmación explícita antes de continuar.
 
 ---
 
