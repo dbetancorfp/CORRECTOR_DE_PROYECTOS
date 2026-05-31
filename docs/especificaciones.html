@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Especificaciones técnicas · Corrector de Proyectos</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Corrector de Proyectos</a>
+  <a href="guia.html">Guía</a>
+  <a href="arquitectura.html">Arquitectura</a>
+  <a href="especificaciones.html" class="active">Especificaciones</a>
+  <span class="spacer"></span>
+  <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">
+    ⌥ GitHub
+  </a>
+</nav>
+
+<main>
+  <h1>Especificaciones técnicas JavaScript</h1>
+  <p>
+    Material de referencia del curso <strong>JavaScript Avanzado</strong> (4 días).
+    Fuente de verdad para los agentes del pipeline que generan código frontend.
+    Ficheros completos en
+    <code>corrector/00-especificaciones-tecnicas/</code>.
+  </p>
+
+  <!-- ── Día 1 ── -->
+  <h2>Día 1 — Fundamentos del lenguaje y OOP</h2>
+  <p>Base sólida del lenguaje: ámbito de variables, contexto de ejecución, estructuras de datos y programación orientada a objetos con prototipos y mixins.</p>
+
+  <div class="spec-grid">
+    <div class="spec-card">
+      <h3><code>var</code> / <code>let</code> / <code>const</code></h3>
+      <p><code>var</code> tiene ámbito de función y sufre hoisting. <code>let</code> tiene ámbito de bloque. <code>const</code> es una referencia inmutable — el objeto al que apunta sí puede mutarse.</p>
+    </div>
+    <div class="spec-card">
+      <h3><code>this</code> y pérdida de ámbito</h3>
+      <p>El valor de <code>this</code> depende de cómo se invoca la función, no de dónde se define. Las arrow functions capturan el <code>this</code> léxico y no crean el suyo propio.</p>
+      <pre><code>// bind — fija this una vez
+new Bar(this.write.bind(this))
+
+// arrow — captura léxico
+new Bar(() => this.write())</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Array funcional</h3>
+      <pre><code>a.filter(v => v % 2 === 0)
+a.map(v => v * v)
+a.reduce((acc, v) => acc + v)
+a.find(v => v > 3)</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3><code>class</code> y prototipos</h3>
+      <p><code>class</code> es azúcar sintáctico sobre el sistema de prototipos. La cadena es: <code>instancia → Clase.prototype → Object.prototype → null</code>.</p>
+    </div>
+    <div class="spec-card">
+      <h3>Mixins — composición horizontal</h3>
+      <pre><code>const Add = base =>
+  class extends base { add() {} }
+
+class Customer extends
+  inherit().withMixins(Add, Update, Remove, Get) {}
+
+class User extends
+  inherit().withMixins(Get) {}</code></pre>
+    </div>
+  </div>
+
+  <!-- ── Día 2 ── -->
+  <h2>Día 2 — Asincronía, azúcar sintáctico y módulos</h2>
+  <p>Sintaxis moderna ES2015+, modelo de ejecución asíncrona y sistema de módulos nativo.</p>
+
+  <div class="spec-grid">
+    <div class="spec-card">
+      <h3>Truthy / Falsy</h3>
+      <p>Valores falsy: <code>0</code>, <code>''</code>, <code>false</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Usar siempre <code>===</code> y <code>!==</code>.</p>
+      <p>Ojo: <code>[]</code> y <code>{}</code> son <strong>truthy</strong>.</p>
+    </div>
+    <div class="spec-card">
+      <h3>Rest / Spread / Destructuring</h3>
+      <pre><code>function sum(...values) { ... }
+
+const c = [...a, ...b]
+const r = { ...foo, ...bar }
+
+const [a, b, ...rest] = arr
+const { id, name } = obj</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Closures y disposables</h3>
+      <pre><code>function events(node, event, cb) {
+  node.addEventListener(event, cb)
+  return () =>
+    node.removeEventListener(event, cb)
+}
+
+const dispose = events(btn, 'click', fn)
+dispose() // cleanup garantizado</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Event loop</h3>
+      <p>Call stack → Microtasks (Promises) → Macrotasks (setTimeout). Las microtasks se vacían completamente antes de procesar el siguiente macrotask.</p>
+    </div>
+    <div class="spec-card">
+      <h3>Async / Await</h3>
+      <pre><code>async function main(id) {
+  try {
+    const customer = await getCustomer(id)
+    const invoices = await getInvoices(customer.id)
+  } catch (err) {
+    console.log(err)
+  }
+}</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Módulos ES + import dinámico</h3>
+      <pre><code>// Estático
+import { fn } from './module.js'
+
+// Dinámico — lazy loading
+const m = await import('./page.js')
+m.default()</code></pre>
+    </div>
+  </div>
+
+  <!-- ── Día 3 ── -->
+  <h2>Día 3 — DOM y Web Components</h2>
+  <p>Árbol DOM, APIs nativas de manipulación y los tres pilares de Web Components: Custom Elements, Shadow DOM y Templates.</p>
+
+  <div class="spec-grid">
+    <div class="spec-card">
+      <h3>Jerarquía DOM</h3>
+      <div class="tree" style="font-size:.78rem; line-height:1.6; padding:.75rem 1rem">HTMLElement
+  ↓ Element
+  ↓ Node  ←— Text, Comment
+  ↓ EventTarget
+  ↓ Object → null</div>
+    </div>
+    <div class="spec-card">
+      <h3>Custom Elements + ciclo de vida</h3>
+      <pre><code>class MyEl extends HTMLElement {
+  static observedAttributes = ['color']
+
+  connectedCallback()    { /* setup  */ }
+  disconnectedCallback() { /* cleanup */ }
+  attributeChangedCallback(name, old, val) {}
+}
+customElements.define('my-el', MyEl)</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Shadow DOM</h3>
+      <pre><code>constructor() {
+  super()
+  const shadow = this.attachShadow({ mode: 'open' })
+  // mode 'open'   → accesible vía .shadowRoot
+  // mode 'closed' → no accesible desde fuera
+}</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Constructable Stylesheets</h3>
+      <pre><code>import styles from './c.css' with { type: 'css' }
+
+constructor() {
+  super()
+  const shadow = this.attachShadow({ mode: 'open' })
+  shadow.adoptedStyleSheets = [styles]
+}</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Campos privados + patrón disposables</h3>
+      <pre><code>class MyEl extends HTMLElement {
+  #disposables = []
+
+  connectedCallback() {
+    this.#disposables.push(
+      events(this, 'click', this.#onClick)
+    )
+  }
+
+  disconnectedCallback() {
+    this.#disposables.forEach(d => d())
+    this.#disposables = []
+  }
+}</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Delegación + <code>composedPath</code></h3>
+      <pre><code>#handlerClick(ev) {
+  const node = ev.composedPath()
+    .find(n => n.dataset && 'index' in n.dataset)
+  if (node) {
+    const { index } = node.dataset
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- ── Día 4 ── -->
+  <h2>Día 4 — Web Components avanzados y Performance</h2>
+  <p>Arquitectura de componentes desacoplados mediante <code>CustomEvent</code> y técnicas de optimización de rendimiento web.</p>
+
+  <div class="spec-grid">
+    <div class="spec-card">
+      <h3>CustomEvent — comunicación desacoplada</h3>
+      <pre><code>this.dispatchEvent(new CustomEvent('ns:action', {
+  bubbles: true,   // sube por el DOM
+  composed: true,  // cruza Shadow DOM
+  detail: structuredClone(data)
+}))</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Arquitectura de capas</h3>
+      <p><strong>Presentacional</strong>: recibe datos, renderiza, sin lógica de negocio.</p>
+      <p><strong>Contenedor</strong>: gestiona estado, delega rendering en hijos.</p>
+      <p><strong>Servicio</strong>: lógica pura, sin dependencia del DOM.</p>
+    </div>
+    <div class="spec-card">
+      <h3>Core Web Vitals</h3>
+      <p><strong>LCP</strong>: tiempo hasta el elemento más grande visible.</p>
+      <p><strong>INP</strong>: tiempo de respuesta ante interacciones.</p>
+      <p><strong>CLS</strong>: desplazamiento acumulado del layout.</p>
+    </div>
+    <div class="spec-card">
+      <h3>Optimización de imágenes</h3>
+      <pre><code>&lt;!-- Imagen LCP --&gt;
+&lt;img src="hero.webp"
+     fetchpriority="high"
+     loading="eager"
+     decoding="async"
+     width="1200" height="600"&gt;
+
+&lt;!-- Imágenes secundarias --&gt;
+&lt;img src="item.webp"
+     loading="lazy"
+     decoding="async"
+     width="400" height="300"&gt;</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Cache-Control para assets estáticos</h3>
+      <pre><code>/* Assets con hash — inmutables */
+Cache-Control: public, max-age=31536000, immutable
+
+/* HTML — siempre revalidar */
+Cache-Control: no-cache
+
+/* API — nunca cachear */
+Cache-Control: no-store</code></pre>
+    </div>
+    <div class="spec-card">
+      <h3>Formatos de imagen</h3>
+      <pre><code>&lt;picture&gt;
+  &lt;source type="image/avif" srcset="..."&gt;
+  &lt;source type="image/webp" srcset="..."&gt;
+  &lt;img src="fallback.jpg" ...&gt;
+&lt;/picture&gt;</code></pre>
+      <p>AVIF ~45-55% mejor que JPEG. WebP ~25-35%. Fallback progresivo con <code>&lt;picture&gt;</code>.</p>
+    </div>
+  </div>
+
+  <!-- ── Ficheros fuente ── -->
+  <h2>Ficheros fuente (RAG)</h2>
+  <p>Los ficheros markdown completos están en <code>corrector/00-especificaciones-tecnicas/</code> y son la entrada al pipeline RAG:</p>
+  <table>
+    <thead>
+      <tr><th>Fichero</th><th>Contenido</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-01-fundamentos-y-oop.md" target="_blank"><code>day-01-fundamentos-y-oop.md</code></a></td>
+        <td>var/let/const · this · bind/call/apply · Array funcional · Set/Map · class · prototipos · mixins</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-02-asincronia-y-modulos.md" target="_blank"><code>day-02-asincronia-y-modulos.md</code></a></td>
+        <td>Truthy/falsy · rest/spread · destructuring · closures · generators · event loop · callbacks · promises · async/await · módulos ES</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-03-dom-y-web-components.md" target="_blank"><code>day-03-dom-y-web-components.md</code></a></td>
+        <td>DOM · Custom Elements · ciclo de vida · Shadow DOM · Templates · Constructable Stylesheets · slots · campos privados · composedPath · disposables</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-04-web-components-avanzados-y-performance.md" target="_blank"><code>day-04-web-components-avanzados-y-performance.md</code></a></td>
+        <td>CustomEvent · arquitectura presentacional/contenedor/servicio · Core Web Vitals · preconnect/preload · font-display · imágenes · HTTP/3 · Cache-Control · Brotli · AVIF/WebP</td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+
+<footer>
+  Corrector de Proyectos · David Betancor · IES Telesforo Bravo ·
+  <a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS">GitHub</a>
+</footer>
+
+</body>
+</html>
