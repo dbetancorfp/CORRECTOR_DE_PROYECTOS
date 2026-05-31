@@ -181,11 +181,103 @@ Boceto (#N)
       <tr><td>Base de datos RAG</td><td>PostgreSQL 16 + pgvector 0.7</td></tr>
       <tr><td>Backend</td><td>Node.js 20 LTS + Express</td></tr>
       <tr><td>Validación</td><td>Zod 3.x</td></tr>
-      <tr><td>Frontend</td><td>Web Components OO + Tailwind CSS 3.x</td></tr>
+      <tr><td>Frontend</td><td>Web Components nativos + lit-html standalone + Tailwind CSS 3.x</td></tr>
+      <tr><td>Carga frontend</td><td><code>&lt;script type="module"&gt;</code> — sin bundler, sin transpilación</td></tr>
       <tr><td>Tests backend</td><td>Vitest + node-fetch</td></tr>
       <tr><td>Tests frontend</td><td>@web/test-runner</td></tr>
-      <tr><td>Documentación</td><td>HTML estático + JSDoc · GitHub Pages</td></tr>
+      <tr><td>Documentación</td><td>HTML estático · GitHub Pages</td></tr>
       <tr><td>CI/CD</td><td>GitHub Actions</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── Frontend ── -->
+  <h2>Frontend: Web Components nativos</h2>
+  <p>
+    Cada componente UI es un <strong>Custom Element nativo</strong> cargado directamente como ES Module.
+    No hay bundler, no hay transpilación, no hay framework. El template engine es
+    <a href="https://lit.dev/docs/libraries/standalone-templates/" target="_blank">lit-html standalone</a>.
+  </p>
+
+  <h3>Anatomía de un componente</h3>
+  <pre><code>// corrector-rubrica-cell.js
+import { html, render } from 'lit-html';
+
+export class CorrectorRubricaCell extends HTMLElement {
+
+  connectedCallback() {
+    this.attachShadow({ mode: 'open' });
+    this._disposables = [];                       // patrón disposables
+    this._render();
+
+    const onSelect = e => this._handleSelect(e);
+    this.shadowRoot.addEventListener('click', onSelect);
+    this._disposables.push(
+      () => this.shadowRoot.removeEventListener('click', onSelect)
+    );
+  }
+
+  disconnectedCallback() {
+    this._disposables.forEach(fn => fn());        // limpieza garantizada
+    this._disposables = [];
+  }
+
+  _handleSelect() {
+    this.dispatchEvent(new CustomEvent('corrector:grade-selected', {
+      bubbles: true,                              // sube por el DOM
+      composed: true,                             // cruza Shadow DOM
+      detail: { level: this.getAttribute('level'), value: Number(this.getAttribute('value')) },
+    }));
+  }
+
+  _render() {
+    const level    = this.getAttribute('level') ?? '';
+    const value    = this.getAttribute('value') ?? '0';
+    const selected = this.hasAttribute('selected');   // ?attr binding
+    const grades   = JSON.parse(this.getAttribute('grades') ?? '[]');
+
+    render(html`
+      &lt;td
+        .title=${`Nivel: ${level}`}              &lt;!-- .prop binding --&gt;
+        @click=${() => this._handleSelect()}     &lt;!-- @event binding --&gt;
+        ?aria-selected=${selected}               &lt;!-- ?attr binding --&gt;
+      &gt;
+        ${value}
+        &lt;ul&gt;${grades.map(g => html`&lt;li&gt;${g}&lt;/li&gt;`)}&lt;/ul&gt;   &lt;!-- list --&gt;
+      &lt;/td&gt;
+    `, this.shadowRoot);
+  }
+}
+
+customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);</code></pre>
+
+  <h3>Reglas del sistema de componentes</h3>
+  <table>
+    <thead>
+      <tr><th>Regla</th><th>Detalle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Nombre</strong></td><td>Prefijo <code>corrector-*</code>, guión obligatorio, registrado con <code>customElements.define</code></td></tr>
+      <tr><td><strong>Shadow DOM</strong></td><td><code>attachShadow({ mode: 'open' })</code> siempre en <code>connectedCallback</code></td></tr>
+      <tr><td><strong>Renderizado</strong></td><td><code>html</code> + <code>render</code> de lit-html. Nunca <code>innerHTML</code> directo.</td></tr>
+      <tr><td><strong>Bindings</strong></td><td><code>.prop</code> (propiedad), <code>@event</code> (listener), <code>?attr</code> (atributo booleano), <code>repeat</code> o <code>map</code> (listas)</td></tr>
+      <tr><td><strong>Lifecycle</strong></td><td><code>connectedCallback</code>: setup + render + suscribir. <code>disconnectedCallback</code>: vaciar disposables.</td></tr>
+      <tr><td><strong>Disposables</strong></td><td>Cada <code>addEventListener</code> / observer / intervalo añade su cleanup a <code>this._disposables[]</code></td></tr>
+      <tr><td><strong>Comunicación</strong></td><td><code>CustomEvent</code> con <code>bubbles: true</code> y <code>composed: true</code>. Los eventos cruzan Shadow DOM boundaries.</td></tr>
+      <tr><td><strong>Módulos</strong></td><td><code>export class</code> en fichero propio. Cargado con <code>&lt;script type="module"&gt;</code>. Sin bundler.</td></tr>
+      <tr><td><strong>SOLID</strong></td><td>Un fichero = una responsabilidad. Extensión via atributos/slots. Eventos desacoplan emisor y receptor.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Convención de nombres</h3>
+  <table>
+    <thead>
+      <tr><th>Artefacto</th><th>Patrón</th><th>Ejemplo</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Fichero</td><td><code>kebab-case.js</code></td><td><code>corrector-rubrica-cell.js</code></td></tr>
+      <tr><td>Clase</td><td><code>PascalCase</code></td><td><code>CorrectorRubricaCell</code></td></tr>
+      <tr><td>Elemento</td><td><code>corrector-*</code></td><td><code>corrector-rubrica-cell</code></td></tr>
+      <tr><td>Evento</td><td><code>corrector:verbo-sustantivo</code></td><td><code>corrector:grade-selected</code></td></tr>
     </tbody>
   </table>
 

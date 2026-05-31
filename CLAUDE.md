@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Corrector de Proyectos** is a web application for teachers in Spanish vocational education (FP - Formación Profesional) to manage and grade end-of-cycle student projects using a rubric-based scoring system.
 
-The project is currently at the **HTML prototype stage** — all files in `corrector/01-boceto/html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): 80 interactive elements are annotated with `data-element-id="N"` (`sketchNumber`) across 10 screens. The element registry is at `corrector/01-boceto/html-source-prototype/boceto-elements.md`. No build system, framework, or test runner is set up yet.
+The project is currently at the **HTML prototype stage** — all files in `corrector/01-boceto/html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): 90 interactive elements are annotated with `data-element-id="N"` (`sketchNumber`) across 11 screens. The element registry is at `corrector/01-boceto/html-source-prototype/boceto-elements.md`. No build system, framework, or test runner is set up yet.
 
 To view prototypes: open any `.html` file in `corrector/01-boceto/html-source-prototype/` directly in a browser.
 
@@ -33,6 +33,85 @@ To view prototypes: open any `.html` file in `corrector/01-boceto/html-source-pr
 - Configuration files and scripts
 - Git commit messages
 - Test names and descriptions
+
+## JavaScript Standards
+
+The frontend is built with **native Web Components + lit-html standalone templates**. No build step, no framework, no transpilation.
+
+### Component structure — one file per component
+
+```js
+// corrector-button.js
+import { html, render } from 'lit-html';
+
+export class CorrectorButton extends HTMLElement {
+  connectedCallback() {
+    this.attachShadow({ mode: 'open' });
+    this._disposables = [];
+    this._render();
+    const onClick = () => this._handleClick();
+    this.shadowRoot.addEventListener('click', onClick);
+    this._disposables.push(() => this.shadowRoot.removeEventListener('click', onClick));
+  }
+
+  disconnectedCallback() {
+    this._disposables.forEach(fn => fn());
+    this._disposables = [];
+  }
+
+  _handleClick() {
+    this.dispatchEvent(new CustomEvent('corrector:action', {
+      bubbles: true,
+      composed: true,
+      detail: { id: this.getAttribute('data-id') },
+    }));
+  }
+
+  _render() {
+    const label  = this.getAttribute('label') ?? 'OK';
+    const active = this.hasAttribute('active');
+    const items  = JSON.parse(this.getAttribute('items') ?? '[]');
+
+    render(html`
+      <button
+        .value=${label}
+        @click=${() => this._handleClick()}
+        ?disabled=${!active}
+      >
+        ${label}
+      </button>
+      <ul>
+        ${items.map(i => html`<li>${i}</li>`)}
+      </ul>
+    `, this.shadowRoot);
+  }
+}
+
+customElements.define('corrector-button', CorrectorButton);
+```
+
+### Rules — enforced without exception
+
+| Rule | Detail |
+|------|--------|
+| **Custom element name** | Must include a hyphen. `corrector-*` prefix for this project. Registered with `customElements.define`. |
+| **Shadow DOM** | Always `this.attachShadow({ mode: 'open' })` in `connectedCallback`. |
+| **Rendering** | `lit-html` standalone (`import { html, render } from 'lit-html'`). Never `innerHTML`. |
+| **Bindings** | Use all four: `.prop=${val}` (property), `@event=${fn}` (listener), `?attr=${bool}` (boolean attribute), `${repeat(list, key, tpl)}` (keyed list). |
+| **Lifecycle** | `connectedCallback`: setup + render + subscribe. `disconnectedCallback`: flush all disposables. |
+| **Disposables** | Every `addEventListener` / observer / interval added in `connectedCallback` must push a cleanup function into `this._disposables = []`. |
+| **Communication** | Inter-component events via `new CustomEvent('ns:name', { bubbles: true, composed: true, detail: {} })`. Events cross Shadow DOM boundaries. |
+| **ES Modules** | `export class` in its own file. Loaded with `<script type="module">`. No bundler. |
+| **SOLID** | Single file = single responsibility. Extend via attributes/slots, not inheritance. Events decouple sender from receiver. |
+
+### Naming convention
+
+| What | Pattern | Example |
+|------|---------|---------|
+| File | `kebab-case.js` | `corrector-rubrica-cell.js` |
+| Class | `PascalCase` | `CorrectorRubricaCell` |
+| Element | `corrector-*` | `corrector-rubrica-cell` |
+| Event | `corrector:verb-noun` | `corrector:grade-selected` |
 
 ## User roles
 
@@ -139,7 +218,8 @@ Every agent follows: **Generate → Validate (Zod) → Persist (RAG) → Next ag
 | RAG database | PostgreSQL 16 + pgvector 0.7 |
 | Backend | Node.js 20 LTS + Express |
 | Schema validation | Zod 3.x |
-| Frontend | Web Components OO + Tailwind CSS 3.x |
+| Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x |
+| Frontend loading | `<script type="module">` — no bundler, no transpilation |
 | Tests backend | Vitest + node-fetch |
 | Tests frontend | @web/test-runner |
 | Documentation | VitePress + GitHub Pages |
