@@ -66,7 +66,8 @@ Boceto (#N)
       <div class="num">2</div>
       <div class="body">
         <strong>Analista de Negocio <span class="badge-done">✓ implementado</span></strong>
-        <span>Lee la conversación con el cliente, <code>boceto-elements.md</code> y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber. Ejecutar con <code>/business-analyst</code> en Claude Code.</span>
+        <span><strong>2a — Entrevista:</strong> completa <code>transcripcion.md</code> con el cliente. Ejecutar con <code>/business-analyst</code> en Claude Code. <strong>Transcripción: ✓ completa (90 elementos).</strong></span>
+        <span><strong>2b — Generación:</strong> lee <code>transcripcion.md</code> + <code>ui-spec.json</code> y genera behavior, businessRules, dataNeeds y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code> en Claude Code.</span>
         <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec</span>
       </div>
     </div>
@@ -293,8 +294,11 @@ npm run agent:designer-front
 # equivale a:
 node cli/index.js run-agent designer-front --feature-id corrector-v1
 
-# ── Agente 2: Functional Spec ─────────────────────────────────────
-/business-analyst
+# ── Agente 2a: Entrevista cliente (transcripcion.md) ──────────────
+/business-analyst                          # ✓ completa (90 elementos)
+
+# ── Agente 2b: Generar Functional Spec ────────────────────────────
+/generate-functional-spec
 
 # ── Gate humano: Reconciliación ───────────────────────────────────
 node cli/index.js reconcile --feature-id "corrector-v1"
@@ -360,7 +364,7 @@ CORRECTOR_DE_PROYECTOS/
 │   └── 05-implementation/          # backend (Express) + frontend (Web Components)
 ├── examples/                # Demos didácticas del pipeline (apps ficticias)
 ├── lib/
-│   ├── agents/              # designer-front ✓ · business-analyst ✓ · resto PLANNED
+│   ├── agents/              # designer-front ✓ · business-analyst ✓ · generate-functional-spec ✓ · resto PLANNED
 │   ├── schemas/             # UISpecSchema ✓ · FunctionalSpecSchema · ReconciliationSchema…
 │   ├── tools/               # claude-client ✓ · sketch-parser ✓ · artifact-manager ✓ · rag-client PLANNED
 │   └── orchestrator/        # State machine del pipeline [PLANNED]
