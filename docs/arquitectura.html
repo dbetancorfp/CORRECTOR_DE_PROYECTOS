@@ -62,12 +62,12 @@ Boceto (#N)
       </div>
     </div>
 
-    <div class="step">
+    <div class="step done">
       <div class="num">2</div>
       <div class="body">
-        <strong>Analista de Negocio</strong>
-        <span>Lee la conversación con el cliente, <code>boceto-elements.md</code> y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber.</span>
-        <span class="output">→ functional-spec.json · phase: func-spec</span>
+        <strong>Analista de Negocio <span class="badge-done">✓ implementado</span></strong>
+        <span>Lee la conversación con el cliente, <code>boceto-elements.md</code> y la UI Spec (del RAG). Genera comportamiento, reglas de negocio y criterios de aceptación por sketchNumber. Ejecutar con <code>/business-analyst</code> en Claude Code.</span>
+        <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec</span>
       </div>
     </div>
 
@@ -313,6 +313,37 @@ npm test                                   # GREEN ✅
 # ── Publicar documentación ────────────────────────────────────────
 git push main                              # → GitHub Pages (CI/CD)</code></pre>
 
+  <!-- ── Commit ── -->
+  <h2>Comando <code>/commit</code></h2>
+  <p>
+    Slash command de Claude Code que automatiza el ciclo <strong>stage → commit → push → PR</strong>
+    siguiendo los estándares del proyecto. Definición en <code>cli/commands/commit.md</code>.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Uso</th><th>Efecto</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/commit</code></td>
+        <td>Stages todos los cambios relevantes, crea un commit descriptivo, hace push y abre o actualiza el PR.</td>
+      </tr>
+      <tr>
+        <td><code>/commit SCRUM-123</code></td>
+        <td>Stages y commitea <em>solo</em> los cambios vinculados a ese ticket; deja el resto sin tocar.</td>
+      </tr>
+      <tr>
+        <td><code>/commit no PR</code></td>
+        <td>Modo dry-run: muestra qué se staging y el mensaje propuesto, sin ejecutar ningún comando git.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    El mensaje de commit sigue la convención del proyecto: subject imperativo en inglés,
+    body opcional con viñetas explicando el <em>qué</em> y el <em>por qué</em>.
+    No incluye <code>.env</code> ni artefactos generados.
+  </p>
+
   <!-- ── Estructura ── -->
   <h2>Estructura del repositorio (objetivo)</h2>
   <div class="tree">
@@ -334,7 +365,7 @@ CORRECTOR_DE_PROYECTOS/
 │   ├── tools/               # claude-client ✓ · sketch-parser ✓ · artifact-manager ✓ · rag-client PLANNED
 │   └── orchestrator/        # State machine del pipeline [PLANNED]
 ├── cli/
-│   └── commands/            # run-agent ✓ · reconcile · validate · generate-docs [PLANNED]
+│   └── commands/            # run-agent ✓ · commit ✓ · reconcile · validate · generate-docs [PLANNED]
 ├── docs/                    # Esta documentación (GitHub Pages)
 └── .github/workflows/       # CI: validar specs + deploy docs + tests
   </div>

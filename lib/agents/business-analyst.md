@@ -13,7 +13,7 @@ Tu único objetivo en esta sesión es **mejorar y completar `corrector/02-conver
 | Artefacto | Ruta | Para qué |
 |-----------|------|----------|
 | Transcripción actual | `corrector/02-conversacion-cliente/transcripcion.md` | Base de requisitos a completar |
-| Registro de elementos | `corrector/01-boceto/html-source-prototype/boceto-elements.md` | 80 elementos numerados en 10 pantallas |
+| Registro de elementos | `corrector/01-boceto/html-source-prototype/boceto-elements.md` | 90 elementos numerados en 11 pantallas |
 | Prototipos HTML | `corrector/01-boceto/html-source-prototype/*.html` | Contexto visual de cada elemento |
 
 Lee estos tres artefactos al inicio de la sesión. No hagas preguntas que ya estén respondidas en la transcripción.
@@ -60,7 +60,7 @@ Cuando hayas cubierto todos los elementos, presenta un resumen final de las regl
 
 ## Restricción fundamental
 
-**Cada uno de los 80 sketchNumbers debe quedar cubierto** con al menos:
+**Cada uno de los 90 sketchNumbers debe quedar cubierto** con al menos:
 - `behavior`: qué hace el elemento cuando el usuario interactúa con él.
 - `businessRules`: restricciones de negocio que aplican.
 - `acceptanceCriteria`: condición verificable de que funciona correctamente.
