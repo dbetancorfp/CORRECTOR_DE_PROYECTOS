@@ -1,0 +1,1239 @@
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "2026-06-01T12:00:00Z",
+  "agent": "generate-functional-spec",
+  "model": "claude-code",
+  "total_elements": 90,
+  "appOverview": "Corrector de Proyectos is a web application for vocational education (FP) teachers in Spain to manage and grade end-of-year student projects using a rubric-based scoring system. Teachers create rubrics per module, assign students to group projects (1–3 members), and grade each rubric item by selecting one of five quality levels whose values auto-sum to a final score. Administrators manage the system catalog (legislaciones, ciclos, módulos, profesorado). A restricted Tutor role can only view and download grade reports as PDF. The application enforces strict data privacy: student real names are stored separately from the anonymised identifiers used throughout the UI.",
+  "elementSpecs": [
+    {
+      "sketchNumber": 1,
+      "behavior": "Text input for entering the Consejería de Educación username (e.g. dbetqui). Displayed empty on page load. The admin uses the literal username 'Admin'. Submitting triggers credential validation.",
+      "businessRules": [
+        "Username is the Consejería de Educación identifier, not an email address",
+        "Admin account uses the literal username 'Admin'"
+      ],
+      "dataNeeds": ["read:Profesor"],
+      "acceptanceCriteria": [
+        "When valid credentials are submitted, user is redirected to /admin (admin role) or /profesor (profesor/tutor role)",
+        "Username field accepts Consejería format (e.g. dbetqui) and the literal 'Admin'",
+        "Submitting an empty username shows a required-field validation error"
+      ]
+    },
+    {
+      "sketchNumber": 2,
+      "behavior": "Password input, always masked. On first login with the default password '12345678', submitting triggers a password-change flow on the same screen: two additional fields appear for the new password and its confirmation.",
+      "businessRules": [
+        "Default password is '12345678'",
+        "First login with default password requires immediate password change before proceeding",
+        "Minimum password length is 8 characters"
+      ],
+      "dataNeeds": ["write:Profesor"],
+      "acceptanceCriteria": [
+        "When the submitted password is the default '12345678', two additional fields appear for new password and confirmation",
+        "When new password and confirmation match, the DB is updated and user is redirected to their role home",
+        "When new password and confirmation do not match, an error is shown and the flow repeats",
+        "Password characters are always masked"
+      ]
+    },
+    {
+      "sketchNumber": 3,
+      "behavior": "Submit button that validates credentials against the DB. On success redirects to /admin or /profesor based on role. On failure shows error message on the same screen. Tracks consecutive failures and locks the account after 3.",
+      "businessRules": [
+        "Maximum 3 consecutive failed login attempts before account lockout",
+        "After 3 failures the message shown is 'Póngase en contacto con el Administrador' and the account is locked",
+        "Only the admin can unlock a locked account",
+        "On first login (default password), submit triggers password-change flow, not role redirect"
+      ],
+      "dataNeeds": ["read:Profesor", "write:Profesor"],
+      "acceptanceCriteria": [
+        "When credentials are valid, user is redirected to /admin (admin) or /profesor (profesor/tutor)",
+        "When credentials are invalid, 'Credenciales incorrectas' is shown on the same screen",
+        "After 3 consecutive failures, 'Póngase en contacto con el Administrador' is shown and the account is locked",
+        "A locked account cannot log in until unlocked by admin",
+        "On first login with default password, the password-change flow is triggered on the same screen"
+      ]
+    },
+    {
+      "sketchNumber": 4,
+      "behavior": "Displays the application logo image in the navigation bar. Not interactive.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "The logo image is visible in the navigation bar on all authenticated screens",
+        "The logo has no click action"
+      ]
+    },
+    {
+      "sketchNumber": 5,
+      "behavior": "Persistent top navigation bar showing the app logo, title, and authenticated username. Contains a Salir button that immediately destroys the session cookie/token and redirects to the login screen without any confirmation dialog.",
+      "businessRules": [
+        "Session cookie/token is destroyed immediately on logout",
+        "No confirmation dialog is shown before logout"
+      ],
+      "dataNeeds": ["read:Profesor"],
+      "acceptanceCriteria": [
+        "When Salir is clicked, the session is destroyed and user is redirected to /",
+        "No confirmation dialog appears before logout",
+        "The navigation bar displays the authenticated username"
+      ]
+    },
+    {
+      "sketchNumber": 6,
+      "behavior": "Tab container with four tabs: Legislación, Ciclos, Módulos, Profesorado. The active tab is visually highlighted. Clicking a tab navigates to the corresponding admin route.",
+      "businessRules": [
+        "Accessible only to the admin role"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Legislación navigates to /admin/legislacion",
+        "Clicking Ciclos navigates to /admin/ciclos",
+        "Clicking Módulos navigates to /admin/modulos",
+        "Clicking Profesorado navigates to /admin/profesorado",
+        "The active tab is visually distinguished from inactive tabs"
+      ]
+    },
+    {
+      "sketchNumber": 7,
+      "behavior": "Text input for the legislation abbreviation (e.g. LOMLOE). Part of the inline creation form always visible on the Legislación tab. Accepts 2–10 uppercase letters only. Must be unique across the system.",
+      "businessRules": [
+        "Abbreviation must be unique in the system",
+        "Must contain only uppercase letters",
+        "Length must be between 2 and 10 characters"
+      ],
+      "dataNeeds": ["read:Legislacion"],
+      "acceptanceCriteria": [
+        "Submitting a duplicate abbreviation shows a unique-constraint error and blocks save",
+        "An abbreviation containing lowercase letters is rejected",
+        "An abbreviation longer than 10 characters is rejected",
+        "An abbreviation shorter than 2 characters is rejected"
+      ]
+    },
+    {
+      "sketchNumber": 8,
+      "behavior": "Number input for the legislation start year (4-digit integer). Validated on submit. The end year (#9) must equal start year + 1.",
+      "businessRules": [
+        "Must be a 4-digit integer between 1900 and 2099",
+        "end_year must equal start_year + 1"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "A non-4-digit value is rejected with a validation error on submit",
+        "When start_year is set, end_year (#9) must equal start_year + 1 to pass validation"
+      ]
+    },
+    {
+      "sketchNumber": 9,
+      "behavior": "Number input for the legislation end year. Must be exactly start_year + 1. Validated against #8 on submit.",
+      "businessRules": [
+        "end_year must equal start_year + 1",
+        "Must be a 4-digit integer"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "When end_year != start_year + 1, a validation error blocks save",
+        "When end_year == start_year + 1, validation passes for this field"
+      ]
+    },
+    {
+      "sketchNumber": 10,
+      "behavior": "Submit button that persists the new legislation to the DB. After a successful save, table #82 refreshes by reading from the DB. The form is NOT cleared after save. Shows loading state while saving.",
+      "businessRules": [
+        "After save, table refreshes from DB — no optimistic client-side insertion",
+        "Form fields are not cleared after save"
+      ],
+      "dataNeeds": ["write:Legislacion", "read:Legislacion"],
+      "acceptanceCriteria": [
+        "When all fields are valid, clicking Guardar persists the record and table #82 refreshes",
+        "After save, form fields retain their values and are not cleared",
+        "When abbreviation is duplicate, save is blocked and a unique error is shown",
+        "When end_year != start_year + 1, save is blocked"
+      ]
+    },
+    {
+      "sketchNumber": 11,
+      "behavior": "Tab button that activates the ciclos management view when clicked.",
+      "businessRules": [
+        "Ciclos do not carry a legislacion reference; legislacion is associated at the módulo level"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking the Ciclos tab navigates to /admin/ciclos and shows the ciclos table",
+        "The tab is visually marked as active on /admin/ciclos"
+      ]
+    },
+    {
+      "sketchNumber": 12,
+      "behavior": "Button that opens a creation modal for a new ciclo. The modal has a single name field. After saving, table #13 refreshes.",
+      "businessRules": [],
+      "dataNeeds": ["write:Ciclo"],
+      "acceptanceCriteria": [
+        "Clicking Nuevo opens a modal with a name field",
+        "After saving a valid ciclo name, table #13 refreshes with the new entry"
+      ]
+    },
+    {
+      "sketchNumber": 13,
+      "behavior": "Table listing all ciclos with columns: name, edit action, delete action. Shows empty state when no ciclos exist.",
+      "businessRules": [
+        "Cannot delete a ciclo that has associated módulos"
+      ],
+      "dataNeeds": ["read:Ciclo"],
+      "acceptanceCriteria": [
+        "All ciclos are listed on page load",
+        "After creating a ciclo, it appears in the table",
+        "When no ciclos exist, an empty state message is shown",
+        "Ciclos with associated módulos cannot be deleted"
+      ]
+    },
+    {
+      "sketchNumber": 14,
+      "behavior": "Per-row edit icon in the ciclos table. Clicking it activates inline editing of the ciclo name directly in the row. No modal is opened.",
+      "businessRules": [
+        "Editing is inline in the row — no modal is opened"
+      ],
+      "dataNeeds": ["write:Ciclo"],
+      "acceptanceCriteria": [
+        "Clicking the edit icon activates inline editing of the ciclo name in the row",
+        "No modal is opened",
+        "Saving the edited name updates the table row"
+      ]
+    },
+    {
+      "sketchNumber": 15,
+      "behavior": "Per-row delete icon in the ciclos table. Shows a confirmation dialog before deleting. Blocked if the ciclo has associated módulos.",
+      "businessRules": [
+        "Cannot delete a ciclo that has associated módulos"
+      ],
+      "dataNeeds": ["write:Ciclo"],
+      "acceptanceCriteria": [
+        "A confirmation dialog appears before deletion",
+        "Deleting a ciclo with no dependencies removes it and refreshes #13",
+        "Attempting to delete a ciclo with associated módulos shows a blocking warning and does not delete"
+      ]
+    },
+    {
+      "sketchNumber": 16,
+      "behavior": "Tab button that activates the módulos management view when clicked.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Módulos tab navigates to /admin/modulos",
+        "Tab is visually active on /admin/modulos"
+      ]
+    },
+    {
+      "sketchNumber": 17,
+      "behavior": "Button that opens a creation modal for a new módulo. The modal has exactly five fields: nombre, siglas, legislacion (select), horas_semanales, ciclo (select).",
+      "businessRules": [
+        "Modal has exactly five fields: nombre, siglas, legislacion, horas_semanales, ciclo"
+      ],
+      "dataNeeds": ["read:Legislacion", "read:Ciclo", "write:Modulo"],
+      "acceptanceCriteria": [
+        "Clicking Nuevo opens a modal with fields: nombre, siglas, legislacion (select), horas_semanales (number), ciclo (select)",
+        "After saving a valid módulo, table #18 refreshes with the new entry"
+      ]
+    },
+    {
+      "sketchNumber": 18,
+      "behavior": "Table showing all módulos with columns: nombre, siglas, legislacion, horas_semanales, ciclo, edit action, delete action. Shows empty state when none exist.",
+      "businessRules": [
+        "Cannot delete a módulo that has associated proyectos"
+      ],
+      "dataNeeds": ["read:Modulo", "read:Ciclo", "read:Legislacion"],
+      "acceptanceCriteria": [
+        "All módulos are listed on page load with all five data columns",
+        "After creating a módulo, it appears in the table",
+        "Módulos with associated proyectos cannot be deleted; a blocking warning is shown"
+      ]
+    },
+    {
+      "sketchNumber": 19,
+      "behavior": "Informational column header in the módulos table. Each row cell shows the legislacion abbreviation associated with that módulo.",
+      "businessRules": [
+        "Legislacion is associated at the módulo level, not at the ciclo level"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Each módulo row displays its associated legislacion abbreviation in this column"
+      ]
+    },
+    {
+      "sketchNumber": 20,
+      "behavior": "Informational column header in the módulos table. Each row cell shows the ciclo name that módulo belongs to.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Each módulo row displays its associated ciclo name in this column"
+      ]
+    },
+    {
+      "sketchNumber": 21,
+      "behavior": "Per-row edit icon in the módulos table. Activates inline editing of the row. No modal.",
+      "businessRules": [
+        "Editing is inline in the row — no modal is opened"
+      ],
+      "dataNeeds": ["write:Modulo"],
+      "acceptanceCriteria": [
+        "Clicking the edit icon activates inline editing in the módulo row",
+        "No modal is opened",
+        "Changes are persisted on confirm and the table row updates"
+      ]
+    },
+    {
+      "sketchNumber": 22,
+      "behavior": "Per-row delete icon in the módulos table. Requires confirmation. Blocked if the módulo has associated proyectos.",
+      "businessRules": [
+        "Cannot delete a módulo that has associated proyectos"
+      ],
+      "dataNeeds": ["write:Modulo"],
+      "acceptanceCriteria": [
+        "A confirmation dialog appears before deletion",
+        "Módulo with associated proyectos cannot be deleted; blocking warning shown",
+        "Successful deletion refreshes #18"
+      ]
+    },
+    {
+      "sketchNumber": 23,
+      "behavior": "Tab button that activates the profesorado management view.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Profesorado tab navigates to /admin/profesorado",
+        "Tab is visually active on /admin/profesorado"
+      ]
+    },
+    {
+      "sketchNumber": 24,
+      "behavior": "Button that opens a creation modal with exactly four fields: nombre de usuario de Consejería, nombre completo, ciclo(s) (multi-select), módulo(s) (multi-select). A professor can be assigned modules from different ciclos.",
+      "businessRules": [
+        "Modal has exactly four fields: username, nombre_completo, ciclos, modulos",
+        "A professor can be assigned modules from different ciclos"
+      ],
+      "dataNeeds": ["read:Ciclo", "read:Modulo", "write:Profesor"],
+      "acceptanceCriteria": [
+        "Clicking Nuevo opens a modal with four fields: username, nombre_completo, ciclos (multi-select), modulos (multi-select)",
+        "After saving, the new profesor appears in table #25",
+        "A profesor can be assigned modules from different ciclos"
+      ]
+    },
+    {
+      "sketchNumber": 25,
+      "behavior": "Table listing all professors with columns: username, password indicator, ciclos, módulos, edit, delete. Password column shows '12345678' until changed, then '********'.",
+      "businessRules": [
+        "Password column shows '12345678' while the default password has not been changed",
+        "After password change, column shows '********'"
+      ],
+      "dataNeeds": ["read:Profesor"],
+      "acceptanceCriteria": [
+        "All professors are listed on page load",
+        "A profesor who has not changed their default password shows '12345678' in the password column",
+        "A profesor who has changed their password shows '********' in the password column"
+      ]
+    },
+    {
+      "sketchNumber": 26,
+      "behavior": "Column header for the ciclo(s) assigned to each professor. When a professor spans multiple ciclos, cell shows comma-separated ciclo names.",
+      "businessRules": [
+        "Multiple ciclos are shown as comma-separated names"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "A profesor with one ciclo shows that ciclo name",
+        "A profesor with multiple ciclos shows comma-separated ciclo names"
+      ]
+    },
+    {
+      "sketchNumber": 27,
+      "behavior": "Column header for the módulo(s) assigned to each professor. Shows comma-separated abbreviations when multiple.",
+      "businessRules": [
+        "Multiple módulos shown as comma-separated abbreviations (e.g. DEW, DAW)"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "A profesor with one module shows its abbreviation",
+        "A profesor with multiple modules shows comma-separated abbreviations (e.g. DEW, DAW)"
+      ]
+    },
+    {
+      "sketchNumber": 28,
+      "behavior": "Per-row edit icon in the profesorado table. Activates inline editing. No modal.",
+      "businessRules": [
+        "Editing is inline — no modal is opened"
+      ],
+      "dataNeeds": ["write:Profesor"],
+      "acceptanceCriteria": [
+        "Clicking edit activates inline editing of the profesor row",
+        "No modal is opened"
+      ]
+    },
+    {
+      "sketchNumber": 29,
+      "behavior": "Per-row delete icon in the profesorado table. Requires confirmation. Blocked if the profesor has assigned modules or saved corrections.",
+      "businessRules": [
+        "Cannot delete a profesor who has assigned modules or saved corrections"
+      ],
+      "dataNeeds": ["write:Profesor"],
+      "acceptanceCriteria": [
+        "A confirmation dialog appears before deletion",
+        "A profesor with assigned modules or corrections cannot be deleted; blocking warning shown",
+        "Successful deletion refreshes #25"
+      ]
+    },
+    {
+      "sketchNumber": 30,
+      "behavior": "Button visible exclusively to the tutor role. Navigates to /profesor/notas to select filters and download grade PDF. Not rendered for the profesor role.",
+      "businessRules": [
+        "Visible only to tutor role",
+        "Output is a downloadable PDF, not a browser print dialog"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Button is rendered when the authenticated user has tutor role",
+        "Button is not rendered when the authenticated user has profesor role",
+        "Clicking the button navigates to /profesor/notas"
+      ]
+    },
+    {
+      "sketchNumber": 31,
+      "behavior": "Tab button that activates the alumnos management view.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Alumnos tab navigates to /profesor/gestionar/alumnos",
+        "Tab is visually active on that route"
+      ]
+    },
+    {
+      "sketchNumber": 32,
+      "behavior": "Reactive text filter on alumno identifier/code. As the user types, table #36 updates in real time after 300ms debounce without pressing any button.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce",
+        "No button press required to trigger filtering"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing in the field updates table #36 after 300ms without pressing any button",
+        "Clearing the field restores the full unfiltered table",
+        "Filter matches against alumno identifier/code"
+      ]
+    },
+    {
+      "sketchNumber": 33,
+      "behavior": "Reactive text filter on ciclo name. Updates table #36 after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing updates table #36 by ciclo after 300ms",
+        "Clearing restores the full table"
+      ]
+    },
+    {
+      "sketchNumber": 34,
+      "behavior": "Reactive text filter on legislacion abbreviation. Updates table #36 after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing updates table #36 by legislacion after 300ms",
+        "Clearing restores the full table"
+      ]
+    },
+    {
+      "sketchNumber": 35,
+      "behavior": "Button that opens a creation modal with exactly three fields: identificador (anonymised code, e.g. JJ499), ciclo (select), legislacion (select). The alumno's real name is not entered here.",
+      "businessRules": [
+        "Modal has exactly three fields: identificador, ciclo, legislacion",
+        "Real name is not stored in the main alumnos table",
+        "Identificador must be unique"
+      ],
+      "dataNeeds": ["read:Ciclo", "read:Legislacion", "write:Alumno"],
+      "acceptanceCriteria": [
+        "Clicking Nuevo opens a modal with fields: identificador, ciclo (select), legislacion (select)",
+        "No real-name field is present in the form",
+        "After saving, the new alumno appears in table #36",
+        "A duplicate identificador is rejected with a unique-constraint error"
+      ]
+    },
+    {
+      "sketchNumber": 36,
+      "behavior": "Table listing all alumnos with columns: identifier code, ciclo, legislacion, edit, delete. Filters reactively based on #32, #33, #34. Shows empty state when no matches.",
+      "businessRules": [
+        "Shows anonymised identifier codes only, not real names"
+      ],
+      "dataNeeds": ["read:Alumno", "read:Ciclo", "read:Legislacion"],
+      "acceptanceCriteria": [
+        "All alumnos are listed on page load",
+        "Table filters reactively based on inputs #32, #33, #34",
+        "When no alumnos match the filter, an empty state message is shown",
+        "Real names are not displayed in this table"
+      ]
+    },
+    {
+      "sketchNumber": 37,
+      "behavior": "Informational column header in the alumnos table. Each row shows the ciclo name of that alumno.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Each alumno row shows the ciclo name in this column"
+      ]
+    },
+    {
+      "sketchNumber": 38,
+      "behavior": "Informational column header in the alumnos table. Each row shows the legislacion abbreviation of that alumno.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Each alumno row shows the legislacion abbreviation in this column"
+      ]
+    },
+    {
+      "sketchNumber": 39,
+      "behavior": "Per-row edit icon in the alumnos table. Activates inline editing. No modal.",
+      "businessRules": [
+        "Editing is inline — no modal is opened"
+      ],
+      "dataNeeds": ["write:Alumno"],
+      "acceptanceCriteria": [
+        "Clicking edit activates inline editing of the alumno row",
+        "No modal is opened"
+      ]
+    },
+    {
+      "sketchNumber": 40,
+      "behavior": "Per-row delete icon in the alumnos table. Blocked if alumno has dependencies (grades, project assignments). Shows a pop-up warning listing the dependencies.",
+      "businessRules": [
+        "Cannot delete an alumno who has grades or project assignments",
+        "A pop-up warning is shown listing the dependencies before the delete is blocked"
+      ],
+      "dataNeeds": ["write:Alumno"],
+      "acceptanceCriteria": [
+        "A confirmation appears before deletion",
+        "An alumno with grades or project assignments cannot be deleted; a pop-up warning is shown",
+        "Successful deletion refreshes table #36"
+      ]
+    },
+    {
+      "sketchNumber": 41,
+      "behavior": "File-upload button accepting YAML files. Parses the YAML and loads: identificador, ciclo, legislacion into the main alumnos table; nombre_completo paired with identificador into the secure privacy table. Refreshes #36 after import.",
+      "businessRules": [
+        "File format is YAML with required fields: nombre_completo, identificador, ciclo, legislacion",
+        "Real names are loaded into a separate secure table, not the main alumnos table",
+        "Invalid YAML or missing fields shows a parse/validation error"
+      ],
+      "dataNeeds": ["write:Alumno"],
+      "acceptanceCriteria": [
+        "Only YAML files are accepted; other formats show an error",
+        "After successful import, table #36 refreshes with all newly imported alumnos",
+        "Each imported alumno's nombre_completo is stored in the secure table and is not visible in #36",
+        "A YAML file with missing required fields shows a validation error and does not import"
+      ]
+    },
+    {
+      "sketchNumber": 42,
+      "behavior": "Button that opens a module picker showing only the modules assigned to the authenticated professor. The professor selects one module to scope all project operations. After selection, table #47 reloads for that module.",
+      "businessRules": [
+        "Only modules assigned to the authenticated professor are shown",
+        "Selecting a module scopes all project operations (list, create, edit, delete) to that module"
+      ],
+      "dataNeeds": ["read:Modulo"],
+      "acceptanceCriteria": [
+        "Only modules assigned to the authenticated professor are listed in the picker",
+        "After selecting a module, table #47 reloads with that module's projects",
+        "The button displays the currently active module name or a placeholder when none is selected"
+      ]
+    },
+    {
+      "sketchNumber": 43,
+      "behavior": "Reactive text filter on project name. Updates table #47 after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters table #47 by project name after 300ms",
+        "Clearing restores the full list"
+      ]
+    },
+    {
+      "sketchNumber": 44,
+      "behavior": "Reactive text filter on academic year. Updates table #47 after 300ms debounce. Academic year format is a single start-year integer (e.g. 2025).",
+      "businessRules": [
+        "Reactive filter with 300ms debounce",
+        "Academic year is represented as a single start-year integer"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters table #47 by academic year after 300ms",
+        "Filter matches the start-year integer format (e.g. '2025')"
+      ]
+    },
+    {
+      "sketchNumber": 45,
+      "behavior": "Reactive text filter on legislacion. Updates table #47 after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters table #47 by legislacion after 300ms",
+        "Clearing restores the full list"
+      ]
+    },
+    {
+      "sketchNumber": 46,
+      "behavior": "Button that opens a creation modal with exactly four fields: nombre, año_académico (select, defaults to current year), ciclo (select, used to filter the alumno list), alumnos (multi-select of unassigned alumnos from the selected ciclo, 1–3). The project is implicitly linked to the active module (#42).",
+      "businessRules": [
+        "Modal has exactly four fields: nombre, año_académico, ciclo, alumnos",
+        "Alumno list shows only alumnos not yet assigned to any project",
+        "Between 1 and 3 alumnos must be assigned",
+        "Project is linked to the active module from #42",
+        "año_académico defaults to the current year but the profesor can change it"
+      ],
+      "dataNeeds": ["read:Alumno", "read:Ciclo", "write:Proyecto"],
+      "acceptanceCriteria": [
+        "Modal has fields: nombre, año_académico (select), ciclo (select), alumnos (multi-select)",
+        "Alumno list shows only alumnos not already assigned to any project",
+        "Selecting 0 or more than 3 alumnos blocks save with a validation error",
+        "año_académico defaults to the current year",
+        "After saving, the project appears in #47 linked to the active module"
+      ]
+    },
+    {
+      "sketchNumber": 47,
+      "behavior": "Table listing all projects for the active module, with columns: name, alumnado (comma-separated alumno codes), edit, delete. Filters reactively based on #43, #44, #45.",
+      "businessRules": [
+        "Shows only projects for the currently active module selected via #42"
+      ],
+      "dataNeeds": ["read:Proyecto", "read:Alumno"],
+      "acceptanceCriteria": [
+        "Only projects for the active module are shown",
+        "Table filters reactively based on #43, #44, #45",
+        "When no projects exist for the module, an empty state message is shown"
+      ]
+    },
+    {
+      "sketchNumber": 48,
+      "behavior": "Informational column header. Each project row shows the comma-separated anonymised codes of assigned alumnos.",
+      "businessRules": [
+        "Shows anonymised codes, not real names"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Each project row shows the list of assigned alumno codes in this column"
+      ]
+    },
+    {
+      "sketchNumber": 49,
+      "behavior": "This column must not be rendered. Student assignment is handled inside the project creation modal (#46), not as a separate table column action.",
+      "businessRules": [
+        "Column is deprecated and must not be rendered in the UI"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "The 'Añadir alumnado' column with gear icon is not rendered in the projects table"
+      ]
+    },
+    {
+      "sketchNumber": 50,
+      "behavior": "Per-row edit icon in the proyectos table. Activates inline editing. No modal.",
+      "businessRules": [
+        "Editing is inline — no modal is opened"
+      ],
+      "dataNeeds": ["write:Proyecto"],
+      "acceptanceCriteria": [
+        "Clicking edit activates inline editing of the project row",
+        "No modal is opened"
+      ]
+    },
+    {
+      "sketchNumber": 51,
+      "behavior": "Per-row delete icon in the proyectos table. Requires confirmation. Blocked if the project has saved corrections.",
+      "businessRules": [
+        "Cannot delete a project that has saved corrections; a warning message is shown"
+      ],
+      "dataNeeds": ["write:Proyecto"],
+      "acceptanceCriteria": [
+        "A confirmation appears before deletion",
+        "A project with saved corrections cannot be deleted; a warning message is shown",
+        "Successful deletion refreshes table #47"
+      ]
+    },
+    {
+      "sketchNumber": 52,
+      "behavior": "Tab button that activates the rúbrica management view.",
+      "businessRules": [
+        "The rubric belongs to the module, not to individual projects"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Rúbrica tab shows the rubric filter and table",
+        "Tab is visually active when selected"
+      ]
+    },
+    {
+      "sketchNumber": 53,
+      "behavior": "Despite being labelled 'Filtrar por proyecto' in the boceto, this filter operates on módulo. Loads the rubric template for the matching módulo after 300ms debounce. Updates table #56.",
+      "businessRules": [
+        "Filter operates on módulo, not proyecto — boceto label is incorrect",
+        "A módulo has one rubric shared by all its projects"
+      ],
+      "dataNeeds": ["read:Modulo", "read:RubricaItem"],
+      "acceptanceCriteria": [
+        "Typing loads the rubric for the matching módulo (not proyecto) after 300ms",
+        "Table #56 reloads with the matched módulo's rubric items",
+        "Clearing the filter shows an empty table or prompt to select a module"
+      ]
+    },
+    {
+      "sketchNumber": 54,
+      "behavior": "Reactive text filter on academic year in the rúbrica tab. Combined with #53 to narrow the rubric scope. Updates #56 after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters rubric results by academic year after 300ms"
+      ]
+    },
+    {
+      "sketchNumber": 55,
+      "behavior": "Button that adds a new empty inline-editable row directly to table #56. No modal is opened. After the new item is saved, #64 recalculates.",
+      "businessRules": [
+        "New item is added as an inline editable row — no modal",
+        "After save, puntuacion maxima (#64) recalculates"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Clicking Nuevo adds a new empty editable row directly to table #56",
+        "No modal is opened",
+        "After saving the new item, #64 updates with the new total"
+      ]
+    },
+    {
+      "sketchNumber": 56,
+      "behavior": "Grid of rubric items vs grade levels (Excelente, Muy bien, Bien, Regular, Mal, delete action). All value cells are always-visible inputs. Auto-saves on blur. Sum of all Excelente values must equal exactly 10.00.",
+      "businessRules": [
+        "One rubric per module, shared across all its projects",
+        "Sum of all Excelente values must be exactly 10.00"
+      ],
+      "dataNeeds": ["read:RubricaItem", "write:RubricaItem"],
+      "acceptanceCriteria": [
+        "All rubric items for the active module are shown as rows",
+        "All grade cells are always-visible inputs (no double-click to activate)",
+        "When no items exist, an empty state message is shown"
+      ]
+    },
+    {
+      "sketchNumber": 57,
+      "behavior": "Always-visible text input for the rubric item name (no double-click required to activate). Auto-saves to DB on blur.",
+      "businessRules": [
+        "Input is always visible and editable — no activation needed",
+        "Auto-saves on blur"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "The item name field is an always-visible text input (not read-only until clicked)",
+        "Changing the name and losing focus auto-saves to DB",
+        "An empty name is rejected with a validation error on blur"
+      ]
+    },
+    {
+      "sketchNumber": 58,
+      "behavior": "Always-visible number input with 2 decimal places for the Excelente grade value. Must be the highest value in the row. Sum of all rows' Excelente values must equal exactly 10.00. Auto-saves on blur.",
+      "businessRules": [
+        "Excelente > Muy bien > Bien > Regular > 0 (descending order enforced)",
+        "Sum of all Excelente values across all items must equal exactly 10.00",
+        "2 decimal places",
+        "Auto-saves on blur"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Excelente value must be greater than Muy bien for the same row; violation blocks save",
+        "When saving causes the sum of all Excelente values to deviate from 10.00, save is blocked with an error",
+        "Changing the value and losing focus auto-saves to DB",
+        "Non-numeric or negative values are rejected"
+      ]
+    },
+    {
+      "sketchNumber": 59,
+      "behavior": "Always-visible number input (2 decimal places) for Muy bien. Must be less than Excelente and greater than Bien. Auto-saves on blur.",
+      "businessRules": [
+        "Muy bien < Excelente and Muy bien > Bien",
+        "2 decimal places",
+        "Auto-saves on blur"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Value must satisfy Excelente > Muy bien > Bien; violation blocks save",
+        "Auto-saves on blur",
+        "Non-numeric or negative values are rejected"
+      ]
+    },
+    {
+      "sketchNumber": 60,
+      "behavior": "Always-visible number input (2 decimal places) for Bien. Must be less than Muy bien and greater than Regular. Auto-saves on blur.",
+      "businessRules": [
+        "Bien < Muy bien and Bien > Regular",
+        "Auto-saves on blur"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Value must satisfy Muy bien > Bien > Regular; violation blocks save",
+        "Auto-saves on blur",
+        "Non-numeric or negative values are rejected"
+      ]
+    },
+    {
+      "sketchNumber": 61,
+      "behavior": "Always-visible number input (2 decimal places) for Regular. Must be less than Bien and greater than 0. Auto-saves on blur.",
+      "businessRules": [
+        "Regular < Bien and Regular > 0",
+        "Auto-saves on blur"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Value must satisfy Bien > Regular > 0; violation blocks save",
+        "Auto-saves on blur",
+        "Zero or negative values are rejected"
+      ]
+    },
+    {
+      "sketchNumber": 62,
+      "behavior": "Read-only field always displaying 0.00. The Mal grade level is permanently fixed at zero and is never editable.",
+      "businessRules": [
+        "Mal value is always fixed at 0.00",
+        "The field is not editable"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "The Mal cell always displays 0.00",
+        "The Mal cell is read-only — any attempt to edit is ignored"
+      ]
+    },
+    {
+      "sketchNumber": 63,
+      "behavior": "File-upload button accepting YAML files. Parses and replaces the entire existing rubric for the active module. If a rubric already exists, shows a data-loss confirmation before proceeding. Refreshes #56 and #64 after import.",
+      "businessRules": [
+        "File format is YAML",
+        "If a rubric already exists for the module, a confirmation warning about full replacement is required before proceeding",
+        "Replaces the entire rubric — not an incremental merge"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Only YAML files are accepted; other formats show an error",
+        "If a rubric already exists, a data-loss confirmation warning is shown before overwriting",
+        "After confirmation, the existing rubric is fully replaced by the imported one",
+        "After import, #56 and #64 refresh"
+      ]
+    },
+    {
+      "sketchNumber": 64,
+      "behavior": "Read-only paragraph displaying the running total of all Excelente values across all rubric items. Recalculates automatically whenever any Excelente cell is saved. Must show 10.00 when the rubric is valid.",
+      "businessRules": [
+        "Value equals the sum of all Excelente values across all rubric items",
+        "Must equal exactly 10.00 for the rubric to be valid",
+        "Not user-editable"
+      ],
+      "dataNeeds": ["read:RubricaItem"],
+      "acceptanceCriteria": [
+        "Displays the correct sum of all Excelente values",
+        "Updates in real time after any Excelente cell is saved",
+        "Shows 10.00 when the rubric is valid",
+        "Saving an Excelente value that causes the sum to deviate from 10.00 is blocked"
+      ]
+    },
+    {
+      "sketchNumber": 65,
+      "behavior": "Reactive text filter on academic year in the correction screen. Narrows the project options in select #68 after 300ms debounce. Defaults to the current academic year.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce",
+        "Defaults to the current academic year on page load"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters the project options in #68 after 300ms",
+        "The current academic year is shown by default"
+      ]
+    },
+    {
+      "sketchNumber": 66,
+      "behavior": "Reactive text filter on ciclo in the correction screen. Updates #68 options after 300ms debounce.",
+      "businessRules": [
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Typing filters project options in #68 by ciclo after 300ms"
+      ]
+    },
+    {
+      "sketchNumber": 67,
+      "behavior": "Reactive text filter on módulo in the correction screen. Shows only modules assigned to the authenticated professor. Updates #68 options after 300ms debounce.",
+      "businessRules": [
+        "Only modules assigned to the authenticated professor are shown",
+        "Reactive filter with 300ms debounce"
+      ],
+      "dataNeeds": ["read:Modulo"],
+      "acceptanceCriteria": [
+        "Only modules assigned to the authenticated professor appear in suggestions",
+        "Typing filters project options in #68 after 300ms"
+      ]
+    },
+    {
+      "sketchNumber": 68,
+      "behavior": "Select showing all projects that match the three filter values (#65, #66, #67). Shows ALL matching projects regardless of correction status. Selecting a project loads the rubric into #69, resets all grade selections and #76 to 0.",
+      "businessRules": [
+        "Shows ALL projects matching the filters — not filtered by correction status or alumno presence",
+        "Selecting a project resets all grade cell selections and #76 to 0"
+      ],
+      "dataNeeds": ["read:Proyecto", "read:Modulo"],
+      "acceptanceCriteria": [
+        "Shows all projects matching filters #65, #66, #67 without filtering by correction status",
+        "Selecting a project loads its rubric into #69",
+        "Selecting a project resets all grade selections and sets #76 to 0",
+        "Table #69 is not shown until a project is selected"
+      ]
+    },
+    {
+      "sketchNumber": 69,
+      "behavior": "Correction grid showing all rubric items of the selected project. Each row has a read-only item name (#70) and five selectable grade cells (#71–#75). Loads only after a project is selected in #68. Previously saved grades are pre-selected.",
+      "businessRules": [
+        "All rubric items must be graded for the correction to be complete",
+        "Loads only after project selection in #68",
+        "Previously saved grades are pre-selected on load"
+      ],
+      "dataNeeds": ["read:RubricaItem", "read:Correccion"],
+      "acceptanceCriteria": [
+        "Table is hidden until a project is selected in #68",
+        "After project selection, all rubric items appear as rows",
+        "Previously saved grade selections are pre-selected in their corresponding cells"
+      ]
+    },
+    {
+      "sketchNumber": 70,
+      "behavior": "Read-only cell showing the rubric item name in the correction table. Editing item names is only possible in the Rúbrica management tab (#57).",
+      "businessRules": [
+        "Read-only in correction mode"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "The item name cell is not editable in correction mode",
+        "The item name is displayed correctly from the rubric definition"
+      ]
+    },
+    {
+      "sketchNumber": 71,
+      "behavior": "Selectable grade cell for Excelente in correction mode. Acts as a radio button per row — selecting it deselects all other grade cells for the same item. Auto-saves the selection asynchronously to DB. Updates #76 in real time.",
+      "businessRules": [
+        "Radio button per row — only one grade level selected at a time per item",
+        "Auto-saves asynchronously on click",
+        "Pre-selected on load if this grade was previously saved"
+      ],
+      "dataNeeds": ["write:Correccion"],
+      "acceptanceCriteria": [
+        "Clicking Excelente selects it and deselects Muy bien, Bien, Regular, Mal for the same row",
+        "Selection triggers async save to DB",
+        "#76 updates in real time after selection",
+        "If Excelente was previously saved for this item, it appears selected on load"
+      ]
+    },
+    {
+      "sketchNumber": 72,
+      "behavior": "Selectable grade cell for Muy bien. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "businessRules": [
+        "Radio button per row",
+        "Auto-saves on click"
+      ],
+      "dataNeeds": ["write:Correccion"],
+      "acceptanceCriteria": [
+        "Clicking Muy bien selects it and deselects other grade cells in the same row",
+        "Selection triggers async save",
+        "#76 updates immediately"
+      ]
+    },
+    {
+      "sketchNumber": 73,
+      "behavior": "Selectable grade cell for Bien. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "businessRules": [
+        "Radio button per row",
+        "Auto-saves on click"
+      ],
+      "dataNeeds": ["write:Correccion"],
+      "acceptanceCriteria": [
+        "Clicking Bien selects it and deselects other grade cells in the same row",
+        "Auto-saves on click",
+        "#76 updates immediately"
+      ]
+    },
+    {
+      "sketchNumber": 74,
+      "behavior": "Selectable grade cell for Regular. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "businessRules": [
+        "Radio button per row",
+        "Auto-saves on click"
+      ],
+      "dataNeeds": ["write:Correccion"],
+      "acceptanceCriteria": [
+        "Clicking Regular selects it and deselects other grade cells in the same row",
+        "Auto-saves on click",
+        "#76 updates immediately"
+      ]
+    },
+    {
+      "sketchNumber": 75,
+      "behavior": "Selectable grade cell for Mal (value always 0). Radio button per row. Auto-saves asynchronously. Updates #76 (adds 0).",
+      "businessRules": [
+        "Radio button per row",
+        "Mal value is always 0",
+        "Auto-saves on click"
+      ],
+      "dataNeeds": ["write:Correccion"],
+      "acceptanceCriteria": [
+        "Clicking Mal selects it and deselects other grade cells in the same row",
+        "Auto-saves on click with value 0",
+        "#76 updates (adds 0 for this item)"
+      ]
+    },
+    {
+      "sketchNumber": 76,
+      "behavior": "Read-only paragraph displaying the running total of all currently selected grade values for the active alumno scope. Updates in real time after each grade cell click. Resets to 0 when a new project is loaded.",
+      "businessRules": [
+        "Value equals the sum of all selected grade values across all rubric items for the current alumno",
+        "Not user-editable"
+      ],
+      "dataNeeds": ["read:Correccion"],
+      "acceptanceCriteria": [
+        "Updates immediately when any grade cell is clicked",
+        "Value equals the sum of all currently selected grade values",
+        "Resets to 0 when a new project is loaded via #68",
+        "Not editable by the user"
+      ]
+    },
+    {
+      "sketchNumber": 77,
+      "behavior": "Checkbox for group correction mode. When checked, the same grade applies to all alumnos in the project; individual checkboxes #78–#80 are disabled and unchecked. When unchecked, #78–#80 are re-enabled. All checkboxes start unchecked on load.",
+      "businessRules": [
+        "Checking #77 disables and unchecks #78, #79, #80",
+        "All checkboxes start unchecked on page load or project change",
+        "Mutually exclusive with individual checkboxes #78–#80"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "All checkboxes (#77–#80) start unchecked when the screen loads",
+        "Checking #77 disables and unchecks #78, #79, #80",
+        "Unchecking #77 re-enables #78, #79, #80",
+        "When #77 is checked, selected grades are applied to all group members"
+      ]
+    },
+    {
+      "sketchNumber": 78,
+      "behavior": "Checkbox that selects Alumno 1 for individual correction. Mutually exclusive with #77 and other individual checkboxes — checking it unchecks #77, #79, #80. Disabled when #77 is checked. Starts unchecked.",
+      "businessRules": [
+        "Only one individual alumno can be selected at a time",
+        "Checking this unchecks #77, #79, #80",
+        "Disabled when #77 is checked",
+        "Starts unchecked"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Checking #78 unchecks #77, #79, #80",
+        "Disabled when #77 is checked",
+        "When #78 is checked, grades apply only to Alumno 1"
+      ]
+    },
+    {
+      "sketchNumber": 79,
+      "behavior": "Checkbox for Alumno 2 individual correction. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked.",
+      "businessRules": [
+        "Only one individual alumno selected at a time",
+        "Disabled when #77 is checked",
+        "Starts unchecked"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Checking #79 unchecks #77, #78, #80",
+        "Disabled when #77 is checked",
+        "When #79 is checked, grades apply only to Alumno 2"
+      ]
+    },
+    {
+      "sketchNumber": 80,
+      "behavior": "Checkbox for Alumno 3 individual correction. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked.",
+      "businessRules": [
+        "Only one individual alumno selected at a time",
+        "Disabled when #77 is checked",
+        "Starts unchecked"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Checking #80 unchecks #77, #78, #79",
+        "Disabled when #77 is checked",
+        "When #80 is checked, grades apply only to Alumno 3"
+      ]
+    },
+    {
+      "sketchNumber": 81,
+      "behavior": "Button that shows and resets the inline creation form (fields #7, #8, #9, #10) ready for a new legislation entry.",
+      "businessRules": [],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Clicking Nuevo focuses and resets fields #7, #8, #9 for a new entry",
+        "The form is ready for input after clicking"
+      ]
+    },
+    {
+      "sketchNumber": 82,
+      "behavior": "Table listing all existing legislaciones with columns: abbreviation, start_year, end_year, edit action, delete action. Refreshes from DB after any save or delete. Shows empty state when none exist.",
+      "businessRules": [
+        "Cannot delete a legislacion that has associated ciclos"
+      ],
+      "dataNeeds": ["read:Legislacion"],
+      "acceptanceCriteria": [
+        "All legislaciones are listed on page load",
+        "After saving a new legislacion, the table refreshes and includes the new record",
+        "When no legislaciones exist, an empty state message is shown"
+      ]
+    },
+    {
+      "sketchNumber": 83,
+      "behavior": "Per-row edit icon in the legislaciones table. Clicking populates the inline form (#7, #8, #9) with the row's current values for editing. No modal is opened.",
+      "businessRules": [
+        "Editing populates the inline form — no modal is opened"
+      ],
+      "dataNeeds": ["read:Legislacion", "write:Legislacion"],
+      "acceptanceCriteria": [
+        "Clicking the edit icon populates fields #7, #8, #9 with the row's current values",
+        "No modal is opened",
+        "After saving, the table row updates with the new values"
+      ]
+    },
+    {
+      "sketchNumber": 84,
+      "behavior": "Per-row delete icon in the legislaciones table. Requires confirmation. Blocked if the legislacion has associated ciclos.",
+      "businessRules": [
+        "Cannot delete a legislacion that has associated ciclos"
+      ],
+      "dataNeeds": ["write:Legislacion"],
+      "acceptanceCriteria": [
+        "A confirmation dialog appears before deletion",
+        "A legislacion with associated ciclos cannot be deleted; a blocking warning is shown",
+        "Successful deletion refreshes #82"
+      ]
+    },
+    {
+      "sketchNumber": 85,
+      "behavior": "Select showing available academic years. On change, reloads the ciclo options in #86 and resets both #86 and #87. Disables #88 until all three selects have values.",
+      "businessRules": [
+        "Changing year reloads #86 options and resets #86 and #87 selections"
+      ],
+      "dataNeeds": ["read:Ciclo", "read:Proyecto"],
+      "acceptanceCriteria": [
+        "Selecting a year reloads ciclo options in #86",
+        "#86 and #87 are reset when #85 changes",
+        "#88 is disabled until all three selects (#85, #86, #87) have values"
+      ]
+    },
+    {
+      "sketchNumber": 86,
+      "behavior": "Select showing ciclos active for the year selected in #85. Disabled until #85 has a value. On change, reloads module options in #87 (limited to professor's assigned modules) and resets #87.",
+      "businessRules": [
+        "Disabled when #85 has no value",
+        "Options depend on the year selected in #85",
+        "Changing ciclo reloads #87 with only the professor's assigned modules for that ciclo"
+      ],
+      "dataNeeds": ["read:Ciclo", "read:Modulo"],
+      "acceptanceCriteria": [
+        "Disabled when #85 has no value",
+        "Selecting a ciclo loads the professor's assigned modules for that ciclo in #87",
+        "#87 is reset when #86 changes",
+        "#88 remains disabled until #87 also has a value"
+      ]
+    },
+    {
+      "sketchNumber": 87,
+      "behavior": "Select showing modules assigned to the authenticated professor for the selected ciclo. Disabled until #86 has a value. On change, loads preview data in #89 and enables #88 when all three selects have values.",
+      "businessRules": [
+        "Only modules assigned to the authenticated professor are shown",
+        "Disabled when #86 has no value"
+      ],
+      "dataNeeds": ["read:Modulo", "read:Correccion"],
+      "acceptanceCriteria": [
+        "Disabled when #86 has no value",
+        "Only modules assigned to the authenticated professor are listed",
+        "Selecting a module loads preview data in #89",
+        "#88 becomes enabled when all three selects have values"
+      ]
+    },
+    {
+      "sketchNumber": 88,
+      "behavior": "Button that generates and downloads a PDF report of grades. Disabled until all three selects (#85, #86, #87) have values. PDF contains: filter values as header, table with columns Proyecto / Nombre alumno / Niveles evaluados / Nota final.",
+      "businessRules": [
+        "Disabled unless all of #85, #86, #87 have a selected value",
+        "Output is a PDF download — not Excel, not browser print dialog",
+        "PDF header shows the three filter values; table columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final"
+      ],
+      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno", "read:RubricaItem"],
+      "acceptanceCriteria": [
+        "Button is disabled when any of #85, #86, #87 is empty",
+        "Button is enabled when all three selects have values",
+        "Clicking downloads a PDF (not Excel) with grades data",
+        "PDF contains a header with filter values and a table with the four required columns"
+      ]
+    },
+    {
+      "sketchNumber": 89,
+      "behavior": "Preview table showing the same data that will appear in the PDF. Loaded after #87 has a value. Columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final.",
+      "businessRules": [
+        "Shows the same data that will be in the PDF",
+        "Only visible after módulo (#87) is selected"
+      ],
+      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno"],
+      "acceptanceCriteria": [
+        "Table is hidden until #87 has a value",
+        "After selecting a module in #87, table shows the preview data",
+        "Table columns are: Proyecto, Nombre alumno, Niveles evaluados, Nota final",
+        "Preview data matches the content of the downloaded PDF"
+      ]
+    },
+    {
+      "sketchNumber": 90,
+      "behavior": "Per-row delete icon in the rúbrica table. Deletes the rubric item immediately. After deletion, #64 recalculates and the sum may no longer be 10.00 — the rubric becomes invalid until the professor adjusts the remaining items.",
+      "businessRules": [
+        "After deleting an item, the Excelente sum may drop below 10.00; the rubric is invalid until corrected"
+      ],
+      "dataNeeds": ["write:RubricaItem"],
+      "acceptanceCriteria": [
+        "Clicking the delete icon removes the rubric item row from #56",
+        "#64 recalculates immediately after deletion",
+        "If the remaining items' Excelente sum is no longer 10.00, the rubric is marked invalid until corrected"
+      ]
+    }
+  ],
+  "globalRules": [
+    "All table filters are reactive text inputs with 300ms debounce; the table updates automatically as the user types without pressing any button.",
+    "In the correction screen, selecting a grade level for a rubric item auto-saves asynchronously to the DB; no explicit save button exists.",
+    "All rubric editable cells (item name and grade values) auto-save on blur; no explicit rubric save button exists.",
+    "Deleting any entity with dependencies is blocked; a warning message is shown and the deletion is prevented until all dependencies are resolved. Cascade order: Legislacion → Ciclos → Modulos → Proyectos/Alumnos.",
+    "Editing a row in any table activates inline editing directly in the row; no modal is opened for edit operations.",
+    "On first login with the default password '12345678', the user must change their password on the login screen before being redirected to their role home.",
+    "After 3 consecutive failed login attempts, the account is locked and 'Póngase en contacto con el Administrador' is displayed; only the admin can unlock accounts.",
+    "There is exactly one admin account in the system (username: 'Admin', default password: '12345678'). The admin first-login flow allows one retry on password mismatch; on second mismatch, user is redirected to login without account lockout.",
+    "Student real names are not stored in the main alumnos table; only anonymised identifiers (e.g. JJ499) are visible. Real names are stored in a separate high-security table linked by identifier.",
+    "After any successful save operation, the associated table refreshes by reading from the DB; no optimistic client-side insertion is performed.",
+    "Forms are not cleared automatically after saving; the form remains available for a new entry while the table reloads.",
+    "The academic year is represented as a single integer corresponding to the course start year (e.g. 2025 for the 2025-2026 academic year).",
+    "A student can belong to only one project at a time; students already assigned to a project do not appear in the alumno selection list when creating a new project.",
+    "Each module has exactly one rubric that applies to all its projects.",
+    "Grade report output format is PDF — not Excel and not the browser's print dialog.",
+    "The final grade formula is: nota_final = Σ(nota_modulo_i × horas_modulo_i / horas_totales_ciclo). A student with 'Excelente' on all items in all modules obtains exactly 10.",
+    "All rubric items must be graded for each alumno before a correction is considered complete; a warning is shown if the professor tries to navigate away with ungraded items.",
+    "All alumnos in a project must have all items graded before the project correction is marked complete.",
+    "A professor can re-correct an alumno at any time by selecting a different grade level; the new grade overwrites the previous one with no confirmation required.",
+    "Select inputs in creation/edit modals use <select> for fields with closed value lists (ciclo, legislacion, modulo, alumnos); free-text inputs are used only for open-ended fields (name, identifier)."
+  ]
+}
