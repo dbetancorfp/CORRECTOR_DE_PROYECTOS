@@ -247,6 +247,18 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
   vertical-align: middle;
   font-family: var(--mono);
 }
+.badge-artifact {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .1rem .5rem;
+  border-radius: 99px;
+  margin-left: .4rem;
+  vertical-align: middle;
+  font-family: var(--mono);
+}
 .step .body { flex: 1; }
 .step .body strong { display: block; margin-bottom: .2rem; color: var(--primary); }
 .step .body span { font-size: .87rem; color: var(--muted); }
