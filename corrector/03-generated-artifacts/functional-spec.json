@@ -27,13 +27,15 @@
       "businessRules": [
         "Default password is '12345678'",
         "First login with default password requires immediate password change before proceeding",
-        "Minimum password length is 8 characters"
+        "Minimum password length is 8 characters",
+        "New password cannot be the same as the default password '12345678'"
       ],
       "dataNeeds": ["write:Profesor"],
       "acceptanceCriteria": [
         "When the submitted password is the default '12345678', two additional fields appear for new password and confirmation",
         "When new password and confirmation match, the DB is updated and user is redirected to their role home",
         "When new password and confirmation do not match, an error is shown and the flow repeats",
+        "Setting the new password to '12345678' is rejected with a validation error",
         "Password characters are always masked"
       ]
     },
@@ -43,7 +45,7 @@
       "businessRules": [
         "Maximum 3 consecutive failed login attempts before account lockout",
         "After 3 failures the message shown is 'Póngase en contacto con el Administrador' and the account is locked",
-        "Only the admin can unlock a locked account",
+        "Only the admin can unlock a locked profesor account; if the admin account itself is locked, a DB-level intervention is required",
         "On first login (default password), submit triggers password-change flow, not role redirect"
       ],
       "dataNeeds": ["read:Profesor", "write:Profesor"],
@@ -51,7 +53,8 @@
         "When credentials are valid, user is redirected to /admin (admin) or /profesor (profesor/tutor)",
         "When credentials are invalid, 'Credenciales incorrectas' is shown on the same screen",
         "After 3 consecutive failures, 'Póngase en contacto con el Administrador' is shown and the account is locked",
-        "A locked account cannot log in until unlocked by admin",
+        "A locked profesor account cannot log in until unlocked by admin",
+        "If the admin account is locked, the message shown is 'Póngase en contacto con el administrador de la base de datos' and recovery requires a direct DB modification",
         "On first login with default password, the password-change flow is triggered on the same screen"
       ]
     },
@@ -138,14 +141,16 @@
     },
     {
       "sketchNumber": 10,
-      "behavior": "Submit button that persists the new legislation to the DB. After a successful save, table #82 refreshes by reading from the DB. The form is NOT cleared after save. Shows loading state while saving.",
+      "behavior": "Submit button that persists the legislation to the DB. Performs INSERT when the form was initiated via #81 (new entry), or UPDATE when the form was populated via #83 (editing an existing row). After a successful save, table #82 refreshes by reading from the DB. The form is NOT cleared after save. Shows loading state while saving.",
       "businessRules": [
+        "Performs INSERT when creating a new record (form initiated via #81), UPDATE when editing an existing one (form populated via #83)",
         "After save, table refreshes from DB — no optimistic client-side insertion",
         "Form fields are not cleared after save"
       ],
       "dataNeeds": ["write:Legislacion", "read:Legislacion"],
       "acceptanceCriteria": [
-        "When all fields are valid, clicking Guardar persists the record and table #82 refreshes",
+        "When all fields are valid and creating a new record, clicking Guardar inserts the record and table #82 refreshes",
+        "When all fields are valid and editing an existing record, clicking Guardar updates the record and table #82 refreshes",
         "After save, form fields retain their values and are not cleared",
         "When abbreviation is duplicate, save is blocked and a unique error is shown",
         "When end_year != start_year + 1, save is blocked"
@@ -154,9 +159,7 @@
     {
       "sketchNumber": 11,
       "behavior": "Tab button that activates the ciclos management view when clicked.",
-      "businessRules": [
-        "Ciclos do not carry a legislacion reference; legislacion is associated at the módulo level"
-      ],
+      "businessRules": [],
       "dataNeeds": [],
       "acceptanceCriteria": [
         "Clicking the Ciclos tab navigates to /admin/ciclos and shows the ciclos table",
@@ -165,23 +168,29 @@
     },
     {
       "sketchNumber": 12,
-      "behavior": "Button that opens a creation modal for a new ciclo. The modal has a single name field. After saving, table #13 refreshes.",
-      "businessRules": [],
-      "dataNeeds": ["write:Ciclo"],
+      "behavior": "Button that opens a creation modal for a new ciclo. The modal has exactly two fields: nombre and legislacion (select). After saving, table #13 refreshes.",
+      "businessRules": [
+        "Modal has exactly two fields: nombre and legislacion",
+        "Legislacion must be selected from existing legislaciones",
+        "Ciclo nombre must be unique within its legislacion — the same nombre may exist under different legislaciones"
+      ],
+      "dataNeeds": ["write:Ciclo", "read:Legislacion"],
       "acceptanceCriteria": [
-        "Clicking Nuevo opens a modal with a name field",
-        "After saving a valid ciclo name, table #13 refreshes with the new entry"
+        "Clicking Nuevo opens a modal with fields: nombre and legislacion (select)",
+        "After saving a valid ciclo, table #13 refreshes with the new entry",
+        "Saving without selecting a legislacion shows a required-field validation error",
+        "Saving a ciclo with a nombre that already exists under the same legislacion shows a unique-constraint error"
       ]
     },
     {
       "sketchNumber": 13,
-      "behavior": "Table listing all ciclos with columns: name, edit action, delete action. Shows empty state when no ciclos exist.",
+      "behavior": "Table listing all ciclos with columns: name, legislacion, edit action, delete action. Shows empty state when no ciclos exist.",
       "businessRules": [
         "Cannot delete a ciclo that has associated módulos"
       ],
-      "dataNeeds": ["read:Ciclo"],
+      "dataNeeds": ["read:Ciclo", "read:Legislacion"],
       "acceptanceCriteria": [
-        "All ciclos are listed on page load",
+        "All ciclos are listed on page load with their legislacion abbreviation",
         "After creating a ciclo, it appears in the table",
         "When no ciclos exist, an empty state message is shown",
         "Ciclos with associated módulos cannot be deleted"
@@ -189,15 +198,18 @@
     },
     {
       "sketchNumber": 14,
-      "behavior": "Per-row edit icon in the ciclos table. Clicking it activates inline editing of the ciclo name directly in the row. No modal is opened.",
+      "behavior": "Per-row edit icon in the ciclos table. Clicking it activates inline editing of both the ciclo name and its legislacion directly in the row. No modal is opened.",
       "businessRules": [
-        "Editing is inline in the row — no modal is opened"
+        "Editing is inline in the row — no modal is opened",
+        "Both nombre and legislacion are editable inline",
+        "Saving a nombre that already exists under the same legislacion shows a unique-constraint error"
       ],
-      "dataNeeds": ["write:Ciclo"],
+      "dataNeeds": ["write:Ciclo", "read:Legislacion"],
       "acceptanceCriteria": [
-        "Clicking the edit icon activates inline editing of the ciclo name in the row",
+        "Clicking the edit icon activates inline editing of nombre and legislacion in the row",
         "No modal is opened",
-        "Saving the edited name updates the table row"
+        "Saving a nombre that already exists under the same legislacion shows a unique-constraint error and does not save",
+        "Saving valid changes updates the table row"
       ]
     },
     {
@@ -225,13 +237,19 @@
     },
     {
       "sketchNumber": 17,
-      "behavior": "Button that opens a creation modal for a new módulo. The modal has exactly five fields: nombre, siglas, legislacion (select), horas_semanales, ciclo (select).",
+      "behavior": "Button that opens a creation modal for a new módulo. The modal has exactly five fields: nombre, siglas, legislacion (select), horas_semanales, ciclo (select). The legislacion select is a UI filter: selecting it narrows the ciclo options to only those linked to that legislacion. The legislacion value is not stored on the módulo.",
       "businessRules": [
-        "Modal has exactly five fields: nombre, siglas, legislacion, horas_semanales, ciclo"
+        "Modal has exactly five fields: nombre, siglas, legislacion, horas_semanales, ciclo",
+        "The legislacion select in the modal is a UI filter to narrow ciclo options; it is not stored on the módulo",
+        "On modal open, the ciclo select shows all ciclos; selecting a legislacion restricts the ciclo select to only ciclos linked to that legislacion",
+        "Siglas must be unique within the módulo's ciclo's legislacion — the same siglas may exist under different legislaciones"
       ],
       "dataNeeds": ["read:Legislacion", "read:Ciclo", "write:Modulo"],
       "acceptanceCriteria": [
         "Clicking Nuevo opens a modal with fields: nombre, siglas, legislacion (select), horas_semanales (number), ciclo (select)",
+        "On modal open, the ciclo select shows all ciclos",
+        "Selecting a legislacion restricts the ciclo select to only ciclos linked to that legislacion",
+        "Saving a módulo with siglas that already exist under the same legislacion shows a unique-constraint error",
         "After saving a valid módulo, table #18 refreshes with the new entry"
       ]
     },
@@ -252,7 +270,7 @@
       "sketchNumber": 19,
       "behavior": "Informational column header in the módulos table. Each row cell shows the legislacion abbreviation associated with that módulo.",
       "businessRules": [
-        "Legislacion is associated at the módulo level, not at the ciclo level"
+        "Legislacion is derived from the módulo's ciclo; the legislacion column displays the ciclo's associated legislacion"
       ],
       "dataNeeds": [],
       "acceptanceCriteria": [
@@ -270,15 +288,20 @@
     },
     {
       "sketchNumber": 21,
-      "behavior": "Per-row edit icon in the módulos table. Activates inline editing of the row. No modal.",
+      "behavior": "Per-row edit icon in the módulos table. Activates inline editing of all módulo fields: nombre, siglas, horas_semanales, ciclo. No modal. The legislacion column is derived from the ciclo and updates automatically when ciclo changes.",
       "businessRules": [
-        "Editing is inline in the row — no modal is opened"
+        "Editing is inline in the row — no modal is opened",
+        "All four fields are editable: nombre, siglas, horas_semanales, ciclo",
+        "Legislacion is derived from the selected ciclo and is not independently editable",
+        "Saving siglas that already exist under the same legislacion (derived from the selected ciclo) shows a unique-constraint error"
       ],
-      "dataNeeds": ["write:Modulo"],
+      "dataNeeds": ["write:Modulo", "read:Ciclo"],
       "acceptanceCriteria": [
-        "Clicking the edit icon activates inline editing in the módulo row",
+        "Clicking the edit icon activates inline editing of nombre, siglas, horas_semanales, and ciclo (select) in the row",
         "No modal is opened",
-        "Changes are persisted on confirm and the table row updates"
+        "Saving siglas that already exist under the same legislacion shows a unique-constraint error and does not save",
+        "Changes are persisted on confirm and the table row updates",
+        "When ciclo changes, the legislacion column updates to reflect the new ciclo's legislacion"
       ]
     },
     {
@@ -309,12 +332,14 @@
       "behavior": "Button that opens a creation modal with exactly four fields: nombre de usuario de Consejería, nombre completo, ciclo(s) (multi-select), módulo(s) (multi-select). A professor can be assigned modules from different ciclos.",
       "businessRules": [
         "Modal has exactly four fields: username, nombre_completo, ciclos, modulos",
+        "Username must be unique in the system — it is the Consejería de Educación identifier assigned per person",
         "A professor can be assigned modules from different ciclos"
       ],
       "dataNeeds": ["read:Ciclo", "read:Modulo", "write:Profesor"],
       "acceptanceCriteria": [
         "Clicking Nuevo opens a modal with four fields: username, nombre_completo, ciclos (multi-select), modulos (multi-select)",
         "After saving, the new profesor appears in table #25",
+        "A duplicate username is rejected with a unique-constraint error",
         "A profesor can be assigned modules from different ciclos"
       ]
     },
@@ -358,14 +383,22 @@
     },
     {
       "sketchNumber": 28,
-      "behavior": "Per-row edit icon in the profesorado table. Activates inline editing. No modal.",
+      "behavior": "Per-row edit icon in the profesorado table. Activates inline editing of all profesor fields: username, nombre_completo, ciclos (multi-select), módulos (multi-select). Password is not editable here — it is managed via the login flow. No modal. Saving a locked profesor's record resets the failed-login counter and unlocks the account.",
       "businessRules": [
-        "Editing is inline — no modal is opened"
+        "Editing is inline — no modal is opened",
+        "All four fields are editable: username, nombre_completo, ciclos, módulos",
+        "Password is not editable inline; it is managed exclusively via the first-login password-change flow",
+        "Username must remain unique; saving a duplicate username shows a unique-constraint error",
+        "Saving the record of a locked profesor resets the failed-login counter and unlocks the account"
       ],
-      "dataNeeds": ["write:Profesor"],
+      "dataNeeds": ["write:Profesor", "read:Ciclo", "read:Modulo"],
       "acceptanceCriteria": [
-        "Clicking edit activates inline editing of the profesor row",
-        "No modal is opened"
+        "Clicking edit activates inline editing of username, nombre_completo, ciclos (multi-select), and módulos (multi-select)",
+        "No modal is opened",
+        "No password field is shown in inline edit mode",
+        "A duplicate username is rejected with a unique-constraint error on save",
+        "Saving the record of a locked profesor unlocks the account and resets the failed-login counter",
+        "Changes are persisted on confirm and the table row updates"
       ]
     },
     {
@@ -445,18 +478,25 @@
     },
     {
       "sketchNumber": 35,
-      "behavior": "Button that opens a creation modal with exactly three fields: identificador (anonymised code, e.g. JJ499), ciclo (select), legislacion (select). The alumno's real name is not entered here.",
+      "behavior": "Button that opens a creation modal with exactly four fields: nombre_completo, identificador (anonymised code, e.g. JJ499), ciclo (select), legislacion (select, UI filter only). The legislacion select narrows the ciclo options to those linked to that legislacion; it is not stored on the alumno. nombre_completo is stored in the secure privacy table; identificador and ciclo go to the main alumnos table. The alumno's legislacion is derived from its ciclo.",
       "businessRules": [
-        "Modal has exactly three fields: identificador, ciclo, legislacion",
-        "Real name is not stored in the main alumnos table",
-        "Identificador must be unique"
+        "Modal has exactly four fields: nombre_completo, identificador, ciclo, legislacion",
+        "The legislacion select is a UI filter to narrow ciclo options; it is not stored on the alumno",
+        "On modal open, the ciclo select shows all ciclos; selecting a legislacion restricts the ciclo select to only ciclos linked to that legislacion",
+        "The alumno's legislacion is derived from its ciclo — not stored independently",
+        "nombre_completo is stored in the secure privacy table linked by identificador — not in the main alumnos table",
+        "Identificador must be unique",
+        "nombre_completo is required; saving without it shows a required-field validation error"
       ],
       "dataNeeds": ["read:Ciclo", "read:Legislacion", "write:Alumno"],
       "acceptanceCriteria": [
-        "Clicking Nuevo opens a modal with fields: identificador, ciclo (select), legislacion (select)",
-        "No real-name field is present in the form",
-        "After saving, the new alumno appears in table #36",
-        "A duplicate identificador is rejected with a unique-constraint error"
+        "Clicking Nuevo opens a modal with fields: nombre_completo, identificador, ciclo (select), legislacion (select)",
+        "On modal open, the ciclo select shows all ciclos",
+        "Selecting a legislacion restricts the ciclo select to only ciclos linked to that legislacion",
+        "After saving, the new alumno appears in table #36 with only the identificador visible (not the nombre_completo)",
+        "nombre_completo is stored in the secure privacy table and is not displayed in #36",
+        "A duplicate identificador is rejected with a unique-constraint error",
+        "Saving without nombre_completo shows a required-field validation error"
       ]
     },
     {
@@ -484,23 +524,31 @@
     },
     {
       "sketchNumber": 38,
-      "behavior": "Informational column header in the alumnos table. Each row shows the legislacion abbreviation of that alumno.",
-      "businessRules": [],
+      "behavior": "Informational column header in the alumnos table. Each row shows the legislacion abbreviation of that alumno, derived from the alumno's ciclo.",
+      "businessRules": [
+        "Legislacion is derived from the alumno's ciclo; it is not stored independently on the alumno"
+      ],
       "dataNeeds": [],
       "acceptanceCriteria": [
-        "Each alumno row shows the legislacion abbreviation in this column"
+        "Each alumno row shows the legislacion abbreviation derived from their ciclo in this column"
       ]
     },
     {
       "sketchNumber": 39,
-      "behavior": "Per-row edit icon in the alumnos table. Activates inline editing. No modal.",
+      "behavior": "Per-row edit icon in the alumnos table. Activates inline editing of nombre_completo, identificador, and ciclo. The legislacion select acts as a UI filter for the ciclo select and is not stored. No modal. Saving updates the main alumnos table (identificador, ciclo) and the secure privacy table (nombre_completo).",
       "businessRules": [
-        "Editing is inline — no modal is opened"
+        "Editing is inline — no modal is opened",
+        "Editable fields: nombre_completo (stored in secure table), identificador, ciclo",
+        "Legislacion select is a UI filter to narrow ciclo options — not stored independently",
+        "nombre_completo changes are persisted to the secure privacy table, not the main alumnos table"
       ],
-      "dataNeeds": ["write:Alumno"],
+      "dataNeeds": ["write:Alumno", "read:Ciclo", "read:Legislacion"],
       "acceptanceCriteria": [
-        "Clicking edit activates inline editing of the alumno row",
-        "No modal is opened"
+        "Clicking edit activates inline editing of nombre_completo, identificador, and ciclo (select)",
+        "A legislacion select is shown as a UI filter to narrow ciclo options",
+        "No modal is opened",
+        "Saving persists identificador and ciclo to the main table, and nombre_completo to the secure table",
+        "A duplicate identificador is rejected with a unique-constraint error on save"
       ]
     },
     {
@@ -519,18 +567,29 @@
     },
     {
       "sketchNumber": 41,
-      "behavior": "File-upload button accepting YAML files. Parses the YAML and loads: identificador, ciclo, legislacion into the main alumnos table; nombre_completo paired with identificador into the secure privacy table. Refreshes #36 after import.",
+      "behavior": "File-upload button accepting YAML, CSV, or JSON files. Parses the file and loads row by row: identificador and ciclo into the main alumnos table; nombre_completo paired with identificador into the secure privacy table. The legislacion field in the file is used for consistency validation only (the provided ciclo must belong to the provided legislacion) and is not stored independently. Valid rows are imported and invalid rows are skipped with an error report. Refreshes #36 after import.",
       "businessRules": [
-        "File format is YAML with required fields: nombre_completo, identificador, ciclo, legislacion",
+        "Accepted formats: YAML, CSV, JSON — all must contain the required fields: nombre_completo, identificador, ciclo, legislacion",
         "Real names are loaded into a separate secure table, not the main alumnos table",
-        "Invalid YAML or missing fields shows a parse/validation error"
+        "The legislacion field is used for validation only: the provided ciclo must belong to the provided legislacion; it is not stored on the alumno",
+        "Import is row-by-row: valid rows are imported, invalid rows are skipped",
+        "After import, a report is shown listing the skipped rows and the reason for each rejection",
+        "Invalid file content or missing required fields at the file level (unparseable) shows a parse error and nothing is imported",
+        "Files with an unsupported extension are rejected",
+        "Rows referencing a ciclo that does not exist in the DB are skipped and listed in the error report",
+        "Rows where the provided ciclo does not belong to the provided legislacion are skipped and listed in the error report",
+        "Rows with missing required fields are skipped and listed in the error report",
+        "Rows with a duplicate identificador are skipped and listed in the error report"
       ],
-      "dataNeeds": ["write:Alumno"],
+      "dataNeeds": ["write:Alumno", "read:Ciclo", "read:Legislacion"],
       "acceptanceCriteria": [
-        "Only YAML files are accepted; other formats show an error",
-        "After successful import, table #36 refreshes with all newly imported alumnos",
+        "YAML, CSV, and JSON files are accepted; any other format shows an error",
+        "After import, table #36 refreshes with all successfully imported alumnos",
         "Each imported alumno's nombre_completo is stored in the secure table and is not visible in #36",
-        "A YAML file with missing required fields shows a validation error and does not import"
+        "An unparseable file shows a parse error and nothing is imported",
+        "Valid rows are imported even when other rows in the same file are invalid",
+        "Rows where the ciclo does not belong to the provided legislacion are skipped and listed in the error report",
+        "After import, a report lists all skipped rows with the reason for each rejection (unknown ciclo, ciclo/legislacion mismatch, missing fields, duplicate identificador)"
       ]
     },
     {
@@ -586,32 +645,38 @@
     },
     {
       "sketchNumber": 46,
-      "behavior": "Button that opens a creation modal with exactly four fields: nombre, año_académico (select, defaults to current year), ciclo (select, used to filter the alumno list), alumnos (multi-select of unassigned alumnos from the selected ciclo, 1–3). The project is implicitly linked to the active module (#42).",
+      "behavior": "Button that opens a creation modal with exactly four fields: nombre, año_académico (select, options derived from existing Legislacion start years, defaults to current year), ciclo (select, defaults to the active module's ciclo but can be changed), alumnos (multi-select of unassigned alumnos from the selected ciclo, 1–3). The project is implicitly linked to the active module (#42).",
       "businessRules": [
         "Modal has exactly four fields: nombre, año_académico, ciclo, alumnos",
-        "Alumno list shows only alumnos not yet assigned to any project",
+        "año_académico options are the distinct start_year values from existing Legislaciones",
+        "año_académico defaults to the current year if it matches an existing Legislacion start year, otherwise to the most recent one",
+        "ciclo select defaults to the active module's ciclo on modal open; the professor may change it",
+        "Alumno list shows only alumnos from the selected ciclo who are not yet assigned to a project in the same año_académico",
         "Between 1 and 3 alumnos must be assigned",
-        "Project is linked to the active module from #42",
-        "año_académico defaults to the current year but the profesor can change it"
+        "Project is linked to the active module from #42"
       ],
-      "dataNeeds": ["read:Alumno", "read:Ciclo", "write:Proyecto"],
+      "dataNeeds": ["read:Alumno", "read:Ciclo", "read:Legislacion", "write:Proyecto"],
       "acceptanceCriteria": [
         "Modal has fields: nombre, año_académico (select), ciclo (select), alumnos (multi-select)",
-        "Alumno list shows only alumnos not already assigned to any project",
+        "año_académico options come from the start_year values of existing Legislaciones",
+        "año_académico defaults to the current year or the most recent Legislacion start year",
+        "ciclo select pre-populates with the active module's ciclo on modal open",
+        "Changing the ciclo reloads the alumno multi-select with alumnos from the newly selected ciclo",
+        "Alumno list shows only alumnos from the selected ciclo not already assigned to a project in the same año_académico",
         "Selecting 0 or more than 3 alumnos blocks save with a validation error",
-        "año_académico defaults to the current year",
         "After saving, the project appears in #47 linked to the active module"
       ]
     },
     {
       "sketchNumber": 47,
-      "behavior": "Table listing all projects for the active module, with columns: name, alumnado (comma-separated alumno codes), edit, delete. Filters reactively based on #43, #44, #45.",
+      "behavior": "Table listing all projects for the active module, with columns: name, año_académico, alumnado (comma-separated alumno codes), edit, delete. Filters reactively based on #43, #44, #45.",
       "businessRules": [
         "Shows only projects for the currently active module selected via #42"
       ],
       "dataNeeds": ["read:Proyecto", "read:Alumno"],
       "acceptanceCriteria": [
         "Only projects for the active module are shown",
+        "Each project row displays its año_académico value",
         "Table filters reactively based on #43, #44, #45",
         "When no projects exist for the module, an empty state message is shown"
       ]
@@ -640,14 +705,28 @@
     },
     {
       "sketchNumber": 50,
-      "behavior": "Per-row edit icon in the proyectos table. Activates inline editing. No modal.",
+      "behavior": "Per-row edit icon in the proyectos table. Activates inline editing of all project fields: nombre, año_académico, ciclo, and alumnos. No modal. Changing the ciclo reloads the alumno multi-select with alumnos from the new ciclo. When removing an alumno who has saved corrections, a warning is shown before saving; if confirmed, the alumno is removed from the project and their corrections for it are deleted.",
       "businessRules": [
-        "Editing is inline — no modal is opened"
+        "Editing is inline — no modal is opened",
+        "All four fields are editable: nombre, año_académico, ciclo, alumnos",
+        "Alumno multi-select shows only alumnos from the selected ciclo who are not assigned to another project in the same año_académico (excluding the current project's alumnos)",
+        "Changing the ciclo reloads the alumno multi-select with alumnos from the newly selected ciclo",
+        "A project must have between 1 and 3 alumnos; saving with 0 alumnos is blocked with a validation error",
+        "If an alumno being removed has saved corrections for this project, a warning is shown before saving",
+        "If the professor confirms removal, the alumno is removed from the project and their corrections for this project are deleted in cascade",
+        "Adding new alumnos to a project has no restriction even if corrections exist for other alumnos"
       ],
-      "dataNeeds": ["write:Proyecto"],
+      "dataNeeds": ["write:Proyecto", "read:Alumno", "read:Ciclo", "read:Correccion", "write:Correccion"],
       "acceptanceCriteria": [
-        "Clicking edit activates inline editing of the project row",
-        "No modal is opened"
+        "Clicking edit activates inline editing of all four fields in the project row",
+        "No modal is opened",
+        "Changing the ciclo reloads the alumno multi-select with alumnos from the newly selected ciclo",
+        "Saving with 0 alumnos is blocked with a validation error",
+        "When saving with one or more alumnos removed who have corrections, a warning message is shown listing the affected alumnos and informing that their corrections will be deleted",
+        "If the professor confirms, the alumnos are removed and their corrections for this project are deleted",
+        "If the professor cancels, no changes are saved",
+        "Adding new alumnos saves without any warning",
+        "Saving changes with no alumno removals refreshes the row without any warning"
       ]
     },
     {
@@ -677,51 +756,62 @@
     },
     {
       "sketchNumber": 53,
-      "behavior": "Despite being labelled 'Filtrar por proyecto' in the boceto, this filter operates on módulo. Loads the rubric template for the matching módulo after 300ms debounce. Updates table #56.",
+      "behavior": "Despite being labelled 'Filtrar por proyecto' in the boceto, this filter operates on módulo. As the professor types, a list of matching módulos assigned to the authenticated professor is shown after 300ms debounce (case-insensitive match on name or abbreviation). The professor selects one módulo from the list to load its rubric into #56.",
       "businessRules": [
         "Filter operates on módulo, not proyecto — boceto label is incorrect",
-        "A módulo has one rubric shared by all its projects"
+        "Only módulos assigned to the authenticated professor are shown in the results list",
+        "Matching is case-insensitive and applies to both módulo name and abbreviation",
+        "A módulo has one rubric shared by all its projects",
+        "The rubric loads only after the professor selects a módulo from the results list"
       ],
       "dataNeeds": ["read:Modulo", "read:RubricaItem"],
       "acceptanceCriteria": [
-        "Typing loads the rubric for the matching módulo (not proyecto) after 300ms",
-        "Table #56 reloads with the matched módulo's rubric items",
-        "Clearing the filter shows an empty table or prompt to select a module"
+        "Typing shows a list of matching módulos assigned to the authenticated professor after 300ms (case-insensitive)",
+        "Módulos not assigned to the professor do not appear in the results",
+        "Multiple matches are shown as a list; the professor must select one to load the rubric",
+        "Selecting a módulo from the list loads its rubric items into #56",
+        "If no módulos match the typed text, an empty state is shown in the results list",
+        "Clearing the filter clears the results list and shows an empty #56"
       ]
     },
     {
       "sketchNumber": 54,
-      "behavior": "Reactive text filter on academic year in the rúbrica tab. Combined with #53 to narrow the rubric scope. Updates #56 after 300ms debounce.",
+      "behavior": "Reactive text filter on academic year in the rúbrica tab. Does not change the rubric items shown in #56 (the rubric is unique per module). Its purpose is to filter the projects of that academic year that are associated with the selected module, providing context. Updates the project context after 300ms debounce.",
       "businessRules": [
-        "Reactive filter with 300ms debounce"
+        "Reactive filter with 300ms debounce",
+        "Does not affect the rubric items in #56 — the rubric is unique per module regardless of year",
+        "Filters the projects of that year that use the selected module's rubric"
       ],
-      "dataNeeds": [],
+      "dataNeeds": ["read:Proyecto"],
       "acceptanceCriteria": [
-        "Typing filters rubric results by academic year after 300ms"
+        "Typing filters the associated projects by academic year after 300ms",
+        "The rubric items in #56 remain unchanged regardless of the year filter value"
       ]
     },
     {
       "sketchNumber": 55,
-      "behavior": "Button that adds a new empty inline-editable row directly to table #56. No modal is opened. After the new item is saved, #64 recalculates.",
+      "behavior": "Button that adds a new empty inline-editable row directly to table #56. No modal is opened. Blocked if the module's rubric has already been used in any correction. After the new item is saved, #64 recalculates.",
       "businessRules": [
         "New item is added as an inline editable row — no modal",
+        "Adding a new item is blocked if any correction exists for the module's rubric; a blocking warning is shown — rubric items can only be added before the rubric has been used for grading",
         "After save, puntuacion maxima (#64) recalculates"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Clicking Nuevo adds a new empty editable row directly to table #56",
         "No modal is opened",
+        "If any correction exists for the module's rubric, clicking Nuevo shows a blocking warning and no row is added",
         "After saving the new item, #64 updates with the new total"
       ]
     },
     {
       "sketchNumber": 56,
-      "behavior": "Grid of rubric items vs grade levels (Excelente, Muy bien, Bien, Regular, Mal, delete action). All value cells are always-visible inputs. Auto-saves on blur. Sum of all Excelente values must equal exactly 10.00.",
+      "behavior": "Grid of rubric items vs grade levels (Excelente, Muy bien, Bien, Regular, Mal, delete action). All value cells are always-visible. Auto-saves on blur when editable. Cells are read-only if the module's rubric has been used in any correction. Sum of all Excelente values must equal exactly 10.00.",
       "businessRules": [
         "One rubric per module, shared across all its projects",
-        "Sum of all Excelente values must be exactly 10.00"
+        "The rubric is valid only when the sum of all Excelente values equals exactly 10.00; an invalid rubric blocks the correction screen"
       ],
-      "dataNeeds": ["read:RubricaItem", "write:RubricaItem"],
+      "dataNeeds": ["read:RubricaItem", "write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "All rubric items for the active module are shown as rows",
         "All grade cells are always-visible inputs (no double-click to activate)",
@@ -730,76 +820,85 @@
     },
     {
       "sketchNumber": 57,
-      "behavior": "Always-visible text input for the rubric item name (no double-click required to activate). Auto-saves to DB on blur.",
+      "behavior": "Always-visible text input for the rubric item name (no double-click required to activate). Auto-saves to DB on blur. Read-only if the module's rubric has been used in any correction.",
       "businessRules": [
-        "Input is always visible and editable — no activation needed",
+        "Input is always visible and accessible without activation — editable only if the rubric has not been used for grading",
         "Auto-saves on blur"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
-        "The item name field is an always-visible text input (not read-only until clicked)",
+        "The item name field is always-visible and does not require a click to activate editing (unless the rubric is locked by existing corrections)",
         "Changing the name and losing focus auto-saves to DB",
-        "An empty name is rejected with a validation error on blur"
+        "An empty name is rejected with a validation error on blur",
+        "If the module's rubric has been used in any correction, the field is read-only and cannot be edited"
       ]
     },
     {
       "sketchNumber": 58,
-      "behavior": "Always-visible number input with 2 decimal places for the Excelente grade value. Must be the highest value in the row. Sum of all rows' Excelente values must equal exactly 10.00. Auto-saves on blur.",
+      "behavior": "Always-visible number input with 2 decimal places for the Excelente grade value. Must be the highest value in the row. Auto-saves on blur regardless of the running total. Read-only if the module's rubric has been used in any correction.",
       "businessRules": [
         "Excelente > Muy bien > Bien > Regular > 0 (descending order enforced)",
-        "Sum of all Excelente values across all items must equal exactly 10.00",
         "2 decimal places",
-        "Auto-saves on blur"
+        "Auto-saves on blur; the individual save is never blocked by the Excelente sum constraint",
+        "Read-only if the module's rubric has been used in any project correction"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Excelente value must be greater than Muy bien for the same row; violation blocks save",
-        "When saving causes the sum of all Excelente values to deviate from 10.00, save is blocked with an error",
         "Changing the value and losing focus auto-saves to DB",
-        "Non-numeric or negative values are rejected"
+        "Non-numeric or negative values are rejected",
+        "If the module's rubric has been used in any correction, the field is read-only and cannot be edited"
       ]
     },
     {
       "sketchNumber": 59,
-      "behavior": "Always-visible number input (2 decimal places) for Muy bien. Must be less than Excelente and greater than Bien. Auto-saves on blur.",
+      "behavior": "Always-visible number input (2 decimal places) for Muy bien. Must be less than Excelente and greater than Bien. Auto-saves on blur. Read-only if the module's rubric has been used in any correction.",
       "businessRules": [
         "Muy bien < Excelente and Muy bien > Bien",
         "2 decimal places",
-        "Auto-saves on blur"
+        "Auto-saves on blur",
+        "Read-only if the module's rubric has been used in any project correction"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Value must satisfy Excelente > Muy bien > Bien; violation blocks save",
         "Auto-saves on blur",
-        "Non-numeric or negative values are rejected"
+        "Non-numeric or negative values are rejected",
+        "If the module's rubric has been used in any correction, the field is read-only and cannot be edited"
       ]
     },
     {
       "sketchNumber": 60,
-      "behavior": "Always-visible number input (2 decimal places) for Bien. Must be less than Muy bien and greater than Regular. Auto-saves on blur.",
+      "behavior": "Always-visible number input (2 decimal places) for Bien. Must be less than Muy bien and greater than Regular. Auto-saves on blur. Read-only if the module's rubric has been used in any correction.",
       "businessRules": [
         "Bien < Muy bien and Bien > Regular",
-        "Auto-saves on blur"
+        "2 decimal places",
+        "Auto-saves on blur",
+        "Read-only if the module's rubric has been used in any project correction"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Value must satisfy Muy bien > Bien > Regular; violation blocks save",
         "Auto-saves on blur",
-        "Non-numeric or negative values are rejected"
+        "Non-numeric or negative values are rejected",
+        "If the module's rubric has been used in any correction, the field is read-only and cannot be edited"
       ]
     },
     {
       "sketchNumber": 61,
-      "behavior": "Always-visible number input (2 decimal places) for Regular. Must be less than Bien and greater than 0. Auto-saves on blur.",
+      "behavior": "Always-visible number input (2 decimal places) for Regular. Must be less than Bien and greater than 0. Auto-saves on blur. Read-only if the module's rubric has been used in any correction.",
       "businessRules": [
         "Regular < Bien and Regular > 0",
-        "Auto-saves on blur"
+        "2 decimal places",
+        "Auto-saves on blur",
+        "Read-only if the module's rubric has been used in any project correction"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Value must satisfy Bien > Regular > 0; violation blocks save",
         "Auto-saves on blur",
-        "Zero or negative values are rejected"
+        "Zero or negative values are rejected",
+        "If the module's rubric has been used in any correction, the field is read-only and cannot be edited"
       ]
     },
     {
@@ -817,23 +916,28 @@
     },
     {
       "sketchNumber": 63,
-      "behavior": "File-upload button accepting YAML files. Parses and replaces the entire existing rubric for the active module. If a rubric already exists, shows a data-loss confirmation before proceeding. Refreshes #56 and #64 after import.",
+      "behavior": "File-upload button accepting YAML, CSV, or JSON files. Parses and replaces the entire existing rubric for the active module. Blocked if no module is active (selected via #53) or if any correction already exists for the module. If a rubric already exists but has no corrections, shows a data-loss confirmation before proceeding. Refreshes #56 and #64 after import.",
       "businessRules": [
-        "File format is YAML",
-        "If a rubric already exists for the module, a confirmation warning about full replacement is required before proceeding",
-        "Replaces the entire rubric — not an incremental merge"
+        "Accepted formats: YAML, CSV, JSON",
+        "Upload is blocked if no module is currently active in #53; an error is shown asking the professor to select a module first",
+        "Upload is blocked if any correction exists for the module's rubric; a blocking warning is shown — rubric replacement is only allowed before the rubric has been used for grading",
+        "If a rubric already exists but has no corrections, a confirmation warning about full replacement is required before proceeding",
+        "Replaces the entire rubric — not an incremental merge",
+        "Files with an unsupported extension are rejected"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Modulo", "read:Correccion"],
       "acceptanceCriteria": [
-        "Only YAML files are accepted; other formats show an error",
-        "If a rubric already exists, a data-loss confirmation warning is shown before overwriting",
+        "YAML, CSV, and JSON files are accepted; any other format shows an error",
+        "If no module is active, the upload is blocked and an error prompts the professor to select a module first",
+        "If any correction exists for the module, the upload is blocked and a warning is shown explaining that the rubric cannot be replaced once used for grading",
+        "If a rubric exists but no corrections exist, a data-loss confirmation warning is shown before overwriting",
         "After confirmation, the existing rubric is fully replaced by the imported one",
         "After import, #56 and #64 refresh"
       ]
     },
     {
       "sketchNumber": 64,
-      "behavior": "Read-only paragraph displaying the running total of all Excelente values across all rubric items. Recalculates automatically whenever any Excelente cell is saved. Must show 10.00 when the rubric is valid.",
+      "behavior": "Read-only paragraph displaying the running total of all Excelente values across all rubric items. Recalculates automatically whenever any Excelente cell is saved. Shown in red when the sum ≠ 10.00 to indicate the rubric is invalid.",
       "businessRules": [
         "Value equals the sum of all Excelente values across all rubric items",
         "Must equal exactly 10.00 for the rubric to be valid",
@@ -843,8 +947,8 @@
       "acceptanceCriteria": [
         "Displays the correct sum of all Excelente values",
         "Updates in real time after any Excelente cell is saved",
-        "Shows 10.00 when the rubric is valid",
-        "Saving an Excelente value that causes the sum to deviate from 10.00 is blocked"
+        "Shows 10.00 and normal styling when the rubric is valid",
+        "When sum ≠ 10.00, #64 is displayed in red to indicate the rubric is invalid"
       ]
     },
     {
@@ -901,17 +1005,19 @@
     },
     {
       "sketchNumber": 69,
-      "behavior": "Correction grid showing all rubric items of the selected project. Each row has a read-only item name (#70) and five selectable grade cells (#71–#75). Loads only after a project is selected in #68. Previously saved grades are pre-selected.",
+      "behavior": "Correction grid showing all rubric items of the selected project. Each row has a read-only item name (#70) and five selectable grade cells (#71–#75). When a project is selected but no checkbox (#77–#80) is active, the grid shows the message 'Elige una opción para empezar a corregir' instead of the rubric items. The grid and previously saved grades load only after a checkbox is activated. Blocked if the module's rubric is invalid (Excelente sum ≠ 10.00).",
       "businessRules": [
         "All rubric items must be graded for the correction to be complete",
         "Loads only after project selection in #68",
-        "Previously saved grades are pre-selected on load"
+        "The correction grid cannot be loaded if the module's rubric is invalid (Excelente sum ≠ 10.00)",
+        "Rubric items and saved grades are loaded only after a checkbox (#77–#80) is activated"
       ],
       "dataNeeds": ["read:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
         "Table is hidden until a project is selected in #68",
-        "After project selection, all rubric items appear as rows",
-        "Previously saved grade selections are pre-selected in their corresponding cells"
+        "After project selection with no checkbox active, the message 'Elige una opción para empezar a corregir' is shown instead of the grid",
+        "After activating a checkbox, rubric items appear as rows with previously saved grades pre-selected for that alumno or group",
+        "If the rubric is invalid (Excelente sum ≠ 10.00), an error is shown instead of the grid prompting the professor to fix the rubric first"
       ]
     },
     {
@@ -928,152 +1034,194 @@
     },
     {
       "sketchNumber": 71,
-      "behavior": "Selectable grade cell for Excelente in correction mode. Acts as a radio button per row — selecting it deselects all other grade cells for the same item. Auto-saves the selection asynchronously to DB. Updates #76 in real time.",
+      "behavior": "Selectable grade cell for Excelente in correction mode. Acts as a radio button per row — selecting it deselects all other grade cells for the same item. Auto-saves the selection asynchronously to DB. Updates #76 in real time. If no checkbox (#77–#80) is active when clicked, a right-side toggle notification appears asking the professor to select a group or individual alumno first; the click is not saved.",
       "businessRules": [
         "Radio button per row — only one grade level selected at a time per item",
-        "Auto-saves asynchronously on click",
-        "Pre-selected on load if this grade was previously saved"
+        "Auto-saves asynchronously on click only when a checkbox (#77–#80) is active",
+        "Pre-selected when the checkbox is activated if this grade was previously saved for that alumno/group",
+        "When #77 is checked, grade is saved for all alumnos in the project",
+        "If no checkbox is active on click, a right-side toggle notification is shown and the click is ignored"
       ],
       "dataNeeds": ["write:Correccion"],
       "acceptanceCriteria": [
         "Clicking Excelente selects it and deselects Muy bien, Bien, Regular, Mal for the same row",
-        "Selection triggers async save to DB",
-        "#76 updates in real time after selection",
-        "If Excelente was previously saved for this item, it appears selected on load"
+        "Selection triggers async save to DB only when a checkbox (#77–#80) is active",
+        "When #77 is checked, the grade is saved for all alumnos in the project",
+        "#76 updates in real time after a valid (checkbox-active) selection",
+        "If Excelente was previously saved for this item and alumno/group, it appears selected when the checkbox is activated",
+        "If no checkbox is active, clicking shows a right-side toggle notification asking to select a group or alumno; no save occurs"
       ]
     },
     {
       "sketchNumber": 72,
-      "behavior": "Selectable grade cell for Muy bien. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "behavior": "Selectable grade cell for Muy bien. Radio button per row. Auto-saves asynchronously when a checkbox (#77–#80) is active. Updates #76. If no checkbox is active on click, a right-side toggle notification appears and the click is ignored.",
       "businessRules": [
         "Radio button per row",
-        "Auto-saves on click"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade is saved for all alumnos in the project",
+        "If no checkbox is active on click, right-side toggle notification is shown and click is ignored"
       ],
       "dataNeeds": ["write:Correccion"],
       "acceptanceCriteria": [
         "Clicking Muy bien selects it and deselects other grade cells in the same row",
-        "Selection triggers async save",
-        "#76 updates immediately"
+        "Selection triggers async save only when a checkbox is active",
+        "When #77 is checked, grade applies to all alumnos in the project",
+        "#76 updates immediately after a valid selection",
+        "If no checkbox is active, clicking shows a right-side toggle notification; no save occurs"
       ]
     },
     {
       "sketchNumber": 73,
-      "behavior": "Selectable grade cell for Bien. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "behavior": "Selectable grade cell for Bien. Radio button per row. Auto-saves asynchronously when a checkbox (#77–#80) is active. Updates #76. If no checkbox is active on click, a right-side toggle notification appears and the click is ignored.",
       "businessRules": [
         "Radio button per row",
-        "Auto-saves on click"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade is saved for all alumnos in the project",
+        "If no checkbox is active on click, right-side toggle notification is shown and click is ignored"
       ],
       "dataNeeds": ["write:Correccion"],
       "acceptanceCriteria": [
         "Clicking Bien selects it and deselects other grade cells in the same row",
-        "Auto-saves on click",
-        "#76 updates immediately"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade applies to all alumnos in the project",
+        "#76 updates immediately after a valid selection",
+        "If no checkbox is active, clicking shows a right-side toggle notification; no save occurs"
       ]
     },
     {
       "sketchNumber": 74,
-      "behavior": "Selectable grade cell for Regular. Radio button per row. Auto-saves asynchronously. Updates #76.",
+      "behavior": "Selectable grade cell for Regular. Radio button per row. Auto-saves asynchronously when a checkbox (#77–#80) is active. Updates #76. If no checkbox is active on click, a right-side toggle notification appears and the click is ignored.",
       "businessRules": [
         "Radio button per row",
-        "Auto-saves on click"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade is saved for all alumnos in the project",
+        "If no checkbox is active on click, right-side toggle notification is shown and click is ignored"
       ],
       "dataNeeds": ["write:Correccion"],
       "acceptanceCriteria": [
         "Clicking Regular selects it and deselects other grade cells in the same row",
-        "Auto-saves on click",
-        "#76 updates immediately"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade applies to all alumnos in the project",
+        "#76 updates immediately after a valid selection",
+        "If no checkbox is active, clicking shows a right-side toggle notification; no save occurs"
       ]
     },
     {
       "sketchNumber": 75,
-      "behavior": "Selectable grade cell for Mal (value always 0). Radio button per row. Auto-saves asynchronously. Updates #76 (adds 0).",
+      "behavior": "Selectable grade cell for Mal (value always 0). Radio button per row. Auto-saves asynchronously when a checkbox (#77–#80) is active. Updates #76 (adds 0). If no checkbox is active on click, a right-side toggle notification appears and the click is ignored.",
       "businessRules": [
         "Radio button per row",
         "Mal value is always 0",
-        "Auto-saves on click"
+        "Auto-saves on click only when a checkbox is active",
+        "When #77 is checked, grade is saved for all alumnos in the project",
+        "If no checkbox is active on click, right-side toggle notification is shown and click is ignored"
       ],
       "dataNeeds": ["write:Correccion"],
       "acceptanceCriteria": [
         "Clicking Mal selects it and deselects other grade cells in the same row",
-        "Auto-saves on click with value 0",
-        "#76 updates (adds 0 for this item)"
+        "Auto-saves on click with value 0 only when a checkbox is active",
+        "When #77 is checked, grade applies to all alumnos in the project",
+        "#76 updates (adds 0 for this item) after a valid selection",
+        "If no checkbox is active, clicking shows a right-side toggle notification; no save occurs"
       ]
     },
     {
       "sketchNumber": 76,
-      "behavior": "Read-only paragraph displaying the running total of all currently selected grade values for the active alumno scope. Updates in real time after each grade cell click. Resets to 0 when a new project is loaded.",
+      "behavior": "Read-only paragraph displaying the running total of all currently selected grade values for the active alumno scope. Shows 0 when a project is loaded but no checkbox is yet active (the grid shows 'Elige una opción para empezar a corregir' at this point). Updates in real time after each valid grade cell click. Resets to 0 when a new project is loaded.",
       "businessRules": [
-        "Value equals the sum of all selected grade values across all rubric items for the current alumno",
+        "Value equals the sum of all selected grade values for the active alumno (or all alumnos when #77 is checked)",
+        "Shows 0 when no checkbox is active — the grade grid is not yet shown",
         "Not user-editable"
       ],
       "dataNeeds": ["read:Correccion"],
       "acceptanceCriteria": [
-        "Updates immediately when any grade cell is clicked",
-        "Value equals the sum of all currently selected grade values",
+        "Shows 0 when the project is loaded and no checkbox is active",
+        "Updates immediately when a grade cell is validly clicked (checkbox active)",
+        "Value equals the sum of all currently selected grade values for the active alumno scope",
         "Resets to 0 when a new project is loaded via #68",
         "Not editable by the user"
       ]
     },
     {
       "sketchNumber": 77,
-      "behavior": "Checkbox for group correction mode. When checked, the same grade applies to all alumnos in the project; individual checkboxes #78–#80 are disabled and unchecked. When unchecked, #78–#80 are re-enabled. All checkboxes start unchecked on load.",
+      "behavior": "Checkbox for group correction mode. When checked, the grade grid is shown and any grade saved applies to all alumnos in the project simultaneously. Individual checkboxes #78–#80 are disabled while #77 is active. When unchecked, #78–#80 are re-enabled and the grid reverts to the 'Elige una opción para empezar a corregir' message until an individual checkbox is selected. All checkboxes start unchecked on load.",
       "businessRules": [
         "Checking #77 disables and unchecks #78, #79, #80",
         "All checkboxes start unchecked on page load or project change",
-        "Mutually exclusive with individual checkboxes #78–#80"
+        "Mutually exclusive with individual checkboxes #78–#80",
+        "Grades saved in group mode are stored per-alumno; switching to individual mode afterwards shows those grades pre-selected for each alumno",
+        "Unchecking #77 reverts the grid to the 'Elige una opción para empezar a corregir' message"
       ],
       "dataNeeds": [],
       "acceptanceCriteria": [
         "All checkboxes (#77–#80) start unchecked when the screen loads",
-        "Checking #77 disables and unchecks #78, #79, #80",
-        "Unchecking #77 re-enables #78, #79, #80",
-        "When #77 is checked, selected grades are applied to all group members"
+        "Checking #77 disables and unchecks #78, #79, #80 and shows the grade grid",
+        "When #77 is checked, saving a grade level applies it to all alumnos in the project",
+        "Unchecking #77 re-enables #78, #79, #80 and reverts the grid to the 'Elige una opción para empezar a corregir' message",
+        "After unchecking #77 and selecting an individual alumno checkbox, the grades previously saved in group mode appear pre-selected for that alumno"
       ]
     },
     {
       "sketchNumber": 78,
-      "behavior": "Checkbox that selects Alumno 1 for individual correction. Mutually exclusive with #77 and other individual checkboxes — checking it unchecks #77, #79, #80. Disabled when #77 is checked. Starts unchecked.",
+      "behavior": "Checkbox for the first alumno of the project. Label shows the alumno's nombre_completo (read from the secure privacy table). Mutually exclusive with #77 and other individual checkboxes — checking it unchecks #77, #79, #80. Disabled when #77 is checked. Starts unchecked. Always rendered when the project has at least 1 alumno.",
       "businessRules": [
+        "Label displays nombre_completo from the secure privacy table, not the anonymised code",
         "Only one individual alumno can be selected at a time",
         "Checking this unchecks #77, #79, #80",
         "Disabled when #77 is checked",
-        "Starts unchecked"
+        "Starts unchecked",
+        "Always visible — the project always has at least 1 alumno",
+        "Grades previously saved in group mode (#77) appear pre-selected when this checkbox is activated"
       ],
-      "dataNeeds": [],
+      "dataNeeds": ["read:Alumno"],
       "acceptanceCriteria": [
+        "Label shows the nombre_completo of the first alumno in the project",
         "Checking #78 unchecks #77, #79, #80",
         "Disabled when #77 is checked",
-        "When #78 is checked, grades apply only to Alumno 1"
+        "When #78 is checked, grades apply only to this alumno",
+        "Grades previously saved in group mode appear pre-selected for this alumno"
       ]
     },
     {
       "sketchNumber": 79,
-      "behavior": "Checkbox for Alumno 2 individual correction. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked.",
+      "behavior": "Checkbox for the second alumno of the project. Label shows nombre_completo. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked. Hidden when the project has fewer than 2 alumnos.",
       "businessRules": [
+        "Label displays nombre_completo from the secure privacy table",
         "Only one individual alumno selected at a time",
         "Disabled when #77 is checked",
-        "Starts unchecked"
+        "Starts unchecked",
+        "Hidden when the project has only 1 alumno",
+        "Grades previously saved in group mode (#77) appear pre-selected when this checkbox is activated"
       ],
-      "dataNeeds": [],
+      "dataNeeds": ["read:Alumno"],
       "acceptanceCriteria": [
+        "Not rendered when the project has only 1 alumno",
+        "Label shows the nombre_completo of the second alumno when visible",
         "Checking #79 unchecks #77, #78, #80",
         "Disabled when #77 is checked",
-        "When #79 is checked, grades apply only to Alumno 2"
+        "When #79 is checked, grades apply only to this alumno",
+        "Grades previously saved in group mode appear pre-selected for this alumno"
       ]
     },
     {
       "sketchNumber": 80,
-      "behavior": "Checkbox for Alumno 3 individual correction. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked.",
+      "behavior": "Checkbox for the third alumno of the project. Label shows nombre_completo. Mutually exclusive with #77 and others. Disabled when #77 is checked. Starts unchecked. Hidden when the project has fewer than 3 alumnos.",
       "businessRules": [
+        "Label displays nombre_completo from the secure privacy table",
         "Only one individual alumno selected at a time",
         "Disabled when #77 is checked",
-        "Starts unchecked"
+        "Starts unchecked",
+        "Hidden when the project has fewer than 3 alumnos",
+        "Grades previously saved in group mode (#77) appear pre-selected when this checkbox is activated"
       ],
-      "dataNeeds": [],
+      "dataNeeds": ["read:Alumno"],
       "acceptanceCriteria": [
+        "Not rendered when the project has fewer than 3 alumnos",
+        "Label shows the nombre_completo of the third alumno when visible",
         "Checking #80 unchecks #77, #78, #79",
         "Disabled when #77 is checked",
-        "When #80 is checked, grades apply only to Alumno 3"
+        "When #80 is checked, grades apply only to this alumno",
+        "Grades previously saved in group mode appear pre-selected for this alumno"
       ]
     },
     {
@@ -1127,11 +1275,12 @@
     },
     {
       "sketchNumber": 85,
-      "behavior": "Select showing available academic years. On change, reloads the ciclo options in #86 and resets both #86 and #87. Disables #88 until all three selects have values.",
+      "behavior": "Select showing academic years derived from existing projects (distinct año_académico values across all projects). No separate admin entity exists for years. On change, reloads the ciclo options in #86 and resets both #86 and #87. Disables #88 until all three selects have values.",
       "businessRules": [
+        "Available years are the distinct año_académico values from existing projects — not a separately managed entity",
         "Changing year reloads #86 options and resets #86 and #87 selections"
       ],
-      "dataNeeds": ["read:Ciclo", "read:Proyecto"],
+      "dataNeeds": ["read:Proyecto"],
       "acceptanceCriteria": [
         "Selecting a year reloads ciclo options in #86",
         "#86 and #87 are reset when #85 changes",
@@ -1171,44 +1320,66 @@
     },
     {
       "sketchNumber": 88,
-      "behavior": "Button that generates and downloads a PDF report of grades. Disabled until all three selects (#85, #86, #87) have values. PDF contains: filter values as header, table with columns Proyecto / Nombre alumno / Niveles evaluados / Nota final.",
+      "behavior": "Button that generates and downloads a PDF report of grades. Disabled until all three selects (#85, #86, #87) have values. PDF contains: filter values as header, table with columns Proyecto / Nombre alumno / Niveles evaluados / Nota final. The nota_final is computed across ALL modules of the ciclo using a weighted average by hours. Modules not yet corrected contribute 0 to the sum; the PDF includes a footer note listing the pending modules.",
       "businessRules": [
         "Disabled unless all of #85, #86, #87 have a selected value",
         "Output is a PDF download — not Excel, not browser print dialog",
-        "PDF header shows the three filter values; table columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final"
+        "PDF header shows the three filter values; table columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final",
+        "'Niveles evaluados' shows, for each alumno, the count of rubric items graded at each level for the selected module: Excelente: N, Muy Bien: N, Bien: N, Regular: N, Mal: N",
+        "Alumnos with incomplete corrections (not all rubric items graded) are included in the report with their available partial data and an 'incomplete' indicator in their row",
+        "nota_final aggregates ALL modules of the ciclo: (1) compute each module's weight = horas_modulo / Σ(horas_all_modules_in_ciclo); (2) multiply module grade by its weight; (3) sum all weighted module grades",
+        "Modules not yet corrected are treated as grade 0 in the formula",
+        "If any module has no correction, the PDF includes a footer note listing the uncorrected modules"
       ],
-      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno", "read:RubricaItem"],
+      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno", "read:RubricaItem", "read:Modulo"],
       "acceptanceCriteria": [
         "Button is disabled when any of #85, #86, #87 is empty",
         "Button is enabled when all three selects have values",
         "Clicking downloads a PDF (not Excel) with grades data",
-        "PDF contains a header with filter values and a table with the four required columns"
+        "PDF contains a header with filter values and a table with the four required columns",
+        "The 'Niveles evaluados' column shows the count of rubric items at each grade level for that alumno in the selected module (e.g. Excelente: 3, Muy Bien: 1, Bien: 1, Regular: 0, Mal: 0)",
+        "Alumnos with incomplete corrections appear in the PDF with their partial data and an 'incomplete' indicator in their row",
+        "nota_final is the weighted average across all modules of the ciclo: each module's grade × (horas_modulo / Σ horas_all_modules)",
+        "Uncorrected modules contribute 0 to nota_final",
+        "When one or more modules are uncorrected, the PDF footer lists them with a warning that the nota_final is partial"
       ]
     },
     {
       "sketchNumber": 89,
-      "behavior": "Preview table showing the same data that will appear in the PDF. Loaded after #87 has a value. Columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final.",
+      "behavior": "Preview table showing the same data that will appear in the PDF. Loaded after #87 has a value. Columns: Proyecto, Nombre alumno, Niveles evaluados, Nota final. Nota final is computed identically to #88 — weighted average across all ciclo modules, with 0 for uncorrected ones and a visible warning listing pending modules.",
       "businessRules": [
         "Shows the same data that will be in the PDF",
-        "Only visible after módulo (#87) is selected"
+        "Only visible after módulo (#87) is selected",
+        "'Niveles evaluados' shows, for each alumno, the count of rubric items graded at each level for the selected module: Excelente: N, Muy Bien: N, Bien: N, Regular: N, Mal: N",
+        "Alumnos with incomplete corrections are shown with their partial data and an 'incomplete' indicator in their row",
+        "nota_final uses the same weighted formula as #88; uncorrected modules contribute 0",
+        "If any module is uncorrected, a warning is shown listing the pending modules"
       ],
-      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno"],
+      "dataNeeds": ["read:Correccion", "read:Proyecto", "read:Alumno", "read:Modulo"],
       "acceptanceCriteria": [
         "Table is hidden until #87 has a value",
         "After selecting a module in #87, table shows the preview data",
         "Table columns are: Proyecto, Nombre alumno, Niveles evaluados, Nota final",
-        "Preview data matches the content of the downloaded PDF"
+        "The 'Niveles evaluados' column shows the count of rubric items at each grade level for that alumno in the selected module",
+        "Alumnos with incomplete corrections appear with their partial data and an 'incomplete' indicator",
+        "Preview data matches the content of the downloaded PDF",
+        "nota_final shown in the preview is calculated identically to the PDF formula",
+        "When modules are uncorrected, the preview shows a warning listing the pending modules"
       ]
     },
     {
       "sketchNumber": 90,
-      "behavior": "Per-row delete icon in the rúbrica table. Deletes the rubric item immediately. After deletion, #64 recalculates and the sum may no longer be 10.00 — the rubric becomes invalid until the professor adjusts the remaining items.",
+      "behavior": "Per-row delete icon in the rúbrica table. Shows a confirmation dialog before deleting. Blocked if the module's rubric has been used in any project correction. After deletion, #64 recalculates and the sum may no longer be 10.00 — the rubric becomes invalid until the professor adjusts the remaining items.",
       "businessRules": [
+        "A confirmation dialog is required before deletion",
+        "Cannot delete a rubric item if the module's rubric has been used in any project correction; a blocking warning is shown — rubric items can only be deleted before the rubric has been used for grading",
         "After deleting an item, the Excelente sum may drop below 10.00; the rubric is invalid until corrected"
       ],
-      "dataNeeds": ["write:RubricaItem"],
+      "dataNeeds": ["write:RubricaItem", "read:Correccion"],
       "acceptanceCriteria": [
-        "Clicking the delete icon removes the rubric item row from #56",
+        "A confirmation dialog appears before deletion",
+        "If the module's rubric has been used in any project correction, deletion is blocked and a warning is shown",
+        "Clicking the delete icon removes the rubric item row from #56 when no corrections exist for the module's rubric",
         "#64 recalculates immediately after deletion",
         "If the remaining items' Excelente sum is no longer 10.00, the rubric is marked invalid until corrected"
       ]
@@ -1217,23 +1388,25 @@
   "globalRules": [
     "All table filters are reactive text inputs with 300ms debounce; the table updates automatically as the user types without pressing any button.",
     "In the correction screen, selecting a grade level for a rubric item auto-saves asynchronously to the DB; no explicit save button exists.",
-    "All rubric editable cells (item name and grade values) auto-save on blur; no explicit rubric save button exists.",
+    "All rubric editable cells (item name and grade values) auto-save on blur; no explicit rubric save button exists. These cells are read-only if the module's rubric has been used in any project correction.",
+    "Once a module's rubric has been used in any project correction, all rubric modifications are blocked: adding items (#55), editing item names (#57), editing grade values (#58–#61), deleting items (#90), and uploading a new rubric (#63). The rubric is frozen at the point of first use.",
     "Deleting any entity with dependencies is blocked; a warning message is shown and the deletion is prevented until all dependencies are resolved. Cascade order: Legislacion → Ciclos → Modulos → Proyectos/Alumnos.",
-    "Editing a row in any table activates inline editing directly in the row; no modal is opened for edit operations.",
+    "Editing a row in any table activates inline editing directly in the row; no modal is opened for edit operations. Exception: the legislacion edit icon (#83) populates the inline form at the top of the page rather than editing in-row.",
     "On first login with the default password '12345678', the user must change their password on the login screen before being redirected to their role home.",
-    "After 3 consecutive failed login attempts, the account is locked and 'Póngase en contacto con el Administrador' is displayed; only the admin can unlock accounts.",
+    "After 3 consecutive failed login attempts, the account is locked and 'Póngase en contacto con el Administrador' is displayed; only the admin can unlock profesor accounts. If the admin account itself is locked, the message shown is 'Póngase en contacto con el administrador de la base de datos' and recovery requires direct DB modification.",
     "There is exactly one admin account in the system (username: 'Admin', default password: '12345678'). The admin first-login flow allows one retry on password mismatch; on second mismatch, user is redirected to login without account lockout.",
     "Student real names are not stored in the main alumnos table; only anonymised identifiers (e.g. JJ499) are visible. Real names are stored in a separate high-security table linked by identifier.",
     "After any successful save operation, the associated table refreshes by reading from the DB; no optimistic client-side insertion is performed.",
     "Forms are not cleared automatically after saving; the form remains available for a new entry while the table reloads.",
     "The academic year is represented as a single integer corresponding to the course start year (e.g. 2025 for the 2025-2026 academic year).",
-    "A student can belong to only one project at a time; students already assigned to a project do not appear in the alumno selection list when creating a new project.",
+    "A student can belong to at most one project per academic year; students already assigned to a project in the same año_académico do not appear in the alumno selection list when creating a new project. A student may be assigned to projects in different academic years.",
     "Each module has exactly one rubric that applies to all its projects.",
     "Grade report output format is PDF — not Excel and not the browser's print dialog.",
-    "The final grade formula is: nota_final = Σ(nota_modulo_i × horas_modulo_i / horas_totales_ciclo). A student with 'Excelente' on all items in all modules obtains exactly 10.",
+    "The final grade formula is computed in three steps: (1) calculate each module's weight = horas_modulo_i / Σ(horas_all_modules_in_ciclo); (2) multiply the module grade by its weight; (3) sum all weighted module grades → nota_final. Modules not yet corrected contribute 0. A student with 'Excelente' on all items in all modules obtains exactly 10.",
     "All rubric items must be graded for each alumno before a correction is considered complete; a warning is shown if the professor tries to navigate away with ungraded items.",
     "All alumnos in a project must have all items graded before the project correction is marked complete.",
     "A professor can re-correct an alumno at any time by selecting a different grade level; the new grade overwrites the previous one with no confirmation required.",
-    "Select inputs in creation/edit modals use <select> for fields with closed value lists (ciclo, legislacion, modulo, alumnos); free-text inputs are used only for open-ended fields (name, identifier)."
+    "Select inputs in creation/edit modals use <select> for fields with closed value lists (ciclo, legislacion, modulo, alumnos); free-text inputs are used only for open-ended fields (name, identifier).",
+    "Role-based access for the profesor-side screens: the Tutor role has access only to /profesor/notas (grade report screen, elements #85–#89). All other profesor-side screens — Gestionar tabs (#31–#51: alumnos, proyectos, rúbrica) and the Correction screen (#65–#80) — are restricted to the Profesor role. Attempting to navigate to a restricted route as a Tutor redirects to /profesor/notas."
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "feature_id": "corrector-v1",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "gate": "GATE HUMANO — Reconciliación",
+  "valid": true,
+  "summary": "All 90 boceto elements have a corresponding functional spec entry and vice versa. No orphaned elements on either side.",
+  "boceto_numbers": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90],
+  "spec_numbers": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90],
+  "orphaned_sketch_elements": [],
+  "orphaned_spec_rules": [],
+  "stats": {
+    "total_boceto_elements": 90,
+    "total_spec_elements": 90,
+    "matched": 90,
+    "orphaned_in_boceto": 0,
+    "orphaned_in_spec": 0
+  },
+  "review_passes": 14,
+  "corrections_applied": [
+    "Ciclo data model: added legislacion FK to ciclo; fixed cascade constraints (#11, #12, #13, #14, #19, #82, #84, globalRules)",
+    "Rubric validity: individual cell saves never blocked by sum constraint; rubric marked invalid visually (#56, #58, #64, #69)",
+    "Correction screen: 'Elige una opción para empezar a corregir' message before checkbox selection (#69, #71, #76, #77–#80)",
+    "Rubric item deletion: requires confirmation + blocked if rubric used for grading (#90)",
+    "Rubric upload (#63): blocked if corrections exist; row-level import for alumnos (#41)",
+    "Ciclo creation modal: added legislacion field (#12, #13, #14)",
+    "Módulo inline edit: fields specified + siglas uniqueness per legislacion (#21, #17)",
+    "Alumno creation: added nombre_completo field; legislacion derived from ciclo (#35, #38, #39, #41)",
+    "Rubric freeze: all rubric edits (add/edit/delete/upload) blocked once corrections exist (#55, #57–#61, #63, #90, globalRules)",
+    "Notas screen: 'Niveles evaluados' defined as item count per grade level; partial corrections show with indicator (#88, #89)",
+    "Project creation (#46): ciclo defaults to active module's ciclo; alumno list reactive to ciclo; min 1 alumno enforced (#50)",
+    "Profesor username uniqueness (#24, #28); ciclo nombre uniqueness per legislacion (#12, #14); módulo siglas uniqueness per legislacion (#17, #21)",
+    "Inline edit validations for ciclo and módulo uniqueness constraints (#14, #21)",
+    "Project table: added año_académico column (#47); alumno edit filters by ciclo (#50)",
+    "Tutor role restriction: documented in globalRules; only /profesor/notas accessible",
+    "Admin unlock mechanism: documented in #28",
+    "Password change: new password cannot be same as default '12345678' (#2)",
+    "Rúbrica filter (#53): restricted to professor's assigned modules only",
+    "GlobalRules: corrected legislacion edit exception; added rubric freeze principle; added role-based access"
+  ]
+}
