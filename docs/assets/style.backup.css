@@ -377,105 +377,55 @@ table {
    RESPONSIVE — Mobile: ≤ 640px
 ══════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  /* Nav: scrollable horizontal strip with larger tap targets */
+  /* Nav: scrollable horizontal strip */
   nav {
     padding: 0 .75rem;
-    gap: .75rem;
+    gap: 1rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    height: 52px;
   }
   nav::-webkit-scrollbar { display: none; }
-  nav .brand { font-size: .85rem; flex-shrink: 0; }
-  nav a {
-    font-size: .8rem;
-    white-space: nowrap;
-    padding: .5rem .25rem; /* larger tap target */
-  }
-  nav .spacer { display: none; }
-  nav .gh-link {
-    flex-shrink: 0;
-    padding: .3rem .6rem;
-    font-size: .75rem;
-    /* Move GitHub link to end with auto margin */
-    margin-left: auto;
-  }
+  nav .brand { font-size: .88rem; flex-shrink: 0; }
+  nav a      { font-size: .78rem; white-space: nowrap; }
+  nav .spacer { min-width: 0; flex: 0; }
+  nav .gh-link { flex-shrink: 0; padding: .25rem .5rem; font-size: .75rem; }
 
   /* Layout */
-  main { padding: 1.25rem .9rem 3rem; }
+  main { padding: 1.5rem 1rem 3rem; }
 
   /* Hero */
-  .hero         { padding: 1.75rem 0 1.25rem; }
-  .hero h1      { font-size: 1.55rem; line-height: 1.2; }
-  .hero p       { font-size: .93rem; margin-bottom: 1.1rem; }
+  .hero         { padding: 2rem 0 1.5rem; }
+  .hero h1      { font-size: 1.65rem; }
+  .hero p       { font-size: .95rem; margin-bottom: 1.25rem; }
   .badge        { font-size: .72rem; }
 
   /* Grids → single column */
-  .cards     { grid-template-columns: 1fr; gap: .9rem; }
+  .cards     { grid-template-columns: 1fr; }
   .roles     { grid-template-columns: 1fr; }
   .spec-grid { grid-template-columns: 1fr; }
 
   /* Typography */
   body { font-size: 15px; }
-  h1   { font-size: 1.45rem; line-height: 1.25; }
-  h2   { font-size: 1.13rem; margin: 1.6rem 0 .55rem; }
+  h1   { font-size: 1.5rem; }
+  h2   { font-size: 1.15rem; margin: 1.75rem 0 .6rem; }
   h3   { font-size: 1rem; }
 
-  /* Code & tree blocks: cap width and allow wrap for long strings */
-  pre  {
-    padding: .85rem .9rem;
-    font-size: .76rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    word-break: break-all;
-  }
-  .tree {
-    padding: .85rem .9rem;
-    font-size: .73rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  code { word-break: break-word; }
+  /* Code & tree blocks */
+  pre  { padding: .9rem 1rem; font-size: .78rem; }
+  .tree { padding: .9rem 1rem; font-size: .75rem; }
 
   /* Pipeline steps */
-  .step      { padding: .7rem .9rem; gap: .6rem; flex-wrap: wrap; }
-  .step .num { width: 24px; height: 24px; font-size: .78rem; }
-  .step .body span { font-size: .83rem; }
+  .step         { padding: .75rem 1rem; gap: .65rem; }
+  .step .num    { width: 24px; height: 24px; font-size: .78rem; }
 
   /* Cards */
-  .card      { padding: 1rem; }
-  .spec-card { padding: .85rem .9rem; }
+  .card         { padding: 1.1rem; }
+  .spec-card    { padding: .9rem 1rem; }
 
   /* Callout */
-  .callout { padding: .7rem .9rem; font-size: .87rem; }
-
-  /* Tables: ensure horizontal scroll doesn't break layout */
-  table { font-size: .82rem; }
-  th, td { padding: .5rem .75rem; }
+  .callout { padding: .75rem 1rem; font-size: .88rem; }
 
   /* Footer */
-  footer { padding: 1.1rem .9rem; font-size: .8rem; }
-
-  /* Badges in pipeline steps: wrap onto new line */
-  .badge-done, .badge-artifact { display: inline-block; margin-top: .2rem; }
-
-  /* ── flujo.html two-column layout → stacked on mobile ── */
-  .flujo-wrap {
-    display: flex;
-    flex-direction: column;
-  }
-  .flujo-sidebar {
-    position: static;
-    height: auto;
-    max-height: 45vh;
-    overflow-y: auto;
-    border-right: none;
-    border-bottom: 2px solid var(--border);
-  }
-  .flujo-viewer {
-    position: static;
-    height: auto;
-    padding: 1.25rem .9rem 2rem;
-  }
+  footer { padding: 1.25rem 1rem; }
 }
