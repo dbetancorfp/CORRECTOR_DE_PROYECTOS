@@ -350,3 +350,82 @@ footer {
   border-top: 1px solid var(--border);
   margin-top: 3rem;
 }
+
+/* ── Tables: horizontal scroll when content overflows ── */
+table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Tablet: 641px – 1023px
+══════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 1023px) {
+  main { padding: 2rem 1.5rem 4rem; }
+
+  .hero { padding: 3rem 0 2rem; }
+  .hero h1 { font-size: 2rem; }
+  .hero p  { font-size: 1.05rem; }
+
+  .cards    { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .roles    { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+  .spec-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Mobile: ≤ 640px
+══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Nav: scrollable horizontal strip */
+  nav {
+    padding: 0 .75rem;
+    gap: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav .brand { font-size: .88rem; flex-shrink: 0; }
+  nav a      { font-size: .78rem; white-space: nowrap; }
+  nav .spacer { min-width: 0; flex: 0; }
+  nav .gh-link { flex-shrink: 0; padding: .25rem .5rem; font-size: .75rem; }
+
+  /* Layout */
+  main { padding: 1.5rem 1rem 3rem; }
+
+  /* Hero */
+  .hero         { padding: 2rem 0 1.5rem; }
+  .hero h1      { font-size: 1.65rem; }
+  .hero p       { font-size: .95rem; margin-bottom: 1.25rem; }
+  .badge        { font-size: .72rem; }
+
+  /* Grids → single column */
+  .cards     { grid-template-columns: 1fr; }
+  .roles     { grid-template-columns: 1fr; }
+  .spec-grid { grid-template-columns: 1fr; }
+
+  /* Typography */
+  body { font-size: 15px; }
+  h1   { font-size: 1.5rem; }
+  h2   { font-size: 1.15rem; margin: 1.75rem 0 .6rem; }
+  h3   { font-size: 1rem; }
+
+  /* Code & tree blocks */
+  pre  { padding: .9rem 1rem; font-size: .78rem; }
+  .tree { padding: .9rem 1rem; font-size: .75rem; }
+
+  /* Pipeline steps */
+  .step         { padding: .75rem 1rem; gap: .65rem; }
+  .step .num    { width: 24px; height: 24px; font-size: .78rem; }
+
+  /* Cards */
+  .card         { padding: 1.1rem; }
+  .spec-card    { padding: .9rem 1rem; }
+
+  /* Callout */
+  .callout { padding: .75rem 1rem; font-size: .88rem; }
+
+  /* Footer */
+  footer { padding: 1.25rem 1rem; }
+}
