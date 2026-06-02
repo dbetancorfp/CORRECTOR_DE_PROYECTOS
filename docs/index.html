@@ -12,7 +12,9 @@
   <a class="brand" href="index.html">Corrector de Proyectos</a>
   <a href="guia.html">Guía</a>
   <a href="arquitectura.html">Arquitectura</a>
-  <a href="especificaciones.html">Especificaciones</a>
+  <a href="funcional.html">Funcional</a>
+  <a href="casos-de-uso.html">Casos de uso</a>
+  <a href="especificaciones.html">JS Specs</a>
   <a href="flujo.html">Flujo</a>
   <span class="spacer"></span>
   <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">
@@ -33,11 +35,12 @@
 
   <div class="callout">
     <strong>Estado actual:</strong>
-    Agentes 1 y 2 ejecutados →
-    <code>ui-spec.json</code> (11 pantallas, 90 elementos) +
-    <code>functional-spec.json</code> (90 specs, 20 reglas globales) generados.
-    Siguiente: <strong>GATE HUMANO — Reconciliación</strong>
-    → <code>reconciliation.json { valid: true }</code> → Agente 3.
+    Agentes 1, 2 y 3 ejecutados + GATE HUMANO superado →
+    <code>functional-spec.json</code> (90 specs) +
+    <code>use-cases.md</code> (10 UCs) +
+    <code>schema.sql</code> (12 tablas) +
+    <code>api-contracts.md</code> (~35 endpoints) generados.
+    Siguiente: <strong>Agente 4 — Ingeniero TDD</strong>.
   </div>
 
   <div class="cards">
@@ -61,9 +64,19 @@
       <h3>Registro de elementos</h3>
       <p><code>boceto-elements.md</code> — tabla completa de sketchNumbers (#1–#90) por pantalla.</p>
     </a>
-    <a class="card" href="especificaciones.html">
+    <a class="card" href="funcional.html">
       <span class="icon">📐</span>
-      <h3>Especificaciones técnicas</h3>
+      <h3>Especificación funcional</h3>
+      <p>90 elementos con comportamiento, reglas de negocio y criterios de aceptación. Visor interactivo con búsqueda.</p>
+    </a>
+    <a class="card" href="casos-de-uso.html">
+      <span class="icon">🗂️</span>
+      <h3>Casos de uso</h3>
+      <p>10 flujos funcionales (UC-01 a UC-10) derivados del functional-spec. Con actores, flujos, alternativas y criterios.</p>
+    </a>
+    <a class="card" href="especificaciones.html">
+      <span class="icon">⚙️</span>
+      <h3>JS Specs</h3>
       <p>4 días de JavaScript Avanzado: fundamentos, asincronía, DOM, Web Components y performance.</p>
     </a>
   </div>

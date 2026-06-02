@@ -12,7 +12,9 @@
   <a class="brand" href="index.html">Corrector de Proyectos</a>
   <a href="guia.html">Guía</a>
   <a href="arquitectura.html" class="active">Arquitectura</a>
-  <a href="especificaciones.html">Especificaciones</a>
+  <a href="funcional.html">Funcional</a>
+  <a href="casos-de-uso.html">Casos de uso</a>
+  <a href="especificaciones.html">JS Specs</a>
   <a href="flujo.html">Flujo</a>
   <span class="spacer"></span>
   <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">
@@ -82,12 +84,14 @@ Boceto (#N)
       </div>
     </div>
 
-    <div class="step">
+    <div class="step done">
       <div class="num">3</div>
       <div class="body">
-        <strong>Arquitecto de Requisitos</strong>
-        <span>Con las specs validadas genera los casos de uso, el DDL de PostgreSQL y los contratos de API.</span>
-        <span class="output">→ use-cases.md · schema.sql · api-contracts · phase: use-case</span>
+        <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span><span class="badge-artifact">✓ ejecutado</span></strong>
+        <span>Con las specs validadas genera los casos de uso, el DDL de PostgreSQL y los contratos de API. Ejecutar con <code>/requirement-architect</code> en Claude Code.</span>
+        <span class="output">→ corrector/04-use-cases/use-cases.md · 10 UCs · 90 sketchNumbers</span>
+        <span class="output">→ corrector/05-implementation/backend/schema.sql · 12 tablas · PostgreSQL 16</span>
+        <span class="output">→ corrector/05-implementation/backend/api-contracts.md · ~35 endpoints REST</span>
       </div>
     </div>
 

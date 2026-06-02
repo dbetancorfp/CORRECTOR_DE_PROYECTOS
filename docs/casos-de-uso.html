@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casos de Uso · Corrector de Proyectos</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── UC index at top ── */
+    .uc-index {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: .6rem;
+      margin: 1rem 0 2rem;
+    }
+    .uc-index-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .6rem .9rem;
+      text-decoration: none;
+      color: var(--text);
+      font-size: .85rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .uc-index-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      transform: translateY(-1px);
+    }
+    .uc-id {
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .uc-title-sm { font-size: .84rem; color: var(--muted); }
+
+    /* ── UC section ── */
+    .uc-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .uc-header {
+      background: var(--primary);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .uc-header-id {
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.6);
+    }
+    .uc-header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+    }
+    .uc-body { padding: 1.25rem 1.5rem; }
+
+    /* ── Meta row ── */
+    .uc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem 1.5rem;
+      margin-bottom: 1.25rem;
+      font-size: .85rem;
+    }
+    .uc-meta-item { display: flex; gap: .4rem; align-items: baseline; }
+    .uc-meta-key {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .uc-meta-val { color: var(--text); }
+    .uc-sketch-tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .uc-sketch-tag {
+      font-family: var(--mono);
+      font-size: .74rem;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid #bfdbfe;
+      border-radius: 4px;
+      padding: .08rem .4rem;
+    }
+
+    /* ── Subsections ── */
+    .uc-sub { margin-bottom: 1.1rem; }
+    .uc-sub-title {
+      font-size: .73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: .5rem;
+      padding-bottom: .25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .uc-flow-list {
+      list-style: decimal;
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+    .uc-flow-list li { font-size: .88rem; line-height: 1.55; }
+    .uc-alt-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .uc-alt-list li {
+      font-size: .87rem;
+      line-height: 1.5;
+      padding: .45rem .8rem;
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+    }
+    .uc-alt-id {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: .78rem;
+      color: var(--accent);
+    }
+    .uc-post-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+    .uc-post-list li {
+      font-size: .87rem;
+      padding: .3rem 0;
+      display: flex;
+      gap: .5rem;
+    }
+    .uc-post-list li::before { content: '→'; color: var(--accent); font-weight: 700; }
+    .uc-crit-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+    .uc-crit-list li {
+      font-size: .85rem;
+      line-height: 1.5;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .45rem .8rem;
+      display: flex;
+      gap: .55rem;
+      align-items: flex-start;
+    }
+    .uc-crit-list li::before {
+      content: '☐';
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .uc-index { grid-template-columns: 1fr 1fr; gap: .4rem; }
+      .uc-header { padding: .75rem 1rem; }
+      .uc-body { padding: .9rem 1rem; }
+      .uc-header-title { font-size: .95rem; }
+      .uc-meta { gap: .4rem .9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Corrector de Proyectos</a>
+  <a href="guia.html">Guía</a>
+  <a href="arquitectura.html">Arquitectura</a>
+  <a href="funcional.html">Funcional</a>
+  <a href="casos-de-uso.html" class="active">Casos de uso</a>
+  <a href="especificaciones.html">JS Specs</a>
+  <a href="flujo.html">Flujo</a>
+  <span class="spacer"></span>
+  <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">⌥ GitHub</a>
+</nav>
+
+<main>
+  <h1>Casos de Uso</h1>
+  <p>
+    10 casos de uso derivados de <code>functional-spec.json</code> (90 elementos, 21 reglas globales)
+    por el <strong>Agente 3 — Arquitecto de Requisitos</strong>.
+    Cada UC referencia los <code>sketchNumber</code> del boceto para trazabilidad completa.
+  </p>
+
+  <div class="callout">
+    <strong>Artefacto:</strong> <code>corrector/04-use-cases/use-cases.md</code> ·
+    10 casos de uso · 90 sketchNumbers cubiertos · Fase RAG: <code>use-case</code>
+  </div>
+
+  <!-- ── Índice ── -->
+  <h2>Índice</h2>
+  <div class="uc-index">
+    <a class="uc-index-item" href="#uc-01"><span class="uc-id">UC-01</span><span class="uc-title-sm">Login y autenticación</span></a>
+    <a class="uc-index-item" href="#uc-02"><span class="uc-id">UC-02</span><span class="uc-title-sm">Gestión de Legislaciones</span></a>
+    <a class="uc-index-item" href="#uc-03"><span class="uc-id">UC-03</span><span class="uc-title-sm">Gestión de Ciclos</span></a>
+    <a class="uc-index-item" href="#uc-04"><span class="uc-id">UC-04</span><span class="uc-title-sm">Gestión de Módulos</span></a>
+    <a class="uc-index-item" href="#uc-05"><span class="uc-id">UC-05</span><span class="uc-title-sm">Gestión de Profesorado</span></a>
+    <a class="uc-index-item" href="#uc-06"><span class="uc-id">UC-06</span><span class="uc-title-sm">Gestión de Alumnos</span></a>
+    <a class="uc-index-item" href="#uc-07"><span class="uc-id">UC-07</span><span class="uc-title-sm">Gestión de Proyectos</span></a>
+    <a class="uc-index-item" href="#uc-08"><span class="uc-id">UC-08</span><span class="uc-title-sm">Gestión de Rúbrica</span></a>
+    <a class="uc-index-item" href="#uc-09"><span class="uc-id">UC-09</span><span class="uc-title-sm">Corrección de Proyecto</span></a>
+    <a class="uc-index-item" href="#uc-10"><span class="uc-id">UC-10</span><span class="uc-title-sm">Visualización e impresión de Notas</span></a>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-01
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-01">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-01</span>
+      <span class="uc-header-title">Login y autenticación</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor / Admin</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">El usuario no está autenticado. El sistema tiene al menos una cuenta en la BD.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#1 Campo usuario</span>
+            <span class="uc-sketch-tag">#2 Campo contraseña</span>
+            <span class="uc-sketch-tag">#3 Botón Acceder</span>
+            <span class="uc-sketch-tag">#4 Logo</span>
+            <span class="uc-sketch-tag">#5 Navbar con Salir</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal</div>
+        <ol class="uc-flow-list">
+          <li>El usuario accede a la pantalla de login (<code>/</code>).</li>
+          <li>Introduce su nombre de usuario en el campo #1 (formato Consejería, e.g. <code>dbetqui</code>; el admin usa el literal <code>Admin</code>).</li>
+          <li>Introduce su contraseña en el campo #2 (siempre enmascarada).</li>
+          <li>Pulsa el botón Acceder (#3).</li>
+          <li>El sistema valida las credenciales contra la BD.</li>
+          <li>Si las credenciales son correctas y la contraseña no es la predeterminada <code>12345678</code>, el sistema crea una sesión y redirige a <code>/admin</code> (admin) o <code>/profesor</code> (profesor/tutor).</li>
+          <li>La barra de navegación (#5) muestra el nombre de usuario autenticado. El botón Salir destruye la sesión sin confirmación y redirige a <code>/</code>.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Credenciales inválidas:</span> Se muestra <code>Credenciales incorrectas</code>. El contador de intentos fallidos aumenta en 1.</li>
+          <li><span class="uc-alt-id">A2 — Tercer intento fallido:</span> La cuenta queda bloqueada (<code>locked = true</code>). Se muestra <code>Póngase en contacto con el Administrador</code>. Si es el admin, mensaje diferente y requiere intervención en BD.</li>
+          <li><span class="uc-alt-id">A3 — Primer acceso (contraseña predeterminada):</span> Si la contraseña es <code>12345678</code>, aparecen dos campos adicionales en la misma pantalla para nueva contraseña y confirmación. Si coinciden y no son <code>12345678</code>, se actualiza la BD y se redirige.</li>
+          <li><span class="uc-alt-id">A4 — Cuenta bloqueada:</span> El usuario no puede hacer login. Solo el admin puede desbloquearlo (UC-05, A3).</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Postcondiciones</div>
+        <ul class="uc-post-list">
+          <li>El usuario tiene una sesión activa y está en su pantalla de inicio según el rol.</li>
+          <li><code>failed_login_attempts</code> se resetea a 0 tras un login exitoso.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación</div>
+        <ul class="uc-crit-list">
+          <li>Cuando las credenciales son válidas, el usuario es redirigido a <code>/admin</code> (admin) o <code>/profesor</code> (profesor/tutor)</li>
+          <li>Enviar un usuario vacío muestra un error de campo obligatorio</li>
+          <li>Los caracteres del campo #2 siempre están enmascarados</li>
+          <li>Cuando la contraseña enviada es <code>12345678</code>, aparecen dos campos adicionales en la misma pantalla</li>
+          <li>Cuando nueva contraseña y confirmación no coinciden, se muestra un error y el flujo se repite</li>
+          <li>Establecer la nueva contraseña como <code>12345678</code> es rechazado con un error de validación</li>
+          <li>Tras 3 intentos fallidos consecutivos la cuenta queda bloqueada y se muestra <code>Póngase en contacto con el Administrador</code></li>
+          <li>Al pulsar Salir (#5), la sesión se destruye y el usuario es redirigido a <code>/</code> sin diálogo de confirmación</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-02
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-02">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-02</span>
+      <span class="uc-header-title">Gestión de Legislaciones</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Admin</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Admin autenticado en <code>/admin/legislacion</code>.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#6 Tabs admin</span>
+            <span class="uc-sketch-tag">#7 Campo siglas</span>
+            <span class="uc-sketch-tag">#8 Año inicio</span>
+            <span class="uc-sketch-tag">#9 Año fin</span>
+            <span class="uc-sketch-tag">#10 Botón Guardar</span>
+            <span class="uc-sketch-tag">#81 Botón Nuevo</span>
+            <span class="uc-sketch-tag">#82 Tabla legislaciones</span>
+            <span class="uc-sketch-tag">#83 Editar fila</span>
+            <span class="uc-sketch-tag">#84 Borrar fila</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa Nuevo (#81); el formulario inline (#7, #8, #9) se limpia.</li>
+          <li>Introduce la abreviatura (#7: 2–10 letras mayúsculas, única en el sistema), el año de inicio (#8) y el año de fin (#9: debe ser exactamente inicio + 1).</li>
+          <li>Pulsa Guardar (#10). El sistema valida, realiza un INSERT y refresca la tabla #82 desde la BD.</li>
+          <li>El formulario retiene los valores introducidos (no se limpia tras guardar).</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Editar</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa el icono de editar (#83) en una fila; el formulario inline se rellena con los valores actuales de esa fila.</li>
+          <li>El admin modifica los campos y pulsa Guardar (#10). El sistema realiza un UPDATE y refresca la tabla #82.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Siglas duplicadas:</span> El guardado es bloqueado con un error de restricción única.</li>
+          <li><span class="uc-alt-id">A2 — Año fin ≠ inicio + 1:</span> El guardado es bloqueado con error de validación.</li>
+          <li><span class="uc-alt-id">A3 — Borrado bloqueado:</span> Si la legislación tiene ciclos asociados, se muestra un aviso bloqueante y no se elimina.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación</div>
+        <ul class="uc-crit-list">
+          <li>Enviar una abreviatura duplicada muestra un error de restricción única y bloquea el guardado</li>
+          <li>Una abreviatura con minúsculas o fuera del rango 2–10 caracteres es rechazada</li>
+          <li>Cuando año_fin ≠ año_inicio + 1, el guardado es bloqueado</li>
+          <li>Tras guardar, los campos del formulario retienen sus valores</li>
+          <li>El icono de editar (#83) rellena el formulario inline; no se abre modal</li>
+          <li>Una legislación con ciclos asociados no puede ser eliminada; se muestra un aviso bloqueante</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-03
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-03">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-03</span>
+      <span class="uc-header-title">Gestión de Ciclos</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Admin</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Admin autenticado en <code>/admin/ciclos</code>.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#11 Tab Ciclos</span>
+            <span class="uc-sketch-tag">#12 Botón Nuevo + modal</span>
+            <span class="uc-sketch-tag">#13 Tabla ciclos</span>
+            <span class="uc-sketch-tag">#14 Editar inline</span>
+            <span class="uc-sketch-tag">#15 Borrar fila</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa Nuevo (#12); se abre un modal con exactamente dos campos: nombre y legislación (select).</li>
+          <li>El admin introduce el nombre y selecciona una legislación. Guarda.</li>
+          <li>El sistema valida, realiza un INSERT y refresca la tabla #13.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Nombre duplicado bajo la misma legislación:</span> Error de restricción única; guardado bloqueado.</li>
+          <li><span class="uc-alt-id">A2 — Legislación no seleccionada:</span> Error de campo obligatorio.</li>
+          <li><span class="uc-alt-id">A3 — Borrado bloqueado:</span> Si el ciclo tiene módulos, se muestra un aviso bloqueante.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación</div>
+        <ul class="uc-crit-list">
+          <li>Pulsar Nuevo abre un modal con exactamente los campos: nombre y legislación (select)</li>
+          <li>Guardar un nombre ya existente bajo la misma legislación muestra un error de restricción única</li>
+          <li>El icono de editar activa la edición inline en la fila; no se abre modal</li>
+          <li>Borrar un ciclo con módulos asociados muestra un aviso bloqueante y no elimina</li>
+          <li>Cuando no existen ciclos, se muestra un mensaje de estado vacío en la tabla #13</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-04
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-04">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-04</span>
+      <span class="uc-header-title">Gestión de Módulos</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Admin</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Admin autenticado en <code>/admin/modulos</code>. Existen al menos una legislación y un ciclo.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#16 Tab Módulos</span>
+            <span class="uc-sketch-tag">#17 Botón Nuevo + modal</span>
+            <span class="uc-sketch-tag">#18 Tabla módulos</span>
+            <span class="uc-sketch-tag">#19 Columna legislación</span>
+            <span class="uc-sketch-tag">#20 Columna ciclo</span>
+            <span class="uc-sketch-tag">#21 Editar inline</span>
+            <span class="uc-sketch-tag">#22 Borrar fila</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa Nuevo (#17); se abre un modal con exactamente 5 campos: nombre, siglas, legislación (select UI-filter), horas_semanales (número), ciclo (select).</li>
+          <li>Al seleccionar una legislación, el select de ciclo se filtra para mostrar solo los ciclos de esa legislación. La legislación no se almacena en el módulo.</li>
+          <li>El admin completa los campos y guarda. La tabla #18 se refresca. La columna #19 muestra la legislación derivada del ciclo.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Siglas duplicadas bajo la misma legislación:</span> Error de restricción única.</li>
+          <li><span class="uc-alt-id">A2 — Borrado bloqueado:</span> Si el módulo tiene proyectos asociados, aviso bloqueante.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación</div>
+        <ul class="uc-crit-list">
+          <li>El modal tiene exactamente 5 campos: nombre, siglas, legislación (select), horas_semanales, ciclo (select)</li>
+          <li>Seleccionar una legislación filtra el select de ciclo para mostrar solo los ciclos de esa legislación</li>
+          <li>La edición inline no abre modal; los 4 campos (nombre, siglas, horas_semanales, ciclo) son editables en la fila</li>
+          <li>Al cambiar el ciclo en edición inline, la columna legislación (#19) se actualiza automáticamente</li>
+          <li>Un módulo con proyectos asociados muestra un aviso bloqueante al intentar borrarlo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-05
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-05">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-05</span>
+      <span class="uc-header-title">Gestión de Profesorado</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Admin</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Admin autenticado en <code>/admin/profesorado</code>.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#23 Tab Profesorado</span>
+            <span class="uc-sketch-tag">#24 Botón Nuevo + modal</span>
+            <span class="uc-sketch-tag">#25 Tabla profesores</span>
+            <span class="uc-sketch-tag">#26 Columna ciclos</span>
+            <span class="uc-sketch-tag">#27 Columna módulos</span>
+            <span class="uc-sketch-tag">#28 Editar inline + desbloqueo</span>
+            <span class="uc-sketch-tag">#29 Borrar fila</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa Nuevo (#24); se abre un modal con exactamente 4 campos: username, nombre completo, ciclo(s) (multi-select), módulo(s) (multi-select).</li>
+          <li>El admin completa los campos. Un profesor puede tener módulos de diferentes ciclos.</li>
+          <li>El admin guarda. El sistema inserta con contraseña predeterminada <code>12345678</code> y refresca la tabla #25.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Editar / Desbloquear cuenta</div>
+        <ol class="uc-flow-list">
+          <li>El admin pulsa el icono de editar (#28). La fila entra en modo edición inline: campos editables son username, nombre_completo, ciclos, módulos. La contraseña <strong>no</strong> es editable en este modo.</li>
+          <li>El admin guarda. Si el profesor tenía la cuenta bloqueada, el guardado resetea <code>failed_login_attempts</code> a 0 y cambia <code>locked</code> a <code>false</code>.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Username duplicado:</span> Error de restricción única; guardado bloqueado.</li>
+          <li><span class="uc-alt-id">A2 — Borrado bloqueado:</span> Si tiene módulos asignados o correcciones guardadas, aviso bloqueante.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación</div>
+        <ul class="uc-crit-list">
+          <li>El modal tiene exactamente 4 campos: username, nombre_completo, ciclos (multi-select), módulos (multi-select)</li>
+          <li>Un profesor que no ha cambiado su contraseña muestra <code>12345678</code> en la columna de contraseña; si la cambió muestra <code>********</code></li>
+          <li>En modo edición inline, el campo contraseña no se muestra</li>
+          <li>Guardar el registro de un profesor bloqueado desbloquea la cuenta y resetea el contador de intentos</li>
+          <li>Un profesor con múltiples ciclos muestra los nombres separados por coma en la columna #26</li>
+          <li>Un profesor con múltiples módulos muestra las siglas separadas por coma en la columna #27</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-06
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-06">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-06</span>
+      <span class="uc-header-title">Gestión de Alumnos</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Profesor autenticado en <code>/profesor/gestionar/alumnos</code>.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#31 Tab Alumnos</span>
+            <span class="uc-sketch-tag">#32 Filtro código</span>
+            <span class="uc-sketch-tag">#33 Filtro ciclo</span>
+            <span class="uc-sketch-tag">#34 Filtro legislación</span>
+            <span class="uc-sketch-tag">#35 Botón Nuevo</span>
+            <span class="uc-sketch-tag">#36 Tabla alumnos</span>
+            <span class="uc-sketch-tag">#37 Col. ciclo</span>
+            <span class="uc-sketch-tag">#38 Col. legislación</span>
+            <span class="uc-sketch-tag">#39 Editar inline</span>
+            <span class="uc-sketch-tag">#40 Borrar fila</span>
+            <span class="uc-sketch-tag">#41 Subir lista</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear alumno</div>
+        <ol class="uc-flow-list">
+          <li>El profesor pulsa Nuevo (#35); se abre un modal con 4 campos: nombre_completo, identificador (código anónimo), ciclo (select), legislación (select UI-filter).</li>
+          <li>El sistema inserta el identificador y ciclo en la tabla <code>alumnos</code>, y el nombre_completo en la tabla segura de privacidad <code>alumno_nombres</code>.</li>
+          <li>La tabla #36 se refresca mostrando solo el identificador anónimo (no el nombre_completo).</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Subida masiva</div>
+        <ol class="uc-flow-list">
+          <li>El profesor pulsa Subir lista (#41) y selecciona un fichero YAML, CSV o JSON.</li>
+          <li>El sistema parsea el fichero fila a fila. Las filas válidas se insertan; las inválidas se omiten.</li>
+          <li>Al finalizar, se muestra un informe con las filas omitidas y el motivo de cada rechazo.</li>
+          <li>La tabla #36 se refresca.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Identificador duplicado:</span> Error de restricción única; guardado bloqueado.</li>
+          <li><span class="uc-alt-id">A2 — Borrado bloqueado:</span> Si el alumno tiene notas o asignaciones, pop-up con dependencias listadas.</li>
+          <li><span class="uc-alt-id">A3 — Fichero no parseable:</span> Error de parseo; nada importado.</li>
+          <li><span class="uc-alt-id">A4 — Formato no soportado:</span> Error; solo YAML, CSV y JSON aceptados.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Postcondición clave</div>
+        <ul class="uc-post-list">
+          <li>Los nombres reales de los alumnos NO son visibles en la tabla #36 (solo el código anónimo).</li>
+          <li>La tabla <code>alumno_nombres</code> contiene los nombres reales vinculados por identificador.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación (selección)</div>
+        <ul class="uc-crit-list">
+          <li>El modal tiene exactamente 4 campos; la legislación actúa como UI-filter para el select de ciclo</li>
+          <li>Tras guardar, el nuevo alumno aparece en #36 solo con el identificador anónimo</li>
+          <li>nombre_completo se almacena en la tabla segura y no se muestra en #36</li>
+          <li>Escribir en #32, #33 o #34 actualiza la tabla #36 tras 300ms sin pulsar ningún botón</li>
+          <li>Las filas válidas se importan aunque otras filas del mismo fichero sean inválidas</li>
+          <li>Tras la importación, se muestra un informe con las filas omitidas y el motivo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-07
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-07">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-07</span>
+      <span class="uc-header-title">Gestión de Proyectos</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Profesor autenticado en <code>/profesor/gestionar/proyectos</code>. Existen alumnos y módulos.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#42 Selector módulo activo</span>
+            <span class="uc-sketch-tag">#43–#45 Filtros</span>
+            <span class="uc-sketch-tag">#46 Botón Nuevo + modal</span>
+            <span class="uc-sketch-tag">#47 Tabla proyectos</span>
+            <span class="uc-sketch-tag">#48 Col. alumnado</span>
+            <span class="uc-sketch-tag">#49 Col. DEPRECATED</span>
+            <span class="uc-sketch-tag">#50 Editar inline</span>
+            <span class="uc-sketch-tag">#51 Borrar fila</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Crear proyecto</div>
+        <ol class="uc-flow-list">
+          <li>El profesor selecciona un módulo activo mediante #42. La tabla #47 se recarga.</li>
+          <li>Pulsa Nuevo (#46); se abre un modal con 4 campos: nombre, año_académico (select con start_years de las Legislaciones), ciclo (prelleno con el ciclo del módulo activo, modificable), alumnos (multi-select: 1–3 alumnos del ciclo seleccionado, no asignados en el mismo año).</li>
+          <li>El proyecto queda vinculado al módulo activo.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Editar proyecto</div>
+        <ol class="uc-flow-list">
+          <li>El profesor pulsa editar (#50). Todos los campos son editables inline.</li>
+          <li>Si se elimina un alumno con correcciones, aparece un aviso antes de guardar. Si confirma, el alumno y sus correcciones se eliminan en cascada.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Sin alumnos / más de 3:</span> Error de validación; guardado bloqueado.</li>
+          <li><span class="uc-alt-id">A2 — Borrado bloqueado:</span> Un proyecto con correcciones guardadas no puede eliminarse.</li>
+          <li><span class="uc-alt-id">A3 — Columna #49:</span> La columna "Añadir alumnado" (deprecated) <strong>no</strong> se renderiza en la tabla.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación (selección)</div>
+        <ul class="uc-crit-list">
+          <li>Solo los módulos asignados al profesor autenticado aparecen en el selector #42</li>
+          <li>El multi-select de alumnos muestra solo alumnos del ciclo seleccionado no ya asignados en el mismo año_académico</li>
+          <li>Seleccionar 0 o más de 3 alumnos bloquea el guardado con un error de validación</li>
+          <li>La columna "Añadir alumnado" (deprecated, #49) no se renderiza en la tabla de proyectos</li>
+          <li>Al guardar con un alumno eliminado que tiene correcciones, aparece un aviso listando los afectados e informando que sus correcciones serán eliminadas</li>
+          <li>Un proyecto con correcciones guardadas no puede eliminarse; se muestra un aviso bloqueante</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-08
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-08">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-08</span>
+      <span class="uc-header-title">Gestión de Rúbrica</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Profesor autenticado en <code>/profesor/gestionar/rubrica</code>. Existen módulos asignados al profesor.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#52 Tab Rúbrica</span>
+            <span class="uc-sketch-tag">#53 Filtro módulo</span>
+            <span class="uc-sketch-tag">#54 Filtro año</span>
+            <span class="uc-sketch-tag">#55 Nuevo ítem</span>
+            <span class="uc-sketch-tag">#56 Grid rúbrica</span>
+            <span class="uc-sketch-tag">#57 Nombre ítem</span>
+            <span class="uc-sketch-tag">#58 Excelente</span>
+            <span class="uc-sketch-tag">#59 Muy bien</span>
+            <span class="uc-sketch-tag">#60 Bien</span>
+            <span class="uc-sketch-tag">#61 Regular</span>
+            <span class="uc-sketch-tag">#62 Mal (0, fijo)</span>
+            <span class="uc-sketch-tag">#63 Subir rúbrica</span>
+            <span class="uc-sketch-tag">#64 Puntuación máxima</span>
+            <span class="uc-sketch-tag">#90 Borrar ítem</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Seleccionar módulo y editar rúbrica</div>
+        <ol class="uc-flow-list">
+          <li>El profesor escribe en el filtro #53; se muestra una lista de módulos asignados. Selecciona uno y los ítems de la rúbrica se cargan en el grid #56.</li>
+          <li>Los campos del grid son siempre visibles y editables sin doble click (si la rúbrica no está congelada). Cada campo se auto-guarda en la BD al perder el foco (blur).</li>
+          <li>Valores deben respetar orden descendente: Excelente > Muy bien > Bien > Regular > 0 (Mal fijo = 0.00).</li>
+          <li>El campo #64 muestra la suma de todos los valores Excelente; en rojo si ≠ 10.00.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Rúbrica congelada:</span> Si existe alguna corrección para la rúbrica del módulo, todos los campos (#56) son de solo lectura y los botones #55, #63, #90 muestran avisos bloqueantes.</li>
+          <li><span class="uc-alt-id">A2 — Rúbrica inválida (suma ≠ 10.00):</span> El campo #64 se muestra en rojo. La pantalla de corrección (UC-09) queda bloqueada para este módulo.</li>
+          <li><span class="uc-alt-id">A3 — Subida desde fichero (#63):</span> Si existe rúbrica previa sin correcciones, se pide confirmación de reemplazo total. Bloqueado si existen correcciones.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Postcondición clave</div>
+        <ul class="uc-post-list">
+          <li>Un módulo tiene exactamente una rúbrica compartida por todos sus proyectos.</li>
+          <li>La suma de todos los valores Excelente debe ser exactamente 10.00 para que la rúbrica sea válida.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación (selección)</div>
+        <ul class="uc-crit-list">
+          <li>Los campos del grid son siempre visibles y no requieren doble click para editar (salvo rúbrica congelada)</li>
+          <li>Cambiar un valor de Excelente y perder el foco auto-guarda en la BD</li>
+          <li>La celda Mal siempre muestra 0.00 y no es editable</li>
+          <li>Cuando la suma es 10.00, #64 se muestra con estilo normal; cuando ≠ 10.00, en rojo</li>
+          <li>Si existe alguna corrección para la rúbrica del módulo, pulsar Nuevo (#55) muestra un aviso bloqueante</li>
+          <li>Tras borrar un ítem (#90), #64 se recalcula inmediatamente</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-09
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-09">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-09</span>
+      <span class="uc-header-title">Corrección de Proyecto</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">Profesor autenticado en la pantalla de corrección. Existe al menos un proyecto con rúbrica válida (suma Excelente = 10.00).</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#65 Filtro año</span>
+            <span class="uc-sketch-tag">#66 Filtro ciclo</span>
+            <span class="uc-sketch-tag">#67 Filtro módulo</span>
+            <span class="uc-sketch-tag">#68 Select proyecto</span>
+            <span class="uc-sketch-tag">#69 Grid corrección</span>
+            <span class="uc-sketch-tag">#70 Nombre ítem (read-only)</span>
+            <span class="uc-sketch-tag">#71 Excelente</span>
+            <span class="uc-sketch-tag">#72 Muy bien</span>
+            <span class="uc-sketch-tag">#73 Bien</span>
+            <span class="uc-sketch-tag">#74 Regular</span>
+            <span class="uc-sketch-tag">#75 Mal</span>
+            <span class="uc-sketch-tag">#76 Puntuación total</span>
+            <span class="uc-sketch-tag">#77 Checkbox grupo</span>
+            <span class="uc-sketch-tag">#78 Checkbox alumno 1</span>
+            <span class="uc-sketch-tag">#79 Checkbox alumno 2</span>
+            <span class="uc-sketch-tag">#80 Checkbox alumno 3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Corrección en modo grupo</div>
+        <ol class="uc-flow-list">
+          <li>Los filtros #65 (año, por defecto el actual), #66 (ciclo), #67 (módulo, solo los asignados al profesor) acotan la lista de proyectos en el select #68.</li>
+          <li>El profesor selecciona un proyecto en #68. El grid #69 muestra el mensaje <em>"Elige una opción para empezar a corregir"</em>. La puntuación #76 muestra 0. Todos los checkboxes (#77–#80) empiezan desmarcados.</li>
+          <li>El profesor marca el checkbox Grupo (#77). Los checkboxes individuales #78–#80 quedan deshabilitados. El grid #69 carga los ítems con las notas previamente guardadas.</li>
+          <li>El profesor hace click en la celda del nivel deseado para cada ítem. La selección se guarda asíncronamente para <strong>todos los alumnos</strong> del proyecto. La puntuación #76 se actualiza en tiempo real.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Corrección individual</div>
+        <ol class="uc-flow-list">
+          <li>El profesor marca el checkbox de un alumno individual (#78, #79 o #80). El grid carga los ítems con las notas previamente guardadas para ese alumno.</li>
+          <li>El profesor corrige ítem a ítem. Cada selección se guarda asíncronamente solo para ese alumno.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — Sin checkbox activo al hacer click en celda:</span> Aparece una notificación deslizante en la parte derecha. El click no se guarda.</li>
+          <li><span class="uc-alt-id">A2 — Rúbrica inválida:</span> Si la rúbrica del módulo tiene suma Excelente ≠ 10.00, se muestra un error en lugar del grid. El profesor debe ir a la pestaña Rúbrica y corregirla.</li>
+          <li><span class="uc-alt-id">A3 — Re-corrección:</span> El profesor puede cambiar un nivel ya seleccionado en cualquier momento; el nuevo valor sobrescribe sin confirmación.</li>
+          <li><span class="uc-alt-id">A4 — #79 / #80 ocultos:</span> El checkbox del alumno 2 (#79) no se renderiza si el proyecto tiene solo 1 alumno. El checkbox del alumno 3 (#80) no se renderiza si el proyecto tiene menos de 3 alumnos.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación (selección)</div>
+        <ul class="uc-crit-list">
+          <li>El filtro #65 muestra el año académico actual por defecto</li>
+          <li>El filtro #67 solo muestra los módulos asignados al profesor autenticado</li>
+          <li>Después de seleccionar un proyecto en #68, el grid muestra el mensaje <em>"Elige una opción para empezar a corregir"</em></li>
+          <li>Marcar #77 deshabilita y desmarca #78, #79, #80 y muestra el grid con los ítems</li>
+          <li>Con #77 marcado, hacer click en una celda guarda la nota para TODOS los alumnos del proyecto</li>
+          <li>La etiqueta de cada checkbox individual (#78–#80) muestra el nombre_completo del alumno</li>
+          <li>Si no hay ningún checkbox activo al hacer click en una celda, aparece una notificación deslizante y el click no se guarda</li>
+          <li>Si la rúbrica es inválida (suma ≠ 10.00), se muestra un error en lugar del grid</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       UC-10
+  ══════════════════════════════════════════ -->
+  <div class="uc-section" id="uc-10">
+    <div class="uc-header">
+      <span class="uc-header-id">UC-10</span>
+      <span class="uc-header-title">Visualización e impresión de Notas</span>
+    </div>
+    <div class="uc-body">
+      <div class="uc-meta">
+        <div class="uc-meta-item"><span class="uc-meta-key">Actor</span><span class="uc-meta-val">Profesor / Tutor</span></div>
+        <div class="uc-meta-item"><span class="uc-meta-key">Precondiciones</span><span class="uc-meta-val">El usuario está autenticado en <code>/profesor/notas</code>. El rol Tutor accede únicamente a esta pantalla.</span></div>
+        <div class="uc-meta-item">
+          <span class="uc-meta-key">Elementos</span>
+          <div class="uc-sketch-tags">
+            <span class="uc-sketch-tag">#30 Botón Imprimir (Tutor)</span>
+            <span class="uc-sketch-tag">#85 Select año</span>
+            <span class="uc-sketch-tag">#86 Select ciclo</span>
+            <span class="uc-sketch-tag">#87 Select módulo</span>
+            <span class="uc-sketch-tag">#88 Botón Descargar PDF</span>
+            <span class="uc-sketch-tag">#89 Tabla previsualización</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Seleccionar filtros en cascada</div>
+        <ol class="uc-flow-list">
+          <li>El select #85 muestra los años académicos disponibles (valores <code>año_académico</code> distintos de los proyectos existentes).</li>
+          <li>Al seleccionar un año en #85, el select #86 se recarga con los ciclos activos para ese año; los selects #87 y #88 se resetean.</li>
+          <li>Al seleccionar un ciclo en #86, el select #87 se recarga con los módulos asignados al profesor autenticado para ese ciclo; #88 permanece deshabilitado.</li>
+          <li>Al seleccionar un módulo en #87, la tabla de previsualización #89 se carga. El botón #88 se habilita.</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujo principal — Previsualización y descarga PDF</div>
+        <ol class="uc-flow-list">
+          <li>La tabla #89 muestra columnas: Proyecto, Nombre alumno, Niveles evaluados, Nota final.</li>
+          <li><strong>Nota final</strong>: media ponderada de todos los módulos del ciclo: <code>Σ (nota_módulo_i × (horas_módulo_i / Σ horas_módulos_ciclo))</code>. Módulos sin corrección contribuyen 0.</li>
+          <li>Los alumnos con correcciones incompletas aparecen con sus datos parciales y un indicador <em>incompleto</em>.</li>
+          <li>Si algún módulo del ciclo no tiene correcciones, se muestra un aviso listando los módulos pendientes.</li>
+          <li>El profesor pulsa Descargar PDF (#88). Se descarga un fichero PDF (no diálogo de impresión del navegador).</li>
+        </ol>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Flujos alternativos</div>
+        <ul class="uc-alt-list">
+          <li><span class="uc-alt-id">A1 — #88 deshabilitado:</span> El botón está deshabilitado mientras cualquiera de #85, #86, #87 esté vacío.</li>
+          <li><span class="uc-alt-id">A2 — Acceso del Tutor:</span> El botón #30 en la landing del profesor es visible solo para rol Tutor y navega a <code>/profesor/notas</code>. Para el rol Profesor, #30 no se renderiza.</li>
+          <li><span class="uc-alt-id">A3 — Acceso no autorizado del Tutor:</span> Si el Tutor intenta navegar a cualquier ruta que no sea <code>/profesor/notas</code>, es redirigido a <code>/profesor/notas</code>.</li>
+        </ul>
+      </div>
+
+      <div class="uc-sub">
+        <div class="uc-sub-title">Criterios de aceptación (selección)</div>
+        <ul class="uc-crit-list">
+          <li>El botón #30 se renderiza cuando el usuario autenticado tiene rol tutor; no se renderiza para el rol profesor</li>
+          <li>El select #86 está deshabilitado hasta que #85 tiene valor; el select #87 está deshabilitado hasta que #86 tiene valor</li>
+          <li>El botón #88 está deshabilitado mientras cualquiera de #85, #86, #87 esté vacío</li>
+          <li>nota_final es la media ponderada de todos los módulos del ciclo: cada módulo × (horas_módulo / Σ horas_módulos_ciclo)</li>
+          <li>Los módulos sin corrección contribuyen 0 a la nota_final</li>
+          <li>Los datos de la previsualización #89 coinciden con los datos del PDF descargado</li>
+          <li>Pulsar #88 descarga un fichero PDF (no diálogo de impresión del navegador)</li>
+          <li>Un usuario con rol Tutor que intenta acceder a una ruta distinta de <code>/profesor/notas</code> es redirigido a esa ruta</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Corrector de Proyectos · David Betancor · IES Telesforo Bravo ·
+  <a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS">GitHub</a>
+</footer>
+
+</body>
+</html>

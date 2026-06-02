@@ -237,7 +237,9 @@
   <a class="brand" href="index.html">Corrector de Proyectos</a>
   <a href="guia.html">Guía</a>
   <a href="arquitectura.html">Arquitectura</a>
-  <a href="especificaciones.html">Especificaciones</a>
+  <a href="funcional.html">Funcional</a>
+  <a href="casos-de-uso.html">Casos de uso</a>
+  <a href="especificaciones.html">JS Specs</a>
   <a href="flujo.html" class="active">Flujo</a>
   <span class="spacer"></span>
   <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">⌥ GitHub</a>
@@ -352,14 +354,35 @@
       </div>
 
       <div class="tl-agent">
-        <span class="ag-badge plan-ag">3</span>Arquitecto de Requisitos
+        <span class="ag-badge">3</span>Arquitecto de Requisitos
       </div>
       <div class="tl-group">
-        <div class="tl-node" data-panel="planned-3">
-          <span class="tl-dot plan">…</span>
+        <div class="tl-node" data-panel="req-arch-rol">
+          <span class="tl-dot">🤖</span>
           <span class="tl-text">
-            <span class="tl-name">use-cases.md / schema.sql</span>
-            <span class="tl-desc">Pendiente</span>
+            <span class="tl-name">requirement-architect.md</span>
+            <span class="tl-desc">Rol del agente · /requirement-architect</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="use-cases">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">use-cases.md</span>
+            <span class="tl-desc">10 UCs · 90 sketchNumbers</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="schema-sql">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">schema.sql</span>
+            <span class="tl-desc">12 tablas · PostgreSQL 16</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="api-contracts">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">api-contracts.md</span>
+            <span class="tl-desc">~35 endpoints REST</span>
           </span>
         </div>
       </div>
@@ -1230,28 +1253,181 @@ const PANEL_META = {
   'gen-fs-rol':           { name: 'generate-functional-spec.md', path: 'lib/agents/generate-functional-spec.md',              badge: 'Rol del agente',     bc: 'ph-role'    },
   'functional-spec':      { name: 'functional-spec.json',        path: 'corrector/03-generated-artifacts/functional-spec.json', badge: 'Artefacto ✓',      bc: 'ph-output'  },
   'reconciliation':       { name: 'reconciliation.json',         path: 'corrector/03-generated-artifacts/reconciliation.json', badge: 'GATE ✓ valid: true', bc: 'ph-gate'   },
-  'planned-3':            { name: 'use-cases.md / schema.sql',   path: 'corrector/04-use-cases/',                             badge: 'Pendiente',          bc: 'ph-plan'    },
+  'req-arch-rol':         { name: 'requirement-architect.md',    path: 'lib/agents/requirement-architect.md',                 badge: 'Rol del agente',     bc: 'ph-role'    },
+  'use-cases':            { name: 'use-cases.md',                path: 'corrector/04-use-cases/use-cases.md',                 badge: 'Artefacto ✓',        bc: 'ph-output'  },
+  'schema-sql':           { name: 'schema.sql',                  path: 'corrector/05-implementation/backend/schema.sql',      badge: 'Artefacto ✓',        bc: 'ph-output'  },
+  'api-contracts':        { name: 'api-contracts.md',            path: 'corrector/05-implementation/backend/api-contracts.md',badge: 'Artefacto ✓',        bc: 'ph-output'  },
   'planned-4':            { name: 'tests/*.test.js',             path: 'tests/',                                              badge: 'Pendiente',          bc: 'ph-plan'    },
   'planned-5':            { name: 'src/ backend + frontend',     path: 'corrector/05-implementation/',                       badge: 'Pendiente',          bc: 'ph-plan'    },
 };
 
 const PLANNED = {
-  'planned-3':
-`Agente 3 — Arquitecto de Requisitos
-ESTADO: Pendiente (siguiente paso tras GATE HUMANO ✓)
+  'req-arch-rol':
+`# Agente 3 — Arquitecto de Requisitos
 
-Entrada:
-  corrector/03-generated-artifacts/functional-spec.json  (90 specs, 20 globalRules)
-  corrector/03-generated-artifacts/ui-spec.json          (90 componentes, 11 pantallas)
-  corrector/02-conversacion-cliente/transcripcion.md     (entrevista de cliente)
+## Perfil
 
-Salida prevista:
-  corrector/04-use-cases/use-cases.md      Casos de uso por sketchNumber
-  corrector/04-use-cases/schema.sql        DDL PostgreSQL (tablas, constraints, índices)
-  corrector/04-use-cases/api-contracts.md  Endpoints REST: método, ruta, body, response, errores
+Eres un Arquitecto de Software Senior especializado en sistemas de gestión académica.
+Tu misión es convertir una especificación funcional validada (90 elementos, reconciliación
+aprobada) en tres artefactos de ingeniería precisos y listos para el Agente 4 y el Agente 5:
 
-Cada caso de uso referenciará los sketchNumbers de la functional-spec para mantener
-trazabilidad completa desde el boceto hasta el contrato de API.`,
+  1. use-cases.md       — Casos de uso en formato UML simplificado
+  2. schema.sql         — DDL PostgreSQL 16 completo, listo para ejecutar
+  3. api-contracts.md   — Endpoints REST con método, ruta, payload, response y errores
+
+## Artefactos de entrada
+
+  corrector/03-generated-artifacts/functional-spec.json   Fuente principal (90 elementSpecs)
+  corrector/03-generated-artifacts/ui-spec.json           Tipos de componente e interacciones
+  corrector/03-generated-artifacts/reconciliation.json    Confirmar valid: true antes de proceder
+
+## Artefactos de salida
+
+  corrector/04-use-cases/use-cases.md
+  corrector/05-implementation/backend/schema.sql
+  corrector/05-implementation/backend/api-contracts.md
+
+── Ver archivo completo en lib/agents/requirement-architect.md ──────────────────────────`,
+
+  'use-cases':
+`# use-cases.md — Corrector de Proyectos
+# Generado por: Agente 3 — Arquitecto de Requisitos
+# 10 casos de uso · 90 sketchNumbers cubiertos
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  ID    │ Flujo                                  │ Elementos         │
+├─────────────────────────────────────────────────────────────────────┤
+│ UC-01  │ Login y autenticación                  │ #1–#5             │
+│ UC-02  │ Gestión de Legislaciones               │ #6–#10, #81–#84   │
+│ UC-03  │ Gestión de Ciclos                      │ #11–#15           │
+│ UC-04  │ Gestión de Módulos                     │ #16–#22           │
+│ UC-05  │ Gestión de Profesorado                 │ #23–#29           │
+│ UC-06  │ Gestión de Alumnos                     │ #31–#41           │
+│ UC-07  │ Gestión de Proyectos                   │ #42–#51           │
+│ UC-08  │ Gestión de Rúbrica                     │ #52–#64, #90      │
+│ UC-09  │ Corrección de Proyecto                 │ #65–#80           │
+│ UC-10  │ Visualización e impresión de Notas     │ #30, #85–#89      │
+└─────────────────────────────────────────────────────────────────────┘
+
+Ejemplo de formato por UC:
+
+## UC-01: Login y autenticación
+
+**Actor principal**: Profesor / Admin
+**Precondiciones**: El usuario no está autenticado.
+**Elementos del boceto**: #1 (campo usuario), #2 (campo contraseña), #3 (botón Acceder)
+
+### Flujo principal
+1. El usuario accede a la pantalla de login (/).
+2. Introduce su nombre de usuario en el campo #1.
+3. Introduce su contraseña en el campo #2 (siempre enmascarada).
+4. Pulsa el botón Acceder (#3).
+5. El sistema valida las credenciales contra la BD.
+6. Si son correctas, crea sesión y redirige a /admin o /profesor.
+
+### Criterios de aceptación
+- [ ] Cuando las credenciales son válidas, usuario redirigido a /admin o /profesor
+- [ ] Tras 3 intentos fallidos, cuenta bloqueada y mensaje de contactar con Admin
+- [ ] Si la contraseña es 12345678, aparecen campos para cambiar contraseña
+
+── Ver archivo completo en corrector/04-use-cases/use-cases.md ──────────────────────────`,
+
+  'schema-sql':
+`-- schema.sql — Corrector de Proyectos — PostgreSQL 16
+-- Generado por: Agente 3 — Arquitecto de Requisitos
+-- 12 tablas · 2 enums · FKs explícitas · Índices completos
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ENUMS
+CREATE TYPE nivel_enum AS ENUM ('excelente','muy_bien','bien','regular','mal');
+CREATE TYPE rol_enum   AS ENUM ('admin','profesor','tutor');
+
+-- 1. legislaciones
+CREATE TABLE legislaciones (
+    id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    abbreviation VARCHAR(10) NOT NULL,
+    start_year   SMALLINT    NOT NULL CHECK (start_year BETWEEN 1900 AND 2099),
+    end_year     SMALLINT    NOT NULL CHECK (end_year BETWEEN 1900 AND 2099),
+    CONSTRAINT uq_legislaciones_abbreviation UNIQUE (abbreviation),
+    CONSTRAINT chk_legislaciones_years       CHECK (end_year = start_year + 1)
+);
+
+-- 2. ciclos
+CREATE TABLE ciclos (
+    id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    name           VARCHAR(255) NOT NULL,
+    legislacion_id UUID         NOT NULL,
+    CONSTRAINT fk_ciclos_legislacion FOREIGN KEY (legislacion_id)
+        REFERENCES legislaciones (id) ON DELETE RESTRICT,
+    CONSTRAINT uq_ciclos_name_legislacion UNIQUE (name, legislacion_id)
+);
+
+-- 3. modulos
+CREATE TABLE modulos (
+    id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    name         VARCHAR(255) NOT NULL,
+    abbreviation VARCHAR(20)  NOT NULL,
+    ciclo_id     UUID         NOT NULL,
+    weekly_hours SMALLINT     NOT NULL CHECK (weekly_hours > 0),
+    CONSTRAINT fk_modulos_ciclo FOREIGN KEY (ciclo_id)
+        REFERENCES ciclos (id) ON DELETE RESTRICT
+);
+
+-- 4. profesores (incl. failed_login_attempts, locked, password_changed)
+-- 5. profesor_modulos  (tabla intermedia)
+-- 6. alumnos           (code = identificador anónimo)
+-- 7. alumno_nombres    (tabla segura de privacidad — nombre real)
+-- 8. proyectos         (modulo_id FK + ciclo_id + anio_academico)
+-- 9. proyecto_alumnos  (tabla intermedia, 1–3 alumnos por proyecto)
+-- 10. rubrica_items    (modulo_id FK; una rúbrica por módulo; mal = 0.00 fijo)
+-- 11. correcciones     (UNIQUE alumno+proyecto+item; UPSERT en re-corrección)
+-- 12. sessions         (token HttpOnly; destruida en logout)
+
+-- + 25 índices en FKs y campos de filtro reactivo
+
+── Ver archivo completo en corrector/05-implementation/backend/schema.sql ───────────────`,
+
+  'api-contracts':
+`# api-contracts.md — Corrector de Proyectos
+# Generado por: Agente 3 — Arquitecto de Requisitos
+# Base URL: /api/v1 · Auth: cookie session_token
+
+┌─────────────────────────────────────────────────────────────────────┐
+│  Grupo          │ Métodos                                           │
+├─────────────────────────────────────────────────────────────────────┤
+│ Auth            │ POST /auth/login                                  │
+│                 │ POST /auth/change-password                        │
+│                 │ POST /auth/logout                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│ Legislaciones   │ GET · POST · PUT /:id · DELETE /:id              │
+│ Ciclos          │ GET · POST · PUT /:id · DELETE /:id              │
+│ Módulos         │ GET · POST · PUT /:id · DELETE /:id              │
+│ Profesores      │ GET · POST · PUT /:id · DELETE /:id              │
+├─────────────────────────────────────────────────────────────────────┤
+│ Alumnos         │ GET · POST · PUT /:id · DELETE /:id              │
+│                 │ POST /alumnos/upload  (YAML/CSV/JSON masivo)      │
+│ Proyectos       │ GET · POST · PUT /:id · DELETE /:id              │
+├─────────────────────────────────────────────────────────────────────┤
+│ Rúbrica         │ GET /modulos/:id/rubrica                         │
+│                 │ POST · PUT · DELETE /rubrica-items/:id            │
+│                 │ POST /modulos/:id/rubrica/upload                  │
+├─────────────────────────────────────────────────────────────────────┤
+│ Correcciones    │ GET /proyectos/:id/correcciones                  │
+│                 │ POST /correcciones  (alumno_id puede ser "group") │
+│                 │ PUT /correcciones/:id                             │
+├─────────────────────────────────────────────────────────────────────┤
+│ Notas           │ GET /notas  (filtros cascada año→ciclo→módulo)   │
+│                 │ GET /notas/pdf                                    │
+│ Auxiliares      │ GET /anios-academicos                            │
+└─────────────────────────────────────────────────────────────────────┘
+
+Decisión de inferencia documentada:
+  PUT /proyectos/:id devuelve 409 + requires_confirmation: true cuando se
+  eliminan alumnos con correcciones. El cliente reenvía con
+  confirm_delete_correcciones: true para confirmar.
+
+── Ver archivo completo en corrector/05-implementation/backend/api-contracts.md ─────────`,
 
   'planned-4':
 `Agente 4 — Ingeniero TDD
