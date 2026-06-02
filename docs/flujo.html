@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flujo de creación · Corrector de Proyectos</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Two-column app layout ── */
+    .flujo-wrap {
+      display: grid;
+      grid-template-columns: 4fr 8fr;
+      min-height: calc(100vh - 56px - 70px);
+    }
+
+    .flujo-sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+
+    .flujo-viewer {
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+      padding: 2rem 2.5rem;
+    }
+
+    /* ── Timeline ── */
+    .timeline { padding: .5rem 0 2.5rem; }
+
+    .tl-section {
+      font-size: .69rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      padding: 1.25rem 1.5rem .35rem;
+    }
+
+    .tl-group {
+      margin-left: 1.5rem;
+      border-left: 2px solid var(--border);
+      padding-left: .6rem;
+    }
+
+    .tl-node {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      padding: .4rem .75rem .4rem 0;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: background .15s;
+      position: relative;
+    }
+
+    .tl-node::before {
+      content: '';
+      position: absolute;
+      left: -1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: .85rem;
+      height: 2px;
+      background: var(--border);
+    }
+
+    .tl-node:hover { background: var(--accent-light); }
+    .tl-node.active { background: var(--accent-light); }
+    .tl-node.active .tl-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .tl-node.active .tl-name { color: var(--accent); font-weight: 600; }
+
+    .tl-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+
+    .tl-dot.done { border-color: #16a34a; background: #f0fdf4; color: #16a34a; font-weight: 700; }
+    .tl-dot.gate { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
+    .tl-dot.plan { border-color: var(--border); background: var(--tag-bg); color: var(--muted); }
+
+    .tl-text { flex: 1; min-width: 0; }
+
+    .tl-name {
+      display: block;
+      font-family: var(--mono);
+      font-size: .81rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tl-desc {
+      display: block;
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: .06rem;
+    }
+
+    .tl-agent {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: 1rem 1.5rem .3rem;
+      font-size: .81rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .ag-badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: .7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .ag-badge.gate-ag { background: #dc2626; font-size: .85rem; }
+    .ag-badge.plan-ag { background: var(--muted); }
+
+    /* ── Viewer ── */
+    .viewer-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      color: var(--muted);
+      gap: 1rem;
+      text-align: center;
+    }
+    .viewer-empty .v-arrow { font-size: 2.5rem; opacity: .2; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .ph-name {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .ph-path {
+      font-family: var(--mono);
+      font-size: .77rem;
+      color: var(--muted);
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      padding: .2rem .65rem;
+      border-radius: 4px;
+    }
+
+    .ph-badge {
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .18rem .6rem;
+      border-radius: 99px;
+      margin-left: auto;
+    }
+    .ph-config  { background: #fef3c7; color: #92400e; }
+    .ph-input   { background: #fce7f3; color: #9d174d; }
+    .ph-role    { background: #ede9fe; color: #5b21b6; }
+    .ph-output  { background: #dbeafe; color: #1e40af; }
+    .ph-gate    { background: #fee2e2; color: #991b1b; }
+    .ph-plan    { background: var(--tag-bg); color: var(--muted); }
+
+    #panel-body pre {
+      max-height: calc(100vh - 240px);
+      overflow-y: auto;
+      font-size: .79rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    @media (max-width: 860px) {
+      .flujo-wrap { grid-template-columns: 1fr; }
+      .flujo-sidebar { position: static; height: auto; max-height: 45vh; }
+      .flujo-viewer  { position: static; height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Corrector de Proyectos</a>
+  <a href="guia.html">Guía</a>
+  <a href="arquitectura.html">Arquitectura</a>
+  <a href="especificaciones.html">Especificaciones</a>
+  <a href="flujo.html" class="active">Flujo</a>
+  <span class="spacer"></span>
+  <a class="gh-link" href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS" target="_blank">⌥ GitHub</a>
+</nav>
+
+<div class="flujo-wrap">
+
+  <!-- ══ LEFT: Timeline ══ -->
+  <aside class="flujo-sidebar">
+    <div class="timeline">
+
+      <div class="tl-section">Configuración Claude</div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="claude-md">
+          <span class="tl-dot">📄</span>
+          <span class="tl-text">
+            <span class="tl-name">CLAUDE.md</span>
+            <span class="tl-desc">Instrucciones del proyecto al LLM</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-section">Entradas al sistema</div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="boceto">
+          <span class="tl-dot">🎨</span>
+          <span class="tl-text">
+            <span class="tl-name">boceto HTML</span>
+            <span class="tl-desc">11 prototipos · 90 elementos anotados</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="transcripcion-input">
+          <span class="tl-dot">💬</span>
+          <span class="tl-text">
+            <span class="tl-name">transcripcion.md</span>
+            <span class="tl-desc">Entrevista de cliente — estado inicial</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge">1</span>Diseñador Front
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="designer-front-rol">
+          <span class="tl-dot">🤖</span>
+          <span class="tl-text">
+            <span class="tl-name">designer-front.md</span>
+            <span class="tl-desc">Rol del agente · /designer-front</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="ui-spec">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">ui-spec.json</span>
+            <span class="tl-desc">11 pantallas · 90 elementos · 98 KB</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge">2a</span>Analista de Negocio
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="business-analyst-rol">
+          <span class="tl-dot">🤖</span>
+          <span class="tl-text">
+            <span class="tl-name">business-analyst.md</span>
+            <span class="tl-desc">Rol del agente · /business-analyst</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="transcripcion-output">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">transcripcion.md</span>
+            <span class="tl-desc">Completada · 90 elementos cubiertos</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge">2b</span>Generador Functional Spec
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="gen-fs-rol">
+          <span class="tl-dot">🤖</span>
+          <span class="tl-text">
+            <span class="tl-name">generate-functional-spec.md</span>
+            <span class="tl-desc">Rol del agente · /generate-functional-spec</span>
+          </span>
+        </div>
+        <div class="tl-node" data-panel="functional-spec">
+          <span class="tl-dot done">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">functional-spec.json</span>
+            <span class="tl-desc">90 specs · 20 reglas globales</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge gate-ag">🚪</span>GATE HUMANO
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="reconciliation">
+          <span class="tl-dot gate">✓</span>
+          <span class="tl-text">
+            <span class="tl-name">reconciliation.json</span>
+            <span class="tl-desc">valid: true · 14 pasadas de revisión</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge plan-ag">3</span>Arquitecto de Requisitos
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="planned-3">
+          <span class="tl-dot plan">…</span>
+          <span class="tl-text">
+            <span class="tl-name">use-cases.md / schema.sql</span>
+            <span class="tl-desc">Pendiente</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge plan-ag">4</span>Ingeniero TDD
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="planned-4">
+          <span class="tl-dot plan">…</span>
+          <span class="tl-text">
+            <span class="tl-name">tests/*.test.js</span>
+            <span class="tl-desc">Pendiente · tests en rojo (TDD)</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tl-agent">
+        <span class="ag-badge plan-ag">5</span>Implementador
+      </div>
+      <div class="tl-group">
+        <div class="tl-node" data-panel="planned-5">
+          <span class="tl-dot plan">…</span>
+          <span class="tl-text">
+            <span class="tl-name">src/ (backend + frontend)</span>
+            <span class="tl-desc">Pendiente · Node.js + Web Components</span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ══ RIGHT: Viewer ══ -->
+  <div class="flujo-viewer" id="flujo-viewer">
+
+    <div class="viewer-empty" id="viewer-empty">
+      <div class="v-arrow">←</div>
+      <p>Selecciona un elemento de la izquierda para ver su contenido.</p>
+    </div>
+
+    <div id="panel-wrap" hidden>
+      <div class="panel-header" id="panel-header"></div>
+      <div id="panel-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Corrector de Proyectos · David Betancor · IES Telesforo Bravo ·
+  <a href="https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS">GitHub</a>
+</footer>
+
+<!-- ══ Content stores (RAWTEXT — no HTML escaping needed) ══ -->
+
+<script type="text/plain" id="content-claude-md">
+# CLAUDE.md — Instrucciones del proyecto
+
+## Project overview
+
+**Corrector de Proyectos** is a web application for teachers in Spanish vocational
+education (FP - Formación Profesional) to manage and grade end-of-cycle student
+projects using a rubric-based scoring system.
+
+The project is currently at the **HTML prototype stage** — all files in
+corrector/01-boceto/html-source-prototype/ are static HTML screens with no CSS,
+no JavaScript logic, and no backend. They are the bocetos de entrada to the
+RAG Spec-Driven pipeline: 90 interactive elements are annotated with
+`data-element-id="N"` (sketchNumber) across 11 screens.
+
+## Core Principles
+
+- **Small tasks, one at a time**: Always work in baby steps, one at a time.
+- **Test-Driven Development**: Start with failing tests for any new functionality (TDD).
+- **Type Safety**: All code must be fully typed.
+- **Clear Naming**: Use clear, descriptive names for all variables and functions.
+- **Incremental Changes**: Prefer incremental, focused changes.
+- **Question Assumptions**: Always question assumptions and inferences.
+
+## Language Standards
+
+**English Only**: All technical artifacts must always use English — code, docs,
+git commits, test names, data schemas, configuration files, error messages.
+
+## User roles
+
+- **Admin** — system-wide configuration: legislaciones, ciclos, módulos, profesorado
+- **Profesor** — class-level management: alumnos, proyectos, rúbrica; grade + view/print notes
+- **Tutor** — restricted profesor that can only print notes
+
+## Screen flow
+
+  index.html (login)
+  ├── Admin → Gestión tabbed panel
+  │   ├── Legislación  (vista_admin-tab_legislacion_seleccionado.html)
+  │   ├── Ciclos       (vista_admin-tab_ciclos_seleccionado.html)
+  │   ├── Módulos      (vista_admin-tab_modulos_seleccionado.html)
+  │   └── Profesorado  (vista_admin-tab_profesorado_seleccionado.html)
+  └── Profesor → Landing (vista_profesor-landing.html)
+      ├── Gestionar
+      │   ├── Alumnos   (gestionar_tab_Alumnos_seleccionado.html)
+      │   ├── Proyectos (gestionar_tab_Proyectos_seleccionado.html)
+      │   └── Rúbrica   (gestionar_tab_Rubrica_seleccionado.html)
+      ├── Corregir      (corregirProyecto.html)
+      ├── Visualizar notas
+      └── Imprimir notas (tutor-only)
+
+## Domain data model
+
+- **Legislación**: abbreviation (e.g., LOMLOE), start year, end year
+- **Ciclo**: name (e.g., "DAW"), linked to a legislación
+- **Módulo**: name, abbreviation (e.g., DEW), legislación, weekly hours, ciclo
+- **Profesor**: username, password, assigned ciclo, assigned módulos
+- **Alumno**: anonymised code (e.g., JJ499), ciclo, legislación
+- **Proyecto**: name, list of alumnos
+- **Rúbrica**: scoring grid — Excelente, Muy bien, Bien, Regular, Mal (sum = 10.00)
+
+## Development methodology: RAG Spec-Driven Development
+
+Converts two heterogeneous inputs — annotated HTML prototypes + client conversation —
+into a complete, traceable application through 6 specialized Claude agents.
+
+### The sketchNumber principle
+
+  Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (rojo) → Código (verde)
+
+No element can appear in a later phase unless it was numbered in the boceto.
+
+### Pipeline
+
+  1. Diseñador Front:        boceto → ui-spec.json              ✓ ejecutado
+  2a. Analista de Negocio:   entrevista → transcripcion.md      ✓ ejecutado
+  2b. Generador Func. Spec:  transcripcion → functional-spec.json ✓ ejecutado
+  GATE HUMANO:               reconciliation.json { valid: true } ✓ superado
+  3. Arquitecto:             validated specs → use-cases, DDL, API   pendiente
+  4. Ingeniero TDD:          acceptanceCriteria → tests rojos ✗       pendiente
+  5. Implementador:          tests → código verde ✅                  pendiente
+
+### Tech stack
+
+  LLM / Agents:   Claude API (claude-sonnet-4-6)
+  Embeddings:     OpenAI text-embedding-3-small
+  RAG database:   PostgreSQL 16 + pgvector 0.7
+  Backend:        Node.js 20 LTS + Express
+  Validation:     Zod 3.x
+  Frontend:       Web Components + lit-html standalone + Tailwind CSS 3.x
+  Tests backend:  Vitest + node-fetch
+  Tests frontend: @web/test-runner
+  CI/CD:          GitHub Actions
+
+── Ver archivo completo en / CLAUDE.md del repositorio ──────────────────────
+</script>
+
+<script type="text/plain" id="content-boceto">
+## corrector/01-boceto/ — Prototipos HTML anotados
+
+Los bocetos son 11 archivos HTML estáticos sin CSS ni lógica. Cada elemento
+interactivo tiene el atributo data-element-id="N" (sketchNumber), que es la
+clave foránea universal del pipeline RAG Spec-Driven.
+
+──────────────────────────────────────────────────────────────────────────────
+corrector/01-boceto/boceto-metadata.json
+──────────────────────────────────────────────────────────────────────────────
+{
+  "featureId": "corrector-v1",
+  "totalElements": 90,
+  "deprecatedElements": [49],
+  "notes": "Elements #81–#84 added during BA client interview (2026-05-31).
+            Element #49 deprecated: student assignment consolidated into #46.
+            Element #53 corrected: filter operates on módulo, not proyecto.",
+  "screens": [
+    { "file": "index.html",
+      "label": "Login",
+      "sketchNumbers": [1, 2, 3] },
+    { "file": "vista_admin-tab_legislacion_seleccionado.html",
+      "label": "Admin · Tab Legislación",
+      "sketchNumbers": [4,5,6,7,8,9,10,81,82,83,84] },
+    { "file": "vista_admin-tab_ciclos_seleccionado.html",
+      "label": "Admin · Tab Ciclos",
+      "sketchNumbers": [11,12,13,14,15] },
+    { "file": "vista_admin-tab_modulos_seleccionado.html",
+      "label": "Admin · Tab Módulos",
+      "sketchNumbers": [16,17,18,19,20,21,22] },
+    { "file": "vista_admin-tab_profesorado_seleccionado.html",
+      "label": "Admin · Tab Profesorado",
+      "sketchNumbers": [23,24,25,26,27,28,29] },
+    { "file": "vista_profesor-landing.html",
+      "label": "Landing Profesor",
+      "sketchNumbers": [30] },
+    { "file": "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
+      "label": "Gestionar · Alumnos",
+      "sketchNumbers": [31,32,33,34,35,36,37,38,39,40,41] },
+    { "file": "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
+      "label": "Gestionar · Proyectos",
+      "sketchNumbers": [42,43,44,45,46,47,48,49,50,51,52] },
+    { "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
+      "label": "Gestionar · Rúbrica",
+      "sketchNumbers": [53,54,55,56,57,58,59,60,61,62,63,64,90] },
+    { "file": "vista_profesor-landing-ver_notas.html",
+      "label": "Ver Notas",
+      "sketchNumbers": [85,86,87,88,89] },
+    { "file": "vista_profesor_landing-corregirProyecto.html",
+      "label": "Corregir Proyecto",
+      "sketchNumbers": [65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80] }
+  ]
+}
+
+──────────────────────────────────────────────────────────────────────────────
+Ejemplo de anotación en index.html (pantalla Login, #1–#3)
+──────────────────────────────────────────────────────────────────────────────
+<form>
+  <input type="text"     data-element-id="1" placeholder="Usuario">
+  <input type="password" data-element-id="2" placeholder="Contraseña">
+  <button type="submit"  data-element-id="3">Acceder</button>
+</form>
+
+El atributo data-element-id="N" es el sketchNumber — la clave foránea universal
+que vincula boceto → ui-spec.json → functional-spec.json → use-case → test → código.
+</script>
+
+<script type="text/plain" id="content-transcripcion-input">
+# Transcripción de entrevista — Corrector de Proyectos
+# Estado: INICIAL (antes de la sesión con el Analista de Negocio)
+
+**Cliente:** David Betancor, Profesor FP · IES Telesforo Bravo
+**Feature ID:** corrector-v1
+
+---
+
+## Objetivo de la aplicacion
+
+Construir una aplicacion web para que los profesores corrijan los proyectos de los
+alumnos que se presentan cada año, con reglas de evaluacion claras, calculo de nota
+final y gestion academica por parte del Administrador.
+
+## Contexto academico
+
+- Cada año se corrigen proyectos de los ciclos ASR, DAW y DAM.
+- Cada ciclo esta compuesto por modulos de primero y segundo curso.
+- La jerarquía del dominio es: Ciclo → Módulos → Proyectos → Alumnos.
+  Los proyectos pertenecen al módulo, no directamente al ciclo.
+- Cada módulo puede tener cero o varios proyectos.
+- Cada proyecto puede ser defendido por uno, dos o tres alumnos.
+
+## Evaluacion
+
+- Cada alumno sera evaluado mediante la rubrica de cada modulo.
+- La suma máxima de una rubrica no puede superar 10 puntos.
+- La nota de cada modulo esta ponderada segun las horas semanales del modulo.
+- La nota máxima de cada modulo es 10 puntos.
+- La nota final del ciclo tambien debe quedar limitada a 10 puntos.
+
+## Profesorado
+
+- Cada modulo sera impartido por un unico profesor.
+- El profesor se autenticará mediante el nombre de usuario de la Consejería de
+  Educación (ej. dbetqui) y contraseña. No se usa el correo electrónico.
+- La contrasena por defecto sera 12345678.
+- Cuando un profesor o administrador inicie sesion por primera vez, debera cambiar
+  su contrasena obligatoriamente.
+
+## Flujo del profesor una vez autenticado
+
+1. Elegir entre Corregir proyectos, Gestionar rúbrica o Ver notas de alumnos.
+2. Si elige Corregir proyectos:
+   a. Elegir el año academico (por defecto, el actual).
+   b. Elegir el ciclo.
+   c. Elegir el proyecto que desea corregir.
+   d. Seleccionar el alumno a evaluar.
+   e. Corregir al alumno utilizando la rubrica de sus modulos.
+3. Si elige Gestionar rubrica:
+   a. Elegir año academico, ciclo y modulo.
+   b. Crear, editar o borrar items de la rubrica.
+   c. La rúbrica tiene criterios y escala de 5 niveles con puntuación.
+   d. La suma de las puntuaciones máximas no puede superar 10 puntos.
+
+── Estado inicial: 4 pantallas parcialmente descritas, 86 elementos sin comportamiento ─
+── El Analista de Negocio completó la transcripción hasta cubrir los 90 elementos ───────
+── Ver transcripcion.md (completada) para la versión final ──────────────────────────────
+</script>
+
+<script type="text/plain" id="content-designer-front-rol">
+# Agente 1 — Diseñador Front
+
+## Perfil
+
+Eres un Analista UI/UX Senior y Arquitecto Front-End con más de 15 años de experiencia
+diseñando aplicaciones web empresariales. Tu especialidad es convertir prototipos HTML
+anotados (bocetos) en especificaciones UI precisas y legibles por máquina que impulsan
+pipelines de generación de código automática.
+
+Eres extremadamente detallista. No omites ningún elemento. No inventas elementos que no
+estén en el boceto. Documentas cada estado visual, cada interacción, cada regla de
+validación. Cada omisión tuya se convierte en un bug en el código generado downstream.
+
+## Reglas de dominio críticas
+
+- #49 DEPRECATED: "Columna Añadir alumnado" eliminada. La asignación de alumnos
+  ocurre dentro del modal de creación de proyecto (#46). Note:
+  "DEPRECATED: student assignment is handled inside the create-project modal (#46)."
+
+- #53 CORRECCIÓN: Aparece como "Filtro por proyecto" en el boceto pero DEBE filtrar
+  por MÓDULO (la rúbrica pertenece a un módulo, no a un proyecto). Note:
+  "CORRECTION: despite boceto label, this filter operates on módulo."
+
+- Filtros reactivos (is_reactive: true, debounce_ms: 300): cualquier input con
+  placeholder "Filtrar por…". Interaction trigger="input", event="filter-[entidad]".
+
+- Selects en cascada #85 → #86 → #87:
+    #85 (año) change → recarga opciones de #86 (ciclos del año)
+    #86 (ciclo) change → recarga opciones de #87 (módulos del profesor en sesión)
+    #87 (módulo) change → filtra la tabla #89
+
+- Niveles de rúbrica: Excelente > Muy bien > Bien > Regular > Mal.
+  Puntuación máxima (#64) = suma de Excelente de todos los ítems. is_read_only: true.
+
+- Modo corrección #77: Checkbox ON → #78, #79, #80 pasan a disabled.
+  OFF → cada alumno puede tener selección de nivel independiente.
+
+- Descarga PDF #88: Solo activo cuando #85, #86, #87 tienen valor. Si alguno vacío → disabled.
+
+## Clasificación de tipos de componente (enum)
+
+  input[type="text"] + filtro reactivo     → "reactive-filter"
+  input[type="text"] en formulario         → "text-input"
+  input[type="text"] para año              → "number-input"
+  input[type="password"]                   → "password-input"
+  select                                   → "select"
+  input[type="checkbox"]                   → "checkbox"
+  button[type="submit"]                    → "submit-button"
+  button[type="button"]                    → "button"
+  th con acciones por fila                 → "table-header-cell"
+  Icono de acción por fila                 → "icon-button"
+  table                                    → "table"
+  td editable inline (rúbrica)             → "table-editable-cell"
+  td seleccionable para calificación       → "table-selectable-cell"
+  nav                                      → "nav"
+  Botón de tab individual                  → "tab"
+  div que agrupa todos los tabs            → "tab-group"
+  img                                      → "image"
+  p con valor calculado (solo lectura)     → "paragraph"
+  Botón que abre selector de fichero       → "file-upload"
+
+## Estructura de salida: UISpecSchema
+
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "<ISO 8601>",
+  "agent": "designer-front",
+  "total_elements": 90,
+  "screens": [
+    {
+      "screen_id": "<kebab-case>",
+      "screen_name": "<nombre legible>",
+      "file": "<nombre fichero HTML>",
+      "route": "<ruta de la aplicación>",
+      "role_guard": ["<roles con acceso>"],
+      "sketch_numbers": [<lista>],
+      "data_needs": ["<entidades API>"],
+      "components": [
+        {
+          "sketchNumber": N,
+          "type": "<tipo del enum>",
+          "label": "<etiqueta UI en español>",
+          "props": { ... },
+          "states": [ { "name", "description", "visual_cues", "condition" } ],
+          "interactions": [ { "trigger", "event", "payload", "response", "target_elements" } ],
+          "accessibility": { "role", "aria_label", "aria_live", "keyboard" },
+          "validation": [ { "rule", "message", "when" } ],
+          "depends_on": [<sketchNumbers>],
+          "note": "<notas de analista>"
+        }
+      ]
+    }
+  ]
+}
+
+## Instrucciones de ejecución (resumen)
+
+Paso 1 — Leer: boceto-metadata.json, boceto-elements.md y ui-spec.json (si existe).
+Paso 2 — Para cada pantalla y cada data-element-id:
+          Clasificar type, documentar label/props/states(≥2)/interactions/accessibility.
+          Aplicar reglas críticas (#49, #53, #77, #85–#88).
+Paso 3 — Ensamblar JSON completo con UISpecSchema.
+Paso 4 — Guardar en corrector/03-generated-artifacts/ui-spec.json.
+Paso 5 — Informar: pantallas procesadas, total componentes, ambigüedades.
+</script>
+
+<script type="text/plain" id="content-ui-spec">
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "2026-06-01T10:00:00Z",
+  "agent": "designer-front",
+  "model": "claude-code",
+  "total_elements": 90,
+  "screens": [
+    {
+      "screen_id": "screen-login",
+      "screen_name": "Login",
+      "file": "index.html",
+      "route": "/",
+      "role_guard": ["admin", "profesor", "tutor"],
+      "sketch_numbers": [1, 2, 3],
+      "data_needs": [],
+      "notes": "Entry point for all roles. Redirects to /admin or /profesor on success.",
+      "components": [
+        {
+          "sketchNumber": 1,
+          "type": "text-input",
+          "label": "Usuario",
+          "props": { "placeholder": "Usuario", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Empty field at initial render",
+              "visual_cues": ["placeholder visible"], "condition": "Page load" },
+            { "name": "focus", "description": "Field receiving keyboard input",
+              "visual_cues": ["focus ring", "cursor blinking"],
+              "condition": "User clicks or tabs into field" },
+            { "name": "error", "description": "Validation failed on submit",
+              "visual_cues": ["red border", "error message below"],
+              "condition": "Empty or invalid username on submit" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-login",
+              "payload": { "username": "string", "password": "string" },
+              "response": "Triggers form submission, loading state on #3",
+              "target_elements": [3] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Username",
+            "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Username is required", "when": "on submit" },
+            { "rule": "format:username",
+              "message": "Username must be 4–20 alphanumeric characters", "when": "on submit" }
+          ]
+        },
+        {
+          "sketchNumber": 2,
+          "type": "password-input",
+          "label": "Contraseña",
+          "props": { "placeholder": "Contraseña", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Empty masked field",
+              "visual_cues": ["placeholder visible"], "condition": "Page load" },
+            { "name": "focus", "description": "Field active",
+              "visual_cues": ["focus ring", "masked dots visible"],
+              "condition": "User clicks or tabs into field" },
+            { "name": "error", "description": "Wrong or empty password",
+              "visual_cues": ["red border", "error message below"],
+              "condition": "Invalid credentials on submit" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-login",
+              "payload": { "username": "string", "password": "string" },
+              "response": "Triggers form submission", "target_elements": [3] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Password",
+            "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Password is required", "when": "on submit" },
+            { "rule": "min:8", "message": "Password must be at least 8 characters",
+              "when": "on submit" }
+          ]
+        },
+        {
+          "sketchNumber": 3,
+          "type": "submit-button",
+          "label": "Acceder",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Enabled, ready to submit",
+              "visual_cues": ["primary button styling"], "condition": "Page load" },
+            { "name": "loading", "description": "Request in flight",
+              "visual_cues": ["spinner", "text Accediendo..."],
+              "condition": "After click, before response" },
+            { "name": "error", "description": "Credentials rejected",
+              "visual_cues": ["error message shown"], "condition": "API returns 401" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-login",
+              "payload": { "username": "string", "password": "string" },
+              "response": "Loading state; on success redirect; on error show message",
+              "target_elements": [1, 2] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Submit login form",
+            "aria_live": "off", "keyboard": "Enter or Space to activate" }
+        }
+      ]
+    },
+
+    ...
+    /* 10 pantallas más — 87 componentes adicionales */
+    /* Archivo completo: corrector/03-generated-artifacts/ui-spec.json (1569 líneas · 98 KB) */
+  ]
+}
+</script>
+
+<script type="text/plain" id="content-business-analyst-rol">
+# Rol: Analista de Negocio — Corrector de Proyectos
+
+## Identidad
+
+Eres un Analista de Negocio senior especializado en aplicaciones de gestión académica
+para Formación Profesional. Tu interlocutor es David Betancor, el cliente y profesor
+que ha encargado la aplicación.
+
+Tu único objetivo es mejorar y completar corrector/02-conversacion-cliente/transcripcion.md
+hasta que contenga información suficiente para que el pipeline RAG Spec-Driven genere una
+especificación funcional sin ambigüedades.
+
+## Contexto que debes dominar antes de empezar
+
+  Artefacto             | Ruta                                                    | Para qué
+  ──────────────────────────────────────────────────────────────────────────────────────
+  Transcripción actual  | corrector/02-conversacion-cliente/transcripcion.md      | Base a completar
+  Registro de elementos | corrector/01-boceto/html-source-prototype/boceto-elements.md | 90 elementos
+  Prototipos HTML       | corrector/01-boceto/html-source-prototype/*.html        | Contexto visual
+
+Lee estos tres artefactos al inicio de la sesión.
+No hagas preguntas que ya estén respondidas en la transcripción.
+
+## Metodología de la entrevista
+
+### Fase 1 — Diagnóstico (silencioso, no preguntes)
+Antes de abrir la conversación, analiza la transcripción e identifica:
+- Reglas de negocio globales ya definidas.
+- Elementos del boceto sin comportamiento descrito.
+- Ambigüedades: casos no cubiertos, condiciones de error ausentes, flujos incompletos.
+- Contradicciones entre transcripción y boceto.
+
+### Fase 2 — Presentación del diagnóstico
+Abre la conversación con un resumen estructurado:
+
+  ## Diagnóstico inicial
+  **Cubierto:** <lista breve>
+  **Pendiente por pantalla:**
+  - Login (#1–3): <qué falta>
+  - Admin · Legislación (#4–10): <qué falta>
+  ...
+  **Ambigüedades detectadas:** <lista numerada>
+
+### Fase 3 — Entrevista estructurada
+Agrupa preguntas por pantalla o flujo funcional. Nunca más de 3 preguntas por turno.
+Prioridad: flujos principales → validaciones → errores → casos límite → filtros reactivos.
+
+### Fase 4 — Confirmación y cierre
+Resumen final de reglas añadidas + pedir confirmación antes de dar la sesión por cerrada.
+
+## Restricción fundamental
+
+**Cada uno de los 90 sketchNumbers debe quedar cubierto** con al menos:
+- behavior: qué hace el elemento cuando el usuario interactúa con él.
+- businessRules: restricciones de negocio que aplican.
+- acceptanceCriteria: condición verificable de que funciona correctamente.
+
+## Reglas de conducta
+
+- Habla siempre en español, con tono profesional pero directo.
+- No implementes ni sugieras tecnología: tu output es requisitos, no código.
+- No asumas: si algo no está en la transcripción ni en el boceto, pregunta.
+- Sé preciso con los números: referencia los elementos como #N (nombre).
+- No reformules lo que el cliente ya ha dicho: añade, no repitas.
+- Si el cliente da una respuesta ambigua, reformula y pide confirmación explícita.
+
+## Output esperado al finalizar
+
+La transcripción mejorada debe cubrir toda la información necesaria para generar
+un FunctionalSpecSchema válido con estos campos por elemento:
+
+  {
+    "sketchNumber": N,
+    "behavior": "...",
+    "businessRules": ["...", "..."],
+    "dataNeeds": ["..."],
+    "acceptanceCriteria": ["..."]
+  }
+
+Y las reglas globales del sistema (globalRules[]):
+- Autenticación y gestión de sesión.
+- Cambio de contraseña obligatorio en primer acceso.
+- Ponderación de notas y límite de 10 puntos.
+- Restricciones por rol (Admin / Profesor / Tutor).
+</script>
+
+<script type="text/plain" id="content-transcripcion-output">
+# Transcripción de entrevista — Corrector de Proyectos
+# Estado: COMPLETADA (2026-05-31) — 90 elementos cubiertos ✅
+
+─── Fragmento: Aclaraciones de comportamiento añadidas por el BA ─────────────
+
+## Login y autenticación (#1–#3)
+
+- Si el usuario introduce credenciales incorrectas: "Credenciales incorrectas" en la
+  misma pantalla. Máximo 3 intentos fallidos consecutivos. Al tercer intento:
+  "Póngase en contacto con el Administrador" → cuenta bloqueada.
+- El desbloqueo de cuenta lo realiza el Administrador.
+- En el primer acceso (contraseña por defecto 12345678), en la misma pantalla del login
+  aparecen dos campos adicionales para introducir la nueva contraseña dos veces.
+  Si coinciden → actualizar BD y redirigir. Si no → error y repetir.
+
+## Administración — Tab Legislación (#7–#10, #81–#84)
+
+- No se puede borrar una Legislación si tiene Ciclos asociados.
+- El boceto ahora incluye botón Nuevo (#81), tabla (#82), Editar (#83) y Borrar (#84).
+
+## Tab Proyectos — formulario y gestión (#46–#51)
+
+- Formulario de nuevo proyecto (#46): modal con tres campos: nombre, ciclo, alumnos.
+  - "ciclo": filtra la lista de alumnos disponibles.
+  - "alumnos": muestra alumnos del ciclo seleccionado NO asignados a ningún proyecto.
+    El profesor marca los que participan (1 a 3 alumnos).
+- Borrado de proyecto (#51): bloqueado si el proyecto tiene correcciones guardadas.
+- Un alumno solo puede pertenecer a un proyecto a la vez.
+
+## Tab Rúbrica — validaciones (#55–#64, #90)
+
+- #58–#61 (Excelente, Muy bien, Bien, Regular): input number con 2 decimales, visibles.
+- #62 (Mal): valor fijo 0.00, no editable — campo de solo lectura siempre.
+- Valores deben estar ordenados: Excelente > Muy bien > Bien > Regular > 0.
+- REGLA CRÍTICA: la suma de todos los valores "Excelente" de todos los ítems debe
+  ser exactamente 10.00. El sistema no permite guardar si la suma se desvía de 10.
+- #63 (Subir rúbrica): formato YAML. Borra la rúbrica anterior y escribe la nueva.
+  Aviso de pérdida de datos antes de confirmar.
+- #64 (Puntuación máxima): suma de Excelente en tiempo real. Siempre 10.00 si válida.
+- Todos los edits de rúbrica (add/edit/delete/upload) quedan BLOQUEADOS una vez que
+  existen correcciones guardadas para proyectos de ese módulo.
+
+## Pantalla Corregir Proyecto (#65–#80)
+
+- Selects en cascada: #65 año → #66 ciclo → #67 módulo → #68 proyectos.
+- #68: muestra TODOS los proyectos tras los tres filtros (sin filtrar por estado).
+- #71–#75: radio buttons por fila; guardado automático asíncrono al seleccionar nivel.
+- #77 (Corregir por grupo): ON → #78, #79, #80 pasan a disabled.
+  Todos empiezan desmarcados. Solo un alumno en modo individual a la vez.
+
+## Ver notas — cálculo de nota final (#85–#89)
+
+- Nota de módulo: suma de niveles seleccionados por ítem, máximo 10.
+- Nota final = Σ (nota_módulo_i × (horas_módulo_i / horas_totales_ciclo))
+- Output: PDF descargable. Botón #88 disabled hasta que #85, #86, #87 tienen valor.
+
+── Archivo completo en corrector/02-conversacion-cliente/transcripcion.md (249 líneas) ─
+</script>
+
+<script type="text/plain" id="content-gen-fs-rol">
+# Agente 2b — Generador de Functional Spec
+
+## Perfil
+
+Eres un Analista Funcional Senior. Tu especialidad es convertir entrevistas de cliente
+y especificaciones UI en especificaciones funcionales precisas y legibles por máquina.
+Eres meticuloso. No omites ningún elemento. No inventas comportamientos que no estén
+en la transcripción. Cada criterio de aceptación que escribes se convierte directamente
+en un test del Agente 4. Cada omisión se convierte en un bug sin test.
+
+## Reglas de redacción — obligatorias
+
+### behavior
+Describe qué hace el elemento cuando el usuario interactúa con él.
+Presente de indicativo. En inglés. Sin mencionar CSS ni estilos.
+Incluye estado inicial y resultado de la interacción principal.
+
+### businessRules
+Array de strings. Cada regla es una frase corta y verificable en inglés.
+Extráelas exclusivamente de transcripcion.md. No inventes reglas.
+
+### dataNeeds
+Entidades que este elemento necesita leer o escribir de la API.
+Formato: "read:Legislacion", "write:Legislacion", "read:Ciclo[]".
+
+### acceptanceCriteria
+Condiciones verificables por un test automatizado. Mínimo 2 por elemento.
+Patrón: "When [acción/condición], [resultado observable]".
+
+## Reglas de dominio críticas
+
+- #49 DEPRECATED: No debe renderizarse. Asignación de alumnos en modal #46.
+- #53 CORRECCIÓN: El filtro opera sobre módulo (no proyecto). Documentar correcto.
+- #62 Mal siempre = 0: Nivel Mal tiene valor fijo 0.00, no editable.
+- #77–#80 Exclusión mutua: Marcar #77 (grupo) deshabilita #78, #79, #80.
+  Solo un alumno a la vez en modo individual.
+- #85→#86→#87 Cascada: Cambiar #85 resetea #86 y #87. Cambiar #86 resetea #87.
+  Módulos en #87 limitados a los asignados al profesor autenticado.
+- #88 disabled: Deshabilitado mientras cualquiera de #85, #86, #87 esté vacío.
+- Suma rúbrica = 10.00: No permite guardar si suma de Excelente ≠ 10.00.
+- Guardado automático corrección: Al seleccionar un nivel en #71–#75, guarda sin botón.
+- Primer acceso: Contraseña 12345678 debe cambiarse en el primer login.
+
+## Estructura de salida: FunctionalSpecSchema
+
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "<ISO 8601>",
+  "agent": "generate-functional-spec",
+  "total_elements": 90,
+  "appOverview": "<descripción funcional en 3-5 frases>",
+  "elementSpecs": [
+    {
+      "sketchNumber": N,
+      "behavior": "<descripción funcional>",
+      "businessRules": ["<regla de negocio>"],
+      "dataNeeds": ["<read|write:Entidad>"],
+      "acceptanceCriteria": ["<criterio verificable>"]
+    }
+  ],
+  "globalRules": ["<regla transversal>"]
+}
+
+## Instrucciones de ejecución
+
+Paso 1 — Leer: transcripcion.md, ui-spec.json, boceto-elements.md, functional-spec.schema.js.
+Paso 2 — Escribir appOverview y globalRules (reglas transversales de la aplicación).
+Paso 3 — Procesar los 90 elementos en orden numérico.
+Paso 4 — Validar: elementSpecs.length === 90, sin huecos, sin acceptanceCriteria vacíos.
+Paso 5 — Guardar en corrector/03-generated-artifacts/functional-spec.json.
+Paso 6 — Informar: total elementos, globalRules generadas, elementos inferidos.
+</script>
+
+<script type="text/plain" id="content-functional-spec">
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "2026-06-01T12:00:00Z",
+  "agent": "generate-functional-spec",
+  "model": "claude-code",
+  "total_elements": 90,
+  "appOverview": "Corrector de Proyectos is a web application for vocational education (FP) teachers in Spain to manage and grade end-of-year student projects using a rubric-based scoring system. Teachers create rubrics per module, assign students to group projects (1–3 members), and grade each rubric item by selecting one of five quality levels whose values auto-sum to a final score. Administrators manage the system catalog (legislaciones, ciclos, módulos, profesorado). A restricted Tutor role can only view and download grade reports as PDF. The application enforces strict data privacy: student real names are stored separately from the anonymised identifiers used throughout the UI.",
+
+  "elementSpecs": [
+    {
+      "sketchNumber": 1,
+      "behavior": "Text input for entering the Consejería de Educación username (e.g. dbetqui). Displayed empty on page load. Admin uses the literal username 'Admin'. Submitting triggers credential validation.",
+      "businessRules": [
+        "Username is the Consejería de Educación identifier, not an email address",
+        "Admin account uses the literal username 'Admin'"
+      ],
+      "dataNeeds": ["read:Profesor"],
+      "acceptanceCriteria": [
+        "When valid credentials are submitted, user is redirected to /admin (admin) or /profesor (profesor/tutor)",
+        "Submitting an empty username shows a required-field validation error",
+        "Username field accepts Consejería format (e.g. dbetqui) and the literal 'Admin'"
+      ]
+    },
+    {
+      "sketchNumber": 2,
+      "behavior": "Password input, always masked. On first login with default password '12345678', submitting triggers a password-change flow on the same screen: two additional fields appear for the new password and its confirmation.",
+      "businessRules": [
+        "Default password is '12345678'",
+        "First login with default password requires immediate password change",
+        "Minimum password length is 8 characters",
+        "New password cannot be the same as '12345678'"
+      ],
+      "dataNeeds": ["write:Profesor"],
+      "acceptanceCriteria": [
+        "When the submitted password is '12345678', two additional fields appear for new password and confirmation",
+        "When new password and confirmation match, the DB is updated and user is redirected",
+        "When new password and confirmation do not match, an error is shown and the flow repeats",
+        "Setting the new password to '12345678' is rejected with a validation error",
+        "Password characters are always masked"
+      ]
+    },
+    {
+      "sketchNumber": 3,
+      "behavior": "Submit button that validates credentials against the DB. On success redirects based on role. Tracks consecutive failures and locks the account after 3.",
+      "businessRules": [
+        "Maximum 3 consecutive failed login attempts before account lockout",
+        "After 3 failures: message 'Póngase en contacto con el Administrador'; account locked",
+        "Only the admin can unlock a locked profesor account"
+      ],
+      "dataNeeds": ["read:Profesor", "write:Profesor"],
+      "acceptanceCriteria": [
+        "When credentials are valid, user is redirected to the role home page",
+        "When credentials are invalid, 'Credenciales incorrectas' is displayed",
+        "After 3 consecutive failures, the account is locked and a contact-admin message shown",
+        "On first login (default password), submit triggers password-change flow, not redirect"
+      ]
+    },
+
+    ...
+    /* 87 elementSpecs más (#4 through #90) */
+    /* Archivo completo: corrector/03-generated-artifacts/functional-spec.json (1412 líneas) */
+  ],
+
+  "globalRules": [
+    "Reactive filters apply a 300ms debounce before filtering the associated table",
+    "Rubric cell values auto-save on blur; no explicit save button for individual cells",
+    "Correction cell selections auto-save asynchronously on selection; no explicit save button",
+    "Deletion is blocked when the entity has dependent records; a descriptive error is shown",
+    "Inline editing: rows switch to edit mode in-place; no modal is opened for edits",
+    "First login with default password '12345678' triggers mandatory password change",
+    "Account locks after 3 consecutive failed login attempts; only Admin can unlock",
+    "Only one Admin account exists in the system",
+    "Student real names are stored in a separate secure table; UI uses anonymised codes only",
+    "Rubric total (sum of all Excelente values) must equal exactly 10.00 to be valid",
+    "All rubric edits (add/edit/delete/upload) are blocked once corrections exist for that module",
+    "Tutor role can only access /profesor/notas; all other profesor routes return 403",
+    "Role-based access: admin routes require admin role; profesor/tutor routes require either",
+    ...
+    /* 20 globalRules en total */
+  ]
+}
+</script>
+
+<script type="text/plain" id="content-reconciliation">
+{
+  "feature_id": "corrector-v1",
+  "generated_at": "2026-06-01T00:00:00Z",
+  "gate": "GATE HUMANO — Reconciliación",
+  "valid": true,
+  "summary": "All 90 boceto elements have a corresponding functional spec entry and vice versa. No orphaned elements on either side.",
+  "boceto_numbers": [
+    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+    21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+    41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+    61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,
+    81,82,83,84,85,86,87,88,89,90
+  ],
+  "spec_numbers": [
+    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+    21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+    41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+    61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,
+    81,82,83,84,85,86,87,88,89,90
+  ],
+  "orphaned_sketch_elements": [],
+  "orphaned_spec_rules": [],
+  "stats": {
+    "total_boceto_elements": 90,
+    "total_spec_elements": 90,
+    "matched": 90,
+    "orphaned_in_boceto": 0,
+    "orphaned_in_spec": 0
+  },
+  "review_passes": 14,
+  "corrections_applied": [
+    "Ciclo data model: added legislacion FK; fixed cascade constraints (#11,#12,#13,#14,#19)",
+    "Rubric validity: individual cell saves never blocked by sum constraint (#56,#58,#64,#69)",
+    "Correction screen: 'Elige una opción para empezar a corregir' before checkbox selection",
+    "Rubric item deletion: requires confirmation + blocked if rubric used for grading (#90)",
+    "Rubric upload (#63): blocked if corrections exist; row-level import for alumnos (#41)",
+    "Ciclo creation modal: added legislacion field (#12, #13, #14)",
+    "Módulo inline edit: fields specified + siglas uniqueness per legislacion (#21, #17)",
+    "Alumno creation: added nombre_completo field; legislacion derived from ciclo (#35,#38,#39)",
+    "Rubric freeze: all rubric edits blocked once corrections exist (#55,#57–#63,#90)",
+    "Notas screen: 'Niveles evaluados' = item count per grade level; partial corrections shown",
+    "Project creation (#46): ciclo defaults to active module's ciclo; min 1 alumno enforced",
+    "Uniqueness: profesor username, ciclo nombre per legislacion, módulo siglas per legislacion",
+    "Tutor role restriction: documented in globalRules; only /profesor/notas accessible",
+    "Password change: new password cannot be same as default '12345678' (#2)",
+    "GlobalRules: rubric freeze principle; role-based access; legislacion edit exception"
+  ]
+}
+</script>
+
+<!-- ══ Viewer script ══ -->
+<script>
+const PANEL_META = {
+  'claude-md':            { name: 'CLAUDE.md',                   path: '/ CLAUDE.md',                                          badge: 'Configuración',      bc: 'ph-config'  },
+  'boceto':               { name: 'boceto HTML',                  path: 'corrector/01-boceto/',                                 badge: 'Entrada',            bc: 'ph-input'   },
+  'transcripcion-input':  { name: 'transcripcion.md',            path: 'corrector/02-conversacion-cliente/transcripcion.md',   badge: 'Entrada — inicial',  bc: 'ph-input'   },
+  'designer-front-rol':   { name: 'designer-front.md',           path: 'lib/agents/designer-front.md',                        badge: 'Rol del agente',     bc: 'ph-role'    },
+  'ui-spec':              { name: 'ui-spec.json',                 path: 'corrector/03-generated-artifacts/ui-spec.json',       badge: 'Artefacto ✓',        bc: 'ph-output'  },
+  'business-analyst-rol': { name: 'business-analyst.md',         path: 'lib/agents/business-analyst.md',                      badge: 'Rol del agente',     bc: 'ph-role'    },
+  'transcripcion-output': { name: 'transcripcion.md',            path: 'corrector/02-conversacion-cliente/transcripcion.md',  badge: 'Salida — completada', bc: 'ph-output' },
+  'gen-fs-rol':           { name: 'generate-functional-spec.md', path: 'lib/agents/generate-functional-spec.md',              badge: 'Rol del agente',     bc: 'ph-role'    },
+  'functional-spec':      { name: 'functional-spec.json',        path: 'corrector/03-generated-artifacts/functional-spec.json', badge: 'Artefacto ✓',      bc: 'ph-output'  },
+  'reconciliation':       { name: 'reconciliation.json',         path: 'corrector/03-generated-artifacts/reconciliation.json', badge: 'GATE ✓ valid: true', bc: 'ph-gate'   },
+  'planned-3':            { name: 'use-cases.md / schema.sql',   path: 'corrector/04-use-cases/',                             badge: 'Pendiente',          bc: 'ph-plan'    },
+  'planned-4':            { name: 'tests/*.test.js',             path: 'tests/',                                              badge: 'Pendiente',          bc: 'ph-plan'    },
+  'planned-5':            { name: 'src/ backend + frontend',     path: 'corrector/05-implementation/',                       badge: 'Pendiente',          bc: 'ph-plan'    },
+};
+
+const PLANNED = {
+  'planned-3':
+`Agente 3 — Arquitecto de Requisitos
+ESTADO: Pendiente (siguiente paso tras GATE HUMANO ✓)
+
+Entrada:
+  corrector/03-generated-artifacts/functional-spec.json  (90 specs, 20 globalRules)
+  corrector/03-generated-artifacts/ui-spec.json          (90 componentes, 11 pantallas)
+  corrector/02-conversacion-cliente/transcripcion.md     (entrevista de cliente)
+
+Salida prevista:
+  corrector/04-use-cases/use-cases.md      Casos de uso por sketchNumber
+  corrector/04-use-cases/schema.sql        DDL PostgreSQL (tablas, constraints, índices)
+  corrector/04-use-cases/api-contracts.md  Endpoints REST: método, ruta, body, response, errores
+
+Cada caso de uso referenciará los sketchNumbers de la functional-spec para mantener
+trazabilidad completa desde el boceto hasta el contrato de API.`,
+
+  'planned-4':
+`Agente 4 — Ingeniero TDD
+ESTADO: Pendiente (requiere salida del Agente 3)
+
+Los acceptanceCriteria de functional-spec.json se convierten en tests que fallan (rojo):
+
+  // Ejemplo: tests generados para sketchNumber 3
+  describe('Element #3 — Botón Acceder', () => {
+    it('When valid credentials submitted, user is redirected to role home', async () => {
+      // ...
+    });
+    it('After 3 consecutive failures, account is locked', async () => {
+      // ...
+    });
+    it('On first login with default password, triggers password-change flow', async () => {
+      // ...
+    });
+  });
+
+Stack:
+  Backend:  Vitest + node-fetch (integración contra API real)
+  Frontend: @web/test-runner (componentes Web Components)
+
+Cada describe() referencia el sketchNumber para trazabilidad boceto → test.`,
+
+  'planned-5':
+`Agente 5 — Implementador
+ESTADO: Pendiente (requiere tests rojos del Agente 4)
+
+Genera el código mínimo suficiente para que todos los tests pasen (verde ✅):
+
+  Backend (Node.js + Express):
+  ├── src/routes/       Endpoints REST por entidad
+  ├── src/models/       Modelos de dominio (PostgreSQL con pg)
+  ├── src/middleware/   Auth, RBAC, validación Zod
+  └── src/db/           Migrations + schema
+
+  Frontend (Web Components + lit-html standalone):
+  ├── components/
+  │   ├── corrector-login.js
+  │   ├── corrector-rubrica-table.js
+  │   ├── corrector-grade-cell.js
+  │   └── ...
+  └── pages/
+      ├── login.html, admin.html, profesor-landing.html, ...
+
+Criterio de aceptación del agente: npm test pasa completamente en verde ✅.
+Sin over-engineering: el código generado es el mínimo necesario.`,
+};
+
+let activePanel = null;
+
+function showPanel(id) {
+  if (activePanel) {
+    const prev = document.querySelector('[data-panel="' + activePanel + '"]');
+    if (prev) prev.classList.remove('active');
+  }
+  activePanel = id;
+  const node = document.querySelector('[data-panel="' + id + '"]');
+  if (node) node.classList.add('active');
+
+  document.getElementById('viewer-empty').hidden = true;
+  document.getElementById('panel-wrap').hidden = false;
+
+  const meta = PANEL_META[id];
+  document.getElementById('panel-header').innerHTML =
+    '<span class="ph-name">' + meta.name + '</span>' +
+    '<code class="ph-path">' + meta.path + '</code>' +
+    '<span class="ph-badge ' + meta.bc + '">' + meta.badge + '</span>';
+
+  const body = document.getElementById('panel-body');
+  body.innerHTML = '';
+
+  let text;
+  if (PLANNED[id]) {
+    text = PLANNED[id];
+  } else {
+    const store = document.getElementById('content-' + id);
+    text = store ? store.textContent.trim() : '(contenido no disponible)';
+  }
+
+  const pre = document.createElement('pre');
+  const code = document.createElement('code');
+  code.textContent = text;
+  pre.appendChild(code);
+  body.appendChild(pre);
+}
+
+document.querySelectorAll('.tl-node').forEach(function(node) {
+  node.addEventListener('click', function() {
+    const id = node.dataset.panel;
+    if (id) showPanel(id);
+  });
+});
+</script>
+
+</body>
+</html>
