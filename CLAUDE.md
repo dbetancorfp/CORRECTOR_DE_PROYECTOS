@@ -62,18 +62,18 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 
 ### Agents
 
-| # | Agent | Input | Output | Phase |
-|---|-------|-------|--------|-------|
-| 0 | Boceto Parser | ficheros `.html` del boceto | `boceto-metadata.json` | `boceto-parse` |
-| 1 | Diseñador Front | `boceto-metadata.json` + HTML | `ui-spec.json` | `ui-spec` |
-| 2a | Analista de Negocio | transcripción inicial + boceto | `transcripcion.md` completa | `interview` |
-| 2b | Generador Func. Spec | `transcripcion.md` + UI Spec | `functional-spec.json` | `func-spec` |
-| — | **GATE HUMANO** | ui-spec + func-spec | `reconciliation.json { valid:true }` | gate |
-| 3 | Arquitecto de Requisitos | reconciled specs | use-cases, DDL validado, API contracts | `use-case` |
-| 7 | Validador de Alineación | boceto + transcripcion + schema.sql | `alignment-report.json { valid:true }` | `alignment` |
-| 4 | Ingeniero TDD | acceptanceCriteria + alignment report | failing test files | `test-red` |
-| 5 | Implementador | red tests + contracts | Bun/Express + TS backend + Web Components | `code` |
-| 6 | Revisor / QA *(optional)* | implementation | quality report | `review` |
+| # | Agente | Responsabilidad | Input | Output |
+|---|--------|-----------------|-------|--------|
+| 0 | Boceto Parser | Escanea los HTML y construye el índice de elementos | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` |
+| 1 | Diseñador Front | Especifica cada elemento UI (tipo, props, estados, interacciones) | `boceto-metadata.json` + ficheros `.html` | `ui-spec.json` |
+| 2a | Analista de Negocio | Entrevista al cliente y completa la transcripción de requisitos | Transcripción inicial + boceto | `transcripcion.md` completa |
+| 2b | Generador Func. Spec | Convierte la transcripción en especificación funcional estructurada | `transcripcion.md` + `ui-spec.json` | `functional-spec.json` |
+| — | **GATE HUMANO** | Verifica que cada sketchNumber tiene func-spec y viceversa | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
+| 3 | Arquitecto de Requisitos | Genera casos de uso, DDL y contratos API desde las specs validadas | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` | `use-cases.md` + `schema.sql` + `api-contracts.md` |
+| 7 | Validador de Alineación | Verifica la alineación 3-way: boceto ↔ transcripción ↔ schema | `boceto-metadata.json` + `transcripcion.md` + `schema.sql` | `alignment-report.json { valid:true }` |
+| 4 | Ingeniero TDD | Genera tests en rojo a partir de los criterios de aceptación | `functional-spec.json` + `alignment-report.json` | `*.test.ts` (failing) |
+| 5 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `api-contracts.md` | Backend TS + Web Components TS |
+| 6 | Revisor / QA *(optional)* | Valida calidad del código, convenciones y ausencia de dead code | Implementación completa | Informe de revisión |
 
 Each `describe()` block in test files must reference a `sketchNumber`.
 Each agent has a single responsibility — no agent mixes generation with validation.
