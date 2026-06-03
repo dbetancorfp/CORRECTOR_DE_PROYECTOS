@@ -69,7 +69,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 
 | # | Agente | Responsabilidad | Input | Output |
 |---|--------|-----------------|-------|--------|
-| 0 | Boceto Parser | Escanea los HTML, construye el índice de elementos y valida unicidad de sketchNumbers | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` |
+| 0 | Boceto Parser | Escanea los HTML, produce el índice estructural y el registro descriptivo de elementos | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` · `boceto-elements.md` |
 | 1 ∥ | Diseñador Front | Especifica cada elemento UI (tipo, props, estados, interacciones, validaciones) | `boceto-metadata.json` + ficheros `.html` + `boceto-elements.md` | `ui-spec.json` |
 | 2 ∥ | Analista de Negocio | Entrevista al cliente y completa la transcripción hasta cubrir los 90 elementos | Transcripción inicial + ficheros `.html` + `boceto-elements.md` | `transcripcion.md` completa |
 | 3 | Generador Func. Spec | Convierte transcripción + UI spec en especificación funcional estructurada y verificable | `transcripcion.md` + `ui-spec.json` | `functional-spec.json` |
