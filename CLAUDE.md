@@ -64,15 +64,19 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 
 | # | Agent | Input | Output | Phase |
 |---|-------|-------|--------|-------|
-| 1 | Diseñador Front | boceto HTML + `boceto-metadata.json` | `ui-spec.json` | `ui-spec` |
-| 2 | Analista de Negocio | client transcript + UI Spec (RAG) | `functional-spec.json` | `func-spec` |
+| 0 | Boceto Parser | ficheros `.html` del boceto | `boceto-metadata.json` | `boceto-parse` |
+| 1 | Diseñador Front | `boceto-metadata.json` + HTML | `ui-spec.json` | `ui-spec` |
+| 2a | Analista de Negocio | transcripción inicial + boceto | `transcripcion.md` completa | `interview` |
+| 2b | Generador Func. Spec | `transcripcion.md` + UI Spec | `functional-spec.json` | `func-spec` |
 | — | **GATE HUMANO** | ui-spec + func-spec | `reconciliation.json { valid:true }` | gate |
-| 3 | Arquitecto de Requisitos | reconciled specs | use-cases, DDL, API contracts | `use-case` |
-| 4 | Ingeniero TDD | acceptanceCriteria | failing test files | `test-red` |
-| 5 | Implementador | red tests + contracts | Bun/Express backend + Web Components | `code` |
+| 3 | Arquitecto de Requisitos | reconciled specs | use-cases, DDL validado, API contracts | `use-case` |
+| 7 | Validador de Alineación | boceto + transcripcion + schema.sql | `alignment-report.json { valid:true }` | `alignment` |
+| 4 | Ingeniero TDD | acceptanceCriteria + alignment report | failing test files | `test-red` |
+| 5 | Implementador | red tests + contracts | Bun/Express + TS backend + Web Components | `code` |
 | 6 | Revisor / QA *(optional)* | implementation | quality report | `review` |
 
 Each `describe()` block in test files must reference a `sketchNumber`.
+Each agent has a single responsibility — no agent mixes generation with validation.
 
 ### Handoff pattern
 
