@@ -527,7 +527,7 @@ No element can appear in a later phase unless it was numbered in the boceto.
   LLM / Agents:   Claude API (claude-sonnet-4-6)
   Embeddings:     OpenAI text-embedding-3-small
   RAG database:   PostgreSQL 16 + pgvector 0.7
-  Backend:        Bun + Express
+  Backend:        Bun + Express + TypeScript
   Validation:     Zod 3.x
   Frontend:       Web Components + lit-html standalone + Tailwind CSS 3.x
   Tests backend:  bun test
@@ -1460,17 +1460,17 @@ ESTADO: Pendiente (requiere tests rojos del Agente 4)
 
 Genera el código mínimo suficiente para que todos los tests pasen (verde ✅):
 
-  Backend (Bun + Express):
+  Backend (Bun + Express + TypeScript):
   ├── src/routes/       Endpoints REST por entidad
   ├── src/models/       Modelos de dominio (PostgreSQL con pg)
   ├── src/middleware/   Auth, RBAC, validación Zod
   └── src/db/           Migrations + schema
 
-  Frontend (Web Components + lit-html standalone):
-  ├── components/
-  │   ├── corrector-login.js
-  │   ├── corrector-rubrica-table.js
-  │   ├── corrector-grade-cell.js
+  Frontend (Web Components + lit-html + TypeScript → bun build):
+  ├── src/frontend/
+  │   ├── corrector-login.ts
+  │   ├── corrector-rubrica-table.ts
+  │   ├── corrector-grade-cell.ts
   │   └── ...
   └── pages/
       ├── login.html, admin.html, profesor-landing.html, ...

@@ -9,9 +9,11 @@ and grade end-of-cycle student projects via rubric-based scoring.
 
 Author: David Betancor, Profesor FP, IES Telesforo Bravo.
 
-Entry point: `corrector/01-boceto/html-source-prototype/` — 90 interactive elements across
-11 screens, each annotated `data-element-id="N"` (sketchNumber).
-Element registry: `corrector/01-boceto/html-source-prototype/boceto-elements.md`.
+| Artifact | Path | Notes |
+|----------|------|-------|
+| Boceto | `corrector/01-boceto/html-source-prototype/` | 90 elements · 11 screens · `data-element-id="N"` (sketchNumber). Registry: `boceto-elements.md` |
+| Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | Client interview transcript — source of business rules |
+| Schema BD | `corrector/05-implementation/backend/schema.sql` | PostgreSQL 16 DDL — source of truth for data model |
 
 ## Core Rules
 
@@ -35,10 +37,10 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 | LLM / Agents | Claude API `claude-sonnet-4-6` |
 | Embeddings | OpenAI `text-embedding-3-small` |
 | RAG database | PostgreSQL 16 + pgvector 0.7 |
-| Backend | **Bun** + Express |
+| Backend | **Bun** + Express + TypeScript |
 | Schema validation | Zod 3.x |
-| Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x |
-| Frontend loading | `<script type="module">` — no bundler, no transpilation |
+| Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x + TypeScript |
+| Frontend build | `bun build` — `src/frontend/*.ts` → `dist/frontend/*.js` → `<script type="module">` |
 | Tests (backend) | `bun test` |
 | Tests (frontend) | `@web/test-runner` |
 | Docs | Static HTML → `docs/` → GitHub Pages |
@@ -135,45 +137,47 @@ docs/              # Static docs → GitHub Pages
 ## Frontend: Web Components
 
 One file per component. Shadow DOM always open. Render with lit-html only. Never `innerHTML`.
+TypeScript compiled with `bun build` — source in `src/frontend/`, output in `dist/frontend/`.
 
 ### Component skeleton
 
-```js
-// corrector-button.js
+```ts
+// corrector-button.ts
 import { html, render } from 'lit-html';
 
 export class CorrectorButton extends HTMLElement {
-  connectedCallback() {
+  private _disposables: Array<() => void> = [];
+
+  connectedCallback(): void {
     this.attachShadow({ mode: 'open' });
-    this._disposables = [];
     this._render();
-    const onClick = () => this._handleClick();
-    this.shadowRoot.addEventListener('click', onClick);
-    this._disposables.push(() => this.shadowRoot.removeEventListener('click', onClick));
+    const onClick = (): void => this._handleClick();
+    this.shadowRoot!.addEventListener('click', onClick);
+    this._disposables.push(() => this.shadowRoot!.removeEventListener('click', onClick));
   }
 
-  disconnectedCallback() {
+  disconnectedCallback(): void {
     this._disposables.forEach(fn => fn());
     this._disposables = [];
   }
 
-  _handleClick() {
+  private _handleClick(): void {
     this.dispatchEvent(new CustomEvent('corrector:action', {
       bubbles: true, composed: true,
       detail: { id: this.getAttribute('data-id') },
     }));
   }
 
-  _render() {
+  private _render(): void {
     const label  = this.getAttribute('label') ?? 'OK';
     const active = this.hasAttribute('active');
-    const items  = JSON.parse(this.getAttribute('items') ?? '[]');
+    const items: string[] = JSON.parse(this.getAttribute('items') ?? '[]');
     render(html`
-      <button .value=${label} @click=${() => this._handleClick()} ?disabled=${!active}>
+      <button .value=${label} @click=${(): void => this._handleClick()} ?disabled=${!active}>
         ${label}
       </button>
       <ul>${items.map(i => html`<li>${i}</li>`)}</ul>
-    `, this.shadowRoot);
+    `, this.shadowRoot!);
   }
 }
 customElements.define('corrector-button', CorrectorButton);
@@ -196,7 +200,7 @@ customElements.define('corrector-button', CorrectorButton);
 
 | What | Pattern | Example |
 |------|---------|---------|
-| File | `kebab-case.js` | `corrector-rubrica-cell.js` |
+| File | `kebab-case.ts` | `corrector-rubrica-cell.ts` |
 | Class | `PascalCase` | `CorrectorRubricaCell` |
 | Element | `corrector-*` | `corrector-rubrica-cell` |
 | Event | `corrector:verb-noun` | `corrector:grade-selected` |
