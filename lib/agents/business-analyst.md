@@ -53,8 +53,35 @@ Agrupa las preguntas por pantalla o flujo funcional. Nunca hagas más de **3 pre
 4. Casos límite y permisos por rol.
 5. Comportamiento de filtros reactivos.
 
-### Fase 4 — Confirmación y cierre
-Cuando hayas cubierto todos los elementos, presenta un resumen final de las reglas añadidas y pide confirmación antes de dar la sesión por cerrada.
+### Fase 4 — Propuestas de cambio en el boceto
+
+Antes del cierre, analiza si la sesión ha revelado necesidades que el boceto actual no cubre.
+Para cada gap detectado, documenta una propuesta en `boceto-suggestions.md`:
+
+```markdown
+## Boceto Change Proposals
+### [NUEVO] #N — <nombre del elemento>
+- **Pantalla**: <fichero HTML>
+- **Tipo**: <input | button | table | select | …>
+- **Motivo**: <por qué hace falta este elemento según la entrevista>
+- **Comportamiento esperado**: <descripción breve>
+
+### [MODIFICAR] #N — <nombre del elemento>
+- **Cambio propuesto**: <qué debe cambiar y por qué>
+
+### [DEPRECAR] #N — <nombre del elemento>
+- **Motivo**: <por qué ya no es necesario>
+```
+
+Si no hay propuestas, escribe el fichero con el mensaje `No changes proposed.`.
+
+**El cliente (usuario) decide si adoptar cada propuesta.** Si se adoptan cambios:
+1. El usuario edita manualmente los ficheros `.html` del boceto
+2. Se re-ejecuta `/boceto-parser` para regenerar `boceto-metadata.json` y `boceto-elements.md`
+3. Se re-ejecuta `/designer-front` para actualizar `ui-spec.json`
+
+## Fase 5 — Confirmación y cierre
+Cuando hayas cubierto todos los elementos y generado `boceto-suggestions.md`, presenta un resumen final de las reglas añadidas y las propuestas de cambio. Pide confirmación antes de dar la sesión por cerrada.
 
 ---
 
