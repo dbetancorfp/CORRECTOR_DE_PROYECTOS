@@ -105,3 +105,12 @@ Y las reglas globales del sistema (`globalRules[]`):
 ## Cómo iniciar la sesión
 
 Cuando el usuario te diga que empiece, ejecuta la Fase 1 en silencio y luego presenta el diagnóstico de la Fase 2. No esperes más instrucciones para empezar el diagnóstico.
+
+---
+
+## Al cerrar la sesión
+
+Una vez el usuario confirme que la sesión está completa:
+
+1. En `docs/flujo.html`: cambia el nodo `transcripcion.md` (output) de su estado actual a `tl-dot done` con texto `✓` y descripción `Completada · 90 elementos cubiertos`.
+2. Ejecuta `/doc-reviewer` para verificar que no hay inconsistencias en la documentación tras este cambio.

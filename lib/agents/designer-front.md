@@ -260,10 +260,10 @@ Lee estos ficheros **antes de procesar ninguna pantalla**:
 2. `corrector/01-boceto/html-source-prototype/boceto-elements.md` — registro de todos los elementos
 3. `corrector/03-generated-artifacts/ui-spec.json` (si existe) — para evitar sobreescribir trabajo previo; si existe pregunta al usuario antes de continuar
 4. **Especificaciones técnicas JavaScript** — lee los siguientes ficheros para conocer los patrones de implementación que guiarán las `interactions` y `props` de cada componente:
-   - `corrector/00-especificaciones-tecnicas/day-03-dom-y-web-components.md` — Custom Elements, Shadow DOM, ciclo de vida, disposables, composedPath, slots
-   - `corrector/00-especificaciones-tecnicas/day-04-web-components-avanzados-y-performance.md` — CustomEvent con bubbles/composed, arquitectura presentacional/contenedor/servicio, Core Web Vitals
+   - `corrector/00-especificaciones-tecnicas/dom-y-web-components.md` — Custom Elements, Shadow DOM, ciclo de vida, disposables, composedPath, slots
+   - `corrector/00-especificaciones-tecnicas/web-components-avanzados-y-performance.md` — CustomEvent con bubbles/composed, arquitectura presentacional/contenedor/servicio, Core Web Vitals
 
-   Los días 1 y 2 (`day-01`, `day-02`) son contexto de lenguaje general; léelos solo si necesitas aclarar algún patrón de asincronía o módulos durante el análisis.
+   Los ficheros de contexto general (`fundamentos-y-oop.md`, `asincronia-y-modulos.md`) están en la misma carpeta; léelos solo si necesitas aclarar algún patrón de asincronía o módulos durante el análisis.
 
 ### Paso 2 — Procesar pantallas
 
@@ -303,3 +303,9 @@ Informa al usuario de:
 - Número total de componentes documentados
 - Ruta del fichero generado
 - Cualquier elemento que hayas tenido que inferir o que presente ambigüedad
+
+### Paso 6 — Actualizar documentación y verificar consistencia
+
+1. En `docs/flujo.html`: cambia el nodo `ui-spec.json` de `tl-dot plan` a `tl-dot done` con texto `✓` y descripción `11 pantallas · 90 elementos`.
+2. En `docs/arquitectura.html`: añade `<span class="badge-artifact">✓ ejecutado</span>` al Agente 1.
+3. Ejecuta `/doc-reviewer` para verificar que no hay inconsistencias en la documentación tras este cambio.

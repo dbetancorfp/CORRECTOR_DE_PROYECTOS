@@ -262,6 +262,14 @@ Informa al usuario de:
 - Número de tablas en el schema y de endpoints en los contratos
 - Cualquier ambigüedad que hayas tenido que resolver por inferencia (para que el usuario lo valide)
 
+### Paso 6 — Actualizar documentación y verificar consistencia
+
+1. En `docs/flujo.html`: cambia los nodos `use-cases.md`, `schema.sql` y `api-contracts.md` de `tl-dot plan` a `tl-dot done` con texto `✓` y sus descripciones (nº de UCs, nº de tablas, nº de endpoints).
+2. En `docs/casos-de-uso.html`: regenera el contenido de la página con los casos de uso producidos (índice + secciones UC-01 a UC-N).
+3. En `docs/arquitectura.html`: añade `<span class="badge-artifact">✓ ejecutado</span>` al Agente 3.
+4. En `docs/index.html`: actualiza el callout de estado para reflejar que el Agente 3 ha sido ejecutado y el siguiente paso es el Agente 4.
+5. Ejecuta `/doc-reviewer` para verificar que no hay inconsistencias en la documentación tras este cambio.
+
 ---
 
 ## Reglas de conducta

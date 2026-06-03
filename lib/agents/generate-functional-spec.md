@@ -190,3 +190,10 @@ Informa al usuario de:
 - Número de globalRules generadas
 - Ruta del fichero generado
 - Elementos en los que hayas tenido que inferir behavior (sin mención explícita en transcripción)
+
+### Paso 7 — Actualizar documentación y verificar consistencia
+
+1. En `docs/flujo.html`: cambia el nodo `functional-spec.json` de `tl-dot plan` a `tl-dot done` con texto `✓` y descripción con el número de specs y globalRules generadas.
+2. En `docs/funcional.html`: actualiza el contador `#gr-count` con el número real de globalRules, y recarga los datos del visor con el nuevo `functional-spec.json` generado.
+3. En `docs/arquitectura.html`: añade `<span class="badge-artifact">✓ ejecutado</span>` al Agente 2.
+4. Ejecuta `/doc-reviewer` para verificar que no hay inconsistencias en la documentación tras este cambio.
