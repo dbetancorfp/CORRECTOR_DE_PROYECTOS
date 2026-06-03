@@ -76,8 +76,8 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | — | **GATE HUMANO** | Verifica que cada sketchNumber tiene func-spec y viceversa. Sin huérfanos. | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
 | 4 | Arquitecto de Requisitos | Genera casos de uso, DDL PostgreSQL y contratos API a partir de las specs validadas | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `boceto-metadata.json` | `use-cases.md` + `schema.sql` + `api-contracts.md` |
 | 5 | Validador de Alineación | Verifica 3-way: boceto ↔ transcripción ↔ schema + api-contracts cubren todos los dataNeeds | `boceto-metadata.json` + `transcripcion.md` + `functional-spec.json` + `schema.sql` + `api-contracts.md` | `alignment-report.json { valid:true }` |
-| 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
-| 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
+| 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
+| 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
 | 8 | Revisor / QA *(opt.)* | Valida calidad del código, convenciones TypeScript y ausencia de dead code | Implementación completa | Informe de revisión |
 
 **1 ∥ 2** — ejecución en paralelo; el Agente 3 espera a que ambos terminen.
