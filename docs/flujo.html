@@ -1449,8 +1449,8 @@ Los acceptanceCriteria de functional-spec.json se convierten en tests que fallan
   });
 
 Stack:
-  Backend:  bun test (integración contra API real)
-  Frontend: @web/test-runner (componentes Web Components)
+  Unitarios: bun test — backend + frontend (API compatible con Jest)
+  E2E:       Cypress — tests funcionales e integración
 
 Cada describe() referencia el sketchNumber para trazabilidad boceto → test.`,
 

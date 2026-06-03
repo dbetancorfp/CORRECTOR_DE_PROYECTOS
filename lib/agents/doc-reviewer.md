@@ -38,9 +38,10 @@ en CLAUDE.md. Compara contra la fuente de verdad (`CLAUDE.md` Tech Stack).
 
 Inconsistencias típicas a detectar:
 - `Node.js` donde debería decir `Bun`
-- `Vitest` donde debería decir `bun test`
+- `Vitest` o `@web/test-runner` donde debería decir `bun test`
 - `npm test` / `npm run` donde debería decir `bun test` / `bun run`
 - `node-fetch` donde debería decir `Bun fetch nativo`
+- Ausencia de `Cypress` como stack de tests e2e / funcionales
 - Versiones de librería incorrectas
 
 ### 2. Estado del pipeline

@@ -19,13 +19,14 @@ Author: David Betancor, Profesor FP, IES Telesforo Bravo.
 
 - **One step at a time.** Never advance past the current pipeline phase without confirmation.
 - **TDD.** Write failing tests before implementation.
-- **Full type safety.** Clear, descriptive names. No premature abstraction.
-- **Question every assumption.** Flag repeated patterns.
+- **Type safety.** All code fully typed — no `any`, no implicit returns, no untyped params.
+- **Clear naming.** Descriptive names. No premature abstraction. No unused code.
+- **Question assumptions.** Flag repeated patterns and potential inconsistencies.
 
 ## Language
 
-All technical artifacts in English: code, comments, error messages, logs, docs, config,
-git commits, test names, schema names.
+All technical artifacts in English: code, comments, TypeScript types and interfaces,
+error messages, logs, docs, config, git commits, test names, schema names.
 
 UI-facing strings and domain vocabulary may use Spanish where it reflects real usage
 (e.g. `Legislación`, `Ciclo`, `Rúbrica`).
@@ -41,8 +42,8 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 | Schema validation | Zod 3.x |
 | Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x + TypeScript |
 | Frontend build | `bun build` — `src/frontend/*.ts` → `dist/frontend/*.js` → `<script type="module">` |
-| Tests (backend) | `bun test` |
-| Tests (frontend) | `@web/test-runner` |
+| Tests (unit) | `bun test` — backend + frontend unit tests (Jest-compatible API) |
+| Tests (e2e) | Cypress — functional and integration tests |
 | Docs | Static HTML → `docs/` → GitHub Pages |
 | CI/CD | GitHub Actions |
 
