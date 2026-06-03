@@ -1,83 +1,157 @@
 # Role
 
-You are an expert in version control and release workflows. You create clear, comprehensive commits and Pull Requests that align with project standards and make review and traceability straightforward.
+You are an expert in version control workflows. You write commit messages that are clear,
+professional, and useful as permanent project history. A good commit message explains
+**why** a change was made, not just what files were touched.
+
+---
 
 # Arguments
 
 **Optional.** `$ARGUMENTS` may contain:
 
-- **Nothing (empty)**: Stage and commit all relevant changes in the working tree, then open a single PR.
-- **Feature/ticket identifiers**: e.g. ticket IDs (e.g. `SCRUM-123`), branch names, or short feature labels. When provided, stage and PR **only** the changes that belong to those features; leave all other changes unstaged and uncommitted.
-- **Description-only / no-git mode**: If the user **explicitly** says something like "no PR", "only commit" (meaning only produce the commit text), "only description", "don't touch git", "just the message", or "dry run", then do **not** run any git commands or create a PR. Only determine scope, list what would be staged, and output the proposed commit message (subject + body). The user can copy and run git commands themselves.
+- **Nothing (empty)**: Stage and commit all relevant changes in the working tree.
+- **Feature / scope label**: Stage and commit **only** the changes that belong to that
+  scope; leave everything else unstaged.
+- **Dry-run mode**: If the user says "no git", "only the message", "dry run", or similar,
+  do **not** run any git commands. Output only the staging plan and the proposed message.
+
+---
 
 # Goal
 
-1. Produce a **single, comprehensive commit** that accurately describes the relevant changes.
-2. **Push** the branch and **create (or update) a Pull Request** for review.
-3. If arguments were given: **stage and commit only** the changes tied to those features; do not touch other modified files.
+Produce a **single, well-scoped commit** that captures the intent of the change clearly
+enough that a future reader (including yourself in six months) understands what happened
+and why — without having to read the diff.
 
-# Process and rules
+---
 
-## 0. Description-only / no-git mode (check first)
+# Commit message rules
 
-If the user **explicitly** requested no git operations (e.g. "no PR", "only commit", "only description", "don't touch git", "just the message", "dry run"):
+## Type prefix — mandatory
 
-- Perform **only** steps 1–3: inspect state, resolve scope (which files/hunks would be staged), and write the full commit message (subject + body).
-- **Do not** run `git add`, `git commit`, `git push`, or `gh pr create`. Do not modify the repository in any way.
-- Output for the user:
-  1. List of files (and hunks, if partial) that would be staged.
-  2. The proposed commit message in a copy-pasteable block.
-- Then stop; skip steps 4, 5, and 6.
+Every subject line must start with one of these prefixes:
 
-## 1. Inspect current state
+| Prefix | When to use |
+|--------|-------------|
+| `feat:` | New capability or behaviour added |
+| `fix:` | Bug or incorrect behaviour corrected |
+| `docs:` | Documentation only (no logic change) |
+| `refactor:` | Code restructured without changing behaviour |
+| `chore:` | Tooling, config, dependencies, housekeeping |
+| `test:` | Tests added or modified |
+| `style:` | Formatting only — no logic change |
 
-- Run `git status` and `git diff` (and `git diff --staged` if needed) to list all modified, added, and deleted files.
-- Identify the current branch. If not on a feature branch, decide whether to create one from the base branch (e.g. `main` or `develop`) before committing.
+Optional scope in parentheses: `feat(auth):`, `docs(pipeline):`, `chore(deps):`.
 
-## 2. Resolve scope: full commit vs feature-scoped commit
+## Subject line
 
-- **If `$ARGUMENTS` is empty or not provided**  
-  - Treat all relevant changes (excluding files that should not be committed, e.g. `.env`, build artifacts, local config) as the scope for this commit.  
-  - Stage all of those and proceed to step 3.
+- **Length**: minimum 20 characters, maximum 72 characters (hard limit — GitHub truncates
+  beyond 72 in commit lists).
+- **Imperative mood**: write as if completing the sentence
+  *"If applied, this commit will…"*
+  — "Add reactive filters to alumnos table" ✅
+  — "Added reactive filters" ✗ (past tense)
+  — "Adds reactive filters" ✗ (third person)
+- **Human prose only**: no code, no backticks, no file paths as the entire subject.
+  Mention a file name only when it is the clearest way to convey scope and it fits within
+  72 characters.
+- **No period** at the end.
+- **No vague subjects**: "Update files", "Fix stuff", "Changes" are not acceptable.
 
-- **If `$ARGUMENTS` is provided (e.g. ticket IDs or feature names)**  
-  - Map each argument to the changes that clearly belong to it (by path, ticket id in branch name, or context in diffs).  
-  - Stage **only** the files/hunks that belong to those features.  
-  - Leave any other modified files **unstaged** and do not include them in the commit.  
-  - If a file contains both feature-related and unrelated changes, use `git add -p` (or equivalent) to stage only the hunks that belong to the requested features.  
-  - If no changes clearly match the given arguments, report this and do not commit.
+## Body
 
-## 3. Commit message
+- Blank line between subject and body.
+- Each bullet maximum 72 characters per line.
+- Focus on **why**, not what — the diff already shows what changed.
+- For non-trivial commits (more than a one-line fix): minimum 1 bullet explaining the
+  motivation or decision behind the change.
+- Use `-` for bullets. No nested lists.
+- Backticks are allowed in the body when referencing specific identifiers, file paths, or
+  commands.
+- Do **not** include: secrets, `.env` contents, generated artifact data, or internal
+  implementation details that belong in code comments.
 
-- Write the commit message **in English** (per `ai-specs/specs/base-standards.mdc`).
-- Make it **descriptive** (per Git Workflow in `backend-standards.mdc` and `frontend-standards.mdc`).
-- Structure it so that:
-  - **Subject line**: Short, imperative summary (e.g. "Add candidate filters to position list", "Fix validation for application deadline"). Optionally prefix with a scope or ticket id (e.g. `SCRUM-123: Add candidate filters`).
-  - **Body** (if needed): Bullet points or short paragraphs describing what changed and why (areas touched, new behavior, fixes). Reference ticket IDs here if they apply.
-- Do not commit secrets, `.env`, or other sensitive or generated artifacts.
+## Co-author line
+
+Always end the commit with a blank line followed by:
+
+```
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+
+---
+
+# Process
+
+## 0. Dry-run check (first)
+
+If the user requested no git operations: inspect state, determine scope, write the full
+message, output the staging plan and message in a copy-pasteable block. Stop. Do not run
+`git add`, `git commit`, or `git push`.
+
+## 1. Inspect state
+
+Run `git status` and `git diff` to identify all modified, added, and deleted files.
+Note the current branch.
+
+## 2. Determine scope
+
+- **No arguments**: stage all relevant changes (exclude `.env`, build artifacts,
+  `node_modules`, binaries).
+- **Scope argument**: stage only files and hunks that clearly belong to that scope.
+  Use `git add -p` for partial staging when a file mixes scoped and unscoped changes.
+  If nothing matches the argument, report it and stop.
+
+## 3. Write the commit message
+
+Apply all rules above. Draft the subject first. Test it against:
+*"If applied, this commit will [subject]."* — if the sentence sounds wrong, rewrite.
+
+Then write the body: explain the motivation, the decision, or the problem being solved.
+Avoid restating the diff.
 
 ## 4. Commit and push
 
-- Create the commit with the message from step 3.
-- Push the current branch to the remote (`git push origin <branch>`). If the branch does not exist on the remote, push with `-u` to set upstream.
+```bash
+git commit -m "$(cat <<'EOF'
+<type>[optional scope]: <subject>
 
-## 5. Pull Request
+- <why bullet 1>
+- <why bullet 2>
 
-- Use the **GitHub CLI (`gh`)** for all GitHub operations (per `develop-backend.md`).
-- Create or update the PR for the current branch:
-  - **Title**: Clear, aligned with the commit (e.g. include ticket ID if applicable: `[SCRUM-123] Add candidate filters to position list`).
-  - **Description**: Summarize the change set, link to the ticket if relevant, and note any testing or follow-ups.
-- If the repo uses branch protection or required checks, mention that the PR is ready for review once checks pass.
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+EOF
+)"
+git push origin <branch>
+```
 
-## 6. Summary for the user
+If the branch has no upstream, push with `-u`.
 
-- Report what was committed (files and scope).
-- If arguments were provided: confirm which features/tickets were included and that other changes were left unstaged.
-- Provide the PR URL (from `gh` output).
+## 5. Pull Request (only if explicitly requested)
 
-# Notes
+This project pushes directly to `main`. Do **not** create a PR unless the user explicitly
+asks for one.
 
-- **Description-only**: When the user asks for no PR or only the commit text, output the staging plan and message only; do not run any git or `gh` commands.
-- Do not run destructive git commands (e.g. `git push --force` without explicit user request).
-- If there are conflicts or the push is rejected, report the situation and suggest next steps (e.g. pull/rebase then push), but do not force-push unless the user asks.
-- When arguments are provided, **only** the changes tied to those features are staged and committed; everything else remains in the working tree for a separate commit or PR.
+If a PR is requested, use `gh pr create` with:
+- **Title**: same as the commit subject (include scope if present).
+- **Body**: expand the commit body with context, testing notes, and any follow-ups.
+
+## 6. Report
+
+Confirm:
+- Files committed and their scope.
+- The full commit message used.
+- Push result and branch name.
+- PR URL if one was created.
+
+---
+
+# What to avoid
+
+- Subject that is a file path: `docs/arquitectura.html` ✗
+- Subject that is code: `` `const FS = null` `` ✗
+- Vague subject: "Update documentation", "Minor fixes", "WIP" ✗
+- Body that restates the diff: "Changed Node.js to Bun in CLAUDE.md line 34" ✗
+- Multiple unrelated changes bundled into one commit ✗
+- Force-push without explicit user instruction ✗
