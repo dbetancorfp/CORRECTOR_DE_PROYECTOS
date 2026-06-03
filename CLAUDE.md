@@ -62,19 +62,25 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 
 ### Agents
 
+```
+0 → ┌─ 1 (Diseñador Front)     ─┐
+    └─ 2 (Analista de Negocio) ─┘→ 3 → GATE → 4 → 5 → 6 → 7 → 8
+```
+
 | # | Agente | Responsabilidad | Input | Output |
 |---|--------|-----------------|-------|--------|
-| 0 | Boceto Parser | Escanea los HTML y construye el índice de elementos | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` |
-| 1 | Diseñador Front | Especifica cada elemento UI (tipo, props, estados, interacciones) | `boceto-metadata.json` + ficheros `.html` | `ui-spec.json` |
-| 2a | Analista de Negocio | Entrevista al cliente y completa la transcripción de requisitos | Transcripción inicial + boceto | `transcripcion.md` completa |
-| 2b | Generador Func. Spec | Convierte la transcripción en especificación funcional estructurada | `transcripcion.md` + `ui-spec.json` | `functional-spec.json` |
-| — | **GATE HUMANO** | Verifica que cada sketchNumber tiene func-spec y viceversa | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
-| 3 | Arquitecto de Requisitos | Genera casos de uso, DDL y contratos API desde las specs validadas | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` | `use-cases.md` + `schema.sql` + `api-contracts.md` |
-| 7 | Validador de Alineación | Verifica la alineación 3-way: boceto ↔ transcripción ↔ schema | `boceto-metadata.json` + `transcripcion.md` + `schema.sql` | `alignment-report.json { valid:true }` |
-| 4 | Ingeniero TDD | Genera tests en rojo a partir de los criterios de aceptación | `functional-spec.json` + `alignment-report.json` | `*.test.ts` (failing) |
-| 5 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `api-contracts.md` | Backend TS + Web Components TS |
-| 6 | Revisor / QA *(optional)* | Valida calidad del código, convenciones y ausencia de dead code | Implementación completa | Informe de revisión |
+| 0 | Boceto Parser | Escanea los HTML, construye el índice de elementos y valida unicidad de sketchNumbers | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` |
+| 1 ∥ | Diseñador Front | Especifica cada elemento UI (tipo, props, estados, interacciones, validaciones) | `boceto-metadata.json` + ficheros `.html` + `boceto-elements.md` | `ui-spec.json` |
+| 2 ∥ | Analista de Negocio | Entrevista al cliente y completa la transcripción hasta cubrir los 90 elementos | Transcripción inicial + ficheros `.html` + `boceto-elements.md` | `transcripcion.md` completa |
+| 3 | Generador Func. Spec | Convierte transcripción + UI spec en especificación funcional estructurada y verificable | `transcripcion.md` + `ui-spec.json` | `functional-spec.json` |
+| — | **GATE HUMANO** | Verifica que cada sketchNumber tiene func-spec y viceversa. Sin huérfanos. | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
+| 4 | Arquitecto de Requisitos | Genera casos de uso, DDL PostgreSQL y contratos API a partir de las specs validadas | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `boceto-metadata.json` | `use-cases.md` + `schema.sql` + `api-contracts.md` |
+| 5 | Validador de Alineación | Verifica 3-way: boceto ↔ transcripción ↔ schema + api-contracts cubren todos los dataNeeds | `boceto-metadata.json` + `transcripcion.md` + `functional-spec.json` + `schema.sql` + `api-contracts.md` | `alignment-report.json { valid:true }` |
+| 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
+| 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
+| 8 | Revisor / QA *(opt.)* | Valida calidad del código, convenciones TypeScript y ausencia de dead code | Implementación completa | Informe de revisión |
 
+**1 ∥ 2** — ejecución en paralelo; el Agente 3 espera a que ambos terminen.
 Each `describe()` block in test files must reference a `sketchNumber`.
 Each agent has a single responsibility — no agent mixes generation with validation.
 
