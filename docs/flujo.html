@@ -292,10 +292,10 @@
           </span>
         </div>
         <div class="tl-node" data-panel="ui-spec">
-          <span class="tl-dot done">✓</span>
+          <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">ui-spec.json</span>
-            <span class="tl-desc">11 pantallas · 90 elementos · 98 KB</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
       </div>
@@ -332,10 +332,10 @@
           </span>
         </div>
         <div class="tl-node" data-panel="functional-spec">
-          <span class="tl-dot done">✓</span>
+          <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">functional-spec.json</span>
-            <span class="tl-desc">90 specs · 20 reglas globales</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
       </div>
@@ -345,10 +345,10 @@
       </div>
       <div class="tl-group">
         <div class="tl-node" data-panel="reconciliation">
-          <span class="tl-dot gate">✓</span>
+          <span class="tl-dot gate">…</span>
           <span class="tl-text">
             <span class="tl-name">reconciliation.json</span>
-            <span class="tl-desc">valid: true · 14 pasadas de revisión</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
       </div>
@@ -365,24 +365,24 @@
           </span>
         </div>
         <div class="tl-node" data-panel="use-cases">
-          <span class="tl-dot done">✓</span>
+          <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">use-cases.md</span>
-            <span class="tl-desc">10 UCs · 90 sketchNumbers</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
         <div class="tl-node" data-panel="schema-sql">
-          <span class="tl-dot done">✓</span>
+          <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">schema.sql</span>
-            <span class="tl-desc">12 tablas · PostgreSQL 16</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
         <div class="tl-node" data-panel="api-contracts">
-          <span class="tl-dot done">✓</span>
+          <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">api-contracts.md</span>
-            <span class="tl-desc">~35 endpoints REST</span>
+            <span class="tl-desc">Pendiente</span>
           </span>
         </div>
       </div>
@@ -408,7 +408,7 @@
           <span class="tl-dot plan">…</span>
           <span class="tl-text">
             <span class="tl-name">src/ (backend + frontend)</span>
-            <span class="tl-desc">Pendiente · Node.js + Web Components</span>
+            <span class="tl-desc">Pendiente · Bun/Express + Web Components</span>
           </span>
         </div>
       </div>
@@ -514,10 +514,10 @@ No element can appear in a later phase unless it was numbered in the boceto.
 
 ### Pipeline
 
-  1. Diseñador Front:        boceto → ui-spec.json              ✓ ejecutado
-  2a. Analista de Negocio:   entrevista → transcripcion.md      ✓ ejecutado
-  2b. Generador Func. Spec:  transcripcion → functional-spec.json ✓ ejecutado
-  GATE HUMANO:               reconciliation.json { valid: true } ✓ superado
+  1. Diseñador Front:        boceto → ui-spec.json              pendiente
+  2a. Analista de Negocio:   entrevista → transcripcion.md      ✓ completa
+  2b. Generador Func. Spec:  transcripcion → functional-spec.json pendiente
+  GATE HUMANO:               reconciliation.json { valid: true } pendiente
   3. Arquitecto:             validated specs → use-cases, DDL, API   pendiente
   4. Ingeniero TDD:          acceptanceCriteria → tests rojos ✗       pendiente
   5. Implementador:          tests → código verde ✅                  pendiente
@@ -527,10 +527,10 @@ No element can appear in a later phase unless it was numbered in the boceto.
   LLM / Agents:   Claude API (claude-sonnet-4-6)
   Embeddings:     OpenAI text-embedding-3-small
   RAG database:   PostgreSQL 16 + pgvector 0.7
-  Backend:        Node.js 20 LTS + Express
+  Backend:        Bun + Express
   Validation:     Zod 3.x
   Frontend:       Web Components + lit-html standalone + Tailwind CSS 3.x
-  Tests backend:  Vitest + node-fetch
+  Tests backend:  bun test
   Tests frontend: @web/test-runner
   CI/CD:          GitHub Actions
 
@@ -1449,7 +1449,7 @@ Los acceptanceCriteria de functional-spec.json se convierten en tests que fallan
   });
 
 Stack:
-  Backend:  Vitest + node-fetch (integración contra API real)
+  Backend:  bun test (integración contra API real)
   Frontend: @web/test-runner (componentes Web Components)
 
 Cada describe() referencia el sketchNumber para trazabilidad boceto → test.`,
@@ -1460,7 +1460,7 @@ ESTADO: Pendiente (requiere tests rojos del Agente 4)
 
 Genera el código mínimo suficiente para que todos los tests pasen (verde ✅):
 
-  Backend (Node.js + Express):
+  Backend (Bun + Express):
   ├── src/routes/       Endpoints REST por entidad
   ├── src/models/       Modelos de dominio (PostgreSQL con pg)
   ├── src/middleware/   Auth, RBAC, validación Zod
@@ -1475,7 +1475,7 @@ Genera el código mínimo suficiente para que todos los tests pasen (verde ✅):
   └── pages/
       ├── login.html, admin.html, profesor-landing.html, ...
 
-Criterio de aceptación del agente: npm test pasa completamente en verde ✅.
+Criterio de aceptación del agente: bun test pasa completamente en verde ✅.
 Sin over-engineering: el código generado es el mínimo necesario.`,
 };
 

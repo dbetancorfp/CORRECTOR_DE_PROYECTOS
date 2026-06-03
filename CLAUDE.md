@@ -1,44 +1,142 @@
-alwaysApply: true 
+alwaysApply: true
 
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project
 
-## Project overview
+**Corrector de Proyectos** — web app for FP teachers (Formación Profesional, Spain) to manage
+and grade end-of-cycle student projects via rubric-based scoring.
 
-**Corrector de Proyectos** is a web application for teachers in Spanish vocational education (FP - Formación Profesional) to manage and grade end-of-cycle student projects using a rubric-based scoring system.
+Author: David Betancor, Profesor FP, IES Telesforo Bravo.
 
-The project is currently at the **HTML prototype stage** — all files in `corrector/01-boceto/html-source-prototype/` are static HTML screens with no CSS, no JavaScript logic, and no backend. They are the **bocetos de entrada** to the RAG Spec-Driven pipeline (see below): 90 interactive elements are annotated with `data-element-id="N"` (`sketchNumber`) across 11 screens. The element registry is at `corrector/01-boceto/html-source-prototype/boceto-elements.md`. No build system, framework, or test runner is set up yet.
+Entry point: `corrector/01-boceto/html-source-prototype/` — 90 interactive elements across
+11 screens, each annotated `data-element-id="N"` (sketchNumber).
+Element registry: `corrector/01-boceto/html-source-prototype/boceto-elements.md`.
 
-To view prototypes: open any `.html` file in `corrector/01-boceto/html-source-prototype/` directly in a browser.
+## Core Rules
 
-## Core Principles
+- **One step at a time.** Never advance past the current pipeline phase without confirmation.
+- **TDD.** Write failing tests before implementation.
+- **Full type safety.** Clear, descriptive names. No premature abstraction.
+- **Question every assumption.** Flag repeated patterns.
 
-- **Small tasks, one at a time**: Always work in baby steps, one at a time. Never go forward more than one step.
-- **Test-Driven Development**: Start with failing tests for any new functionality (TDD), according to the task details.
-- **Type Safety**: All code must be fully typed.
-- **Clear Naming**: Use clear, descriptive names for all variables and functions.
-- **Incremental Changes**: Prefer incremental, focused changes over large, complex modifications.
-- **Question Assumptions**: Always question assumptions and inferences.
-- **Pattern Detection**: Detect and highlight repeated code patterns.
+## Language
 
-## Language Standards
+All technical artifacts in English: code, comments, error messages, logs, docs, config,
+git commits, test names, schema names.
 
-**English Only**: All technical artifacts must always use English, including:
+UI-facing strings and domain vocabulary may use Spanish where it reflects real usage
+(e.g. `Legislación`, `Ciclo`, `Rúbrica`).
 
-- Code (variables, functions, classes, comments, error messages, log messages)
-- Documentation (README, guides, API docs)
-- Jira tickets (titles, descriptions, comments)
-- Data schemas and database names
-- Configuration files and scripts
-- Git commit messages
-- Test names and descriptions
+## Tech Stack
 
-## JavaScript Standards
+| Layer | Technology |
+|-------|------------|
+| LLM / Agents | Claude API `claude-sonnet-4-6` |
+| Embeddings | OpenAI `text-embedding-3-small` |
+| RAG database | PostgreSQL 16 + pgvector 0.7 |
+| Backend | **Bun** + Express |
+| Schema validation | Zod 3.x |
+| Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x |
+| Frontend loading | `<script type="module">` — no bundler, no transpilation |
+| Tests (backend) | `bun test` |
+| Tests (frontend) | `@web/test-runner` |
+| Docs | Static HTML → `docs/` → GitHub Pages |
+| CI/CD | GitHub Actions |
 
-The frontend is built with **native Web Components + lit-html standalone templates**. No build step, no framework, no transpilation.
+## RAG Spec-Driven Development Pipeline
 
-### Component structure — one file per component
+### The sketchNumber invariant
+
+Every interactive element is annotated `data-element-id="N"`. That integer is the
+**universal foreign key** linking every artifact in the pipeline:
+
+```
+Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (red) → Code (green)
+```
+
+No element may appear in a downstream phase unless it was numbered in the boceto.
+
+### Agents
+
+| # | Agent | Input | Output | Phase |
+|---|-------|-------|--------|-------|
+| 1 | Diseñador Front | boceto HTML + `boceto-metadata.json` | `ui-spec.json` | `ui-spec` |
+| 2 | Analista de Negocio | client transcript + UI Spec (RAG) | `functional-spec.json` | `func-spec` |
+| — | **GATE HUMANO** | ui-spec + func-spec | `reconciliation.json { valid:true }` | gate |
+| 3 | Arquitecto de Requisitos | reconciled specs | use-cases, DDL, API contracts | `use-case` |
+| 4 | Ingeniero TDD | acceptanceCriteria | failing test files | `test-red` |
+| 5 | Implementador | red tests + contracts | Bun/Express backend + Web Components | `code` |
+| 6 | Revisor / QA *(optional)* | implementation | quality report | `review` |
+
+Each `describe()` block in test files must reference a `sketchNumber`.
+
+### Handoff pattern
+
+**Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
+
+### RAG table: `knowledge_base`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `content` | TEXT | Serialised JSON artifact |
+| `embedding` | vector(1536) | HNSW index |
+| `phase` | VARCHAR | `ui-spec` · `func-spec` · `use-case` · `test-red` · `code` |
+| `sketch_number` | INT | Traceability key |
+| `feature_id` | TEXT | e.g. `corrector-v1` |
+| `agent` | TEXT | Producer |
+| `version` | INT | Incremental |
+
+Retrieval: hybrid search — vector similarity + structured filters on `phase`, `feature_id`,
+`sketch_number`.
+
+### Zod schemas
+
+- `UISpecSchema` — `screens[].components[]` with `sketchNumber`, `type`, `props`, `states`, `interactions`
+- `FunctionalSpecSchema` — `elementSpecs[]` with `sketchNumber`, `behavior`, `businessRules`, `acceptanceCriteria`; plus `globalRules[]`
+- `ReconciliationSchema` — `valid`, `boceto_numbers`, `spec_numbers`, `orphaned_sketch_elements`, `orphaned_spec_rules`
+
+### CLI
+
+```bash
+node cli/index.js run-agent designer-front --feature-id corrector-v1
+node cli/index.js run-agent business-analyst --feature-id corrector-v1
+node cli/index.js reconcile --feature-id corrector-v1          # GATE HUMANO
+node cli/index.js run-agent requirement-architect --feature-id corrector-v1
+node cli/index.js run-agent tdd-engineer --feature-id corrector-v1
+bun test                                                        # RED ✗
+node cli/index.js run-agent implementer --feature-id corrector-v1
+bun test                                                        # GREEN ✅
+```
+
+Slash commands (`.claude/commands/`): `/designer-front`, `/business-analyst`,
+`/requirement-architect`, `/tdd-engineer` *(pending)*.
+
+## Repository Structure
+
+```
+corrector/
+  01-boceto/html-source-prototype/   # Annotated HTML screens (11 screens, 90 elements)
+  02-conversacion-cliente/           # Client interview transcript
+  03-generated-artifacts/            # ui-spec.json, functional-spec.json, reconciliation.json
+  04-use-cases/                      # use-cases.md
+  05-implementation/
+    backend/                         # schema.sql, api-contracts.md, Bun/Express server
+    frontend/                        # Web Components
+
+lib/agents/        # Agent implementations (.js) + role definitions (.md)
+lib/schemas/       # Zod schemas
+lib/tools/         # claude-client, rag-client, artifact-manager, handoff-validator, etc.
+lib/orchestrator/  # Pipeline state machine
+cli/commands/      # CLI commands (create-project, run-agent, validate, reconcile, generate-docs)
+docs/              # Static docs → GitHub Pages
+```
+
+## Frontend: Web Components
+
+One file per component. Shadow DOM always open. Render with lit-html only. Never `innerHTML`.
+
+### Component skeleton
 
 ```js
 // corrector-button.js
@@ -61,8 +159,7 @@ export class CorrectorButton extends HTMLElement {
 
   _handleClick() {
     this.dispatchEvent(new CustomEvent('corrector:action', {
-      bubbles: true,
-      composed: true,
+      bubbles: true, composed: true,
       detail: { id: this.getAttribute('data-id') },
     }));
   }
@@ -71,40 +168,31 @@ export class CorrectorButton extends HTMLElement {
     const label  = this.getAttribute('label') ?? 'OK';
     const active = this.hasAttribute('active');
     const items  = JSON.parse(this.getAttribute('items') ?? '[]');
-
     render(html`
-      <button
-        .value=${label}
-        @click=${() => this._handleClick()}
-        ?disabled=${!active}
-      >
+      <button .value=${label} @click=${() => this._handleClick()} ?disabled=${!active}>
         ${label}
       </button>
-      <ul>
-        ${items.map(i => html`<li>${i}</li>`)}
-      </ul>
+      <ul>${items.map(i => html`<li>${i}</li>`)}</ul>
     `, this.shadowRoot);
   }
 }
-
 customElements.define('corrector-button', CorrectorButton);
 ```
 
-### Rules — enforced without exception
+### Rules
 
 | Rule | Detail |
 |------|--------|
-| **Custom element name** | Must include a hyphen. `corrector-*` prefix for this project. Registered with `customElements.define`. |
-| **Shadow DOM** | Always `this.attachShadow({ mode: 'open' })` in `connectedCallback`. |
-| **Rendering** | `lit-html` standalone (`import { html, render } from 'lit-html'`). Never `innerHTML`. |
-| **Bindings** | Use all four: `.prop=${val}` (property), `@event=${fn}` (listener), `?attr=${bool}` (boolean attribute), `${repeat(list, key, tpl)}` (keyed list). |
-| **Lifecycle** | `connectedCallback`: setup + render + subscribe. `disconnectedCallback`: flush all disposables. |
-| **Disposables** | Every `addEventListener` / observer / interval added in `connectedCallback` must push a cleanup function into `this._disposables = []`. |
-| **Communication** | Inter-component events via `new CustomEvent('ns:name', { bubbles: true, composed: true, detail: {} })`. Events cross Shadow DOM boundaries. |
-| **ES Modules** | `export class` in its own file. Loaded with `<script type="module">`. No bundler. |
-| **SOLID** | Single file = single responsibility. Extend via attributes/slots, not inheritance. Events decouple sender from receiver. |
+| Name | `corrector-*` prefix; registered with `customElements.define` |
+| Shadow DOM | `this.attachShadow({ mode: 'open' })` in `connectedCallback` |
+| Rendering | `lit-html` only — never `innerHTML` |
+| Bindings | `.prop=` · `@event=` · `?attr=` · `${repeat(...)}` |
+| Lifecycle | `connectedCallback`: setup + render + subscribe. `disconnectedCallback`: flush disposables |
+| Disposables | Every listener/observer/interval → push cleanup fn into `this._disposables` |
+| Events | `new CustomEvent('corrector:verb-noun', { bubbles:true, composed:true, detail:{} })` |
+| Modules | `export class` per file; loaded via `<script type="module">` |
 
-### Naming convention
+### Naming
 
 | What | Pattern | Example |
 |------|---------|---------|
@@ -113,140 +201,39 @@ customElements.define('corrector-button', CorrectorButton);
 | Element | `corrector-*` | `corrector-rubrica-cell` |
 | Event | `corrector:verb-noun` | `corrector:grade-selected` |
 
-## User roles
+## Domain
 
-Three roles exist in the system:
+### Data model
 
-- **Admin** — system-wide configuration: legislaciones, ciclos, módulos, profesorado
-- **Profesor** — class-level management: alumnos, proyectos, rúbrica; can grade and view/print notes
-- **Tutor** — restricted profesor that can only print notes (see comment in `vista_profesor-landing.html`)
-
-## Screen flow
-
-```
-index.html (login)
-├── Admin → Gestión tabbed panel
-│   ├── Legislación  (vista_admin-tab_legislacion_seleccionado.html)
-│   ├── Ciclos       (vista_admin-tab_ciclos_seleccionado.html)
-│   ├── Módulos      (vista_admin-tab_modulos_seleccionado.html)
-│   └── Profesorado  (vista_admin-tab_profesorado_seleccionado.html)
-└── Profesor → Landing (vista_profesor-landing.html)
-    ├── Gestionar → tabbed panel
-    │   ├── Alumnos   (vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html)
-    │   ├── Proyectos (vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html)
-    │   └── Rúbrica   (vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html)
-    ├── Corregir      (vista_profesor_landing-corregirProyecto.html — empty, not yet designed)
-    ├── Visualizar notas
-    └── Imprimir notas (tutor-only)
-```
-
-## Domain data model
-
-- **Legislación**: abbreviation (e.g., LOMLOE), start year, end year
-- **Ciclo**: name (e.g., "Desarrollo de aplicaciones web"), linked to a legislación
-- **Módulo**: name, abbreviation (e.g., DEW), legislación, weekly hours, ciclo
-- **Profesor**: username, password, assigned ciclo, assigned módulos
-- **Alumno**: ID/name (e.g., JJ499), ciclo, legislación
+- **Legislación**: abbreviation (e.g. LOMLOE), start/end year
+- **Ciclo**: name, linked to legislación
+- **Módulo**: name, abbreviation (e.g. DEW), legislación, weekly hours, ciclo
+- **Profesor**: username, password, assigned ciclo + módulos
+- **Alumno**: anonymised code (e.g. `JJ499`), ciclo, legislación
 - **Proyecto**: name, list of alumnos
-- **Rúbrica**: per-project scoring grid with items and 5 grade levels — Excelente, Muy bien, Bien, Regular, Mal — each with a numeric value; has a maximum total score
+- **Rúbrica**: per-module scoring grid; 5 levels (Excelente → Mal), each with a numeric value;
+  max total score defined; shared across all projects of that module
 
-## Key domain notes
+### Roles
 
-- Student identifiers in the prototypes are anonymized codes (e.g., `JJ499`, `MnP454`), not real names.
-- Filters on list screens (alumnos, proyectos, rúbrica) are described as "filtros reactivos" — they should filter in real time as the user types.
-- The rúbrica tab shows a "Subir rúbrica" (upload rubric) action alongside inline editing, suggesting rubrics may be importable from a file.
-- The alumnos tab has a "Subir lista de alumnos" action, suggesting bulk import from a file (likely CSV/Excel).
+- **Admin** — system config: legislaciones, ciclos, módulos, profesorado
+- **Profesor** — class management: alumnos, proyectos, rúbrica; grades and views/prints notes
+- **Tutor** — restricted profesor: print notes only
 
-## Development methodology: RAG Spec-Driven Development
-
-This app is built using a **RAG Spec-Driven Development** pipeline. The process converts two heterogeneous inputs — annotated HTML prototypes and a client conversation — into a complete, traceable application.
-
-**Author / project origin**: David Betancor, Profesor FP, IES Telesforo Bravo.
-
-### The sketchNumber principle
-
-Every interactive element in `corrector/01-boceto/html-source-prototype/` is annotated with a unique integer (`data-element-id="N"`). That number is the universal foreign key linking every artefact in the pipeline:
+### Screen flow
 
 ```
-Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (rojo) → Código (verde)
+login
+├── Admin → Gestión (tabs: Legislación · Ciclos · Módulos · Profesorado)
+└── Profesor → Landing
+    ├── Gestionar (tabs: Alumnos · Proyectos · Rúbrica)
+    ├── Corregir proyecto
+    ├── Visualizar notas
+    └── Imprimir notas  (Tutor only)
 ```
 
-No element can appear in a later phase unless it was numbered in the boceto. Zero ambiguity by design.
+### Notes
 
-### Pipeline: 6 specialized agents
-
-1. **Agente 1 — Diseñador Front**: annotated prototype + `boceto-metadata.json` → `ui-spec.json` (components, states, events per `sketchNumber`). Phase: `ui-spec`.
-2. **Agente 2 — Analista de Negocio**: client conversation + UI Spec (from RAG) → `functional-spec.json` (behavior, businessRules, acceptanceCriteria per `sketchNumber`). Phase: `func-spec`.
-3. **GATE HUMANO — Reconciliación**: verifies every `sketchNumber` in boceto has a func-spec and vice versa → `reconciliation.json { valid: true }`. Must pass before proceeding.
-4. **Agente 3 — Arquitecto de Requisitos**: validated specs → use cases, PostgreSQL DDL, API contracts. Phase: `use-case`.
-5. **Agente 4 — Ingeniero TDD**: acceptanceCriteria → failing test files (each `describe()` references a `sketchNumber`). Phase: `test-red`.
-6. **Agente 5 — Implementador**: red tests + contracts → Node.js/Express backend + Web Components frontend until tests pass green. Phase: `code`.
-7. **Agente 6 — Revisor/QA** (optional): validates code quality and OO conventions.
-
-### RAG layer: PostgreSQL + pgvector
-
-Each agent output is validated against a Zod schema and persisted to a `knowledge_base` table. Key columns:
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `content` | TEXT | Serialised JSON artefact |
-| `embedding` | vector(1536) | OpenAI text-embedding-3-small; HNSW index |
-| `phase` | VARCHAR | `ui-spec`, `func-spec`, `use-case`, `test-red`, `code` |
-| `sketch_number` | INT | Traceability key |
-| `feature_id` | TEXT | e.g. `corrector-v1` |
-| `agent` | TEXT | Which agent produced this row |
-| `version` | INT | Incremental; same feature can have multiple versions |
-
-Retrieval uses **hybrid search**: vector similarity + structured filters (`phase`, `feature_id`, `sketch_number`).
-
-### Handoff pattern
-
-Every agent follows: **Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
-
-### Key Zod schemas
-
-- `UISpecSchema` — `screens[].components[]` with `sketchNumber`, `type`, `props`, `states`, `interactions`
-- `FunctionalSpecSchema` — `elementSpecs[]` with `sketchNumber`, `behavior`, `businessRules`, `acceptanceCriteria`; plus `globalRules[]`
-- `ReconciliationSchema` — `valid`, `boceto_numbers`, `spec_numbers`, `orphaned_sketch_elements`, `orphaned_spec_rules`
-
-### Tech stack
-
-| Layer | Technology |
-|-------|-----------|
-| LLM / Agents | Claude API (`claude-sonnet-4-6`) |
-| Embeddings | OpenAI `text-embedding-3-small` |
-| RAG database | PostgreSQL 16 + pgvector 0.7 |
-| Backend | Node.js 20 LTS + Express |
-| Schema validation | Zod 3.x |
-| Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x |
-| Frontend loading | `<script type="module">` — no bundler, no transpilation |
-| Tests backend | Vitest + node-fetch |
-| Tests frontend | @web/test-runner |
-| Documentation | VitePress + GitHub Pages |
-| CI/CD | GitHub Actions |
-
-### CLI workflow (planned)
-
-```bash
-node cli run-agent designer-front --sketch boceto.png
-node cli run-agent business-analyst --conversation chat.md
-node cli reconcile --feature-id "corrector-v1"      # [GATE HUMANO]
-node cli run-agent requirement-architect --feature-id "corrector-v1"
-node cli run-agent tdd-engineer --feature-id "corrector-v1"
-npm test                                              # RED ✗
-node cli run-agent implementer --feature-id "corrector-v1"
-npm test                                              # GREEN ✅
-npm run docs:build && git push main                   # → GitHub Pages
-```
-
-### Repository structure (target)
-
-```
-lib/agents/          # 6 agent implementations
-lib/schemas/         # Zod schemas (ui-spec, functional-spec, reconciliation, element-mapping)
-lib/tools/           # claude-client, rag-client, artifact-manager, handoff-validator
-lib/orchestrator/    # State machine / pipeline runner
-cli/commands/        # create-project, run-agent, validate, reconcile, generate-docs
-docs/                # VitePress source → GitHub Pages
-examples/            # Full worked examples with boceto → code artefacts
-```
+- Student IDs are anonymised codes — never real names.
+- List filters (alumnos, proyectos, rúbrica) must be **reactive** — filter as user types.
+- Bulk import via file upload: alumnos (CSV/Excel), rúbrica.

@@ -56,22 +56,22 @@ Boceto (#N)
   <h2>Pipeline: 6 agentes especializados</h2>
   <div class="pipeline">
 
-    <div class="step done">
+    <div class="step">
       <div class="num">1</div>
       <div class="body">
-        <strong>Diseñador Front <span class="badge-done">✓ implementado</span><span class="badge-artifact">✓ ejecutado</span></strong>
+        <strong>Diseñador Front <span class="badge-done">✓ implementado</span></strong>
         <span>Lee los 11 bocetos HTML anotados y <code>boceto-metadata.json</code>. Extrae tipo, props, estados, interacciones, accesibilidad y validaciones por sketchNumber. Ejecutar con <code>/designer-front</code> en Claude Code.</span>
-        <span class="output">→ corrector/03-generated-artifacts/ui-spec.json · phase: ui-spec · 11 pantallas · 90 elementos · 98 KB</span>
+        <span class="output">→ corrector/03-generated-artifacts/ui-spec.json · phase: ui-spec</span>
       </div>
     </div>
 
-    <div class="step done">
+    <div class="step">
       <div class="num">2</div>
       <div class="body">
-        <strong>Analista de Negocio <span class="badge-done">✓ implementado</span><span class="badge-artifact">✓ ejecutado</span></strong>
+        <strong>Analista de Negocio <span class="badge-done">✓ implementado</span></strong>
         <span><strong>2a — Entrevista:</strong> completa <code>transcripcion.md</code> con el cliente. Ejecutar con <code>/business-analyst</code> en Claude Code. <strong>Transcripción: ✓ completa (90 elementos).</strong></span>
         <span><strong>2b — Generación:</strong> lee <code>transcripcion.md</code> + <code>ui-spec.json</code> y genera behavior, businessRules, dataNeeds y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code> en Claude Code.</span>
-        <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec · 90 specs · 20 reglas globales</span>
+        <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec</span>
       </div>
     </div>
 
@@ -84,14 +84,14 @@ Boceto (#N)
       </div>
     </div>
 
-    <div class="step done">
+    <div class="step">
       <div class="num">3</div>
       <div class="body">
-        <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span><span class="badge-artifact">✓ ejecutado</span></strong>
+        <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span></strong>
         <span>Con las specs validadas genera los casos de uso, el DDL de PostgreSQL y los contratos de API. Ejecutar con <code>/requirement-architect</code> en Claude Code.</span>
-        <span class="output">→ corrector/04-use-cases/use-cases.md · 10 UCs · 90 sketchNumbers</span>
-        <span class="output">→ corrector/05-implementation/backend/schema.sql · 12 tablas · PostgreSQL 16</span>
-        <span class="output">→ corrector/05-implementation/backend/api-contracts.md · ~35 endpoints REST</span>
+        <span class="output">→ corrector/04-use-cases/use-cases.md</span>
+        <span class="output">→ corrector/05-implementation/backend/schema.sql</span>
+        <span class="output">→ corrector/05-implementation/backend/api-contracts.md</span>
       </div>
     </div>
 
@@ -108,7 +108,7 @@ Boceto (#N)
       <div class="num">5</div>
       <div class="body">
         <strong>Implementador</strong>
-        <span>Lee los tests rojos y los contratos de API. Genera solo el código suficiente para que los tests pasen. Backend Node.js + Frontend Web Components.</span>
+        <span>Lee los tests rojos y los contratos de API. Genera solo el código suficiente para que los tests pasen. Bun/Express backend + Frontend Web Components.</span>
         <span class="output">→ src/ (backend + frontend) · phase: code</span>
       </div>
     </div>
@@ -186,11 +186,11 @@ Boceto (#N)
       <tr><td>LLM / Agentes</td><td>Claude API (<code>claude-sonnet-4-6</code>)</td></tr>
       <tr><td>Embeddings</td><td>OpenAI <code>text-embedding-3-small</code></td></tr>
       <tr><td>Base de datos RAG</td><td>PostgreSQL 16 + pgvector 0.7</td></tr>
-      <tr><td>Backend</td><td>Node.js 20 LTS + Express</td></tr>
+      <tr><td>Backend</td><td>Bun + Express</td></tr>
       <tr><td>Validación</td><td>Zod 3.x</td></tr>
       <tr><td>Frontend</td><td>Web Components nativos + lit-html standalone + Tailwind CSS 3.x</td></tr>
       <tr><td>Carga frontend</td><td><code>&lt;script type="module"&gt;</code> — sin bundler, sin transpilación</td></tr>
-      <tr><td>Tests backend</td><td>Vitest + node-fetch</td></tr>
+      <tr><td>Tests backend</td><td>bun test</td></tr>
       <tr><td>Tests frontend</td><td>@web/test-runner</td></tr>
       <tr><td>Documentación</td><td>HTML estático · GitHub Pages</td></tr>
       <tr><td>CI/CD</td><td>GitHub Actions</td></tr>
@@ -289,37 +289,32 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);</code></p
   </table>
 
   <!-- ── CLI ── -->
-  <h2>Workflow CLI (planificado)</h2>
-  <pre><code># ── Agente 1: UI Spec (implementado) ─────────────────────────────
-# Opción A — Claude Code (incluido en plan Pro)
+  <h2>Workflow CLI</h2>
+  <pre><code># ── Agente 1: UI Spec ────────────────────────────────────────────
 /designer-front
+# (o: node cli/index.js run-agent designer-front --feature-id corrector-v1)
 
-# Opción B — CLI programático (requiere ANTHROPIC_API_KEY en .env)
-npm run agent:designer-front
-# equivale a:
-node cli/index.js run-agent designer-front --feature-id corrector-v1
+# ── Agente 2a: Entrevista cliente ────────────────────────────────
+/business-analyst
 
-# ── Agente 2a: Entrevista cliente (transcripcion.md) ──────────────
-/business-analyst                          # ✓ completa (90 elementos)
-
-# ── Agente 2b: Generar Functional Spec ────────────────────────────
+# ── Agente 2b: Generar Functional Spec ───────────────────────────
 /generate-functional-spec
 
-# ── Gate humano: Reconciliación ───────────────────────────────────
+# ── Gate humano: Reconciliación ──────────────────────────────────
 node cli/index.js reconcile --feature-id "corrector-v1"
 
-# ── Agente 3: Casos de uso + SQL + contratos API ──────────────────
-node cli/index.js run-agent requirement-architect --feature-id "corrector-v1"
+# ── Agente 3: Casos de uso + SQL + contratos API ─────────────────
+/requirement-architect
 
 # ── Agente 4: Tests TDD (deben fallar) ───────────────────────────
 node cli/index.js run-agent tdd-engineer --feature-id "corrector-v1"
-npm test                                   # RED ✗
+bun test                                   # RED ✗
 
-# ── Agente 5: Implementación ──────────────────────────────────────
+# ── Agente 5: Implementación ─────────────────────────────────────
 node cli/index.js run-agent implementer --feature-id "corrector-v1"
-npm test                                   # GREEN ✅
+bun test                                   # GREEN ✅
 
-# ── Publicar documentación ────────────────────────────────────────
+# ── Publicar documentación ───────────────────────────────────────
 git push main                              # → GitHub Pages (CI/CD)</code></pre>
 
   <!-- ── Commit ── -->
@@ -354,7 +349,7 @@ git push main                              # → GitHub Pages (CI/CD)</code></pr
   </p>
 
   <!-- ── Estructura ── -->
-  <h2>Estructura del repositorio (objetivo)</h2>
+  <h2>Estructura del repositorio</h2>
   <div class="tree">
 CORRECTOR_DE_PROYECTOS/
 ├── corrector/               # Workspace del pipeline — proyecto real (corrector-v1)
@@ -369,12 +364,12 @@ CORRECTOR_DE_PROYECTOS/
 │   └── 05-implementation/          # backend (Express) + frontend (Web Components)
 ├── examples/                # Demos didácticas del pipeline (apps ficticias)
 ├── lib/
-│   ├── agents/              # designer-front ✓ · business-analyst ✓ · generate-functional-spec ✓ · resto PLANNED
-│   ├── schemas/             # UISpecSchema ✓ · FunctionalSpecSchema · ReconciliationSchema…
-│   ├── tools/               # claude-client ✓ · sketch-parser ✓ · artifact-manager ✓ · rag-client PLANNED
-│   └── orchestrator/        # State machine del pipeline [PLANNED]
+│   ├── agents/              # designer-front · business-analyst · requirement-architect · tdd-engineer · implementer
+│   ├── schemas/             # UISpecSchema · FunctionalSpecSchema · ReconciliationSchema
+│   ├── tools/               # claude-client · sketch-parser · artifact-manager · rag-client
+│   └── orchestrator/        # State machine del pipeline
 ├── cli/
-│   └── commands/            # run-agent ✓ · commit ✓ · reconcile · validate · generate-docs [PLANNED]
+│   └── commands/            # run-agent · commit · reconcile · validate · generate-docs
 ├── docs/                    # Esta documentación (GitHub Pages)
 └── .github/workflows/       # CI: validar specs + deploy docs + tests
   </div>
