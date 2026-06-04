@@ -226,19 +226,39 @@ bunx cypress run
 
 ```
 corrector/
-  01-boceto/html-source-prototype/   # Annotated HTML screens (11 screens, 90 elements)
-  02-conversacion-cliente/           # Client interview transcript
-  03-generated-artifacts/            # ui-spec.json, functional-spec.json, reconciliation.json
-  04-use-cases/                      # use-cases.md
+  01-boceto/
+    boceto-metadata.json               # Agent 0 output — screen index
+    html-source-prototype/             # Annotated HTML screens (11 screens, 90 elements)
+      boceto-elements.md               # Agent 0 output — element registry
+  02-conversacion-cliente/
+    transcripcion.md                   # Agent 2 output — complete interview
+    boceto-suggestions.md              # Agent 2 output — proposed boceto changes
+  03-generated-artifacts/
+    ui-spec.json                       # Agent 1 output
+    functional-spec.json               # Agent 4 output
+    reconciliation.json                # GATE HUMANO output
+    alignment-report.json              # Agent 3 output
+  04-use-cases/
+    use-cases.md                       # Agent 5 output
   05-implementation/
-    backend/                         # schema.sql, api-contracts.md, Bun/Express server
-    frontend/                        # Web Components
+    backend/
+      schema.sql                       # Human input — source of truth for data model
+      api-contracts.md                 # Agent 5 output
+      migrations/                      # Migration Generator output
+      src/                             # Agent 7 output — Bun + Express + TypeScript
+      tests/                           # Agent 6 output — bun test unit tests
+    frontend/
+      src/                             # Agent 7 output — Web Components TypeScript
+      dist/                            # bun build output (browser-ready JS)
+      tests/                           # Agent 6 output — component unit tests
+      cypress/e2e/                     # Agent 8 output — Cypress e2e tests
 
-lib/agents/        # Agent implementations (.js) + role definitions (.md)
+lib/agents/        # Slash command role definitions (.md) + programmatic implementations (.js)
 lib/schemas/       # Zod schemas
-lib/tools/         # claude-client, rag-client, artifact-manager, handoff-validator, etc.
+lib/tools/         # claude-client, rag-client, artifact-manager, handoff-validator
 lib/orchestrator/  # Pipeline state machine
-cli/commands/      # CLI commands (create-project, run-agent, validate, reconcile, generate-docs)
+cli/commands/      # CLI commands
+.claude/commands/  # Slash command entry points (.md)
 docs/              # Static docs → GitHub Pages
 ```
 
