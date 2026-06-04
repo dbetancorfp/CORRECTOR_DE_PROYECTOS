@@ -41,7 +41,7 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 | Backend | **Bun** + Express + TypeScript |
 | Schema validation | Zod 3.x |
 | Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x + TypeScript |
-| Frontend build | `bun build` — `src/frontend/*.ts` → `dist/frontend/*.js` → `<script type="module">` |
+| Frontend build | `bun build` — `corrector/05-implementation/frontend/src/*.ts` → `corrector/05-implementation/frontend/dist/*.js` → `<script type="module">` |
 | Tests (unit) | `bun test` — backend + frontend unit tests (Jest-compatible API) |
 | Tests (e2e) | Cypress — functional and integration tests |
 | Docs | Static HTML → `docs/` → GitHub Pages |
@@ -265,7 +265,8 @@ docs/              # Static docs → GitHub Pages
 ## Frontend: Web Components
 
 One file per component. Shadow DOM always open. Render with lit-html only. Never `innerHTML`.
-TypeScript compiled with `bun build` — source in `src/frontend/`, output in `dist/frontend/`.
+TypeScript compiled with `bun build` — source in `corrector/05-implementation/frontend/src/`,
+output in `corrector/05-implementation/frontend/dist/`.
 
 ### Component skeleton
 
