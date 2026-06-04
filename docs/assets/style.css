@@ -281,16 +281,20 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
   line-height: 1.5;
 }
 .step-io {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: .28rem .6rem;
-  align-items: baseline;
+  display: flex;
+  flex-direction: column;
+  gap: .28rem;
   margin-top: .1rem;
 }
 .step-io-row {
-  display: contents;
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
 }
 .io-label {
+  width: 5rem;
+  flex-shrink: 0;
+  text-align: center;
   font-weight: 700;
   font-size: .65rem;
   letter-spacing: .07em;
