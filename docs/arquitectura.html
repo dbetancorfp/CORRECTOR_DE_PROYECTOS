@@ -53,24 +53,51 @@ Boceto (#N)
   </div>
 
   <!-- ── Pipeline ── -->
-  <h2>Pipeline: 6 agentes especializados</h2>
+  <h2>Pipeline: 10 agentes especializados</h2>
+  <p>Flujo: <code>0 → (1 ∥ 2) → 3 → 4 → GATE → 5 → 6 → 7 → 8 → 9</code>. Los agentes 1 y 2 se ejecutan en paralelo.</p>
   <div class="pipeline">
 
     <div class="step">
-      <div class="num">1</div>
+      <div class="num">0</div>
+      <div class="body">
+        <strong>Boceto Parser <span class="badge-done">✓ implementado</span></strong>
+        <span>Escanea todos los ficheros HTML del boceto, extrae cada <code>data-element-id</code> y genera el índice estructural y el registro descriptivo de elementos. Ejecutar con <code>/boceto-parser</code> en Claude Code.</span>
+        <span class="output">→ corrector/01-boceto/boceto-metadata.json · boceto-elements.md</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">1 ∥</div>
       <div class="body">
         <strong>Diseñador Front <span class="badge-done">✓ implementado</span></strong>
-        <span>Lee los 11 bocetos HTML anotados y <code>boceto-metadata.json</code>. Extrae tipo, props, estados, interacciones, accesibilidad y validaciones por sketchNumber. Ejecutar con <code>/designer-front</code> en Claude Code.</span>
+        <span>Especifica cada elemento UI: tipo, props, estados, interacciones, validaciones y accesibilidad por sketchNumber. Ejecutar con <code>/designer-front</code> en Claude Code.</span>
         <span class="output">→ corrector/03-generated-artifacts/ui-spec.json · phase: ui-spec</span>
       </div>
     </div>
 
     <div class="step">
-      <div class="num">2</div>
+      <div class="num">2 ∥</div>
       <div class="body">
         <strong>Analista de Negocio <span class="badge-done">✓ implementado</span></strong>
-        <span><strong>2a — Entrevista:</strong> completa <code>transcripcion.md</code> con el cliente. Ejecutar con <code>/business-analyst</code> en Claude Code. <strong>Transcripción: ✓ completa (90 elementos).</strong></span>
-        <span><strong>2b — Generación:</strong> lee <code>transcripcion.md</code> + <code>ui-spec.json</code> y genera behavior, businessRules, dataNeeds y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code> en Claude Code.</span>
+        <span>Entrevista al cliente y completa <code>transcripcion.md</code> hasta cubrir todos los elementos del boceto. Propone cambios en el boceto cuando detecta gaps. Ejecutar con <code>/business-analyst</code> en Claude Code.</span>
+        <span class="output">→ corrector/02-conversacion-cliente/transcripcion.md · boceto-suggestions.md</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body">
+        <strong>Validador de Alineación <span class="badge-done">✓ implementado</span></strong>
+        <span>Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes entre sí antes de generar ninguna especificación. Si falla, el pipeline se detiene hasta corregir los inputs. Ejecutar con <code>/alignment-validator</code> en Claude Code.</span>
+        <span class="output">→ corrector/03-generated-artifacts/alignment-report.json · phase: alignment (local)</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">4</div>
+      <div class="body">
+        <strong>Generador Func. Spec <span class="badge-done">✓ implementado</span></strong>
+        <span>Convierte <code>transcripcion.md</code> + <code>ui-spec.json</code> en una especificación funcional estructurada con behavior, businessRules y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code> en Claude Code.</span>
         <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec</span>
       </div>
     </div>
@@ -79,46 +106,77 @@ Boceto (#N)
       <div class="num">🚪</div>
       <div class="body">
         <strong>GATE HUMANO — Reconciliación</strong>
-        <span>Verifica que cada sketchNumber del boceto tenga su func-spec y viceversa. Sin elementos huérfanos. Requiere aprobación manual antes de continuar.</span>
-        <span class="output">→ reconciliation.json { valid: true }</span>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="num">3</div>
-      <div class="body">
-        <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span></strong>
-        <span>Con las specs validadas genera los casos de uso, el DDL de PostgreSQL y los contratos de API. Ejecutar con <code>/requirement-architect</code> en Claude Code.</span>
-        <span class="output">→ corrector/04-use-cases/use-cases.md</span>
-        <span class="output">→ corrector/05-implementation/backend/schema.sql</span>
-        <span class="output">→ corrector/05-implementation/backend/api-contracts.md</span>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="num">4</div>
-      <div class="body">
-        <strong>Ingeniero TDD</strong>
-        <span>Deriva tests de los <code>acceptanceCriteria</code>. Cada <code>describe()</code> referencia un sketchNumber. Los tests se escriben antes del código y deben fallar.</span>
-        <span class="output">→ tests/*.test.js (rojo ✗) · phase: test-red</span>
+        <span>Verifica que cada sketchNumber del boceto tiene su entrada en <code>functional-spec.json</code> y viceversa. Sin elementos huérfanos en ningún lado. Requiere aprobación manual antes de continuar.</span>
+        <span class="output">→ corrector/03-generated-artifacts/reconciliation.json { valid: true }</span>
       </div>
     </div>
 
     <div class="step">
       <div class="num">5</div>
       <div class="body">
-        <strong>Implementador</strong>
-        <span>Lee los tests rojos y los contratos de API. Genera solo el código suficiente para que los tests pasen. Bun/Express backend + Frontend Web Components.</span>
-        <span class="output">→ src/ (backend + frontend) · phase: code</span>
+        <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span></strong>
+        <span>Con las specs validadas y el schema como entrada, genera los casos de uso y los contratos de API REST. Ejecutar con <code>/requirement-architect</code> en Claude Code.</span>
+        <span class="output">→ corrector/04-use-cases/use-cases.md · phase: use-case</span>
+        <span class="output">→ corrector/05-implementation/backend/api-contracts.md</span>
       </div>
     </div>
 
     <div class="step">
       <div class="num">6</div>
       <div class="body">
+        <strong>Ingeniero TDD <span class="badge-done">✓ implementado</span></strong>
+        <span>Deriva tests unitarios en rojo de los <code>acceptanceCriteria</code>. Cada <code>describe()</code> referencia un sketchNumber. Los tests deben fallar antes de que exista implementación. Ejecutar con <code>/tdd-engineer</code> en Claude Code.</span>
+        <span class="output">→ corrector/05-implementation/*/tests/*.test.ts (rojo ✗) · phase: test-red</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">7</div>
+      <div class="body">
+        <strong>Implementador <span class="badge-done">✓ implementado</span></strong>
+        <span>Escribe el código mínimo para que todos los tests pasen. Backend Bun + Express + TypeScript. Frontend Web Components + TypeScript compilado con <code>bun build</code>. Ejecutar con <code>/implementer</code> en Claude Code.</span>
+        <span class="output">→ corrector/05-implementation/backend/src/ · frontend/src/ · phase: code</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">8</div>
+      <div class="body">
+        <strong>Ingeniero E2E <span class="badge-done">✓ implementado</span></strong>
+        <span>Genera tests Cypress e2e a partir de los casos de uso — un fichero por UC cubriendo flujo principal y alternativo crítico. Usa <code>data-element-id</code> como selector. Ejecutar con <code>/e2e-engineer</code> en Claude Code.</span>
+        <span class="output">→ corrector/05-implementation/frontend/cypress/e2e/*.cy.ts · phase: e2e</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">9</div>
+      <div class="body">
         <strong>Revisor / QA</strong> <em style="color:var(--muted);font-weight:400">(opcional)</em>
-        <span>Valida calidad del código, convenciones OO y ausencia de dead code. Sugiere refactorizaciones.</span>
-        <span class="output">→ refactor suggestions</span>
+        <span>Valida calidad del código, convenciones TypeScript y ausencia de dead code. Revisa cobertura de tests unitarios y e2e.</span>
+        <span class="output">→ informe de revisión · phase: review</span>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>Agentes bajo demanda</h3>
+  <div class="pipeline">
+
+    <div class="step">
+      <div class="num">★</div>
+      <div class="body">
+        <strong>Migration Generator</strong>
+        <span>Se invoca cuando <code>schema.sql</code> cambia entre iteraciones. Compara con la versión anterior en git y genera el SQL de migración con rollback. Ejecutar con <code>/migration-generator</code> en Claude Code.</span>
+        <span class="output">→ corrector/05-implementation/backend/migrations/YYYYMMDD_NNN_*.sql</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">★</div>
+      <div class="body">
+        <strong>CI Setup</strong>
+        <span>Genera y mantiene los workflows de GitHub Actions: <code>ci.yml</code> (type-check + bun test + bun build) y <code>e2e.yml</code> (Cypress). Ejecutar con <code>/ci-setup</code> en Claude Code.</span>
+        <span class="output">→ .github/workflows/ci.yml · e2e.yml</span>
       </div>
     </div>
 
@@ -139,8 +197,8 @@ Boceto (#N)
       <tr><td><code>id</code></td><td>UUID</td><td>Clave primaria</td></tr>
       <tr><td><code>content</code></td><td>TEXT</td><td>Artefacto JSON serializado</td></tr>
       <tr><td><code>embedding</code></td><td>vector(1536)</td><td>OpenAI text-embedding-3-small · índice HNSW</td></tr>
-      <tr><td><code>phase</code></td><td>VARCHAR</td><td><code>ui-spec</code> · <code>func-spec</code> · <code>use-case</code> · <code>test-red</code> · <code>code</code></td></tr>
-      <tr><td><code>sketch_number</code></td><td>INT</td><td>Clave de trazabilidad</td></tr>
+      <tr><td><code>phase</code></td><td>VARCHAR</td><td><code>boceto-parse</code> · <code>ui-spec</code> · <code>interview</code> · <code>func-spec</code> · <code>use-case</code> · <code>test-red</code> · <code>e2e</code> · <code>code</code> · <code>review</code></td></tr>
+      <tr><td><code>sketch_number</code></td><td>INT | NULL</td><td>Clave de trazabilidad. <code>NULL</code> para artefactos no acotados a un elemento (ej. use-cases.md, api-contracts.md)</td></tr>
       <tr><td><code>feature_id</code></td><td>TEXT</td><td>Identificador de funcionalidad (ej. <code>corrector-v1</code>)</td></tr>
       <tr><td><code>agent</code></td><td>TEXT</td><td>Agente que generó la fila</td></tr>
       <tr><td><code>version</code></td><td>INT</td><td>Versión incremental del artefacto</td></tr>
@@ -173,8 +231,13 @@ Boceto (#N)
         <td><code>ReconciliationSchema</code></td>
         <td><code>valid</code>, <code>boceto_numbers</code>, <code>spec_numbers</code>, <code>orphaned_sketch_elements</code>, <code>orphaned_spec_rules</code></td>
       </tr>
+      <tr>
+        <td><code>AlignmentReportSchema</code></td>
+        <td><code>valid</code>, <code>checks[]</code> con <code>type</code> (<code>boceto-transcript</code> | <code>boceto-schema</code> | <code>transcript-schema</code>), <code>status</code> (<code>pass</code> | <code>fail</code>), <code>issues[]</code></td>
+      </tr>
     </tbody>
   </table>
+  <p><em>Nota: <code>boceto-suggestions.md</code> (output del Agente 2) es Markdown — sin schema Zod.</em></p>
 
   <!-- ── Stack ── -->
   <h2>Stack tecnológico</h2>
@@ -354,24 +417,27 @@ git push main                              # → GitHub Pages (CI/CD)</code></pr
 CORRECTOR_DE_PROYECTOS/
 ├── corrector/               # Workspace del pipeline — proyecto real (corrector-v1)
 │   ├── 01-boceto/
-│   │   ├── html-source-prototype/  # Bocetos HTML anotados (90 elementos, 11 pantallas)
-│   │   │   └── boceto-elements.md  # Registro de sketchNumbers (#1–#90)
-│   │   └── boceto-metadata.json    # Mapa de sketchNumbers por pantalla (entrada Agente 1)
+│   │   ├── boceto-metadata.json    # Agente 0 output · entrada Agente 1
+│   │   └── html-source-prototype/  # Bocetos HTML anotados (90 elementos, 11 pantallas)
+│   │       └── boceto-elements.md  # Agente 0 output — registro descriptivo de elementos
 │   ├── 02-conversacion-cliente/
-│   │   └── transcripcion.md        # Entrevista de cliente (entrada Agente 2)
-│   ├── 03-generated-artifacts/     # ui-spec.json, functional-spec.json, reconciliation.json
-│   ├── 04-use-cases/               # use-cases.md, schema.sql, api-contracts
-│   └── 05-implementation/          # backend (Express) + frontend (Web Components)
-├── examples/                # Demos didácticas del pipeline (apps ficticias)
+│   │   ├── transcripcion.md        # Agente 2 output — entrevista completa
+│   │   └── boceto-suggestions.md   # Agente 2 output — cambios propuestos en boceto
+│   ├── 03-generated-artifacts/     # ui-spec.json · functional-spec.json · reconciliation.json · alignment-report.json
+│   ├── 04-use-cases/               # use-cases.md (Agente 5 output)
+│   └── 05-implementation/
+│       ├── backend/                # schema.sql (entrada humana) · api-contracts.md · migrations/ · src/ · tests/
+│       └── frontend/               # src/ · dist/ · tests/ · cypress/e2e/
 ├── lib/
-│   ├── agents/              # designer-front · business-analyst · requirement-architect · tdd-engineer · implementer
-│   ├── schemas/             # UISpecSchema · FunctionalSpecSchema · ReconciliationSchema
+│   ├── agents/              # Definiciones de rol (.md) + implementaciones programáticas (.js)
+│   ├── schemas/             # UISpecSchema · FunctionalSpecSchema · ReconciliationSchema · AlignmentReportSchema
 │   ├── tools/               # claude-client · sketch-parser · artifact-manager · rag-client
 │   └── orchestrator/        # State machine del pipeline
 ├── cli/
 │   └── commands/            # run-agent · commit · reconcile · validate · generate-docs
+├── .claude/commands/        # Slash command entry points (.md) — uno por agente
 ├── docs/                    # Esta documentación (GitHub Pages)
-└── .github/workflows/       # CI: validar specs + deploy docs + tests
+└── .github/workflows/       # CI: ci.yml · e2e.yml · deploy-docs.yml
   </div>
 </main>
 

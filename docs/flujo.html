@@ -514,13 +514,18 @@ No element can appear in a later phase unless it was numbered in the boceto.
 
 ### Pipeline
 
+  0. Boceto Parser:          HTML → boceto-metadata.json        pendiente
   1. Diseñador Front:        boceto → ui-spec.json              pendiente
   2a. Analista de Negocio:   entrevista → transcripcion.md      ✓ completa
-  2b. Generador Func. Spec:  transcripcion → functional-spec.json pendiente
+  2. Analista de Negocio:    entrevista → transcripcion.md      pendiente
+  3. Validador Alineación:   3-way gate → alignment-report.json pendiente
+  4. Generador Func. Spec:   transcripcion → functional-spec.json pendiente
   GATE HUMANO:               reconciliation.json { valid: true } pendiente
-  3. Arquitecto:             validated specs → use-cases, DDL, API   pendiente
-  4. Ingeniero TDD:          acceptanceCriteria → tests rojos ✗       pendiente
-  5. Implementador:          tests → código verde ✅                  pendiente
+  5. Arquitecto:             specs → use-cases + api-contracts   pendiente
+  6. Ingeniero TDD:          acceptanceCriteria → tests rojos ✗  pendiente
+  7. Implementador:          tests → código verde ✅              pendiente
+  8. Ingeniero E2E:          use-cases → cypress tests           pendiente
+  9. Revisor QA:             implementación → informe            pendiente
 
 ### Tech stack
 
@@ -531,7 +536,7 @@ No element can appear in a later phase unless it was numbered in the boceto.
   Validation:     Zod 3.x
   Frontend:       Web Components + lit-html standalone + Tailwind CSS 3.x
   Tests backend:  bun test
-  Tests frontend: @web/test-runner
+  Tests e2e:      Cypress
   CI/CD:          GitHub Actions
 
 ── Ver archivo completo en / CLAUDE.md del repositorio ──────────────────────

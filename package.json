@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "type-check": "tsc --noEmit",
+    "test": "bun test",
+    "start": "bun run corrector/05-implementation/backend/src/index.ts",
+    "build": "bun build corrector/05-implementation/frontend/src/index.ts --outdir corrector/05-implementation/frontend/dist --target browser",
     "agent:designer-front": "node cli/index.js run-agent designer-front --feature-id corrector-v1"
   },
   "dependencies": {
