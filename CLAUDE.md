@@ -80,6 +80,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
 | 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `cypress/e2e/*.cy.ts` |
 | 9 | Revisor / QA *(opt.)* | Valida calidad, convenciones TypeScript y ausencia de dead code | Implementación completa + tests unitarios + tests e2e | Informe de revisión |
+| ★ | Migration Generator *(on demand)* | Genera el SQL de migración cuando `schema.sql` cambia entre iteraciones | `schema.sql` actual + versión anterior (git) + `migrations/` | `migrations/YYYYMMDD_NNN_*.sql` |
 
 **1 ∥ 2** — ejecución en paralelo; el Agente 3 espera a que ambos terminen.
 Each `describe()` block in test files must reference a `sketchNumber`.
@@ -97,7 +98,8 @@ When the human reviews `boceto-suggestions.md` and decides to adopt one or more 
 If only the `schema.sql` changes (no boceto changes):
 
 1. Replace `schema.sql` with the updated version
-2. Resume from Agent 3 (Validador de Alineación)
+2. `/migration-generator` — generates the SQL migration diff (if DB already exists)
+3. Resume from Agent 3 (Validador de Alineación)
 
 If only the interview transcript changes (Agent 2 re-run):
 
