@@ -112,7 +112,14 @@ If only the interview transcript changes (Agent 2 re-run):
 
 ### Handoff pattern
 
+Applies to pipeline agents 0–9 (linear flow only):
+
 **Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
+
+Exceptions:
+- **Validador de Alineación (3)** — reads only, does not persist to RAG; produces `alignment-report.json` as a local file
+- **GATE HUMANO** — human decision step; produces `reconciliation.json` as a local file, not persisted to RAG
+- **On-demand agents (★)** — operate independently, do not participate in RAG handoff
 
 ### RAG table: `knowledge_base`
 
