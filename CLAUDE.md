@@ -157,6 +157,9 @@ Retrieval: hybrid search — vector similarity + structured filters on `phase`, 
 - `UISpecSchema` — `screens[].components[]` with `sketchNumber`, `type`, `props`, `states`, `interactions`
 - `FunctionalSpecSchema` — `elementSpecs[]` with `sketchNumber`, `behavior`, `businessRules`, `acceptanceCriteria`; plus `globalRules[]`
 - `ReconciliationSchema` — `valid`, `boceto_numbers`, `spec_numbers`, `orphaned_sketch_elements`, `orphaned_spec_rules`
+- `AlignmentReportSchema` — `valid`, `checks[]` each with `type` (`boceto-transcript` | `boceto-schema` | `transcript-schema`), `status` (`pass` | `fail`), `issues[]`
+
+Note: `boceto-suggestions.md` (Agent 2 output) is Markdown — no Zod schema.
 
 ### CLI
 
