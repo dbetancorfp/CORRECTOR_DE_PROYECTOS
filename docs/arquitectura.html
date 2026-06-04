@@ -61,8 +61,17 @@ Boceto (#N)
       <div class="num">0</div>
       <div class="body">
         <strong>Boceto Parser <span class="badge-done">✓ implementado</span></strong>
-        <span>Escanea todos los ficheros HTML del boceto, extrae cada <code>data-element-id</code> y genera el índice estructural y el registro descriptivo de elementos. Ejecutar con <code>/boceto-parser</code> en Claude Code.</span>
-        <span class="output">→ corrector/01-boceto/boceto-metadata.json · boceto-elements.md</span>
+        <p class="step-desc">Escanea todos los ficheros HTML del boceto, extrae cada <code>data-element-id</code> y genera el índice estructural y el registro descriptivo de elementos. Ejecutar con <code>/boceto-parser</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">01-boceto/html-source-prototype/*.html</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">01-boceto/boceto-metadata.json · boceto-elements.md</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -70,8 +79,17 @@ Boceto (#N)
       <div class="num">1 ∥</div>
       <div class="body">
         <strong>Diseñador Front <span class="badge-done">✓ implementado</span></strong>
-        <span>Especifica cada elemento UI: tipo, props, estados, interacciones, validaciones y accesibilidad por sketchNumber. Ejecutar con <code>/designer-front</code> en Claude Code.</span>
-        <span class="output">→ corrector/03-generated-artifacts/ui-spec.json · phase: ui-spec</span>
+        <p class="step-desc">Especifica cada elemento UI: tipo, props, estados, interacciones, validaciones y accesibilidad por sketchNumber. Ejecutar con <code>/designer-front</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">boceto-metadata.json · boceto-elements.md · html-source-prototype/*.html</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">03-generated-artifacts/ui-spec.json · phase: ui-spec</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -79,8 +97,17 @@ Boceto (#N)
       <div class="num">2 ∥</div>
       <div class="body">
         <strong>Analista de Negocio <span class="badge-done">✓ implementado</span></strong>
-        <span>Entrevista al cliente y completa <code>transcripcion.md</code> hasta cubrir todos los elementos del boceto. Propone cambios en el boceto cuando detecta gaps. Ejecutar con <code>/business-analyst</code> en Claude Code.</span>
-        <span class="output">→ corrector/02-conversacion-cliente/transcripcion.md · boceto-suggestions.md</span>
+        <p class="step-desc">Entrevista al cliente y completa <code>transcripcion.md</code> hasta cubrir todos los elementos del boceto. Propone cambios en el boceto cuando detecta gaps. Ejecutar con <code>/business-analyst</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">boceto-elements.md · html-source-prototype/*.html · entrevista inicial</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">02-conversacion-cliente/transcripcion.md · boceto-suggestions.md</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -88,8 +115,17 @@ Boceto (#N)
       <div class="num">3</div>
       <div class="body">
         <strong>Validador de Alineación <span class="badge-done">✓ implementado</span></strong>
-        <span>Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes entre sí antes de generar ninguna especificación. Si falla, el pipeline se detiene hasta corregir los inputs. Ejecutar con <code>/alignment-validator</code> en Claude Code.</span>
-        <span class="output">→ corrector/03-generated-artifacts/alignment-report.json · phase: alignment (local)</span>
+        <p class="step-desc">Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes entre sí antes de generar ninguna especificación. Si falla, el pipeline se detiene. Ejecutar con <code>/alignment-validator</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">boceto-metadata.json · ui-spec.json · transcripcion.md · schema.sql</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">03-generated-artifacts/alignment-report.json (local — no RAG)</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -97,8 +133,17 @@ Boceto (#N)
       <div class="num">4</div>
       <div class="body">
         <strong>Generador Func. Spec <span class="badge-done">✓ implementado</span></strong>
-        <span>Convierte <code>transcripcion.md</code> + <code>ui-spec.json</code> en una especificación funcional estructurada con behavior, businessRules y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code> en Claude Code.</span>
-        <span class="output">→ corrector/03-generated-artifacts/functional-spec.json · phase: func-spec</span>
+        <p class="step-desc">Convierte <code>transcripcion.md</code> + <code>ui-spec.json</code> en una especificación funcional estructurada con behavior, businessRules y acceptanceCriteria por sketchNumber. Ejecutar con <code>/generate-functional-spec</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">transcripcion.md · ui-spec.json · alignment-report.json</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">03-generated-artifacts/functional-spec.json · phase: func-spec</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -106,8 +151,17 @@ Boceto (#N)
       <div class="num">🚪</div>
       <div class="body">
         <strong>GATE HUMANO — Reconciliación</strong>
-        <span>Verifica que cada sketchNumber del boceto tiene su entrada en <code>functional-spec.json</code> y viceversa. Sin elementos huérfanos en ningún lado. Requiere aprobación manual antes de continuar.</span>
-        <span class="output">→ corrector/03-generated-artifacts/reconciliation.json { valid: true }</span>
+        <p class="step-desc">Verifica que cada sketchNumber del boceto tiene su entrada en <code>functional-spec.json</code> y viceversa. Sin elementos huérfanos en ningún lado. Requiere aprobación manual antes de continuar.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">ui-spec.json · functional-spec.json</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">03-generated-artifacts/reconciliation.json { valid: true } (local — no RAG)</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -115,9 +169,17 @@ Boceto (#N)
       <div class="num">5</div>
       <div class="body">
         <strong>Arquitecto de Requisitos <span class="badge-done">✓ implementado</span></strong>
-        <span>Con las specs validadas y el schema como entrada, genera los casos de uso y los contratos de API REST. Ejecutar con <code>/requirement-architect</code> en Claude Code.</span>
-        <span class="output">→ corrector/04-use-cases/use-cases.md · phase: use-case</span>
-        <span class="output">→ corrector/05-implementation/backend/api-contracts.md</span>
+        <p class="step-desc">Con las specs validadas y el schema como entrada, genera los casos de uso y los contratos de API REST. Ejecutar con <code>/requirement-architect</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">functional-spec.json · ui-spec.json · reconciliation.json · schema.sql · boceto-metadata.json</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">04-use-cases/use-cases.md · backend/api-contracts.md · phase: use-case</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -125,8 +187,17 @@ Boceto (#N)
       <div class="num">6</div>
       <div class="body">
         <strong>Ingeniero TDD <span class="badge-done">✓ implementado</span></strong>
-        <span>Deriva tests unitarios en rojo de los <code>acceptanceCriteria</code>. Cada <code>describe()</code> referencia un sketchNumber. Los tests deben fallar antes de que exista implementación. Ejecutar con <code>/tdd-engineer</code> en Claude Code.</span>
-        <span class="output">→ corrector/05-implementation/*/tests/*.test.ts (rojo ✗) · phase: test-red</span>
+        <p class="step-desc">Deriva tests unitarios en rojo de los <code>acceptanceCriteria</code>. Cada <code>describe()</code> referencia un sketchNumber. Los tests deben fallar antes de que exista implementación. Ejecutar con <code>/tdd-engineer</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">functional-spec.json · use-cases.md · alignment-report.json · api-contracts.md · schema.sql</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">*/tests/*.test.ts (rojo ✗) · phase: test-red</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -134,8 +205,17 @@ Boceto (#N)
       <div class="num">7</div>
       <div class="body">
         <strong>Implementador <span class="badge-done">✓ implementado</span></strong>
-        <span>Escribe el código mínimo para que todos los tests pasen. Backend Bun + Express + TypeScript. Frontend Web Components + TypeScript compilado con <code>bun build</code>. Ejecutar con <code>/implementer</code> en Claude Code.</span>
-        <span class="output">→ corrector/05-implementation/backend/src/ · frontend/src/ · phase: code</span>
+        <p class="step-desc">Escribe el código mínimo para que todos los tests pasen. Backend Bun + Express + TypeScript. Frontend Web Components + TypeScript compilado con <code>bun build</code>. Ejecutar con <code>/implementer</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">*/tests/*.test.ts · use-cases.md · api-contracts.md · schema.sql · ui-spec.json · functional-spec.json</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">backend/src/ · frontend/src/ · phase: code</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -143,8 +223,17 @@ Boceto (#N)
       <div class="num">8</div>
       <div class="body">
         <strong>Ingeniero E2E <span class="badge-done">✓ implementado</span></strong>
-        <span>Genera tests Cypress e2e a partir de los casos de uso — un fichero por UC cubriendo flujo principal y alternativo crítico. Usa <code>data-element-id</code> como selector. Ejecutar con <code>/e2e-engineer</code> en Claude Code.</span>
-        <span class="output">→ corrector/05-implementation/frontend/cypress/e2e/*.cy.ts · phase: e2e</span>
+        <p class="step-desc">Genera tests Cypress e2e a partir de los casos de uso — un fichero por UC cubriendo flujo principal y alternativo crítico. Usa <code>data-element-id</code> como selector. Ejecutar con <code>/e2e-engineer</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">use-cases.md · ui-spec.json · functional-spec.json · api-contracts.md</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">frontend/cypress/e2e/*.cy.ts · phase: e2e</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -152,8 +241,17 @@ Boceto (#N)
       <div class="num">9</div>
       <div class="body">
         <strong>Revisor / QA</strong> <em style="color:var(--muted);font-weight:400">(opcional)</em>
-        <span>Valida calidad del código, convenciones TypeScript y ausencia de dead code. Revisa cobertura de tests unitarios y e2e.</span>
-        <span class="output">→ informe de revisión · phase: review</span>
+        <p class="step-desc">Valida calidad del código, convenciones TypeScript y ausencia de dead code. Revisa cobertura de tests unitarios y e2e.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">implementación completa · */tests/*.test.ts · cypress/e2e/*.cy.ts</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">informe de revisión · phase: review</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -166,8 +264,17 @@ Boceto (#N)
       <div class="num">★</div>
       <div class="body">
         <strong>Migration Generator</strong>
-        <span>Se invoca cuando <code>schema.sql</code> cambia entre iteraciones. Compara con la versión anterior en git y genera el SQL de migración con rollback. Ejecutar con <code>/migration-generator</code> en Claude Code.</span>
-        <span class="output">→ corrector/05-implementation/backend/migrations/YYYYMMDD_NNN_*.sql</span>
+        <p class="step-desc">Se invoca cuando <code>schema.sql</code> cambia entre iteraciones. Compara con la versión anterior en git y genera el SQL de migración con rollback. Ejecutar con <code>/migration-generator</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">schema.sql (actual + versión anterior en git) · migrations/</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">backend/migrations/YYYYMMDD_NNN_*.sql</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -175,8 +282,17 @@ Boceto (#N)
       <div class="num">★</div>
       <div class="body">
         <strong>CI Setup</strong>
-        <span>Genera y mantiene los workflows de GitHub Actions: <code>ci.yml</code> (type-check + bun test + bun build) y <code>e2e.yml</code> (Cypress). Ejecutar con <code>/ci-setup</code> en Claude Code.</span>
-        <span class="output">→ .github/workflows/ci.yml · e2e.yml</span>
+        <p class="step-desc">Genera y mantiene los workflows de GitHub Actions: <code>ci.yml</code> (type-check + bun test + bun build) y <code>e2e.yml</code> (Cypress). Ejecutar con <code>/ci-setup</code>.</p>
+        <div class="step-io">
+          <div class="step-io-row">
+            <span class="io-label input-label">INPUT</span>
+            <span class="io-files">CLAUDE.md · package.json · .github/workflows/</span>
+          </div>
+          <div class="step-io-row">
+            <span class="io-label output-label">OUTPUT</span>
+            <span class="io-files">.github/workflows/ci.yml · e2e.yml</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -327,7 +443,7 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);</code></p
     </thead>
     <tbody>
       <tr><td><strong>Nombre</strong></td><td>Prefijo <code>corrector-*</code>, guión obligatorio, registrado con <code>customElements.define</code></td></tr>
-      <tr><td><strong>Shadow DOM</strong></td><td><code>attachShadow({ mode: 'open' })</code> siempre en <code>connectedCallback</code></td></tr>
+      <tr><td><strong>Shadow DOM</strong></td><td><code>if (!this.shadowRoot) this.attachShadow({ mode: 'open' })</code> en <code>connectedCallback</code></td></tr>
       <tr><td><strong>Renderizado</strong></td><td><code>html</code> + <code>render</code> de lit-html. Nunca <code>innerHTML</code> directo.</td></tr>
       <tr><td><strong>Bindings</strong></td><td><code>.prop</code> (propiedad), <code>@event</code> (listener), <code>?attr</code> (atributo booleano), <code>repeat</code> o <code>map</code> (listas)</td></tr>
       <tr><td><strong>Lifecycle</strong></td><td><code>connectedCallback</code>: setup + render + suscribir. <code>disconnectedCallback</code>: vaciar disposables.</td></tr>

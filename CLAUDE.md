@@ -11,7 +11,7 @@ Author: David Betancor, Profesor FP, IES Telesforo Bravo.
 
 | Artifact | Path | Notes |
 |----------|------|-------|
-| Boceto | `corrector/01-boceto/html-source-prototype/` | 90 elements · 11 screens · `data-element-id="N"` (sketchNumber). Registry: `boceto-elements.md` |
+| Boceto | `corrector/01-boceto/html-source-prototype/` | 90 elements · 11 screens · `data-element-id="N"` (sketchNumber). Registry: `corrector/01-boceto/boceto-elements.md` |
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | Client interview transcript — source of business rules |
 | Schema BD | `corrector/05-implementation/backend/schema.sql` | PostgreSQL 16 DDL — source of truth for data model |
 
@@ -143,8 +143,8 @@ Valid `phase` values:
 | `func-spec` | 4 Generador Func. Spec | `functional-spec.json` |
 | `use-case` | 5 Arquitecto de Requisitos | `use-cases.md` · `api-contracts.md` |
 | `test-red` | 6 Ingeniero TDD | `*.test.ts` |
-| `e2e` | 8 Ingeniero E2E | `cypress/e2e/*.cy.ts` |
 | `code` | 7 Implementador | Backend TS · Web Components TS |
+| `e2e` | 8 Ingeniero E2E | `cypress/e2e/*.cy.ts` |
 | `review` | 9 Revisor / QA | Informe de revisión |
 
 Note: `alignment` (Agent 3) and `gate` (GATE HUMANO) artifacts are local files only — not persisted to RAG.
@@ -228,8 +228,8 @@ bunx cypress run
 corrector/
   01-boceto/
     boceto-metadata.json               # Agent 0 output — screen index
+    boceto-elements.md                 # Agent 0 output — element registry
     html-source-prototype/             # Annotated HTML screens (11 screens, 90 elements)
-      boceto-elements.md               # Agent 0 output — element registry
   02-conversacion-cliente/
     transcripcion.md                   # Agent 2 output — complete interview
     boceto-suggestions.md              # Agent 2 output — proposed boceto changes
@@ -278,7 +278,7 @@ export class CorrectorButton extends HTMLElement {
   private _disposables: Array<() => void> = [];
 
   connectedCallback(): void {
-    this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
     this._render();
     const onClick = (): void => this._handleClick();
     this.shadowRoot!.addEventListener('click', onClick);
@@ -350,8 +350,8 @@ customElements.define('corrector-button', CorrectorButton);
 ### Roles
 
 - **Admin** — system config: legislaciones, ciclos, módulos, profesorado
-- **Profesor** — class management: alumnos, proyectos, rúbrica; grades and views/prints notes
-- **Tutor** — restricted profesor: print notes only
+- **Profesor** — class management: alumnos, proyectos, rúbrica; grades; views and prints notes (own corrected module only)
+- **Tutor** — same as Profesor, plus: Imprimir panorámica (all modules + final grade per student)
 
 ### Screen flow
 
@@ -361,8 +361,9 @@ login
 └── Profesor → Landing
     ├── Gestionar (tabs: Alumnos · Proyectos · Rúbrica)
     ├── Corregir proyecto
-    ├── Visualizar notas
-    └── Imprimir notas  (Tutor only)
+    ├── Visualizar notas           (own corrected module only)
+    ├── Imprimir notas del módulo  (own corrected module only)
+    └── Imprimir panorámica        (Tutor only)
 ```
 
 ### Notes
