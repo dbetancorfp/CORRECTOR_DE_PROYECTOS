@@ -84,6 +84,28 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 Each `describe()` block in test files must reference a `sketchNumber`.
 Each agent has a single responsibility — no agent mixes generation with validation.
 
+### Re-entry protocol — when boceto changes
+
+When the human reviews `boceto-suggestions.md` and decides to adopt one or more proposals:
+
+1. Edit the affected `.html` files in `html-source-prototype/` manually
+2. `/boceto-parser` — regenerates `boceto-metadata.json` + `boceto-elements.md`
+3. `/designer-front` — regenerates `ui-spec.json`
+4. Resume from Agent 3 (Validador de Alineación)
+
+If only the `schema.sql` changes (no boceto changes):
+
+1. Replace `schema.sql` with the updated version
+2. Resume from Agent 3 (Validador de Alineación)
+
+If only the interview transcript changes (Agent 2 re-run):
+
+1. `/business-analyst` — updates `transcripcion.md` + new `boceto-suggestions.md`
+2. Resume from Agent 3 (Validador de Alineación)
+
+> **Rule:** Agent 3 (Validador de Alineación) is always the re-entry point after any
+> change to the three original inputs (boceto · entrevista · schema).
+
 ### Handoff pattern
 
 **Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
