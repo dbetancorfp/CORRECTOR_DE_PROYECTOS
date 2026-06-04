@@ -55,7 +55,7 @@ Every interactive element is annotated `data-element-id="N"`. That integer is th
 **universal foreign key** linking every artifact in the pipeline:
 
 ```
-Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (red) → Code (green)
+Boceto (#N) → UI Spec → Functional Spec → Use Case → Test (red) → Code (green) → E2E Test
 ```
 
 No element may appear in a downstream phase unless it was numbered in the boceto.
@@ -78,7 +78,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 5 | Arquitecto de Requisitos | Genera casos de uso y contratos API a partir de las specs y el schema validados | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `schema.sql` + `boceto-metadata.json` | `use-cases.md` + `api-contracts.md` |
 | 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
-| 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `cypress/e2e/*.cy.ts` |
+| 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `05-implementation/cypress/e2e/*.cy.ts` |
 | 9 | Revisor / QA *(opt.)* | Valida calidad, convenciones TypeScript y ausencia de dead code | Implementación completa + tests unitarios + tests e2e | Informe de revisión |
 | ★ | Migration Generator *(on demand)* | Genera el SQL de migración cuando `schema.sql` cambia entre iteraciones | `schema.sql` actual + versión anterior (git) + `migrations/` | `migrations/YYYYMMDD_NNN_*.sql` |
 | ★ | CI Setup *(on demand)* | Genera y mantiene los workflows de GitHub Actions (CI + E2E) | `CLAUDE.md` + `package.json` + `.github/workflows/` | `.github/workflows/ci.yml` + `e2e.yml` |
@@ -117,8 +117,10 @@ Applies to pipeline agents 0–9 (linear flow only):
 **Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
 
 Exceptions:
-- **Validador de Alineación (3)** — reads only, does not persist to RAG; produces `alignment-report.json` as a local file
+- **Validador de Alineación (3)** — reads only, does not persist to RAG; produces `alignment-report.json` as a local file. Downstream agents that need it (Agent 6) must read it from the local filesystem, not from RAG.
+- **`schema.sql`** — human input, never persisted to RAG. Any agent that needs it reads it directly from the local filesystem.
 - **GATE HUMANO** — human decision step; produces `reconciliation.json` as a local file, not persisted to RAG
+- **Markdown artifacts** (`boceto-suggestions.md`, `use-cases.md`, `api-contracts.md`) — no Zod validation; persisted to RAG as raw text. `boceto-suggestions.md` is consumed by the human only (Man in the Loop) — no downstream agent reads it.
 - **On-demand agents (★)** — operate independently, do not participate in RAG handoff
 
 ### RAG table: `knowledge_base`
@@ -139,7 +141,7 @@ Valid `phase` values:
 |-------|-------|----------|
 | `boceto-parse` | 0 Boceto Parser | `boceto-metadata.json` · `boceto-elements.md` |
 | `ui-spec` | 1 Diseñador Front | `ui-spec.json` |
-| `interview` | 2 Analista de Negocio | `transcripcion.md` · `boceto-suggestions.md` |
+| `interview` | 2 Analista de Negocio | `transcripcion.md` · `boceto-suggestions.md` *(Man in the Loop — human review only)* |
 | `func-spec` | 4 Generador Func. Spec | `functional-spec.json` |
 | `use-case` | 5 Arquitecto de Requisitos | `use-cases.md` · `api-contracts.md` |
 | `test-red` | 6 Ingeniero TDD | `*.test.ts` |
@@ -178,7 +180,7 @@ Note: `boceto-suggestions.md` (Agent 2 output) is Markdown — no Zod schema.
 /generate-functional-spec
 
 # ── GATE HUMANO: reconciliation ───────────────────────────────────
-node cli/index.js reconcile --feature-id corrector-v1
+bun cli/index.js reconcile --feature-id corrector-v1
 
 # ── Agent 5: use-cases + API contracts ───────────────────────────
 /requirement-architect
@@ -217,6 +219,7 @@ bunx cypress run
 | `/tdd-engineer` | 6 — Ingeniero TDD | ✅ |
 | `/implementer` | 7 — Implementador | ✅ |
 | `/e2e-engineer` | 8 — Ingeniero E2E | ✅ |
+| `/reviewer` | 9 — Revisor / QA | ❌ pendiente |
 | `/doc-reviewer` | — Revisor de Documentación | ✅ |
 | `/migration-generator` | ★ — Migration Generator | ✅ |
 | `/ci-setup` | ★ — CI Setup | ✅ |
@@ -251,7 +254,8 @@ corrector/
       src/                             # Agent 7 output — Web Components TypeScript
       dist/                            # bun build output (browser-ready JS)
       tests/                           # Agent 6 output — component unit tests
-      cypress/e2e/                     # Agent 8 output — Cypress e2e tests
+    cypress/
+      e2e/                             # Agent 8 output — Cypress e2e tests
 
 lib/agents/        # Slash command role definitions (.md) + programmatic implementations (.js)
 lib/schemas/       # Zod schemas
@@ -291,7 +295,7 @@ export class CorrectorButton extends HTMLElement {
   }
 
   private _handleClick(): void {
-    this.dispatchEvent(new CustomEvent('corrector:action', {
+    this.dispatchEvent(new CustomEvent('corrector:button-clicked', {
       bubbles: true, composed: true,
       detail: { id: this.getAttribute('data-id') },
     }));
@@ -319,7 +323,7 @@ customElements.define('corrector-button', CorrectorButton);
 | Name | `corrector-*` prefix; registered with `customElements.define` |
 | Shadow DOM | `this.attachShadow({ mode: 'open' })` in `connectedCallback` |
 | Rendering | `lit-html` only — never `innerHTML` |
-| Bindings | `.prop=` · `@event=` · `?attr=` · `${repeat(...)}` |
+| Bindings | `.prop=` · `@event=` · `?attr=` · `${items.map(...)}` (simple lists) · `${repeat(...)}` *(import `lit-html/directives/repeat.js` — large lists with key tracking)* |
 | Lifecycle | `connectedCallback`: setup + render + subscribe. `disconnectedCallback`: flush disposables |
 | Disposables | Every listener/observer/interval → push cleanup fn into `this._disposables` |
 | Events | `new CustomEvent('corrector:verb-noun', { bubbles:true, composed:true, detail:{} })` |
@@ -340,12 +344,14 @@ customElements.define('corrector-button', CorrectorButton);
 
 - **Legislación**: abbreviation (e.g. LOMLOE), start/end year
 - **Ciclo**: name, linked to legislación
-- **Módulo**: name, abbreviation (e.g. DEW), legislación, weekly hours, ciclo
+- **Módulo**: name, abbreviation (e.g. DEW), weekly hours, ciclo
 - **Profesor**: username, password, assigned ciclo + módulos
-- **Alumno**: anonymised code (e.g. `JJ499`), ciclo, legislación
-- **Proyecto**: name, list of alumnos
+- **Alumno**: anonymised code (e.g. `JJ499`), ciclo
+- **Proyecto**: name, ciclo, list of alumnos
 - **Rúbrica**: scoring grid tied to a specific module; 5 levels (Excelente → Mal), each with
-  a numeric value; max total score defined; used to grade the projects of that module
+  a numeric value; max total score explicitly set by the professor (Excelente values need not
+  sum to 10); scores are normalised to 10 internally for cross-module weighting; used to grade
+  the projects of that module
 
 ### Roles
 

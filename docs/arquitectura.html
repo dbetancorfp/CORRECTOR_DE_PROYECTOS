@@ -231,7 +231,7 @@ Boceto (#N)
           </div>
           <div class="step-io-row">
             <span class="io-label output-label">OUTPUT</span>
-            <span class="io-files">frontend/cypress/e2e/*.cy.ts · phase: e2e</span>
+            <span class="io-files">cypress/e2e/*.cy.ts · phase: e2e</span>
           </div>
         </div>
       </div>
@@ -483,7 +483,7 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);</code></p
 /generate-functional-spec
 
 # ── GATE HUMANO: reconciliación ──────────────────────────────────
-node cli/index.js reconcile --feature-id "corrector-v1"
+bun cli/index.js reconcile --feature-id "corrector-v1"
 
 # ── Agente 5: casos de uso + contratos API ────────────────────────
 /requirement-architect
@@ -550,7 +550,8 @@ CORRECTOR_DE_PROYECTOS/
 │   ├── 04-use-cases/               # use-cases.md (Agente 5 output)
 │   └── 05-implementation/
 │       ├── backend/                # schema.sql (entrada humana) · api-contracts.md · migrations/ · src/ · tests/
-│       └── frontend/               # src/ · dist/ · tests/ · cypress/e2e/
+│       ├── frontend/               # src/ · dist/ · tests/
+│       └── cypress/e2e/            # Agente 8 output — Cypress e2e tests
 ├── lib/
 │   ├── agents/              # Definiciones de rol (.md) + implementaciones programáticas (.js)
 │   ├── schemas/             # UISpecSchema · FunctionalSpecSchema · ReconciliationSchema · AlignmentReportSchema
