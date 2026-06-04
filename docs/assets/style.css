@@ -281,16 +281,14 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
   line-height: 1.5;
 }
 .step-io {
-  display: flex;
-  flex-direction: column;
-  gap: .3rem;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: .28rem .6rem;
+  align-items: baseline;
+  margin-top: .1rem;
 }
 .step-io-row {
-  display: flex;
-  align-items: baseline;
-  gap: .5rem;
-  font-size: .78rem;
-  font-family: var(--mono);
+  display: contents;
 }
 .io-label {
   font-weight: 700;
@@ -299,12 +297,15 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
   text-transform: uppercase;
   padding: .1rem .45rem;
   border-radius: 3px;
-  flex-shrink: 0;
   font-family: var(--font);
 }
 .input-label  { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 .output-label { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-.io-files { color: var(--muted); }
+.io-files {
+  color: var(--muted);
+  font-size: .78rem;
+  font-family: var(--mono);
+}
 
 /* ── Role cards ── */
 .roles {
