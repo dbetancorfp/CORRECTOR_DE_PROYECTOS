@@ -164,18 +164,63 @@ Note: `boceto-suggestions.md` (Agent 2 output) is Markdown — no Zod schema.
 ### CLI
 
 ```bash
-node cli/index.js run-agent designer-front --feature-id corrector-v1
-node cli/index.js run-agent business-analyst --feature-id corrector-v1
-node cli/index.js reconcile --feature-id corrector-v1          # GATE HUMANO
-node cli/index.js run-agent requirement-architect --feature-id corrector-v1
-node cli/index.js run-agent tdd-engineer --feature-id corrector-v1
+# ── Agent 0: parse boceto ─────────────────────────────────────────
+/boceto-parser
+
+# ── Agents 1 ∥ 2: UI spec + interview (parallel) ─────────────────
+/designer-front
+/business-analyst
+
+# ── Agent 3: 3-way alignment gate ────────────────────────────────
+/alignment-validator
+
+# ── Agent 4: functional spec ──────────────────────────────────────
+/generate-functional-spec
+
+# ── GATE HUMANO: reconciliation ───────────────────────────────────
+node cli/index.js reconcile --feature-id corrector-v1
+
+# ── Agent 5: use-cases + API contracts ───────────────────────────
+/requirement-architect
+
+# ── Agent 6: TDD (tests must fail) ───────────────────────────────
+/tdd-engineer
 bun test                                                        # RED ✗
-node cli/index.js run-agent implementer --feature-id corrector-v1
+
+# ── Agent 7: implementation ───────────────────────────────────────
+/implementer
 bun test                                                        # GREEN ✅
+
+# ── Agent 8: e2e tests ────────────────────────────────────────────
+/e2e-engineer
+bunx cypress run
+
+# ── Agent 9: QA review (optional) ────────────────────────────────
+# /reviewer (not yet defined)
+
+# ── On-demand ─────────────────────────────────────────────────────
+/migration-generator                                            # when schema.sql changes
+/ci-setup                                                       # first time or stack change
+/doc-reviewer                                                   # any time
 ```
 
-Slash commands (`.claude/commands/`): `/designer-front`, `/business-analyst`,
-`/requirement-architect`, `/tdd-engineer` *(pending)*.
+**Slash commands available** (`.claude/commands/`):
+
+| Command | Agent | Status |
+|---------|-------|--------|
+| `/boceto-parser` | 0 — Boceto Parser | ✅ |
+| `/designer-front` | 1 — Diseñador Front | ✅ |
+| `/business-analyst` | 2 — Analista de Negocio | ✅ |
+| `/alignment-validator` | 3 — Validador de Alineación | ✅ |
+| `/generate-functional-spec` | 4 — Generador Func. Spec | ✅ |
+| `/requirement-architect` | 5 — Arquitecto de Requisitos | ✅ |
+| `/tdd-engineer` | 6 — Ingeniero TDD | ✅ |
+| `/implementer` | 7 — Implementador | ✅ |
+| `/e2e-engineer` | 8 — Ingeniero E2E | ✅ |
+| `/migration-generator` | ★ — Migration Generator | ✅ |
+| `/ci-setup` | ★ — CI Setup | ✅ |
+| `/doc-reviewer` | — Revisor de Documentación | ✅ |
+| `/commit` | — Commit workflow | ✅ |
 
 ## Repository Structure
 
