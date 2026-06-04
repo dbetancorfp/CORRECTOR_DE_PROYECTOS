@@ -64,7 +64,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 
 ```
 0 → ┌─ 1 (Diseñador Front)     ─┐
-    └─ 2 (Analista de Negocio) ─┘→ 3 → GATE → 4 → 5 → 6 → 7 → 8
+    └─ 2 (Analista de Negocio) ─┘→ 3 → 4 → GATE → 5 → 6 → 7 → 8 → 9
 ```
 
 | # | Agente | Responsabilidad | Input | Output |
@@ -72,10 +72,10 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 0 | Boceto Parser | Escanea los HTML, produce el índice estructural y el registro descriptivo de elementos | Ficheros `.html` de `html-source-prototype/` | `boceto-metadata.json` · `boceto-elements.md` |
 | 1 ∥ | Diseñador Front | Especifica cada elemento UI (tipo, props, estados, interacciones, validaciones) | `boceto-metadata.json` + ficheros `.html` + `boceto-elements.md` | `ui-spec.json` |
 | 2 ∥ | Analista de Negocio | Entrevista al cliente, completa la transcripción y propone cambios en el boceto para revisión humana | Entrevista inicial + ficheros `.html` + `boceto-elements.md` | `transcripcion.md` completa + `boceto-suggestions.md` |
-| 3 | Generador Func. Spec | Convierte transcripción + UI spec en especificación funcional estructurada y verificable | `transcripcion.md` + `ui-spec.json` | `functional-spec.json` |
-| — | **GATE HUMANO** | Verifica que cada sketchNumber tiene func-spec y viceversa. Sin huérfanos. | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
-| 4 | Arquitecto de Requisitos | Genera casos de uso, DDL PostgreSQL y contratos API a partir de las specs validadas | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `boceto-metadata.json` | `use-cases.md` + `schema.sql` + `api-contracts.md` |
-| 5 | Validador de Alineación | Verifica 3-way: boceto ↔ transcripción ↔ schema + api-contracts cubren todos los dataNeeds | `boceto-metadata.json` + `transcripcion.md` + `functional-spec.json` + `schema.sql` + `api-contracts.md` | `alignment-report.json { valid:true }` |
+| 3 | Validador de Alineación | Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes antes de generar specs | `boceto-metadata.json` + `ui-spec.json` + `transcripcion.md` + `schema.sql` | `alignment-report.json { valid:true }` |
+| 4 | Generador Func. Spec | Convierte transcripción + UI spec en especificación funcional estructurada y verificable | `transcripcion.md` + `ui-spec.json` + `alignment-report.json` | `functional-spec.json` |
+| — | **GATE HUMANO** | Verifica que cada sketchNumber tiene su entrada en `functional-spec.json` y viceversa. Sin huérfanos. | `ui-spec.json` + `functional-spec.json` | `reconciliation.json { valid:true }` |
+| 5 | Arquitecto de Requisitos | Genera casos de uso y contratos API a partir de las specs y el schema validados | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `schema.sql` + `boceto-metadata.json` | `use-cases.md` + `api-contracts.md` |
 | 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
 | 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `cypress/e2e/*.cy.ts` |
@@ -217,9 +217,9 @@ bunx cypress run
 | `/tdd-engineer` | 6 — Ingeniero TDD | ✅ |
 | `/implementer` | 7 — Implementador | ✅ |
 | `/e2e-engineer` | 8 — Ingeniero E2E | ✅ |
+| `/doc-reviewer` | — Revisor de Documentación | ✅ |
 | `/migration-generator` | ★ — Migration Generator | ✅ |
 | `/ci-setup` | ★ — CI Setup | ✅ |
-| `/doc-reviewer` | — Revisor de Documentación | ✅ |
 | `/commit` | — Commit workflow | ✅ |
 
 ## Repository Structure
