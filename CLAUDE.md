@@ -78,7 +78,8 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 5 | Validador de Alineación | Verifica 3-way: boceto ↔ transcripción ↔ schema + api-contracts cubren todos los dataNeeds | `boceto-metadata.json` + `transcripcion.md` + `functional-spec.json` + `schema.sql` + `api-contracts.md` | `alignment-report.json { valid:true }` |
 | 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
-| 8 | Revisor / QA *(opt.)* | Valida calidad del código, convenciones TypeScript y ausencia de dead code | Implementación completa | Informe de revisión |
+| 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `cypress/e2e/*.cy.ts` |
+| 9 | Revisor / QA *(opt.)* | Valida calidad, convenciones TypeScript y ausencia de dead code | Implementación completa + tests unitarios + tests e2e | Informe de revisión |
 
 **1 ∥ 2** — ejecución en paralelo; el Agente 3 espera a que ambos terminen.
 Each `describe()` block in test files must reference a `sketchNumber`.
