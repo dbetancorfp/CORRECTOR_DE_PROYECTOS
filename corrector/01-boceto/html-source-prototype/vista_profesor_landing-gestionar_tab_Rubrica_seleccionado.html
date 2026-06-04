@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
 </head>
 <body>
     <section>
@@ -18,16 +19,17 @@
     <section>
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Rúbrica seleccionado -->
-        <button type="button" id="pupils">Alumnos</button>
-        <button type="button" id="proyects">Proyectos</button>
-        <button type="button" id="items" data-element-id="52">Rúbrica</button>
+        <div class="tabs">
+            <button type="button" id="pupils">Alumnos</button>
+            <button type="button" id="proyects">Proyectos</button>
+            <button type="button" id="items" data-element-id="52">Rúbrica</button>
+        </div>
 
-        <div>
+        <div class="filters">
             <!--Filtros reactivos-->
             <input type="text" name="filterProject" id="filterProject" data-element-id="53" placeholder="Filtrar por proyecto">
             <input type="text" name="filterYear" id="filterYear" data-element-id="54" placeholder="Filtrar por año">
             <input type="text" name="filterLaw" id="filterLaw" placeholder="Filtrar por legislación">
-            
             <p>Nombre del proyecto</p>
             <button type="button" data-element-id="55">Nuevo</button>
         </div>
@@ -52,11 +54,11 @@
                 <td data-element-id="90">Icono borrar</td>
             </tr>
           </table>
-          <div>
+          <div class="score-bar">
              <button type="button" data-element-id="63">Subir rúbrica</button>
              <p>Puntuación máxima</p>
              <p data-puntuacion="NotaMaximaRubrica" data-element-id="64">10</p>
-          </div> 
+          </div>
         </div>
     </section>
 </body>

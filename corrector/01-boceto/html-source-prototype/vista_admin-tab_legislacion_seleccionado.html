@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
 </head>
 <body>
     <section>
@@ -18,17 +19,17 @@
     <section>
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Legislación seleccionado -->
-         <div data-element-id="6">
-        <button type="button" id="legislation" >Legislación</button>
-        <button type="button" id="cicles">Ciclos</button>
-        <button type="button" id="modules">Módulos</button>
-        <button type="button" id="teachers">Profesorado</button>
+        <div class="tabs" data-element-id="6">
+            <button type="button" id="legislation">Legislación</button>
+            <button type="button" id="cicles">Ciclos</button>
+            <button type="button" id="modules">Módulos</button>
+            <button type="button" id="teachers">Profesorado</button>
         </div>
 
         <div>
             <button type="button" data-element-id="81">Nuevo</button>
         </div>
-        <div>
+        <div class="form-row">
             <label for="nameLaw"></label>
             <input type="text" name="nameLaw" id="nameLaw" data-element-id="7" placeholder="Siglas de la legislación">
             <label for="academicYear"></label>

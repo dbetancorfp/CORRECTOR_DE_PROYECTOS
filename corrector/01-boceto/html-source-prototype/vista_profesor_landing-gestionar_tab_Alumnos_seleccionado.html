@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
 </head>
 <body>
     <section>
@@ -18,16 +19,17 @@
     <section>
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Alumnos seleccionado -->
-        <button type="button" id="pupils" data-element-id="31">Alumnos</button>
-        <button type="button" id="proyects">Proyectos</button>
-        <button type="button" id="items">Rúbrica</button>
+        <div class="tabs">
+            <button type="button" id="pupils" data-element-id="31">Alumnos</button>
+            <button type="button" id="proyects">Proyectos</button>
+            <button type="button" id="items">Rúbrica</button>
+        </div>
 
-        <div>
+        <div class="filters">
             <!--Filtros reactivos-->
             <input type="text" name="filterName" id="filterName" data-element-id="32" placeholder="Filtrar por nombre">
             <input type="text" name="filterCicle" id="filterCicle" data-element-id="33" placeholder="Filtrar por ciclo">
             <input type="text" name="filterLaw" id="filterLaw" data-element-id="34" placeholder="Filtrar por legislación">
-            
             <button type="button" data-element-id="35">Nuevo</button>
         </div>
         <div>
@@ -44,7 +46,7 @@
                 <td>Desarrollo de aplicaciones web</td>
                 <td>LOMLOE</td>
                 <td>Icono editar</td>
-                <td>Icono borrar</td>             
+                <td>Icono borrar</td>
             </tr>
           </table>
           <button type="button" data-element-id="41">Subir lista de alumnos</button>

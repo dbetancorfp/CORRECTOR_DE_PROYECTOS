@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
 </head>
 <body>
     <section>
@@ -18,10 +19,12 @@
     <section>
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Módulos seleccionado -->
-        <button type="button" id="legislation">Legislación</button>
-        <button type="button" id="cicles">Ciclos</button>
-        <button type="button" id="modules" data-element-id="16">Módulos</button>
-        <button type="button" id="teachers">Profesorado</button>
+        <div class="tabs">
+            <button type="button" id="legislation">Legislación</button>
+            <button type="button" id="cicles">Ciclos</button>
+            <button type="button" id="modules" data-element-id="16">Módulos</button>
+            <button type="button" id="teachers">Profesorado</button>
+        </div>
 
         <div>
             <button type="button" data-element-id="17">Nuevo</button>
@@ -44,10 +47,9 @@
                 <td>5</td>
                 <td>Desarrollo de aplicaciones web</td>
                 <td>Icono editar</td>
-                <td>Icono borrar</td>             
+                <td>Icono borrar</td>
             </tr>
           </table>
-     
         </div>
     </section>
 </body>
