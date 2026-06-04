@@ -353,29 +353,36 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);</code></p
 
   <!-- ── CLI ── -->
   <h2>Workflow CLI</h2>
-  <pre><code># ── Agente 1: UI Spec ────────────────────────────────────────────
-/designer-front
-# (o: node cli/index.js run-agent designer-front --feature-id corrector-v1)
+  <pre><code># ── Agente 0: parsear boceto ─────────────────────────────────────
+/boceto-parser
 
-# ── Agente 2a: Entrevista cliente ────────────────────────────────
+# ── Agentes 1 ∥ 2: UI spec + entrevista (paralelo) ───────────────
+/designer-front
 /business-analyst
 
-# ── Agente 2b: Generar Functional Spec ───────────────────────────
+# ── Agente 3: validación 3-way ───────────────────────────────────
+/alignment-validator
+
+# ── Agente 4: especificación funcional ───────────────────────────
 /generate-functional-spec
 
-# ── Gate humano: Reconciliación ──────────────────────────────────
+# ── GATE HUMANO: reconciliación ──────────────────────────────────
 node cli/index.js reconcile --feature-id "corrector-v1"
 
-# ── Agente 3: Casos de uso + SQL + contratos API ─────────────────
+# ── Agente 5: casos de uso + contratos API ────────────────────────
 /requirement-architect
 
-# ── Agente 4: Tests TDD (deben fallar) ───────────────────────────
-node cli/index.js run-agent tdd-engineer --feature-id "corrector-v1"
+# ── Agente 6: tests TDD (deben fallar) ───────────────────────────
+/tdd-engineer
 bun test                                   # RED ✗
 
-# ── Agente 5: Implementación ─────────────────────────────────────
-node cli/index.js run-agent implementer --feature-id "corrector-v1"
+# ── Agente 7: implementación ─────────────────────────────────────
+/implementer
 bun test                                   # GREEN ✅
+
+# ── Agente 8: tests e2e ──────────────────────────────────────────
+/e2e-engineer
+bunx cypress run
 
 # ── Publicar documentación ───────────────────────────────────────
 git push main                              # → GitHub Pages (CI/CD)</code></pre>
