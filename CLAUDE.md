@@ -344,8 +344,8 @@ customElements.define('corrector-button', CorrectorButton);
 - **Profesor**: username, password, assigned ciclo + módulos
 - **Alumno**: anonymised code (e.g. `JJ499`), ciclo, legislación
 - **Proyecto**: name, list of alumnos
-- **Rúbrica**: per-module scoring grid; 5 levels (Excelente → Mal), each with a numeric value;
-  max total score defined; shared across all projects of that module
+- **Rúbrica**: scoring grid tied to a specific module; 5 levels (Excelente → Mal), each with
+  a numeric value; max total score defined; used to grade the projects of that module
 
 ### Roles
 
