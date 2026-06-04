@@ -127,11 +127,27 @@ Exceptions:
 |--------|------|-------|
 | `content` | TEXT | Serialised JSON artifact |
 | `embedding` | vector(1536) | HNSW index |
-| `phase` | VARCHAR | `ui-spec` · `func-spec` · `use-case` · `test-red` · `code` |
-| `sketch_number` | INT | Traceability key |
+| `phase` | VARCHAR | See valid values below |
+| `sketch_number` | INT \| NULL | Traceability key. `NULL` for artifacts not scoped to a single element (e.g. `use-cases.md`, `api-contracts.md`, `alignment-report.json`) |
 | `feature_id` | TEXT | e.g. `corrector-v1` |
 | `agent` | TEXT | Producer |
-| `version` | INT | Incremental |
+| `version` | INT | Incremental — same feature + phase can have multiple versions |
+
+Valid `phase` values:
+
+| Phase | Agent | Artifact |
+|-------|-------|----------|
+| `boceto-parse` | 0 Boceto Parser | `boceto-metadata.json` · `boceto-elements.md` |
+| `ui-spec` | 1 Diseñador Front | `ui-spec.json` |
+| `interview` | 2 Analista de Negocio | `transcripcion.md` · `boceto-suggestions.md` |
+| `func-spec` | 4 Generador Func. Spec | `functional-spec.json` |
+| `use-case` | 5 Arquitecto de Requisitos | `use-cases.md` · `api-contracts.md` |
+| `test-red` | 6 Ingeniero TDD | `*.test.ts` |
+| `e2e` | 8 Ingeniero E2E | `cypress/e2e/*.cy.ts` |
+| `code` | 7 Implementador | Backend TS · Web Components TS |
+| `review` | 9 Revisor / QA | Informe de revisión |
+
+Note: `alignment` (Agent 3) and `gate` (GATE HUMANO) artifacts are local files only — not persisted to RAG.
 
 Retrieval: hybrid search — vector similarity + structured filters on `phase`, `feature_id`,
 `sketch_number`.
