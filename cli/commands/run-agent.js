@@ -9,7 +9,7 @@ const AGENTS = {
 export async function run(args) {
   const agentName = args[0];
   const featureIdIdx = args.indexOf('--feature-id');
-  const featureId = featureIdIdx !== -1 ? args[featureIdIdx + 1] : 'corrector-v1';
+  const featureId = featureIdIdx === -1 ? 'corrector-v1' : args[featureIdIdx + 1];
 
   if (agentName && AGENTS[agentName]) {
     try {

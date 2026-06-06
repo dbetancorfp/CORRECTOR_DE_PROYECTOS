@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: docs/requirements.lock
 
       - name: Install MkDocs Material
-        run: pip install --only-binary=':all:' -r docs/requirements.lock
+        run: pip install --require-hashes --only-binary=':all:' -r docs/requirements.lock
 
       - name: Build docs
         run: mkdocs build --strict
