@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
+</head>
+<body>
+    <p><h2>Corregir proyecto</h2></p>
+
+    <!--Filtros reactivos-->
+    <div class="filters">
+        <input type="text" name="filterYear" id="filterYear" data-element-id="65" placeholder="Filtrar por año">
+        <input type="text" name="filterCicle" id="filterCicle" data-element-id="66" placeholder="Filtrar por ciclo">
+        <input type="text" name="filterModule" id="filterModule" data-element-id="67" placeholder="Filtrar por módulo">
+    </div>
+
+    <!--Desplegable para seleccionar el proyecto a corregir-->
+    <select name="project" id="project" data-element-id="68">
+        <option value="">Seleccionar proyecto</option>
+        <option value="1">Proyecto 1</option>
+        <option value="2">Proyecto 2</option>
+    </select>
+
+    <div class="checkbox-row">
+        <input type="checkbox" name="group" id="group" data-element-id="77"> Corregir por grupo
+        <input type="checkbox" name="pupil_1" id="pupil_1" data-element-id="78">
+        <input type="checkbox" name="pupil_2" id="pupil_2" data-element-id="79">
+        <input type="checkbox" name="pupil_3" id="pupil_3" data-element-id="80">
+    </div>
+
+    <div>
+        <table style="border: 1px solid black;" data-element-id="69">
+            <tr>
+                <th>Item</th>
+                <th>Excelente</th>
+                <th>Muy bien</th>
+                <th>Bien</th>
+                <th>Regular</th>
+                <th>Mal</th>
+            </tr>
+            <tr>
+                <td data-element-id="70">Grupo 1</td>
+                <td data-element-id="71">2</td>
+                <td data-element-id="72">1.75</td>
+                <td data-element-id="73">1</td>
+                <td data-element-id="74">0.5</td>
+                <td data-element-id="75">0</td>
+            </tr>
+        </table>
+        <div class="score-bar">
+             <p>Puntuación obtenida</p>
+             <p data-puntuacion="NotaObtenida" data-element-id="76">8.5</p>
+        </div>
+    </div>
+
+</body>
+</html>

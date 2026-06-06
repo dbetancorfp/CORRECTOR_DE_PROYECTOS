@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
+</head>
+<body>
+    <section>
+        <nav>
+            <img src="" alt="logo">
+            <div><p><h1>Corrector de proyectos</h1></p></div>
+            <div><p><h3>Bienvenido</h3></p></div>
+            <div><p><h4>Fulanito</h4></p></div>
+            <button type="button">Salir</button>
+        </nav>
+    </section>
+    <section>
+        <div><p><h2>Gestión</h2></p></div>
+        <!-- Tabs- tab Rúbrica seleccionado -->
+        <div class="tabs">
+            <button type="button" id="pupils">Alumnos</button>
+            <button type="button" id="proyects">Proyectos</button>
+            <button type="button" id="items" data-element-id="52">Rúbrica</button>
+        </div>
+
+        <div class="filters">
+            <!--Filtros reactivos-->
+            <input type="text" name="filterProject" id="filterProject" data-element-id="53" placeholder="Filtrar por proyecto">
+            <input type="text" name="filterYear" id="filterYear" data-element-id="54" placeholder="Filtrar por año">
+            <input type="text" name="filterLaw" id="filterLaw" placeholder="Filtrar por legislación">
+            <p>Nombre del proyecto</p>
+            <button type="button" data-element-id="55">Nuevo</button>
+        </div>
+        <div>
+          <table style="border: 1px solid black;" data-element-id="56">
+            <tr>
+                <th>Item</th>
+                <th>Excelente</th>
+                <th>Muy bien</th>
+                <th>Bien</th>
+                <th>Regular</th>
+                <th>Mal</th>
+                <th>Borrar</th>
+            </tr>
+            <tr>
+                <td data-element-id="57">Buena documentación</td>
+                <td data-element-id="58">2</td>
+                <td data-element-id="59">1.75</td>
+                <td data-element-id="60">1</td>
+                <td data-element-id="61">0.5</td>
+                <td data-element-id="62">0</td>
+                <td data-element-id="90">Icono borrar</td>
+            </tr>
+          </table>
+          <div class="score-bar">
+             <button type="button" data-element-id="63">Subir rúbrica</button>
+             <p>Puntuación máxima</p>
+             <p data-puntuacion="NotaMaximaRubrica" data-element-id="64">10</p>
+          </div>
+        </div>
+    </section>
+</body>
+</html>

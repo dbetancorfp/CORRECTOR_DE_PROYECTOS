@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de proyectos</title>
+    <link rel="stylesheet" href="boceto.css">
+</head>
+<body>
+    <section>
+        <nav data-element-id="5">
+            <img src="" alt="logo" data-element-id="4">
+            <div><p><h1>Corrector de proyectos</h1></p></div>
+            <div><p><h3>Bienvenido</h3></p></div>
+            <div><p><h4>Fulanito</h4></p></div>
+            <button type="button">Salir</button>
+        </nav>
+    </section>
+    <section>
+        <div><p><h2>Gestión</h2></p></div>
+        <!-- Tabs- tab Legislación seleccionado -->
+        <div class="tabs" data-element-id="6">
+            <button type="button" id="legislation">Legislación</button>
+            <button type="button" id="cicles">Ciclos</button>
+            <button type="button" id="modules">Módulos</button>
+            <button type="button" id="teachers">Profesorado</button>
+        </div>
+
+        <div>
+            <button type="button" data-element-id="81">Nuevo</button>
+        </div>
+        <div class="form-row">
+            <label for="nameLaw"></label>
+            <input type="text" name="nameLaw" id="nameLaw" data-element-id="7" placeholder="Siglas de la legislación">
+            <label for="academicYear"></label>
+            <input type="text" name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="8" placeholder="Año de inicio de la legislación">
+            <input type="text" name="lastYearAcademicLaw" id="lastYearAcademicLaw" data-element-id="9" placeholder="Año de finalización de la legislación">
+            <button type="submit" data-element-id="10">Guardar</button>
+        </div>
+        <div>
+            <table style="border: 1px solid black;" data-element-id="82">
+                <tr>
+                    <th>Siglas</th>
+                    <th>Año inicio</th>
+                    <th>Año finalización</th>
+                    <th data-element-id="83">Editar</th>
+                    <th data-element-id="84">Borrar</th>
+                </tr>
+                <tr>
+                    <td>LOMLOE</td>
+                    <td>2021</td>
+                    <td>2027</td>
+                    <td>Icono editar</td>
+                    <td>Icono borrar</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+</body>
+</html>

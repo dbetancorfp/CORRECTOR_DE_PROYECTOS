@@ -60,6 +60,8 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ['.']
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.emoji:
@@ -75,6 +77,10 @@ markdown_extensions:
 
 nav:
   - Inicio: index.md
+  - Entradas al sistema:
+    - Entrevista: entradas/entrevista.md
+    - Boceto: entradas/boceto.md
+    - Esquema BD: entradas/schema.md
   - Guía de usuario: guia.md
   - Arquitectura técnica: arquitectura.md
   - Pipeline — Flujo: flujo.md
