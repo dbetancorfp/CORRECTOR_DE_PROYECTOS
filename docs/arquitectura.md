@@ -211,6 +211,7 @@ a este proyecto en [Principios SOLID](solid.md).
 | Tests unitarios | `bun test` (API compatible con Jest) |
 | Tests funcionales / e2e | Cypress |
 | Documentación | MkDocs + Material for MkDocs → GitHub Pages |
+| Calidad de código | SonarCloud (análisis estático + cobertura) |
 | CI/CD | GitHub Actions |
 
 ## Frontend: Web Components nativos
@@ -293,6 +294,14 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);
 | Clase | `PascalCase` | `CorrectorRubricaCell` |
 | Elemento | `corrector-*` | `corrector-rubrica-cell` |
 | Evento | `corrector:verbo-sustantivo` | `corrector:grade-selected` |
+
+## Calidad de código — SonarCloud
+
+El análisis estático continuo corre automáticamente en cada push y PR mediante
+**SonarCloud**. Detecta bugs, vulnerabilidades de seguridad, code smells y mide
+cobertura de tests. Consulta la guía completa en [SonarCloud](sonarcloud.md).
+
+El Quality Gate debe estar en ✅ antes de mergear cualquier PR.
 
 ## Gestión de tareas
 

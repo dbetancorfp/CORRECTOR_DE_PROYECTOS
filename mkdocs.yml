@@ -87,6 +87,7 @@ nav:
   - Especificación funcional: funcional.md
   - Casos de uso: casos-de-uso.md
   - Principios SOLID: solid.md
+  - SonarCloud: sonarcloud.md
   - JS Avanzado — Specs: especificaciones.md
 
 extra:
