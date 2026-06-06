@@ -257,7 +257,8 @@ corrector/
     cypress/
       e2e/                             # Agent 8 output — Cypress e2e tests
 
-lib/agents/        # Slash command role definitions (.md) + programmatic implementations (.js)
+lib/agents/        # One subfolder per agent: role definition (.md) + implementation (.js)
+                   #   e.g. lib/agents/designer-front/designer-front.{md,js}
 lib/schemas/       # Zod schemas
 lib/tools/         # claude-client, rag-client, artifact-manager, handoff-validator
 lib/orchestrator/  # Pipeline state machine

@@ -1,5 +1,5 @@
-import { run as runDesignerFront } from '../../lib/agents/designer-front.js';
-import { run as runBusinessAnalyst } from '../../lib/agents/business-analyst.js';
+import { run as runDesignerFront } from '../../lib/agents/designer-front/designer-front.js';
+import { run as runBusinessAnalyst } from '../../lib/agents/business-analyst/business-analyst.js';
 
 const AGENTS = {
   'designer-front': runDesignerFront,

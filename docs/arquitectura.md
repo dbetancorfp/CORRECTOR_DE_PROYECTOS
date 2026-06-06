@@ -343,7 +343,21 @@ CORRECTOR_DE_PROYECTOS/
 │       ├── frontend/               # src/ · dist/ · tests/
 │       └── cypress/e2e/            # Agente 8 output — Cypress e2e tests
 ├── lib/
-│   ├── agents/              # Definiciones de rol (.md) + implementaciones (.js)
+│   ├── agents/              # Un subdirectorio por agente
+│   │   ├── boceto-parser/         # boceto-parser.md
+│   │   ├── designer-front/        # designer-front.md · designer-front.js
+│   │   ├── business-analyst/      # business-analyst.md · business-analyst.js
+│   │   ├── alignment-validator/   # alignment-validator.md
+│   │   ├── generate-functional-spec/ # generate-functional-spec.md
+│   │   ├── requirement-architect/ # requirement-architect.md · requirement-architect.js
+│   │   ├── tdd-engineer/          # tdd-engineer.md · tdd-engineer.js
+│   │   ├── implementer/           # implementer.md · implementer.js
+│   │   ├── e2e-engineer/          # e2e-engineer.md
+│   │   ├── ci-setup/              # ci-setup.md
+│   │   ├── doc-reviewer/          # doc-reviewer.md
+│   │   ├── migration-generator/   # migration-generator.md
+│   │   ├── index.js               # Barrel de exports
+│   │   └── validator.js           # Utilidad compartida
 │   ├── schemas/             # Zod schemas
 │   ├── tools/               # claude-client · rag-client · artifact-manager
 │   └── orchestrator/        # State machine del pipeline
