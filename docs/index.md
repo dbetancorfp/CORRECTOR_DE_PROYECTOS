@@ -65,6 +65,20 @@ frontend completamente trazable y testado.
 
 ---
 
+## Gestión de tareas
+
+Toda tarea, mejora, bug o propuesta de cambio se registra como un
+**[Issue de GitHub](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/issues)**.
+Los Issues son la única fuente de verdad del trabajo pendiente y en curso.
+
+| Tipo de tarea | Etiqueta recomendada |
+|---------------|---------------------|
+| Nueva funcionalidad | `enhancement` |
+| Bug o error detectado | `bug` |
+| Mejora de documentación | `documentation` |
+| Tarea de pipeline / agente | `pipeline` |
+| Revisión SOLID (Agente 9) | `quality` |
+
 ## Estado del proyecto
 
 | Fase | Agente | Estado |

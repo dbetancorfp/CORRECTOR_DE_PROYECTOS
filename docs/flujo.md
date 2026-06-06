@@ -178,18 +178,34 @@ flowchart TD
 | 6 | Ingeniero TDD | `/tdd-engineer` | ✅ |
 | 7 | Implementador | `/implementer` | ✅ |
 | 8 | Ingeniero E2E | `/e2e-engineer` | ✅ |
-| 9 | Revisor / QA | *(pendiente)* | ❌ |
+| 9 | Revisor / QA | `/reviewer` | ✅ |
 | ★ | Migration Generator | `/migration-generator` | ✅ |
 | ★ | CI Setup | `/ci-setup` | ✅ |
+
+## Gestión de tareas
+
+Cualquier tarea, decisión de cambio o incidencia detectada durante el pipeline
+se registra como un **[Issue de GitHub](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/issues)**.
+
+Casos típicos donde se abre un Issue:
+
+| Momento del pipeline | Motivo del Issue |
+|---------------------|-----------------|
+| GATE HUMANO rechaza | Elementos huérfanos en `reconciliation.json` |
+| Agente 3 falla | Inconsistencias boceto ↔ entrevista ↔ schema |
+| Agente 9 devuelve FAIL | Violaciones SOLID pendientes de corregir |
+| Re-entrada por cambio de boceto | Nuevos elementos o pantallas a trazar |
+| Re-entrada por cambio de schema | Migración SQL necesaria |
 
 ## Protocolo de re-entrada
 
 Cuando el boceto cambia después de una iteración:
 
-1. Editar los `.html` afectados manualmente
-2. `/boceto-parser` — regenera `boceto-metadata.json` + `boceto-elements.md`
-3. `/designer-front` — regenera `ui-spec.json`
-4. Reanudar desde el **Agente 3** (Validador de Alineación)
+1. Abrir un **Issue de GitHub** describiendo el cambio y su motivación
+2. Editar los `.html` afectados manualmente
+3. `/boceto-parser` — regenera `boceto-metadata.json` + `boceto-elements.md`
+4. `/designer-front` — regenera `ui-spec.json`
+5. Reanudar desde el **Agente 3** (Validador de Alineación)
 
 !!! tip "Regla de re-entrada"
     El **Agente 3** es siempre el punto de re-entrada después de cualquier cambio

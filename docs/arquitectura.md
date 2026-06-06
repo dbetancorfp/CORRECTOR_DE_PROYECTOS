@@ -294,6 +294,17 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);
 | Elemento | `corrector-*` | `corrector-rubrica-cell` |
 | Evento | `corrector:verbo-sustantivo` | `corrector:grade-selected` |
 
+## Gestión de tareas
+
+Las tareas del proyecto se gestionan exclusivamente mediante
+**[Issues de GitHub](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/issues)**.
+Cada Issue representa una unidad de trabajo trazable: nueva funcionalidad, corrección,
+tarea de pipeline o violación de calidad detectada por el Agente 9.
+
+!!! tip "Regla de trazabilidad"
+    Cualquier cambio al código o a la documentación que no sea trivial debe referenciar
+    su Issue de origen en el mensaje de commit: `fix: corregir cálculo de nota (#42)`.
+
 ## Workflow CLI
 
 ```bash
