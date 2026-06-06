@@ -1,6 +1,6 @@
 # JS Avanzado — Especificaciones técnicas
 
-Material de referencia del curso **JavaScript Avanzado** (4 días). Fuente de verdad
+Material de referencia del curso **JavaScript Avanzado**. Fuente de verdad
 para los agentes del pipeline que generan código frontend. Ficheros completos en
 `corrector/00-especificaciones-tecnicas/`.
 
