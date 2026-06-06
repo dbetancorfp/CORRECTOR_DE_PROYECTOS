@@ -9,6 +9,7 @@ flowchart TD
     CLAUDE["⚙️ CLAUDE.md\nConfig global"]
     BOCETO["🎨 Boceto HTML\n90 elementos · 11 pantallas"]
     TRANS_IN["📝 transcripcion.md\nEntrevista inicial"]
+    SCHEMA["🗄️ schema.sql\nPostgreSQL 16 DDL"]
 
     A0["**0** Boceto Parser\n/boceto-parser"]
     A1["**1∥** Diseñador Front\n/designer-front"]
@@ -37,36 +38,52 @@ flowchart TD
     BOCETO --> A0
     A0 --> META
     META --> A1
+    BOCETO --> A1
     META --> A2
+    BOCETO --> A2
     TRANS_IN --> A2
     A1 --> UISPEC
     A2 --> TRANS_OUT
+    META --> A3
     UISPEC --> A3
     TRANS_OUT --> A3
+    SCHEMA --> A3
     A3 --> ALIGN
-    ALIGN --> A4
+    TRANS_OUT --> A4
     UISPEC --> A4
+    ALIGN --> A4
     A4 --> FSPEC
     FSPEC --> GATE
     UISPEC --> GATE
     GATE --> RECON
-    RECON --> A5
     FSPEC --> A5
+    UISPEC --> A5
+    RECON --> A5
+    SCHEMA --> A5
+    META --> A5
     A5 --> UC
-    UC --> A6
     FSPEC --> A6
+    UC --> A6
+    ALIGN --> A6
+    SCHEMA --> A6
     A6 --> TESTS
     TESTS --> A7
     UC --> A7
+    SCHEMA --> A7
+    UISPEC --> A7
+    FSPEC --> A7
     A7 --> CODE
-    CODE --> A8
     UC --> A8
+    UISPEC --> A8
+    FSPEC --> A8
     A8 --> E2E
-    E2E --> A9
     CODE --> A9
+    TESTS --> A9
+    E2E --> A9
 
     style GATE fill:#fee2e2,stroke:#dc2626,color:#991b1b
     style A3 fill:#fef3c7,stroke:#d97706
+    style SCHEMA fill:#fce7f3,stroke:#9d174d,color:#9d174d
     style ALIGN fill:#f3f4f6,stroke:#9ca3af
     style RECON fill:#f3f4f6,stroke:#9ca3af
 ```
