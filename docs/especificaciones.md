@@ -4,7 +4,7 @@ Material de referencia del curso **JavaScript Avanzado** (4 días). Fuente de ve
 para los agentes del pipeline que generan código frontend. Ficheros completos en
 `corrector/00-especificaciones-tecnicas/`.
 
-## Día 1 — Fundamentos del lenguaje y OOP
+## Fundamentos del lenguaje y OOP
 
 Base sólida del lenguaje: ámbito de variables, contexto de ejecución, estructuras de datos
 y programación orientada a objetos con prototipos y mixins.
@@ -56,7 +56,7 @@ class User extends
 
 ---
 
-## Día 2 — Asincronía, azúcar sintáctico y módulos
+## Asincronía, azúcar sintáctico y módulos
 
 Sintaxis moderna ES2015+, modelo de ejecución asíncrona y sistema de módulos nativo.
 
@@ -123,7 +123,7 @@ m.default()
 
 ---
 
-## Día 3 — DOM y Web Components
+## DOM y Web Components
 
 Árbol DOM, APIs nativas de manipulación y los tres pilares de Web Components:
 Custom Elements, Shadow DOM y Templates.
