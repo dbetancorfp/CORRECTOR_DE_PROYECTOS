@@ -44,7 +44,7 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 | Frontend build | `bun build` — `corrector/05-implementation/frontend/src/*.ts` → `corrector/05-implementation/frontend/dist/*.js` → `<script type="module">` |
 | Tests (unit) | `bun test` — backend + frontend unit tests (Jest-compatible API) |
 | Tests (e2e) | Cypress — functional and integration tests |
-| Docs | Static HTML → `docs/` → GitHub Pages |
+| Docs | MkDocs + Material for MkDocs — source `.md` in `docs/` → `mkdocs build` → `site/` → GitHub Pages |
 | CI/CD | GitHub Actions |
 
 ## RAG Spec-Driven Development Pipeline
@@ -263,7 +263,8 @@ lib/tools/         # claude-client, rag-client, artifact-manager, handoff-valida
 lib/orchestrator/  # Pipeline state machine
 cli/commands/      # CLI commands
 .claude/commands/  # Slash command entry points (.md)
-docs/              # Static docs → GitHub Pages
+docs/              # MkDocs source (.md) → GitHub Pages via mkdocs build
+mkdocs.yml         # MkDocs + Material for MkDocs config
 ```
 
 ## Frontend: Web Components

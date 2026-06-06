@@ -1,0 +1,89 @@
+site_name: Corrector de Proyectos
+site_description: >-
+  Web app para profesorado de FP (Formación Profesional) para gestionar
+  y calificar proyectos de fin de ciclo mediante rúbricas. Construida con
+  un pipeline multi-agente RAG Spec-Driven.
+site_author: David Betancor
+site_url: https://dbetancorfp.github.io/CORRECTOR_DE_PROYECTOS/
+repo_url: https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS
+repo_name: dbetancorfp/CORRECTOR_DE_PROYECTOS
+edit_uri: edit/main/docs/
+copyright: Corrector de Proyectos · David Betancor · IES Telesforo Bravo
+
+theme:
+  name: material
+  language: es
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+
+plugins:
+  - search:
+      lang: es
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Inicio: index.md
+  - Guía de usuario: guia.md
+  - Arquitectura técnica: arquitectura.md
+  - Pipeline — Flujo: flujo.md
+  - Especificación funcional: funcional.md
+  - Casos de uso: casos-de-uso.md
+  - JS Avanzado — Specs: especificaciones.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS
+      name: GitHub
