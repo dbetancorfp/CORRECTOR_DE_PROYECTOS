@@ -194,8 +194,14 @@ Casos típicos donde se abre un Issue:
 | GATE HUMANO rechaza | Elementos huérfanos en `reconciliation.json` |
 | Agente 3 falla | Inconsistencias boceto ↔ entrevista ↔ schema |
 | Agente 9 devuelve FAIL | Violaciones SOLID pendientes de corregir |
+| **SonarCloud Quality Gate ❌** | Bugs, vulnerabilidades, cobertura < 80 % o duplicación > 3 % |
 | Re-entrada por cambio de boceto | Nuevos elementos o pantallas a trazar |
 | Re-entrada por cambio de schema | Migración SQL necesaria |
+
+!!! info "SonarCloud"
+    El análisis estático corre automáticamente en cada push y PR.
+    El Quality Gate debe estar en ✅ antes de avanzar al Agente 8 (E2E).
+    Dashboard: [sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)
 
 ## Protocolo de re-entrada
 

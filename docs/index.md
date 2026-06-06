@@ -78,6 +78,11 @@ Los Issues son la única fuente de verdad del trabajo pendiente y en curso.
 | Mejora de documentación | `documentation` |
 | Tarea de pipeline / agente | `pipeline` |
 | Revisión SOLID (Agente 9) | `quality` |
+| Quality Gate SonarCloud ❌ | `quality` |
+
+**SonarCloud** analiza automáticamente cada push y PR. El Quality Gate debe
+estar en ✅ antes de mergear. Dashboard:
+[sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)
 
 ## Estado del proyecto
 

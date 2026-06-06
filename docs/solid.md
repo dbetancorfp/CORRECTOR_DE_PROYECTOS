@@ -10,6 +10,12 @@ respetar estos cinco principios. Son la fuente de verdad de calidad de diseño.
     SOLID por Michael Feathers (~2004). Son el estándar de facto del diseño
     orientado a objetos moderno.
 
+!!! info "Relación con SonarCloud"
+    SOLID y [SonarCloud](sonarcloud.md) son **complementarios**. SonarCloud detecta
+    bugs, vulnerabilidades, code smells y cobertura de forma automática en cada push.
+    SOLID cubre la calidad de diseño semántica que ninguna herramienta estática puede
+    detectar de forma fiable. **El Agente 9 verifica ambos** antes de dar el PASS.
+
 ---
 
 ## Resumen rápido
