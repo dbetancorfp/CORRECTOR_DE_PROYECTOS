@@ -298,8 +298,11 @@ customElements.define('corrector-rubrica-cell', CorrectorRubricaCell);
 ## Calidad de código — SonarCloud
 
 El análisis estático continuo corre automáticamente en cada push y PR mediante
-**SonarCloud**. Detecta bugs, vulnerabilidades de seguridad, code smells y mide
-cobertura de tests. Consulta la guía completa en [SonarCloud](sonarcloud.md).
+**SonarCloud** ✅ (activo desde 2026-06-06). Detecta bugs, vulnerabilidades de
+seguridad, code smells y mide cobertura de tests.
+
+- Dashboard: [sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)
+- Guía completa: [SonarCloud](sonarcloud.md)
 
 El Quality Gate debe estar en ✅ antes de mergear cualquier PR.
 

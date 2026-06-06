@@ -123,8 +123,12 @@ con la etiqueta `quality` indicando qué métrica no se cumple.
 
 ---
 
-## Dashboard
+## Estado
 
-Una vez activado, el dashboard del proyecto está disponible en:
+!!! success "SonarCloud activo"
+    El análisis CI está operativo desde el 2026-06-06. Automatic Analysis
+    desactivado — el scanner corre exclusivamente vía GitHub Actions.
+
+## Dashboard
 
 **[sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)**
