@@ -79,7 +79,7 @@ frontend completamente trazable y testado.
 | 6 | Ingeniero TDD | ✅ Implementado |
 | 7 | Implementador | ✅ Implementado |
 | 8 | Ingeniero E2E | ✅ Implementado |
-| 9 | Revisor / QA | 🔲 Pendiente |
+| 9 | Revisor / QA | ✅ Implementado |
 
 Los **bocetos** (90 elementos, 11 pantallas) y la **transcripción de cliente** están listos.
 El pipeline completo de agentes está implementado y a la espera de ejecutarse sobre el proyecto.

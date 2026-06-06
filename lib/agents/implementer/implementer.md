@@ -72,6 +72,53 @@ src/
 
 ---
 
+## Principios SOLID — obligatorio en toda implementación
+
+Toda clase, módulo y función que generes debe cumplir los cinco principios SOLID.
+Consulta la guía completa en `docs/solid.md`. Resumen ejecutivo:
+
+| Principio | Regla para el Implementador |
+|-----------|----------------------------|
+| **SRP** | Un fichero = una responsabilidad. Si la clase necesita dos imports de dominios distintos, sepárala. |
+| **OCP** | Usa interfaces para puntos de variación. Añadir un nuevo tipo no debe tocar código existente. |
+| **LSP** | Los subtipos no lanzan excepciones que el supertipo no declare. Mantén los invariantes del contrato. |
+| **ISP** | Define interfaces mínimas: `AlumnoReader` separado de `AlumnoWriter`. Las rutas dependen sólo de lo que usan. |
+| **DIP** | Todas las dependencias se inyectan por constructor. Nunca uses `new ConcreteImpl()` dentro de un servicio o componente. |
+
+### Checklist SOLID por fichero antes de marcar como terminado
+
+```
+[ ] SRP  — ¿Tiene más de una razón para cambiar? Si sí → separa
+[ ] OCP  — ¿Añadir un nuevo caso exige modificar este fichero? Si sí → introduce interfaz
+[ ] LSP  — ¿El subtipo rompe el contrato del supertipo? Si sí → rediseña la jerarquía
+[ ] ISP  — ¿Algún implementador no usa algún método de la interfaz? Si sí → segrega
+[ ] DIP  — ¿Hay algún `new ConcreteImpl()` dentro de un servicio/componente? Si sí → inyecta
+```
+
+### Estructura obligatoria para servicios backend (DIP)
+
+```ts
+// ✅ Correcto — el servicio depende de abstracciones
+interface RubricaRepository {
+  findById(id: string): Promise<Rubrica | null>;
+  findByModulo(moduloId: string): Promise<Rubrica | null>;
+}
+
+class RubricaService {
+  constructor(private readonly repo: RubricaRepository) {}   // inyección
+}
+
+// El punto de entrada inyecta la implementación concreta
+const service = new RubricaService(new PgRubricaRepository(db));
+```
+
+### Estructura obligatoria para Web Components (SRP + DIP)
+
+Los componentes solo renderizan y emiten eventos. No llaman a la API directamente.
+La comunicación con el backend pasa por un servicio inyectado o por CustomEvents.
+
+---
+
 ## Reglas de implementación
 
 - Implementa solo lo que los tests piden — ni más, ni menos
@@ -79,6 +126,7 @@ src/
 - Cada componente de `ui-spec.json` debe tener su fichero `.ts`
 - Todos los tipos deben ser explícitos (no `any`, no `unknown` sin narrowing)
 - Usa el patrón disposables para todos los Web Components (ver CLAUDE.md)
+- **SOLID no es opcional** — el Agente 9 rechazará código que no lo cumpla y te re-ejecutará
 
 ---
 

@@ -40,6 +40,37 @@ corrector/05-implementation/frontend/tests/*.test.ts   — tests de componentes
 
 ---
 
+## Principios SOLID en los tests
+
+Los tests son el espejo de la arquitectura. Un test que necesita un setup complejo para
+aislar una unidad es síntoma de violaciones de SRP o DIP en el código que se va a implementar.
+Escribe los tests de forma que el Implementador (Agente 7) se vea obligado a respetar SOLID.
+
+| Principio | Cómo se refleja en el test |
+|-----------|---------------------------|
+| **SRP** | Cada `describe()` prueba una sola responsabilidad. Si necesitas dos `describe()` para una misma clase, esa clase viola SRP. |
+| **OCP** | Los tests no deben cambiar cuando se añade un nuevo tipo. Usa parámetros o factories para cubrir variantes. |
+| **LSP** | Si pruebas un subtipo, debe pasar los mismos tests que el supertipo. Reutiliza suites compartidas. |
+| **ISP** | Inyecta en los tests solo los métodos que la unidad realmente usa (dobles parciales). |
+| **DIP** | Inyecta las dependencias por constructor. Nunca uses `new ConcreteImpl()` dentro del test — usa dobles. |
+
+```ts
+// ✅ Test que fuerza DIP — la unidad recibe sus dependencias inyectadas
+describe('Element #3 — RubricaService', () => {
+  it('calcula nota correctamente', async () => {
+    const repoDouble: RubricaRepository = {
+      findById: async () => mockRubrica,
+      findByModulo: async () => mockRubrica,
+    };
+    const service = new RubricaService(repoDouble);   // inyección por constructor
+    const nota = await service.calcularNota('rubrica-1');
+    expect(nota).toBe(8.5);
+  });
+});
+```
+
+---
+
 ## Reglas de generación
 
 ### Estructura obligatoria
@@ -93,13 +124,19 @@ Para cada UC en `use-cases.md` que involucre llamadas a la API:
 1. Crea un test de integración con el endpoint correspondiente de `api-contracts.md`
 2. Verifica el contrato: método, ruta, status code, estructura del response
 
-### Paso 4 — Verificar que los tests fallan
+### Paso 4 — Verificar que los tests fallan y que fuerzan SOLID
 
 ```bash
 bun test
 ```
 
 Si algún test pasa sin implementación, revísalo — el placeholder RED está incompleto.
+
+Después verifica que cada test fuerza al Implementador a respetar SOLID:
+
+- [ ] Las dependencias se inyectan por constructor (DIP)
+- [ ] Cada `describe()` prueba una sola responsabilidad (SRP)
+- [ ] Los dobles de test son interfaces, no clases concretas (DIP + ISP)
 
 ### Paso 5 — Confirmar
 

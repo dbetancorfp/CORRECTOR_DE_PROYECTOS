@@ -142,15 +142,16 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `cypress/e2e/*.cy.ts` · phase: `e2e` |
 
 === "Agente 9 — Revisor / QA"
-    *(Opcional)*
+    **:white_check_mark: Implementado** · `/reviewer`
 
-    Valida calidad del código, convenciones TypeScript y ausencia de dead code.
-    Revisa cobertura de tests unitarios y e2e.
+    Audita cumplimiento SOLID completo en tests e implementación. Si detecta violaciones,
+    identifica al agente responsable y lo re-ejecuta hasta que el código pase la auditoría.
+    Bloquea el avance al Agente 8 (E2E) mientras haya violaciones pendientes.
 
     | | |
     |--|--|
-    | **INPUT** | implementación completa · `*/tests/*.test.ts` · `cypress/e2e/*.cy.ts` |
-    | **OUTPUT** | informe de revisión · phase: `review` |
+    | **INPUT** | implementación completa · `*/tests/*.test.ts` · `cypress/e2e/*.cy.ts` · `docs/solid.md` |
+    | **OUTPUT** | `review-report.md` (PASS ✅ / FAIL ❌ + bucle de corrección) · phase: `review` |
 
 ### Agentes bajo demanda
 
@@ -324,6 +325,9 @@ bun test                                   # RED ✗
 bun test                                   # GREEN ✅
 
 # ── Agente 8: tests e2e ──────────────────────────────────────────
+/reviewer                                  # audita 6+7, re-ejecuta si falla
+
+# ── Agente 8: tests e2e ────────────────────────────
 /e2e-engineer
 bunx cypress run
 

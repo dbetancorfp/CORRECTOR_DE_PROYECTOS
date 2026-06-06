@@ -392,9 +392,18 @@ de los servicios.
 
 ## Cómo aplican los agentes estos principios
 
+### Agente 6 — Ingeniero TDD
+
+Los tests son el espejo de SOLID. Un test que necesita un setup enorme para aislar
+una unidad es síntoma de violaciones de DIP o SRP. Cada `describe()` debe poder
+testear su unidad con un doble simple inyectado por constructor.
+
+Reglas adicionales en `lib/agents/tdd-engineer/tdd-engineer.md` → sección *Principios SOLID en los tests*.
+
 ### Agente 7 — Implementador
 
-Al generar código de backend y frontend, verifica que cada fichero generado cumple:
+Al generar código de backend y frontend, verifica que cada fichero generado cumple el
+checklist SOLID antes de marcarlo como terminado:
 
 | Check | Criterio |
 |-------|----------|
@@ -404,16 +413,24 @@ Al generar código de backend y frontend, verifica que cada fichero generado cum
 | ISP | ¿La interfaz tiene métodos que algún implementador no usa? Si sí, segrega. |
 | DIP | ¿El módulo de negocio hace `new ConcreteImpl()`? Si sí, inyecta la dependencia. |
 
-### Agente 6 — Ingeniero TDD
-
-Los tests son el espejo de SOLID. Un test que necesita un setup enorme para aislar
-una unidad es síntoma de violaciones de DIP o SRP. Cada `describe()` debe poder
-testear su unidad con un doble simple inyectado por constructor.
+Checklist completo y ejemplos TypeScript en `lib/agents/implementer/implementer.md` → sección *Principios SOLID*.
 
 ### Agente 9 — Revisor / QA
 
-Incluir en el informe de revisión una sección **SOLID compliance** que señale
-cualquier violación detectada y proponga el refactor mínimo para corregirla.
+**Auditoría SOLID con bucle de corrección.** El Agente 9 es el guardián final de la
+calidad: audita cada fichero generado por los Agentes 6 y 7, genera un
+`review-report.md` con resultado `PASS ✅` o `FAIL ❌`, y si detecta violaciones
+**re-ejecuta al agente responsable** hasta que el código supere la auditoría.
+
+```
+MIENTRAS haya violaciones bloqueantes:
+  violaciones en tests → /tdd-engineer
+  violaciones en src/  → /implementer
+  re-auditar y repetir
+FIN → PASS ✅ → avanzar al Agente 8 (E2E)
+```
+
+Proceso completo en `lib/agents/reviewer/reviewer.md`.
 
 ---
 

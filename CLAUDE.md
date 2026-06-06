@@ -79,7 +79,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
 | 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `05-implementation/cypress/e2e/*.cy.ts` |
-| 9 | Revisor / QA *(opt.)* | Valida calidad, convenciones TypeScript y ausencia de dead code | Implementación completa + tests unitarios + tests e2e | Informe de revisión |
+| 9 | Revisor / QA | Audita SOLID en tests e implementación; rechaza y re-ejecuta agentes hasta que cumplan | Implementación completa + tests unitarios + tests e2e + `docs/solid.md` | `review-report.md` · PASS/FAIL + bucle de corrección |
 | ★ | Migration Generator *(on demand)* | Genera el SQL de migración cuando `schema.sql` cambia entre iteraciones | `schema.sql` actual + versión anterior (git) + `migrations/` | `migrations/YYYYMMDD_NNN_*.sql` |
 | ★ | CI Setup *(on demand)* | Genera y mantiene los workflows de GitHub Actions (CI + E2E) | `CLAUDE.md` + `package.json` + `.github/workflows/` | `.github/workflows/ci.yml` + `e2e.yml` |
 
@@ -219,7 +219,7 @@ bunx cypress run
 | `/tdd-engineer` | 6 — Ingeniero TDD | ✅ |
 | `/implementer` | 7 — Implementador | ✅ |
 | `/e2e-engineer` | 8 — Ingeniero E2E | ✅ |
-| `/reviewer` | 9 — Revisor / QA | ❌ pendiente |
+| `/reviewer` | 9 — Revisor / QA | ✅ |
 | `/doc-reviewer` | — Revisor de Documentación | ✅ |
 | `/migration-generator` | ★ — Migration Generator | ✅ |
 | `/ci-setup` | ★ — CI Setup | ✅ |
