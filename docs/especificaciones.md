@@ -207,7 +207,7 @@ class MyEl extends HTMLElement {
 
 ---
 
-## Día 4 — Web Components avanzados y Performance
+## Web Components avanzados y Performance
 
 Arquitectura de componentes desacoplados mediante `CustomEvent` y técnicas de
 optimización de rendimiento web.
