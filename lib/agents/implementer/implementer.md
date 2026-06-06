@@ -160,14 +160,38 @@ bun test   # debe pasar al 100%
 bun build src/frontend/index.ts --outdir dist/frontend --target browser
 ```
 
-### Paso 5 — Confirmar
+### Paso 5 — Verificar Quality Gate de SonarCloud
+
+El proyecto tiene **SonarCloud** activo ([dashboard](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)).
+El Quality Gate bloquea el avance si el código nuevo tiene:
+
+| Métrica | Umbral |
+|---------|--------|
+| Cobertura de código nuevo | ≥ 80 % |
+| Bugs | 0 |
+| Vulnerabilidades | 0 |
+| Duplicación | ≤ 3 % |
+| Maintainability rating | A |
+
+Antes de confirmar que tu tarea está completa, asegúrate de que el código que produces:
+
+- **No introduce bugs** — sin operaciones nulas no comprobadas, sin comparaciones incorrectas de tipos
+- **No duplica lógica** — extrae funciones si el mismo bloque aparece más de dos veces
+- **No introduce vulnerabilidades** — sin `eval()`, sin concatenación de SQL, sin secrets en código
+- **Usa `node:` prefijos** en imports de módulos nativos (`node:fs`, `node:path`, `node:url`)
+- **No usa condiciones negadas inesperadas** — preferir `if (x)` a `if (!x)` con rama principal vacía
+
+El análisis de SonarCloud se lanza automáticamente con cada push. Si el Quality Gate
+falla, el Agente 9 lo detectará y te re-ejecutará.
+
+### Paso 6 — Confirmar
 
 Informa al usuario de:
 - Resultado de `bun test` (número de tests pasados / total)
 - Ficheros creados (backend + frontend)
 - Cualquier decisión de implementación no obvia tomada por inferencia
 
-### Paso 6 — Actualizar documentación y verificar consistencia
+### Paso 7 — Actualizar documentación y verificar consistencia
 
 1. En `docs/flujo.html`: actualiza los nodos de implementación a `done`.
 2. Ejecuta `/doc-reviewer` para verificar consistencia.

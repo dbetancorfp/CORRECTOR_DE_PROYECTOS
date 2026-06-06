@@ -145,7 +145,22 @@ Informa al usuario de:
 - Número total de `it()` blocks
 - Resultado de `bun test` (debe ser todo rojo)
 
-### Paso 6 — Actualizar documentación y verificar consistencia
+### Paso 6 — Verificar cobertura mínima esperada con SonarCloud
+
+El proyecto tiene **SonarCloud** activo ([dashboard](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)).
+El Quality Gate exige **≥ 80 % de cobertura en código nuevo**.
+
+Comprueba que los tests que generas cubren al menos el 80 % de las líneas,
+ramas y funciones del código que el Agente 7 va a implementar:
+
+- Cada `acceptanceCriteria` del `functional-spec.json` debe tener su `it()` — sin criterios huérfanos
+- Incluye tests para los flujos alternativos más críticos (no sólo el camino feliz)
+- No avances si la cobertura estimada es claramente inferior al 80 %
+
+SonarCloud analiza automáticamente el LCOV generado por `bun test --coverage --coverage-reporter=lcov`
+en cada push. Si el Quality Gate falla por cobertura, el Agente 9 te re-ejecutará.
+
+### Paso 7 — Actualizar documentación y verificar consistencia
 
 1. En `docs/flujo.html`: actualiza los nodos de test a `done`.
 2. Ejecuta `/doc-reviewer` para verificar consistencia.

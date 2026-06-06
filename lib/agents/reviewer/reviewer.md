@@ -157,25 +157,49 @@ Crea `corrector/05-implementation/review-report.md` con esta estructura:
 | Agente 7 — Implementador | ✅ PASS / ❌ FAIL | — / Re-ejecutar |
 ```
 
+### Paso 4b — Verificar Quality Gate de SonarCloud
+
+El proyecto tiene **SonarCloud** activo ([dashboard](https://sonarcloud.io/project/overview?id=dbetancorfp_CORRECTOR_DE_PROYECTOS)).
+El análisis se ejecuta automáticamente en cada push. **No se puede avanzar al Agente 8
+(E2E) si el Quality Gate está en ❌.**
+
+Consulta el estado actual del Quality Gate en el dashboard. Si está en ❌:
+
+1. Identifica qué métricas fallan (cobertura, bugs, vulnerabilidades, duplicación)
+2. Añade los fallos al `review-report.md` bajo una sección **SonarCloud Quality Gate**
+3. Determina qué agente es responsable de cada fallo:
+
+| Fallo Sonar | Agente responsable |
+|-------------|-------------------|
+| Cobertura < 80 % | Agente 6 — más tests |
+| Bugs / Vulnerabilidades | Agente 7 — corregir código |
+| Code smells (condiciones negadas, `node:` prefijos…) | Agente 7 — corregir código |
+| Duplicación > 3 % | Agente 7 — extraer funciones |
+
+4. Incluye el fallo de Sonar en el bucle de corrección del Paso 5
+
 ### Paso 5 — Bucle de corrección (si hay violaciones)
 
 Si el resultado es **FAIL**, sigue este protocolo hasta alcanzar **PASS**:
 
 ```
-MIENTRAS haya violaciones bloqueantes:
+MIENTRAS haya violaciones bloqueantes O Quality Gate de SonarCloud sea ❌:
   1. Identifica qué agente generó el código con violaciones
   2. Presenta el informe de violaciones al usuario
   3. Re-ejecuta el agente responsable:
-     - Violaciones en tests     → /tdd-engineer
-     - Violaciones en src/      → /implementer
-     - Violaciones en ambos     → /tdd-engineer primero, luego /implementer
-  4. Vuelve al Paso 2 y re-audita únicamente los ficheros corregidos
+     - Violaciones SOLID en tests          → /tdd-engineer
+     - Violaciones SOLID en src/           → /implementer
+     - Cobertura < 80 % (Sonar)           → /tdd-engineer (más tests)
+     - Bugs / code smells / vuln (Sonar)  → /implementer
+     - Violaciones en ambos               → /tdd-engineer primero, luego /implementer
+  4. Vuelve al Paso 2 y re-audita SOLID + comprueba el Quality Gate
 FIN
 ```
 
 !!! warning "Regla de parada"
-    El bucle se detiene solo cuando todos los checks SOLID son ✅ en todos los ficheros.
-    No se puede avanzar al Agente 8 (E2E) con violaciones SOLID pendientes.
+    El bucle se detiene solo cuando todos los checks SOLID son ✅ **Y** el Quality Gate
+    de SonarCloud es ✅. No se puede avanzar al Agente 8 (E2E) con ninguna de las dos
+    condiciones pendientes.
 
 ### Paso 6 — Confirmar PASS
 
