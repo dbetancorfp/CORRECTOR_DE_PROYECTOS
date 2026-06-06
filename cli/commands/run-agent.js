@@ -11,21 +11,21 @@ export async function run(args) {
   const featureIdIdx = args.indexOf('--feature-id');
   const featureId = featureIdIdx !== -1 ? args[featureIdIdx + 1] : 'corrector-v1';
 
-  if (!agentName || !AGENTS[agentName]) {
+  if (agentName && AGENTS[agentName]) {
+    try {
+      await AGENTS[agentName]({ featureId });
+    } catch (err) {
+      console.error(`\n[run-agent] Error: ${err.message}`);
+      if (err.errors) {
+        console.error('[run-agent] Zod validation errors:');
+        console.error(JSON.stringify(err.errors, null, 2));
+      }
+      process.exit(1);
+    }
+  } else {
     const available = Object.keys(AGENTS).join(' | ');
     console.error(`Usage: node cli run-agent <agent> [--feature-id <id>]`);
     console.error(`Available agents: ${available}`);
-    process.exit(1);
-  }
-
-  try {
-    await AGENTS[agentName]({ featureId });
-  } catch (err) {
-    console.error(`\n[run-agent] Error: ${err.message}`);
-    if (err.errors) {
-      console.error('[run-agent] Zod validation errors:');
-      console.error(JSON.stringify(err.errors, null, 2));
-    }
     process.exit(1);
   }
 }

@@ -25,10 +25,10 @@ jobs:
         with:
           python-version: '3.x'
           cache: pip
-          cache-dependency-path: docs/requirements.txt
+          cache-dependency-path: docs/requirements.lock
 
       - name: Install MkDocs Material
-        run: pip install --only-binary=':all:' -r docs/requirements.txt
+        run: pip install --only-binary=':all:' -r docs/requirements.lock
 
       - name: Build docs
         run: mkdocs build --strict
