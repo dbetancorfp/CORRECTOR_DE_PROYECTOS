@@ -65,11 +65,24 @@ prototipos HTML anotados con `data-element-id` y una transcripción de requisito
 se convierten, a través de 10 agentes Claude especializados, en código backend +
 frontend completamente trazable y testado.
 
-## Estado actual
+## Estado del proyecto
 
-!!! info "Pipeline reseteado"
-    Bocetos (90 elementos, 11 pantallas) y transcripción de cliente conservados.
-    Siguiente paso: **Agente 0 — Boceto Parser** (`/boceto-parser`).
+| Fase | Agente | Estado |
+|------|--------|--------|
+| 0 | Boceto Parser | ✅ Implementado |
+| 1 ∥ | Diseñador Front | ✅ Implementado |
+| 2 ∥ | Analista de Negocio | ✅ Implementado |
+| 3 | Validador de Alineación | ✅ Implementado |
+| 4 | Generador Func. Spec | ✅ Implementado |
+| — | GATE HUMANO | ✅ Implementado |
+| 5 | Arquitecto de Requisitos | ✅ Implementado |
+| 6 | Ingeniero TDD | ✅ Implementado |
+| 7 | Implementador | ✅ Implementado |
+| 8 | Ingeniero E2E | ✅ Implementado |
+| 9 | Revisor / QA | 🔲 Pendiente |
+
+Los **bocetos** (90 elementos, 11 pantallas) y la **transcripción de cliente** están listos.
+El pipeline completo de agentes está implementado y a la espera de ejecutarse sobre el proyecto.
 
 ## Prototipos HTML
 
