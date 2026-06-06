@@ -18,4 +18,5 @@ if (!commands[command]) {
   process.exit(1);
 }
 
-commands[command]().then(m => m.run(args));
+const m = await commands[command]();
+await m.run(args);
