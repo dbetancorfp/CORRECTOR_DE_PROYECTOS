@@ -86,6 +86,7 @@ nav:
   - Pipeline — Flujo: flujo.md
   - Especificación funcional: funcional.md
   - Casos de uso: casos-de-uso.md
+  - Principios SOLID: solid.md
   - JS Avanzado — Specs: especificaciones.md
 
 extra:

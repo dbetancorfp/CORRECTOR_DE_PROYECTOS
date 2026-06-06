@@ -189,6 +189,13 @@ vectorial + filtros estructurados.
 !!! note
     `boceto-suggestions.md` (output del Agente 2) es Markdown — sin schema Zod.
 
+## Principios de diseño
+
+Todo el código generado por los agentes sigue los **principios SOLID**:
+Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation
+y Dependency Inversion. Consulta la guía completa con ejemplos TypeScript adaptados
+a este proyecto en [Principios SOLID](solid.md).
+
 ## Stack tecnológico
 
 | Capa | Tecnología |
