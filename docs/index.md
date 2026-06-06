@@ -1,5 +1,16 @@
 # Corrector de Proyectos
 
+**Corrector de Proyectos** es una aplicación web para profesorado de FP
+(Formación Profesional, España) que permite gestionar y calificar proyectos de
+fin de ciclo mediante rúbricas estructuradas.
+
+La aplicación se construye con un pipeline **RAG Spec-Driven Development**: los
+prototipos HTML anotados con `data-element-id` y una transcripción de requisitos
+se convierten, a través de 10 agentes Claude especializados, en código backend +
+frontend completamente trazable y testado.
+
+---
+
 <div class="grid cards" markdown>
 
 -   :material-clipboard-check:{ .lg .middle } **Guía de usuario**
@@ -54,17 +65,6 @@
 
 ---
 
-## ¿Qué es?
-
-**Corrector de Proyectos** es una aplicación web para profesorado de FP
-(Formación Profesional, España) que permite gestionar y calificar proyectos de
-fin de ciclo mediante rúbricas estructuradas.
-
-La aplicación se construye con un pipeline **RAG Spec-Driven Development**: los
-prototipos HTML anotados con `data-element-id` y una transcripción de requisitos
-se convierten, a través de 10 agentes Claude especializados, en código backend +
-frontend completamente trazable y testado.
-
 ## Estado del proyecto
 
 | Fase | Agente | Estado |
@@ -83,11 +83,3 @@ frontend completamente trazable y testado.
 
 Los **bocetos** (90 elementos, 11 pantallas) y la **transcripción de cliente** están listos.
 El pipeline completo de agentes está implementado y a la espera de ejecutarse sobre el proyecto.
-
-## Prototipos HTML
-
-Los 11 prototipos HTML anotados con `data-element-id` están en
-[`corrector/01-boceto/html-source-prototype/`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/tree/main/corrector/01-boceto/html-source-prototype)
-y el registro descriptivo completo en
-[`boceto-elements.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/01-boceto/boceto-elements.md)
-(90 elementos, #1–#90).
