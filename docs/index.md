@@ -46,7 +46,7 @@
 
     ---
 
-    4 días de JavaScript Avanzado: fundamentos, asincronía, DOM y Web Components.
+    JavaScript Avanzado: fundamentos, asincronía, DOM y Web Components.
 
     [:octicons-arrow-right-24: Ver specs](especificaciones.md)
 
