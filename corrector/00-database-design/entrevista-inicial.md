@@ -54,11 +54,12 @@ Los profesores de un ciclo corregirán a cada alumno. Cada profesor corrige su m
 
 ### Profesor ↔ Ciclo — constraint crítico
 
-- Un ciclo puede tener **0, 1 o 2 tutores**; nunca más de 2.
+- Un ciclo puede tener **0 o 1 tutor**; nunca más de uno.
+- Un ciclo se crea inicialmente sin tutor (0), pero **no puede usarse para corregir** hasta
+  que tenga un tutor asignado.
 - Un profesor puede ser tutor de **como máximo un ciclo** (la unicidad es del lado del profesor,
   no del ciclo).
-- El ciclo se crea primero, sin tutores. El tutor se asigna al crear o editar un profesor.
-  La asignación de tutor es opcional (el ciclo puede existir sin tutor).
+- El ciclo se crea primero, sin tutor. El tutor se asigna al crear o editar un profesor.
 - **No existe relación directa ciclo → profesor.** El vínculo es siempre
   `ciclo → módulo → profesor` (a través de los módulos que imparte cada profesor).
 

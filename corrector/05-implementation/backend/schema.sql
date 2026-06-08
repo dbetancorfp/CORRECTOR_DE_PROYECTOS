@@ -88,7 +88,7 @@ COMMENT ON COLUMN profesor.tutor_ciclo_id   IS 'NULL para admin y profesor; obli
 CREATE INDEX idx_profesor_tutor_ciclo ON profesor(tutor_ciclo_id) WHERE tutor_ciclo_id IS NOT NULL;
 
 
--- Trigger: a ciclo may have at most 2 tutors
+-- Trigger: a ciclo may have at most 1 tutor
 CREATE OR REPLACE FUNCTION trg_max_tutores_por_ciclo()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
@@ -98,9 +98,9 @@ BEGIN
             FROM   profesor
             WHERE  tutor_ciclo_id = NEW.tutor_ciclo_id
               AND  id <> COALESCE(NEW.id, -1)
-        ) >= 2 THEN
+        ) >= 1 THEN
             RAISE EXCEPTION
-                'El ciclo % ya tiene 2 tutores asignados (máximo permitido)',
+                'El ciclo % ya tiene un tutor asignado (máximo 1 permitido)',
                 NEW.tutor_ciclo_id;
         END IF;
     END IF;

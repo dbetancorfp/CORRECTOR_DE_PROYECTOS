@@ -105,7 +105,7 @@ erDiagram
     legislacion    ||--o{    ciclo              : "tiene"
     ciclo          ||--o{    modulo             : "contiene"
     ciclo          ||--o{    proyecto           : "agrupa"
-    ciclo          o|--o{    profesor           : "tutor de (0-2)"
+    ciclo          o|--o|    profesor           : "tutor de (0-1)"
     profesor       }o--o{    modulo             : "imparte"
     alumno         }o--||    ciclo              : "pertenece a"
     alumno         }o--o{    modulo             : "matriculado en"
@@ -125,8 +125,9 @@ erDiagram
 ## Notas del modelo
 
 - **`profesor.tutor_ciclo_id`** — UNIQUE + nullable. La relación ciclo↔tutor es bidireccional
-  pero se implementa como FK en `profesor`, no como tabla puente, porque la unicidad por lado
-  profesor es un constraint simple. El límite de 2 tutores por ciclo se refuerza con trigger.
+  pero se implementa como FK en `profesor`, no como tabla puente: la unicidad por lado profesor
+  ya garantiza máximo 1 tutor por ciclo (un FK UNIQUE no puede apuntar dos veces al mismo ciclo).
+  El trigger refuerza el constraint para mayor claridad en el mensaje de error.
 
 - **`profesor_modulo`** — asignación actual sin año académico. La historia de quién impartió
   qué módulo en cada año es derivable de `rubrica(modulo_id, profesor_id, academic_year)`.

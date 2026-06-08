@@ -57,10 +57,10 @@
 
 ## Inconsistencias detectadas
 
-- *"Un usuario profesor es tutor de un Ciclo y **es único**."* ✅ RESUELTA — "único" se refiere
-  al lado del **profesor**: cada profesor puede ser tutor de como máximo 1 ciclo (unicidad en
-  `profesor.tutor_ciclo_id`). Un ciclo puede tener 0–2 tutores. Constraint de negocio:
-  `COUNT(tutores por ciclo) ≤ 2` → se implementa con trigger en PostgreSQL.
+- *"Un usuario profesor es tutor de un Ciclo y **es único**."* ✅ RESUELTA — cada ciclo tiene
+  exactamente 0 o 1 tutor. La unicidad en `profesor.tutor_ciclo_id` (UNIQUE FK) ya garantiza
+  que ningún ciclo puede tener más de 1 tutor. El trigger añade un mensaje de error claro.
+  Sin tutor asignado, el ciclo no puede usarse para corregir (regla de negocio de la app).
 - `rubrica.puntuacion_maxima` (CLAUDE.md) posiblemente redundante: el máximo teórico es la
   suma automática de los valores más altos por ítem. Pendiente de confirmar si el campo
   existe o se deriva. ← sin bloquear diseño.
@@ -77,8 +77,8 @@
 
 ### Turno 2 — Profesor ↔ Ciclo (constraint crítico) ✅ RESPONDIDO
 
-4. ~~"No puede haber más de 2..."~~ → **Un ciclo puede tener 0, 1 o 2 tutores; nunca más.**
-5. ~~¿Puede existir un ciclo sin tutor?~~ → **Sí. El ciclo se crea primero; el tutor se asigna al crear/editar el profesor.**
+4. ~~"No puede haber más de 2..."~~ → **Un ciclo puede tener 0 o 1 tutor; nunca más. Sin tutor no puede usarse para corregir.**
+5. ~~¿Puede existir un ciclo sin tutor?~~ → **Sí transitoriamente. El ciclo se crea primero; el tutor se asigna al crear/editar el profesor.**
 6. ~~¿Relación directa ciclo-profesor?~~ → **No. El vínculo es ciclo → módulo → profesor.**
 
 ### Turno 3 — Alumno ↔ Proyecto ↔ Módulo ✅ RESPONDIDO

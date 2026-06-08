@@ -345,7 +345,8 @@ customElements.define('corrector-button', CorrectorButton);
 ### Data model
 
 - **Legislación**: abbreviation (e.g. LOMLOE), start/end year
-- **Ciclo**: name, linked to legislación; can have 0–2 tutors (never more)
+- **Ciclo**: name, linked to legislación; can have 0 or 1 tutor; requires a tutor to be
+  usable for corrections
 - **Módulo**: name, abbreviation (e.g. DEW), weekly hours, ciclo
 - **Profesor**: username, password_hash, rol (`admin | profesor | tutor`); optionally tutor
   of one ciclo (`tutor_ciclo_id` nullable, UNIQUE); linked to módulos via `profesor_modulo`.

@@ -39,7 +39,8 @@ decisiones tomadas, las aclaraciones y las reglas de negocio que determinan el m
 
 **Profesor ↔ Ciclo**
 
-- Un ciclo puede tener **0, 1 o 2 tutores**; nunca más.
+- Un ciclo puede tener **0 o 1 tutor**; nunca más de uno.
+- Un ciclo se crea sin tutor, pero **no puede usarse para corregir** hasta tener uno asignado.
 - Un profesor puede ser tutor de **como máximo un ciclo** (unicidad del lado del profesor).
 - El ciclo se crea primero; el tutor se asigna al crear o editar el profesor.
 - **No existe relación directa ciclo → profesor.** El vínculo es `ciclo → módulo → profesor`.
@@ -175,7 +176,7 @@ erDiagram
     legislacion     ||--o{   ciclo              : "tiene"
     ciclo           ||--o{   modulo             : "contiene"
     ciclo           ||--o{   proyecto           : "agrupa"
-    ciclo           o|--o{   profesor           : "tutor de (0-2)"
+    ciclo           o|--o|   profesor           : "tutor de (0-1)"
     profesor        }o--o{   modulo             : "imparte"
     alumno          }o--||   ciclo              : "pertenece a"
     alumno          }o--o{   modulo             : "matriculado en"
@@ -196,7 +197,7 @@ erDiagram
 
 | Decisión | Razonamiento |
 |----------|-------------|
-| `profesor.tutor_ciclo_id` UNIQUE nullable | Unicidad por lado profesor; límite de 2 tutores/ciclo con trigger |
+| `profesor.tutor_ciclo_id` UNIQUE nullable | UNIQUE ya garantiza máx. 1 tutor/ciclo; trigger añade mensaje de error claro |
 | `profesor_modulo` sin año | Asignación actual; historial derivable de `rubrica(modulo_id, profesor_id, academic_year)` |
 | `rubrica_item_nivel` con trigger | Integridad cruzada ítem×nivel no expresable con FK simples |
 | `correccion.academic_year` denormalizado | Permite `UNIQUE(alumno_id, modulo_id, academic_year)` sin JOIN |
