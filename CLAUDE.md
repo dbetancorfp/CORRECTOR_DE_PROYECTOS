@@ -345,21 +345,30 @@ customElements.define('corrector-button', CorrectorButton);
 ### Data model
 
 - **Legislación**: abbreviation (e.g. LOMLOE), start/end year
-- **Ciclo**: name, linked to legislación
+- **Ciclo**: name, linked to legislación; can have 0–2 tutors (never more)
 - **Módulo**: name, abbreviation (e.g. DEW), weekly hours, ciclo
-- **Profesor**: username, password, assigned ciclo + módulos
-- **Alumno**: anonymised code (e.g. `JJ499`), ciclo
-- **Proyecto**: name, ciclo, list of alumnos
-- **Rúbrica**: scoring grid tied to a specific module; 5 levels (Excelente → Mal), each with
-  a numeric value; max total score explicitly set by the professor (Excelente values need not
-  sum to 10); scores are normalised to 10 internally for cross-module weighting; used to grade
-  the projects of that module
+- **Profesor**: username, password_hash, rol (`admin | profesor | tutor`); optionally tutor
+  of one ciclo (`tutor_ciclo_id` nullable, UNIQUE); linked to módulos via `profesor_modulo`.
+  No direct ciclo→profesor relation — the link is always ciclo→módulo→profesor.
+- **Alumno**: `nombre` (free text — professor may enter a real name or an anonymised code
+  such as `JJ499`; the system does not enforce a format), ciclo
+- **Proyecto**: name, ciclo, academic year (e.g. `2024-2025`), list of alumnos;
+  one alumno belongs to at most one proyecto per academic year
+- **Rúbrica**: scoring grid tied to one módulo + academic year (UNIQUE); designed by a
+  profesor; contains a variable number of items and levels (defined by the professor).
+  Structure is a matrix item × level — each cell holds an independent numeric value.
+  Correction flow: professor selects one level per item → system sums selected values and
+  normalises to 10 automatically (max score is derived, not stored explicitly).
+  Full item-level breakdown is persisted per correction to allow recalculation.
 
 ### Roles
 
-- **Admin** — system config: legislaciones, ciclos, módulos, profesorado
-- **Profesor** — class management: alumnos, proyectos, rúbrica; grades; views and prints notes (own corrected module only)
-- **Tutor** — same as Profesor, plus: Imprimir panorámica (all modules + final grade per student)
+- **Admin** (`rol = 'admin'` in `profesor` table) — system config: legislaciones, ciclos,
+  módulos, profesorado; no module assignments, no tutor relationship
+- **Profesor** (`rol = 'profesor'`) — class management: alumnos, proyectos, rúbrica; grades;
+  views and prints notes (own corrected module only)
+- **Tutor** (`rol = 'tutor'`) — same as Profesor, plus: Imprimir panorámica (all modules +
+  final grade per student)
 
 ### Screen flow
 
@@ -376,6 +385,7 @@ login
 
 ### Notes
 
-- Student IDs are anonymised codes — never real names.
+- `alumno.nombre` is free text — the professor decides whether to enter a real name or an
+  anonymised code. The system imposes no format.
 - List filters (alumnos, proyectos, rúbrica) must be **reactive** — filter as user types.
 - Bulk import via file upload: alumnos (CSV/Excel), rúbrica.

@@ -100,5 +100,12 @@ estar en ✅ antes de mergear. Dashboard:
 | 8 | Ingeniero E2E | ✅ Implementado |
 | 9 | Revisor / QA | ✅ Implementado |
 
-Los **bocetos** (90 elementos, 11 pantallas) y la **transcripción de cliente** están listos.
+Las tres entradas del pipeline están listas:
+
+| Entrada | Artefacto | Estado |
+|---------|-----------|--------|
+| Boceto | 90 elementos · 11 pantallas | ✅ Listo |
+| Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | ✅ Lista |
+| Esquema BD | `corrector/05-implementation/backend/schema.sql` · 15 tablas · 3 triggers | ✅ Listo |
+
 El pipeline completo de agentes está implementado y a la espera de ejecutarse sobre el proyecto.
