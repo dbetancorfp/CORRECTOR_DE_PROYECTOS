@@ -37,8 +37,8 @@ Ficheros en `corrector/01-boceto/html-source-prototype/`.
 ```
 login (index.html)
 ├── Admin → Panel de Gestión (pestañas)
-│   ├── Legislación   vista_admin-tab_ciclos_seleccionado.html
-│   ├── Ciclos        vista_admin-tab_legislacion_seleccionado.html
+│   ├── Legislación   vista_admin-tab_legislacion_seleccionado.html
+│   ├── Ciclos        vista_admin-tab_ciclos_seleccionado.html
 │   ├── Módulos       vista_admin-tab_modulos_seleccionado.html
 │   └── Profesorado   vista_admin-tab_profesorado_seleccionado.html
 │
