@@ -23,33 +23,44 @@
             <button type="button" id="legislation">Legislación</button>
             <button type="button" id="cicles">Ciclos</button>
             <button type="button" id="modules">Módulos</button>
-            <button type="button" id="teachers" data-element-id="23">Profesorado</button>
+            <button class="clicked" type="button" id="teachers" data-element-id="23">Profesorado</button>
         </div>
-        <div class="filters">
-            <!--Filtros reactivos-->
-            <input type="text" name="filterCicle" id="filterCicle" data-element-id="33" placeholder="Filtrar por ciclo">
-            <input type="text" name="filterModule" id="filterModule" data-element-id="34" placeholder="Filtrar por módulo">
-        </div>
-           <div class="form-row">
-            <input type="text" name="nameTeacher" id="nameTeacher" data-element-id="7" placeholder="Nombre del profesor">
-            <input type="password" name="passwordTeacher" id="passwordTeacher" data-element-id="8" placeholder="Contraseña">
-            <!--Desplegable para seleccionar el ciclo-->
-            <select name="cicle" id="cicle" data-element-id="68">
-                <option value="">Seleccionar proyecto</option>
-                <option value="1">Desarrollo de aplicaciones web (DAW)</option>
-                <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
-                <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
-            </select>
-            <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
-            <select name="module" id="module" data-element-id="68">
-                <option value="">Seleccionar proyecto</option>
-                <option value="1">Sistemas informáticos (SSF)</option>
-                <option value="2">Digitalización (DJK)</option> 
-                <option value="2">Despliegue</option>
-            </select>
+
         <div>
-            <button type="button" data-element-id="24">Nuevo</button>
+            <form action="">
+                <fieldset class="form-row">
+                    <legend>Nuevo profesor:</legend>
+                    <input type="text" name="nameTeacher" id="nameTeacher" data-element-id="7" placeholder="Nombre del profesor">
+                    <input type="password" name="passwordTeacher" id="passwordTeacher" data-element-id="8" placeholder="Contraseña">
+                    <!--Desplegable para seleccionar el ciclo-->
+                    <select name="cicle" id="cicle" data-element-id="68">
+                        <option value="">Seleccionar proyecto</option>
+                        <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                        <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                        <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                    </select>
+                    <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                    <select name="module" id="module" data-element-id="68">
+                        <option value="">Seleccionar proyecto</option>
+                        <option value="1">Sistemas informáticos (SSF)</option>
+                        <option value="2">Digitalización (DJK)</option> 
+                        <option value="2">Despliegue</option>
+                    </select>
+                    <input type="submit" value="Guardar">
+                </fieldset>
+            </form>
         </div>
+
+
+       <fieldset class="form-row">
+            <legend>Filtrar por:</legend>    
+                <input type="text" name="filterYearInit" id="filterYearInit" data-element-id="33" placeholder="Filtrar por año de inicio">
+                <input type="text" name="filterLaw" id="filterLaw" data-element-id="34" placeholder="Filtrar por legislación">
+                <input type="text" name="filterCicle" id="filterCicle" data-element-id="33" placeholder="Filtrar por ciclo">
+                <input type="text" name="nameModule" id="nameModule" data-element-id="7" placeholder="Filtrar por módulo">
+        </fieldset>   
+
+
         <div>
           <table style="border: 1px solid black;" data-element-id="25">
             <tr>
