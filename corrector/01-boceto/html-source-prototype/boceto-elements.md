@@ -33,7 +33,7 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ---
 
-## vista_admin-tab_ciclo_seleccionado.html — Admin · Tab Ciclos
+## vista_admin-tab_ciclos_seleccionado.html — Admin · Tab Ciclos
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|

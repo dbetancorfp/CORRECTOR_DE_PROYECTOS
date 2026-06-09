@@ -16,7 +16,7 @@ Cada número es el **sketchNumber** que traza todos los artefactos del pipeline.
     </iframe>
 
 === "Admin — Ciclos"
-    <iframe src="../../boceto-screens/vista_admin-tab_ciclo_seleccionado.html"
+    <iframe src="../../boceto-screens/vista_admin-tab_ciclos_seleccionado.html"
             width="100%" height="620"
             style="border:1px solid #e0e0e0;border-radius:6px;background:#fff;">
     </iframe>
