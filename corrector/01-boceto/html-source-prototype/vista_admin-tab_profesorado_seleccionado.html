@@ -9,7 +9,7 @@
 <body>
     <section>
         <nav>
-            <img src="" alt="logo">
+            <img src="./assets/logo-departamento_solo_transparente.png" alt="logo">
             <div><p><h1>Corrector de proyectos</h1></p></div>
             <div><p><h3>Bienvenido</h3></p></div>
             <div><p><h4>Fulanito</h4></p></div>
@@ -25,7 +25,28 @@
             <button type="button" id="modules">Módulos</button>
             <button type="button" id="teachers" data-element-id="23">Profesorado</button>
         </div>
-
+        <div class="filters">
+            <!--Filtros reactivos-->
+            <input type="text" name="filterCicle" id="filterCicle" data-element-id="33" placeholder="Filtrar por ciclo">
+            <input type="text" name="filterModule" id="filterModule" data-element-id="34" placeholder="Filtrar por módulo">
+        </div>
+           <div class="form-row">
+            <input type="text" name="nameTeacher" id="nameTeacher" data-element-id="7" placeholder="Nombre del profesor">
+            <input type="password" name="passwordTeacher" id="passwordTeacher" data-element-id="8" placeholder="Contraseña">
+            <!--Desplegable para seleccionar el ciclo-->
+            <select name="cicle" id="cicle" data-element-id="68">
+                <option value="">Seleccionar proyecto</option>
+                <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+            </select>
+            <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+            <select name="module" id="module" data-element-id="68">
+                <option value="">Seleccionar proyecto</option>
+                <option value="1">Sistemas informáticos (SSF)</option>
+                <option value="2">Digitalización (DJK)</option> 
+                <option value="2">Despliegue</option>
+            </select>
         <div>
             <button type="button" data-element-id="24">Nuevo</button>
         </div>
