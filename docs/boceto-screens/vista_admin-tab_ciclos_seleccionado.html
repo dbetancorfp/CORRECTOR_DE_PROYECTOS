@@ -8,7 +8,7 @@
 </head>
 <body>
     <section>
-        <nav>
+        <nav data-element-id="5">
             <img src="./assets/logo-departamento_solo_transparente.png" alt="logo">
             <div><p><h1>Corrector de proyectos</h1></p></div>
             <div><p><h3>Bienvenido</h3></p></div>
@@ -18,60 +18,69 @@
     </section>
     <section>
         <div><p><h2>Gestión</h2></p></div>
-        <!-- Tabs- tab Ciclos seleccionado -->
-        <div class="tabs">
-            <button class="clicked" type="button" id="legislation">Legislación</button>
-            <button type="button" id="cicles" data-element-id="11">Ciclos</button>
+        <!-- Tabs- tab Legislación seleccionado -->
+        <div class="tabs" data-element-id="6">
+            <button type="button" id="legislation">Legislación</button>
+            <button class="clicked" type="button" id="cicles">Ciclos</button>
             <button type="button" id="modules">Módulos</button>
             <button type="button" id="teachers">Profesorado</button>
         </div>
 
-        <br>
-
         <div>
             <form action="">
                 <fieldset class="form-row">
-                    <legend>Nueva legislación:</legend>
+                    <legend>Nuevo ciclo:</legend>
                     <input type="text" name="nameCicle" id="nameCicle" data-element-id="7" placeholder="Nombre del ciclo">
-                    <input type="text" name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="8" placeholder="Año de inicio de la legislación">
+                    <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="34">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                    </select>
+
+                    <select name="Law" id="Law" data-element-id="34">
+                        <option value="">Seleccionar legislación</option>
+                        <option value="law1">LOE</option>
+                        <option value="law2">LOMLOE</option>
+                    </select>
                     <input type="submit" value="Guardar">
                 </fieldset>
             </form>
         </div>
 
-        <br>
-
-        <fieldset class="form-row">
-            <legend>Filtrar por:</legend>
-            <div class="filters">
-                <!--Filtros reactivos-->
-                <input type="text" name="filterYearInit" id="filterYearInit" data-element-id="33" placeholder="Filtrar por año de inicio">
-                <input type="text" name="filterLaw" id="filterLaw" data-element-id="34" placeholder="Filtrar por legislación">
-            </div>
-        </fieldset>
-
+       <fieldset class="form-row">
+            <legend>Filtrar por:</legend>       
+              <input type="text" name="nameCicle" id="nameCicle" data-element-id="7" placeholder="Filtrar por ciclo">
+              <input type="text" name="nameLaw" id="nameLaw" data-element-id="7" placeholder="Filtrar por legislación">
+              <input type="text" name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="8" placeholder="Filtrar por año de inicio de la legislación">
+        </fieldset>       
 
         <div>
-          <table class="table" style="border: 1px solid black;" data-element-id="13">
-            <tr>
-                <th>Año incial</th>
-                <th>Nombre</th>
-                <th>Editar</th>
-                <th>Borrar</th>
-            </tr>
-            <tr>
-                <td>2025</td>
-                <td>LOE</td>
-                <td data-element-id="14">Icono editar</td>
-                <td data-element-id="15">Icono borrar</td>
-            </tr>
-            <tr>
-                <td>2026</td>
-                <td>LOMLOE</td>
-                <td data-element-id="14">Icono editar</td>
-                <td data-element-id="15">Icono borrar</td>
-            </tr>
-          </table>
+            <table class="table" style="border: 1px solid black;" data-element-id="82">
+                <tr>
+                    <th>Ciclo</th>
+                    <th>Siglas</th>
+                    <th>Año inicio</th>
+                    <th>Año finalización</th>
+                    <th data-element-id="83">Editar</th>
+                    <th data-element-id="84">Borrar</th>
+                </tr>
+                <tr>
+                    <td>Desarrollo de aplicaciones web (DEW)</td>
+                    <td>LOE</td>
+                    <td>2024</td>
+                    <td>2025</td>
+                    <td>Icono editar</td>
+                    <td>Icono borrar</td>
+                </tr>
+                <tr>
+                    <td>Desarrollo de aplicaciones web (DEW)</td>
+                    <td>LOMLOE</td>
+                    <td>2025</td>
+                    <td>2026</td>
+                    <td>Icono editar</td>
+                    <td>Icono borrar</td>
+                </tr>
+            </table>
         </div>
     </section>
 </body>
