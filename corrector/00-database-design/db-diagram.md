@@ -17,7 +17,6 @@ erDiagram
     module {
         serial      id             PK
         varchar     name           "NOT NULL"
-        varchar     abbreviation   "NOT NULL"
         smallint    weekly_hours   "NOT NULL"
         int         cycle_id       FK
     }

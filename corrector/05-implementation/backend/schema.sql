@@ -45,7 +45,6 @@ CREATE INDEX idx_cycle_legislation ON cycle(legislation_id);
 CREATE TABLE module (
     id            SERIAL       PRIMARY KEY,
     name          VARCHAR(120) NOT NULL,
-    abbreviation  VARCHAR(10)  NOT NULL,
     weekly_hours  SMALLINT     NOT NULL CHECK (weekly_hours > 0),
     cycle_id      INT          NOT NULL REFERENCES cycle(id)
                                    ON DELETE RESTRICT
