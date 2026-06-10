@@ -11,380 +11,346 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- gen_salt / crypt for password hashi
 -- ---------------------------------------------------------------------------
 -- Enumerations
 -- ---------------------------------------------------------------------------
-CREATE TYPE profesor_rol AS ENUM ('admin', 'profesor', 'tutor');
+CREATE TYPE teacher_role AS ENUM ('admin', 'teacher', 'tutor');
 
 
 -- =============================================================================
 -- Core catalog tables
 -- =============================================================================
 
-CREATE TABLE legislacion (
-    id          SERIAL          PRIMARY KEY,
-    abreviatura VARCHAR(20)     NOT NULL UNIQUE,
-    anio_inicio SMALLINT        NOT NULL CHECK (anio_inicio > 1900),
-    anio_fin    SMALLINT        CHECK (anio_fin IS NULL OR anio_fin > anio_inicio),
-    created_at  TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+CREATE TABLE legislation (
+    id           SERIAL       PRIMARY KEY,
+    abbreviation VARCHAR(20)  NOT NULL UNIQUE,
+    start_year   SMALLINT     NOT NULL CHECK (start_year > 1900),
+    end_year     SMALLINT     CHECK (end_year IS NULL OR end_year > start_year),
+    created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  legislacion            IS 'Marco legislativo educativo (p.ej. LOMLOE, LOE)';
-COMMENT ON COLUMN legislacion.anio_fin   IS 'NULL si la legislación sigue vigente';
+COMMENT ON TABLE  legislation           IS 'Educational legal framework (e.g. LOMLOE, LOE)';
+COMMENT ON COLUMN legislation.end_year  IS 'NULL if the legislation is still in force';
 
 
-CREATE TABLE ciclo (
-    id              SERIAL      PRIMARY KEY,
-    nombre          VARCHAR(120) NOT NULL,
-    legislacion_id  INT         NOT NULL REFERENCES legislacion(id)
-                                    ON DELETE RESTRICT
-                                    ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE cycle (
+    id              SERIAL       PRIMARY KEY,
+    name            VARCHAR(120) NOT NULL,
+    legislation_id  INT          NOT NULL REFERENCES legislation(id)
+                                     ON DELETE RESTRICT
+                                     ON UPDATE CASCADE,
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE ciclo IS 'Ciclo Formativo de Grado (p.ej. DAW, DAM, ASIR)';
+COMMENT ON TABLE cycle IS 'Vocational training cycle (e.g. DAW, DAM, ASIR)';
 
-CREATE INDEX idx_ciclo_legislacion ON ciclo(legislacion_id);
+CREATE INDEX idx_cycle_legislation ON cycle(legislation_id);
 
 
-CREATE TABLE modulo (
-    id              SERIAL      PRIMARY KEY,
-    nombre          VARCHAR(120) NOT NULL,
-    abreviatura     VARCHAR(10)  NOT NULL,
-    horas_semanales SMALLINT    NOT NULL CHECK (horas_semanales > 0),
-    ciclo_id        INT         NOT NULL REFERENCES ciclo(id)
-                                    ON DELETE RESTRICT
-                                    ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE module (
+    id            SERIAL       PRIMARY KEY,
+    name          VARCHAR(120) NOT NULL,
+    abbreviation  VARCHAR(10)  NOT NULL,
+    weekly_hours  SMALLINT     NOT NULL CHECK (weekly_hours > 0),
+    cycle_id      INT          NOT NULL REFERENCES cycle(id)
+                                   ON DELETE RESTRICT
+                                   ON UPDATE CASCADE,
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE modulo IS 'Módulo profesional dentro de un ciclo formativo';
+COMMENT ON TABLE module IS 'Vocational module within a cycle';
 
-CREATE INDEX idx_modulo_ciclo ON modulo(ciclo_id);
+CREATE INDEX idx_module_cycle ON module(cycle_id);
 
 
 -- =============================================================================
 -- Users
 -- =============================================================================
 
-CREATE TABLE profesor (
-    id              SERIAL          PRIMARY KEY,
-    username        VARCHAR(60)     NOT NULL UNIQUE,
-    password_hash   TEXT            NOT NULL,
-    rol             profesor_rol    NOT NULL,
-    tutor_ciclo_id  INT             UNIQUE
-                                    REFERENCES ciclo(id)
-                                        ON DELETE SET NULL
-                                        ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+CREATE TABLE teacher (
+    id              SERIAL       PRIMARY KEY,
+    username        VARCHAR(60)  NOT NULL UNIQUE,
+    password_hash   TEXT         NOT NULL,
+    role            teacher_role NOT NULL,
+    tutor_cycle_id  INT          UNIQUE
+                                 REFERENCES cycle(id)
+                                     ON DELETE SET NULL
+                                     ON UPDATE CASCADE,
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
 
-    -- rol='tutor'  ↔  tutor_ciclo_id IS NOT NULL
-    -- rol='admin'  →  tutor_ciclo_id IS NULL (covered by the biconditional)
-    CONSTRAINT chk_tutor_ciclo
-        CHECK ( (rol = 'tutor') = (tutor_ciclo_id IS NOT NULL) )
+    -- role='tutor'  ↔  tutor_cycle_id IS NOT NULL
+    -- role='admin'  →  tutor_cycle_id IS NULL (covered by the biconditional)
+    CONSTRAINT chk_tutor_cycle
+        CHECK ( (role = 'tutor') = (tutor_cycle_id IS NOT NULL) )
 );
 
-COMMENT ON TABLE  profesor                  IS 'Usuarios del sistema: admin, profesor o tutor';
-COMMENT ON COLUMN profesor.password_hash    IS 'Hash bcrypt — never store plaintext';
-COMMENT ON COLUMN profesor.tutor_ciclo_id   IS 'NULL para admin y profesor; obligatorio para tutor';
+COMMENT ON TABLE  teacher                IS 'System users: admin, teacher or tutor';
+COMMENT ON COLUMN teacher.password_hash  IS 'bcrypt hash — never store plaintext';
+COMMENT ON COLUMN teacher.tutor_cycle_id IS 'NULL for admin and teacher; required for tutor';
 
-CREATE INDEX idx_profesor_tutor_ciclo ON profesor(tutor_ciclo_id) WHERE tutor_ciclo_id IS NOT NULL;
+CREATE INDEX idx_teacher_tutor_cycle ON teacher(tutor_cycle_id) WHERE tutor_cycle_id IS NOT NULL;
 
 
--- Trigger: a ciclo may have at most 1 tutor
-CREATE OR REPLACE FUNCTION trg_max_tutores_por_ciclo()
+-- Trigger: UNIQUE on tutor_cycle_id already prevents two tutors for the same cycle;
+-- this function adds a descriptive error message.
+CREATE OR REPLACE FUNCTION trg_max_tutors_per_cycle()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
-    IF NEW.tutor_ciclo_id IS NOT NULL THEN
+    IF NEW.tutor_cycle_id IS NOT NULL THEN
         IF (
             SELECT COUNT(*)
-            FROM   profesor
-            WHERE  tutor_ciclo_id = NEW.tutor_ciclo_id
+            FROM   teacher
+            WHERE  tutor_cycle_id = NEW.tutor_cycle_id
               AND  id <> COALESCE(NEW.id, -1)
         ) >= 1 THEN
             RAISE EXCEPTION
-                'El ciclo % ya tiene un tutor asignado (máximo 1 permitido)',
-                NEW.tutor_ciclo_id;
+                'Cycle % already has a tutor assigned (max 1 allowed)',
+                NEW.tutor_cycle_id;
         END IF;
     END IF;
     RETURN NEW;
 END;
 $$;
 
-CREATE TRIGGER trg_max_tutores
-    BEFORE INSERT OR UPDATE OF tutor_ciclo_id ON profesor
-    FOR EACH ROW EXECUTE FUNCTION trg_max_tutores_por_ciclo();
+CREATE TRIGGER trg_max_tutors
+    BEFORE INSERT OR UPDATE OF tutor_cycle_id ON teacher
+    FOR EACH ROW EXECUTE FUNCTION trg_max_tutors_per_cycle();
 
 
--- Professor ↔ Module (current assignment, no academic year)
-CREATE TABLE profesor_modulo (
-    profesor_id INT NOT NULL REFERENCES profesor(id)
+-- Teacher ↔ Module assignment (current assignment, no academic year history)
+CREATE TABLE teacher_module (
+    teacher_id  INT NOT NULL REFERENCES teacher(id)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-    modulo_id   INT NOT NULL REFERENCES modulo(id)
+    module_id   INT NOT NULL REFERENCES module(id)
                         ON DELETE RESTRICT ON UPDATE CASCADE,
-    PRIMARY KEY (profesor_id, modulo_id)
+    PRIMARY KEY (teacher_id, module_id)
 );
 
-COMMENT ON TABLE profesor_modulo IS 'Asignación actual de módulos a profesores (sin historico de año)';
+COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers (no academic year history)';
 
-CREATE INDEX idx_profesor_modulo_modulo ON profesor_modulo(modulo_id);
+CREATE INDEX idx_teacher_module_module ON teacher_module(module_id);
 
 
 -- =============================================================================
 -- Students
 -- =============================================================================
 
-CREATE TABLE alumno (
-    id          SERIAL      PRIMARY KEY,
-    nombre      VARCHAR(120) NOT NULL,
-    ciclo_id    INT         NOT NULL REFERENCES ciclo(id)
-                                ON DELETE RESTRICT
-                                ON UPDATE CASCADE,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE student (
+    id          SERIAL       PRIMARY KEY,
+    name        VARCHAR(120) NOT NULL,
+    cycle_id    INT          NOT NULL REFERENCES cycle(id)
+                                 ON DELETE RESTRICT
+                                 ON UPDATE CASCADE,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  alumno        IS 'Alumno matriculado en un ciclo formativo';
-COMMENT ON COLUMN alumno.nombre IS 'Texto libre: nombre real o código anonimizado (p.ej. JJ499)';
+COMMENT ON TABLE  student      IS 'Student enrolled in a vocational cycle';
+COMMENT ON COLUMN student.name IS 'Free text: real name or anonymised code (e.g. JJ499)';
 
-CREATE INDEX idx_alumno_ciclo  ON alumno(ciclo_id);
-CREATE INDEX idx_alumno_nombre ON alumno(nombre);
+CREATE INDEX idx_student_cycle ON student(cycle_id);
+CREATE INDEX idx_student_name  ON student(name);
 
 
--- Student ↔ Module enrollment (explicit, managed by profesor)
-CREATE TABLE alumno_modulo (
-    alumno_id   INT NOT NULL REFERENCES alumno(id)
+-- Student ↔ Module enrollment (explicit, managed by teacher, no academic year)
+CREATE TABLE student_module (
+    student_id  INT NOT NULL REFERENCES student(id)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-    modulo_id   INT NOT NULL REFERENCES modulo(id)
+    module_id   INT NOT NULL REFERENCES module(id)
                         ON DELETE RESTRICT ON UPDATE CASCADE,
-    PRIMARY KEY (alumno_id, modulo_id)
+    PRIMARY KEY (student_id, module_id)
 );
 
-COMMENT ON TABLE alumno_modulo IS 'Matrícula explícita del alumno en módulos de su ciclo';
+COMMENT ON TABLE student_module IS 'Explicit student enrollment per module, managed by the teacher';
 
-CREATE INDEX idx_alumno_modulo_modulo ON alumno_modulo(modulo_id);
+CREATE INDEX idx_student_module_module ON student_module(module_id);
 
 
 -- =============================================================================
 -- Projects
 -- =============================================================================
 
-CREATE TABLE proyecto (
-    id              SERIAL          PRIMARY KEY,
-    nombre          VARCHAR(120)    NOT NULL,
-    ciclo_id        INT             NOT NULL REFERENCES ciclo(id)
-                                        ON DELETE RESTRICT
-                                        ON UPDATE CASCADE,
-    academic_year   CHAR(9)         NOT NULL
-                                    CHECK (academic_year ~ '^\d{4}-\d{4}$'),
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+CREATE TABLE project (
+    id            SERIAL       PRIMARY KEY,
+    name          VARCHAR(120) NOT NULL,
+    cycle_id      INT          NOT NULL REFERENCES cycle(id)
+                                   ON DELETE RESTRICT
+                                   ON UPDATE CASCADE,
+    academic_year CHAR(9)      NOT NULL
+                               CHECK (academic_year ~ '^\d{4}-\d{4}$'),
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  proyecto              IS 'Proyecto de fin de ciclo';
-COMMENT ON COLUMN proyecto.academic_year IS 'Formato YYYY-YYYY p.ej. 2024-2025';
+COMMENT ON TABLE  project               IS 'End-of-cycle student project';
+COMMENT ON COLUMN project.academic_year IS 'Format YYYY-YYYY e.g. 2024-2025';
 
-CREATE INDEX idx_proyecto_ciclo        ON proyecto(ciclo_id);
-CREATE INDEX idx_proyecto_academic_year ON proyecto(academic_year);
+CREATE INDEX idx_project_cycle         ON project(cycle_id);
+CREATE INDEX idx_project_academic_year ON project(academic_year);
 
 
-CREATE TABLE proyecto_alumno (
-    proyecto_id INT NOT NULL REFERENCES proyecto(id)
+CREATE TABLE project_student (
+    project_id  INT NOT NULL REFERENCES project(id)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-    alumno_id   INT NOT NULL REFERENCES alumno(id)
+    student_id  INT NOT NULL REFERENCES student(id)
                         ON DELETE CASCADE ON UPDATE CASCADE,
-    PRIMARY KEY (proyecto_id, alumno_id)
+    PRIMARY KEY (project_id, student_id)
 );
 
-COMMENT ON TABLE proyecto_alumno IS 'Inscripción alumno↔proyecto; un alumno en un solo proyecto por año';
+COMMENT ON TABLE project_student IS 'Student membership in a project; one project per student per academic year';
 
-CREATE INDEX idx_proyecto_alumno_alumno ON proyecto_alumno(alumno_id);
+CREATE INDEX idx_project_student_student ON project_student(student_id);
 
 
 -- Trigger: one project per student per academic year
-CREATE OR REPLACE FUNCTION trg_unique_proyecto_alumno_anio()
+-- (academic_year lives on project, not on project_student, so a plain UNIQUE is not enough)
+CREATE OR REPLACE FUNCTION trg_unique_project_student_year()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE
     v_year CHAR(9);
 BEGIN
     SELECT academic_year INTO v_year
-    FROM   proyecto
-    WHERE  id = NEW.proyecto_id;
+    FROM   project
+    WHERE  id = NEW.project_id;
 
     IF EXISTS (
         SELECT 1
-        FROM   proyecto_alumno pa
-        JOIN   proyecto p ON p.id = pa.proyecto_id
-        WHERE  pa.alumno_id = NEW.alumno_id
+        FROM   project_student ps
+        JOIN   project p ON p.id = ps.project_id
+        WHERE  ps.student_id = NEW.student_id
           AND  p.academic_year = v_year
-          AND  pa.proyecto_id <> NEW.proyecto_id
+          AND  ps.project_id <> NEW.project_id
     ) THEN
         RAISE EXCEPTION
-            'El alumno % ya pertenece a un proyecto en el curso %',
-            NEW.alumno_id, v_year;
+            'Student % already belongs to a project in academic year %',
+            NEW.student_id, v_year;
     END IF;
     RETURN NEW;
 END;
 $$;
 
-CREATE TRIGGER trg_proyecto_alumno_anio
-    BEFORE INSERT ON proyecto_alumno
-    FOR EACH ROW EXECUTE FUNCTION trg_unique_proyecto_alumno_anio();
+CREATE TRIGGER trg_project_student_year
+    BEFORE INSERT ON project_student
+    FOR EACH ROW EXECUTE FUNCTION trg_unique_project_student_year();
 
 
 -- =============================================================================
 -- Rubric
 -- =============================================================================
 
-CREATE TABLE rubrica (
-    id              SERIAL      PRIMARY KEY,
-    modulo_id       INT         NOT NULL REFERENCES modulo(id)
-                                    ON DELETE RESTRICT
-                                    ON UPDATE CASCADE,
-    profesor_id     INT         NOT NULL REFERENCES profesor(id)
-                                    ON DELETE RESTRICT
-                                    ON UPDATE CASCADE,
-    academic_year   CHAR(9)     NOT NULL
-                                CHECK (academic_year ~ '^\d{4}-\d{4}$'),
-    nombre          VARCHAR(120),
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+CREATE TABLE rubric (
+    id            SERIAL       PRIMARY KEY,
+    module_id     INT          NOT NULL REFERENCES module(id)
+                                   ON DELETE RESTRICT
+                                   ON UPDATE CASCADE,
+    teacher_id    INT          NOT NULL REFERENCES teacher(id)
+                                   ON DELETE RESTRICT
+                                   ON UPDATE CASCADE,
+    academic_year CHAR(9)      NOT NULL
+                               CHECK (academic_year ~ '^\d{4}-\d{4}$'),
+    name          VARCHAR(120),
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
 
-    UNIQUE (modulo_id, academic_year)
+    UNIQUE (module_id, academic_year)
 );
 
-COMMENT ON TABLE  rubrica              IS 'Rúbrica de evaluación: una por módulo y año académico';
-COMMENT ON COLUMN rubrica.nombre       IS 'Título opcional; si NULL se muestra el nombre del módulo';
-COMMENT ON COLUMN rubrica.academic_year IS 'Permite rúbricas distintas cada curso aunque cambie el profesor';
+COMMENT ON TABLE  rubric               IS 'Scoring rubric: one per module per academic year';
+COMMENT ON COLUMN rubric.name          IS 'Optional title; if NULL the module name is shown';
+COMMENT ON COLUMN rubric.academic_year IS 'Allows a different rubric each year even if the teacher changes';
 
-CREATE INDEX idx_rubrica_modulo        ON rubrica(modulo_id);
-CREATE INDEX idx_rubrica_profesor      ON rubrica(profesor_id);
-CREATE INDEX idx_rubrica_academic_year ON rubrica(academic_year);
+CREATE INDEX idx_rubric_module        ON rubric(module_id);
+CREATE INDEX idx_rubric_teacher       ON rubric(teacher_id);
+CREATE INDEX idx_rubric_academic_year ON rubric(academic_year);
 
 
-CREATE TABLE rubrica_item (
-    id          SERIAL      PRIMARY KEY,
-    rubrica_id  INT         NOT NULL REFERENCES rubrica(id)
+CREATE TABLE rubric_item (
+    id            SERIAL    PRIMARY KEY,
+    rubric_id     INT       NOT NULL REFERENCES rubric(id)
                                 ON DELETE CASCADE
                                 ON UPDATE CASCADE,
-    descripcion TEXT        NOT NULL,
-    orden       SMALLINT    NOT NULL CHECK (orden > 0),
+    description   TEXT      NOT NULL,
+    display_order SMALLINT  NOT NULL CHECK (display_order > 0),
 
-    UNIQUE (rubrica_id, orden)
+    UNIQUE (rubric_id, display_order)
 );
 
-COMMENT ON TABLE rubrica_item IS 'Ítem (criterio) de evaluación dentro de una rúbrica';
+COMMENT ON TABLE rubric_item IS 'Evaluation criterion within a rubric';
 
-CREATE INDEX idx_rubrica_item_rubrica ON rubrica_item(rubrica_id);
+CREATE INDEX idx_rubric_item_rubric ON rubric_item(rubric_id);
 
 
-CREATE TABLE rubrica_nivel (
-    id          SERIAL      PRIMARY KEY,
-    rubrica_id  INT         NOT NULL REFERENCES rubrica(id)
-                                ON DELETE CASCADE
-                                ON UPDATE CASCADE,
-    nombre      VARCHAR(40) NOT NULL,
-    orden       SMALLINT    NOT NULL CHECK (orden > 0),
+-- Levels are defined per item (irregular matrix).
+-- Each item owns its own levels; there is no shared level pool across items.
+CREATE TABLE rubric_level (
+    id             SERIAL       PRIMARY KEY,
+    rubric_item_id INT          NOT NULL REFERENCES rubric_item(id)
+                                    ON DELETE CASCADE
+                                    ON UPDATE CASCADE,
+    name           VARCHAR(40)  NOT NULL,
+    display_order  SMALLINT     NOT NULL CHECK (display_order > 0),
+    score          NUMERIC(5,2) NOT NULL CHECK (score >= 0),
 
-    UNIQUE (rubrica_id, orden)
+    UNIQUE (rubric_item_id, display_order),
+    -- Exposes (rubric_item_id, id) as a composite unique target so that
+    -- correction_item can enforce via FK that the chosen level belongs to
+    -- the correct item.
+    UNIQUE (rubric_item_id, id)
 );
 
-COMMENT ON TABLE  rubrica_nivel       IS 'Nivel de desempeño dentro de una rúbrica (p.ej. Excelente, Bien)';
-COMMENT ON COLUMN rubrica_nivel.orden IS '1 = mejor nivel, N = peor nivel (orden visual descendente)';
+COMMENT ON TABLE  rubric_level               IS 'Performance level for a specific rubric item; each item defines its own levels independently';
+COMMENT ON COLUMN rubric_level.score         IS 'Points awarded when this level is selected for this item';
+COMMENT ON COLUMN rubric_level.display_order IS 'Presentation order within the item (teacher-defined)';
 
-CREATE INDEX idx_rubrica_nivel_rubrica ON rubrica_nivel(rubrica_id);
-
-
--- rubrica_item × rubrica_nivel matrix cell
-CREATE TABLE rubrica_item_nivel (
-    rubrica_item_id     INT             NOT NULL REFERENCES rubrica_item(id)
-                                            ON DELETE CASCADE ON UPDATE CASCADE,
-    rubrica_nivel_id    INT             NOT NULL REFERENCES rubrica_nivel(id)
-                                            ON DELETE CASCADE ON UPDATE CASCADE,
-    valor               NUMERIC(5,2)    NOT NULL CHECK (valor >= 0),
-
-    PRIMARY KEY (rubrica_item_id, rubrica_nivel_id)
-);
-
-COMMENT ON TABLE  rubrica_item_nivel       IS 'Celda de la matriz ítem×nivel: valor numérico independiente por celda';
-COMMENT ON COLUMN rubrica_item_nivel.valor IS 'Puntuación obtenida al seleccionar este nivel para este ítem';
-
-CREATE INDEX idx_rubrica_item_nivel_nivel ON rubrica_item_nivel(rubrica_nivel_id);
-
-
--- Trigger: item and nivel must belong to the same rubrica
-CREATE OR REPLACE FUNCTION trg_item_nivel_misma_rubrica()
-RETURNS TRIGGER LANGUAGE plpgsql AS $$
-DECLARE
-    v_rubrica_item  INT;
-    v_rubrica_nivel INT;
-BEGIN
-    SELECT rubrica_id INTO v_rubrica_item
-    FROM   rubrica_item  WHERE id = NEW.rubrica_item_id;
-
-    SELECT rubrica_id INTO v_rubrica_nivel
-    FROM   rubrica_nivel WHERE id = NEW.rubrica_nivel_id;
-
-    IF v_rubrica_item IS DISTINCT FROM v_rubrica_nivel THEN
-        RAISE EXCEPTION
-            'El ítem % y el nivel % pertenecen a rúbricas distintas',
-            NEW.rubrica_item_id, NEW.rubrica_nivel_id;
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trg_item_nivel_rubrica
-    BEFORE INSERT OR UPDATE ON rubrica_item_nivel
-    FOR EACH ROW EXECUTE FUNCTION trg_item_nivel_misma_rubrica();
+CREATE INDEX idx_rubric_level_item ON rubric_level(rubric_item_id);
 
 
 -- =============================================================================
 -- Corrections
 -- =============================================================================
 
-CREATE TABLE correccion (
-    id              SERIAL          PRIMARY KEY,
-    alumno_id       INT             NOT NULL REFERENCES alumno(id)
-                                        ON DELETE RESTRICT ON UPDATE CASCADE,
-    modulo_id       INT             NOT NULL REFERENCES modulo(id)
-                                        ON DELETE RESTRICT ON UPDATE CASCADE,
-    rubrica_id      INT             NOT NULL REFERENCES rubrica(id)
-                                        ON DELETE RESTRICT ON UPDATE CASCADE,
-    academic_year   CHAR(9)         NOT NULL
-                                    CHECK (academic_year ~ '^\d{4}-\d{4}$'),
-    nota_final      NUMERIC(4,2)    NOT NULL
-                                    CHECK (nota_final BETWEEN 0 AND 10),
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+CREATE TABLE correction (
+    id            SERIAL       PRIMARY KEY,
+    student_id    INT          NOT NULL REFERENCES student(id)
+                                   ON DELETE RESTRICT ON UPDATE CASCADE,
+    module_id     INT          NOT NULL REFERENCES module(id)
+                                   ON DELETE RESTRICT ON UPDATE CASCADE,
+    rubric_id     INT          NOT NULL REFERENCES rubric(id)
+                                   ON DELETE RESTRICT ON UPDATE CASCADE,
+    academic_year CHAR(9)      NOT NULL
+                               CHECK (academic_year ~ '^\d{4}-\d{4}$'),
+    final_score   NUMERIC(4,2) NOT NULL
+                               CHECK (final_score BETWEEN 0 AND 10),
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
 
-    UNIQUE (alumno_id, modulo_id, academic_year)
+    UNIQUE (student_id, module_id, academic_year)
 );
 
-COMMENT ON TABLE  correccion              IS 'Nota final de un alumno en un módulo para un año académico';
-COMMENT ON COLUMN correccion.nota_final   IS 'Normalizada a 0–10: SUM(valores elegidos) / SUM(máximos por ítem) × 10';
-COMMENT ON COLUMN correccion.academic_year IS 'Denormalizado desde rubrica.academic_year para constraint y consultas directas';
+COMMENT ON TABLE  correction               IS 'Final grade for a student in a module for an academic year';
+COMMENT ON COLUMN correction.final_score   IS 'Normalised to 0–10: SUM(selected scores) / SUM(max score per item) × 10';
+COMMENT ON COLUMN correction.academic_year IS 'Denormalised from rubric.academic_year to support the UNIQUE constraint and direct queries';
 
-CREATE INDEX idx_correccion_alumno        ON correccion(alumno_id);
-CREATE INDEX idx_correccion_modulo        ON correccion(modulo_id);
-CREATE INDEX idx_correccion_rubrica       ON correccion(rubrica_id);
-CREATE INDEX idx_correccion_academic_year ON correccion(academic_year);
+CREATE INDEX idx_correction_student       ON correction(student_id);
+CREATE INDEX idx_correction_module        ON correction(module_id);
+CREATE INDEX idx_correction_rubric        ON correction(rubric_id);
+CREATE INDEX idx_correction_academic_year ON correction(academic_year);
 
 
--- Item-level breakdown (one row per item per correction)
-CREATE TABLE correccion_item (
-    correccion_id       INT NOT NULL REFERENCES correccion(id)
-                                ON DELETE CASCADE ON UPDATE CASCADE,
-    rubrica_item_id     INT NOT NULL REFERENCES rubrica_item(id)
-                                ON DELETE RESTRICT ON UPDATE CASCADE,
-    rubrica_nivel_id    INT NOT NULL REFERENCES rubrica_nivel(id)
-                                ON DELETE RESTRICT ON UPDATE CASCADE,
+-- Item-level breakdown: one row per rubric item per correction
+CREATE TABLE correction_item (
+    correction_id   INT NOT NULL REFERENCES correction(id)
+                            ON DELETE CASCADE ON UPDATE CASCADE,
+    rubric_item_id  INT NOT NULL REFERENCES rubric_item(id)
+                            ON DELETE RESTRICT ON UPDATE CASCADE,
+    rubric_level_id INT NOT NULL,
 
-    PRIMARY KEY (correccion_id, rubrica_item_id),
+    PRIMARY KEY (correction_id, rubric_item_id),
 
-    FOREIGN KEY (rubrica_item_id, rubrica_nivel_id)
-        REFERENCES rubrica_item_nivel(rubrica_item_id, rubrica_nivel_id)
+    -- Composite FK guarantees the chosen level belongs to the stated item
+    FOREIGN KEY (rubric_item_id, rubric_level_id)
+        REFERENCES rubric_level(rubric_item_id, id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-COMMENT ON TABLE correccion_item IS 'Nivel elegido por ítem; permite recalcular nota_final en cualquier momento';
+COMMENT ON TABLE correction_item IS 'Level chosen per item; enables recalculation of final_score at any time';
 
-CREATE INDEX idx_correccion_item_item  ON correccion_item(rubrica_item_id);
-CREATE INDEX idx_correccion_item_nivel ON correccion_item(rubrica_nivel_id);
+CREATE INDEX idx_correction_item_item  ON correction_item(rubric_item_id);
+CREATE INDEX idx_correction_item_level ON correction_item(rubric_level_id);
 
 
 -- =============================================================================
@@ -392,6 +358,6 @@ CREATE INDEX idx_correccion_item_nivel ON correccion_item(rubrica_nivel_id);
 -- =============================================================================
 
 -- Default admin user (password must be changed on first login)
--- Password: 'changeme' — hashed with bcrypt cost 10
-INSERT INTO profesor (username, password_hash, rol)
+-- Password: 'changeme' — bcrypt cost 10
+INSERT INTO teacher (username, password_hash, role)
 VALUES ('admin', crypt('changeme', gen_salt('bf', 10)), 'admin');

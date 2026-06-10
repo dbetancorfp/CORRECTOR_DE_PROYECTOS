@@ -2,152 +2,132 @@
 
 ```mermaid
 erDiagram
-    legislacion {
+    legislation {
+        serial      id             PK
+        varchar     abbreviation   "UNIQUE NOT NULL"
+        smallint    start_year     "NOT NULL"
+        smallint    end_year       "NULL if still in force"
+    }
+
+    cycle {
         serial      id              PK
-        varchar     abreviatura     "UNIQUE NOT NULL"
-        smallint    anio_inicio     "NOT NULL"
-        smallint    anio_fin        "NULL si sigue vigente"
+        varchar     name            "NOT NULL"
+        int         legislation_id  FK
     }
 
-    ciclo {
+    module {
+        serial      id             PK
+        varchar     name           "NOT NULL"
+        varchar     abbreviation   "NOT NULL"
+        smallint    weekly_hours   "NOT NULL"
+        int         cycle_id       FK
+    }
+
+    teacher {
+        serial       id              PK
+        varchar      username        "UNIQUE NOT NULL"
+        text         password_hash   "NOT NULL"
+        teacher_role role            "admin|teacher|tutor"
+        int          tutor_cycle_id  "FK nullable UNIQUE"
+    }
+
+    teacher_module {
+        int         teacher_id  FK
+        int         module_id   FK
+    }
+
+    student {
+        serial      id        PK
+        varchar     name      "NOT NULL — free text"
+        int         cycle_id  FK
+    }
+
+    student_module {
+        int         student_id  FK
+        int         module_id   FK
+    }
+
+    project {
+        serial      id             PK
+        varchar     name           "NOT NULL"
+        int         cycle_id       FK
+        char9       academic_year  "NOT NULL e.g. 2024-2025"
+    }
+
+    project_student {
+        int         project_id  FK
+        int         student_id  FK
+    }
+
+    rubric {
+        serial      id             PK
+        int         module_id      FK
+        int         teacher_id     FK
+        char9       academic_year  "NOT NULL"
+        varchar     name           "NULL optional"
+    }
+
+    rubric_item {
+        serial      id             PK
+        int         rubric_id      FK
+        text        description    "NOT NULL"
+        smallint    display_order  "NOT NULL"
+    }
+
+    rubric_level {
         serial      id              PK
-        varchar     nombre          "NOT NULL"
-        int         legislacion_id  FK
+        int         rubric_item_id  FK
+        varchar     name            "NOT NULL e.g. Excellent"
+        smallint    display_order   "NOT NULL"
+        numeric52   score           "NOT NULL >= 0"
     }
 
-    modulo {
-        serial      id              PK
-        varchar     nombre          "NOT NULL"
-        varchar     abreviatura     "NOT NULL"
-        smallint    horas_semanales "NOT NULL"
-        int         ciclo_id        FK
+    correction {
+        serial      id             PK
+        int         student_id     FK
+        int         module_id      FK
+        int         rubric_id      FK
+        char9       academic_year  "NOT NULL"
+        numeric42   final_score    "CHECK 0..10"
     }
 
-    profesor {
-        serial      id              PK
-        varchar     username        "UNIQUE NOT NULL"
-        text        password_hash   "NOT NULL"
-        profesor_rol rol            "admin|profesor|tutor"
-        int         tutor_ciclo_id  "FK nullable UNIQUE"
+    correction_item {
+        int         correction_id   FK
+        int         rubric_item_id  FK
+        int         rubric_level_id FK
     }
 
-    profesor_modulo {
-        int         profesor_id     FK
-        int         modulo_id       FK
-    }
-
-    alumno {
-        serial      id              PK
-        varchar     nombre          "NOT NULL — texto libre"
-        int         ciclo_id        FK
-    }
-
-    alumno_modulo {
-        int         alumno_id       FK
-        int         modulo_id       FK
-    }
-
-    proyecto {
-        serial      id              PK
-        varchar     nombre          "NOT NULL"
-        int         ciclo_id        FK
-        char9       academic_year   "NOT NULL p.ej. 2024-2025"
-    }
-
-    proyecto_alumno {
-        int         proyecto_id     FK
-        int         alumno_id       FK
-    }
-
-    rubrica {
-        serial      id              PK
-        int         modulo_id       FK
-        int         profesor_id     FK
-        char9       academic_year   "NOT NULL"
-        varchar     nombre          "NULL opcional"
-    }
-
-    rubrica_item {
-        serial      id              PK
-        int         rubrica_id      FK
-        text        descripcion     "NOT NULL"
-        smallint    orden           "NOT NULL"
-    }
-
-    rubrica_nivel {
-        serial      id              PK
-        int         rubrica_id      FK
-        varchar     nombre          "NOT NULL p.ej. Excelente"
-        smallint    orden           "NOT NULL"
-    }
-
-    rubrica_item_nivel {
-        int         rubrica_item_id FK
-        int         rubrica_nivel_id FK
-        numeric52   valor           "NOT NULL >= 0"
-    }
-
-    correccion {
-        serial      id              PK
-        int         alumno_id       FK
-        int         modulo_id       FK
-        int         rubrica_id      FK
-        char9       academic_year   "NOT NULL"
-        numeric42   nota_final      "CHECK 0..10"
-    }
-
-    correccion_item {
-        int         correccion_id   FK
-        int         rubrica_item_id FK
-        int         rubrica_nivel_id FK
-    }
-
-    legislacion    ||--o{    ciclo              : "tiene"
-    ciclo          ||--o{    modulo             : "contiene"
-    ciclo          ||--o{    proyecto           : "agrupa"
-    ciclo          o|--o|    profesor           : "tutor de (0-1)"
-    profesor       }o--o{    modulo             : "imparte"
-    alumno         }o--||    ciclo              : "pertenece a"
-    alumno         }o--o{    modulo             : "matriculado en"
-    alumno         }o--o{    proyecto           : "participa en"
-    rubrica        }o--||    modulo             : "evalúa"
-    rubrica        }o--||    profesor           : "diseñada por"
-    rubrica        ||--o{    rubrica_item       : "contiene"
-    rubrica        ||--o{    rubrica_nivel      : "define"
-    rubrica_item   }o--o{    rubrica_nivel      : "valorado en"
-    correccion     }o--||    alumno             : "de"
-    correccion     }o--||    modulo             : "en"
-    correccion     }o--||    rubrica            : "usando"
-    correccion     ||--o{    correccion_item    : "detalle por ítem"
-    correccion_item }o--||   rubrica_item_nivel : "nivel elegido"
+    legislation     ||--o{    cycle            : "frames"
+    cycle           ||--o{    module           : "contains"
+    cycle           ||--o{    project          : "groups"
+    cycle           o|--o|    teacher          : "tutored by (0-1)"
+    teacher         }o--o{    module           : "teaches"
+    student         }o--||    cycle            : "enrolled in"
+    student         }o--o{    module           : "assigned to"
+    student         }o--o{    project          : "member of"
+    rubric          }o--||    module           : "scores"
+    rubric          }o--||    teacher          : "designed by"
+    rubric          ||--o{    rubric_item      : "contains"
+    rubric_item     ||--o{    rubric_level     : "has levels"
+    correction      }o--||    student          : "of"
+    correction      }o--||    module           : "in"
+    correction      }o--||    rubric           : "using"
+    correction      ||--o{    correction_item  : "broken down by item"
+    correction_item }o--||    rubric_level     : "level chosen"
 ```
 
-## Notas del modelo
+## Model notes
 
-- **`profesor.tutor_ciclo_id`** — UNIQUE + nullable. La relación ciclo↔tutor es bidireccional
-  pero se implementa como FK en `profesor`, no como tabla puente: la unicidad por lado profesor
-  ya garantiza máximo 1 tutor por ciclo (un FK UNIQUE no puede apuntar dos veces al mismo ciclo).
-  El trigger refuerza el constraint para mayor claridad en el mensaje de error.
+- **`teacher.tutor_cycle_id`** — UNIQUE + nullable. Combined with `CHECK (role = 'tutor') = (tutor_cycle_id IS NOT NULL)`, this guarantees each cycle has at most 1 tutor and every tutor has exactly 1 assigned cycle. A trigger adds a descriptive error message on violation.
 
-- **`profesor_modulo`** — asignación actual sin año académico. La historia de quién impartió
-  qué módulo en cada año es derivable de `rubrica(modulo_id, profesor_id, academic_year)`.
+- **`rubric_level` is scoped per item (irregular matrix).** Each item defines its own set of levels with independent names, ordering and score values. There is no shared level pool per rubric. This means item A can have 3 levels and item B can have 5 within the same rubric.
 
-- **`rubrica_item_nivel`** — celda de la matriz ítem×nivel. Un trigger garantiza que el ítem
-  y el nivel pertenecen a la misma rúbrica (integridad cruzada no expresable con FK simples).
+- **`correction_item` composite FK** — `FOREIGN KEY (rubric_item_id, rubric_level_id) REFERENCES rubric_level(rubric_item_id, id)` enforces at the database level that the chosen level belongs to the stated item. No trigger needed.
 
-- **`correccion.academic_year`** — denormalizado desde `rubrica.academic_year` para permitir
-  el constraint UNIQUE(alumno_id, modulo_id, academic_year) sin JOIN y para facilitar consultas
-  del tipo "notas del alumno X en el curso Y".
+- **`correction.final_score`** — computed by the application as `SUM(score of selected levels) / SUM(max score per item) × 10`. Not stored on `rubric` because it is always derived from `rubric_level.score`.
 
-- **`correccion.nota_final`** — calculada por la aplicación como
-  `SUM(valor celdas seleccionadas) / SUM(valor máximo por ítem) × 10`. No se almacena
-  `puntuacion_maxima` en `rubrica` porque es siempre derivada.
+- **`correction.academic_year`** — denormalised from `rubric.academic_year` to support `UNIQUE(student_id, module_id, academic_year)` without a JOIN and to facilitate queries like "all grades for student X in year Y".
 
-- **`proyecto_alumno`** — un alumno puede estar en un solo proyecto por año académico.
-  El constraint UNIQUE(alumno_id, academic_year) no puede expresarse directamente con una FK
-  (el año está en `proyecto`, no en `proyecto_alumno`), por lo que se refuerza con trigger.
+- **`project_student`** — one project per student per academic year enforced by trigger (`academic_year` lives on `project`, not on `project_student`, so a plain `UNIQUE` constraint cannot express this).
 
-- **`legislacion.anio_fin`** — nullable; NULL indica que la legislación sigue en vigor.
-
-- **`alumno.nombre`** — texto libre. El profesor decide si introduce un nombre real o un
-  código anonimizado (p. ej. `JJ499`). El sistema no impone formato.
+- **`teacher_module` / `student_module`** — permanent assignments with no academic year. The temporal context is derivable via `module → cycle → legislation → start_year / end_year`.
