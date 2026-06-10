@@ -42,9 +42,15 @@ que determinan el modelo.
 - Rol `'admin'` es un valor más del campo `role VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))` en la tabla `teacher`. No se usa ENUM.
   Un admin no tiene `tutor_cycle_id` ni entradas en `teacher_module`.
 
+**Cycle y Module — unicidad de nombres**
+
+- El nombre de un `cycle` es único dentro de una misma `legislation`: `UNIQUE(name, legislation_id)`.
+- El nombre de un `module` es único dentro de un mismo `cycle`: `UNIQUE(name, cycle_id)`.
+
 **Student ↔ Project ↔ Module**
 
 - Un alumno pertenece a **un único proyecto por año académico**.
+- `project` **no tiene FK a `cycle`**: el ciclo se infiere siempre a través de los alumnos (`project_student → student → cycle`).
 - La matrícula en módulos es **explícita y permanente** (gestionada por el teacher);
   el año queda implícito en la cadena `module → cycle → legislation → start_year`.
 
@@ -52,12 +58,18 @@ que determinan el modelo.
 
 - Un módulo puede tener **rúbricas distintas en años académicos diferentes**.
   Constraint: `UNIQUE(module_id, academic_year)` en `rubric`.
+- La rúbrica es un **recurso del módulo, sin propietario**: no almacena `teacher_id`.
+
+**Correction — autoría**
+
+- `correction` registra el `teacher_id` del profesor que la realizó para mantener la
+  trazabilidad de autoría incluso si el profesor cambia de asignación posteriormente.
 
 ---
 
 ## Diagrama ERD
 
-14 tablas · 2 triggers · PostgreSQL 16
+13 tablas · 2 triggers · PostgreSQL 16
 
 ```mermaid
 erDiagram
@@ -107,7 +119,6 @@ erDiagram
     project {
         serial      id             PK
         varchar     name           "NOT NULL"
-        int         cycle_id       FK
         char9       academic_year  "NOT NULL e.g. 2024-2025"
     }
 
@@ -119,7 +130,6 @@ erDiagram
     rubric {
         serial      id             PK
         int         module_id      FK
-        int         teacher_id     FK
         char9       academic_year  "NOT NULL"
         varchar     name           "NULL optional"
     }
@@ -144,6 +154,7 @@ erDiagram
         int         student_id     FK
         int         module_id      FK
         int         rubric_id      FK
+        int         teacher_id     FK
         char9       academic_year  "NOT NULL"
         numeric42   final_score    "CHECK 0..10"
     }
@@ -156,7 +167,6 @@ erDiagram
 
     legislation     ||--o{    cycle            : "frames"
     cycle           ||--o{    module           : "contains"
-    cycle           ||--o{    project          : "groups"
     cycle           o|--o|    teacher          : "tutored by (0-1)"
     teacher         ||--o{    teacher_module   : "teaches"
     teacher_module  }o--||    module           : "taught by"
@@ -166,12 +176,12 @@ erDiagram
     student         ||--o{    project_student  : "member of"
     project_student }o--||    project          : "includes"
     rubric          }o--||    module           : "scores"
-    rubric          }o--||    teacher          : "designed by"
     rubric          ||--o{    rubric_item      : "contains"
     rubric_item     ||--o{    rubric_level     : "has levels"
     correction      }o--||    student          : "of"
     correction      }o--||    module           : "in"
     correction      }o--||    rubric           : "using"
+    correction      }o--||    teacher          : "by"
     correction      ||--o{    correction_item  : "broken down by item"
     correction_item }o--||    rubric_level     : "level chosen"
 ```
@@ -180,6 +190,11 @@ erDiagram
 
 | Decisión | Razonamiento |
 |----------|--------------|
+| `cycle` UNIQUE(name, legislation_id) | El mismo nombre puede existir bajo legislaciones distintas; la unicidad es dentro del marco legal |
+| `module` UNIQUE(name, cycle_id) | No pueden existir dos módulos con el mismo nombre en el mismo ciclo |
+| `project` sin `cycle_id` | El ciclo se infiere vía `project_student → student → cycle`; FK directa sería redundante |
+| `rubric` sin `teacher_id` | La rúbrica es un recurso del módulo, no de un profesor concreto; cualquier profesor del módulo puede usarla |
+| `correction.teacher_id` NOT NULL | Registra quién corrigió; se preserva aunque el profesor cambie de módulo posteriormente |
 | `teacher.tutor_cycle_id` UNIQUE nullable | UNIQUE ya garantiza máx. 1 tutor/ciclo; trigger añade mensaje de error claro |
 | `rubric_level` por ítem (no por rúbrica) | Matriz irregular: cada ítem define sus propios niveles y scores independientemente |
 | Sin tabla intermedia `rubric_item_level` | El score vive en `rubric_level.score`; no se necesita tabla de intersección separada |
@@ -188,8 +203,8 @@ erDiagram
 | `correction.academic_year` denormalizado | Permite `UNIQUE(student_id, module_id, academic_year)` sin JOIN |
 | `final_score` siempre derivado | `SUM(scores elegidos) / SUM(score máx. por ítem) × 10`; no se almacena en `rubric` |
 | `project_student` con trigger | `UNIQUE(student_id, academic_year)` cruza dos tablas; no expresable con FK simples |
-| `legislation.name` en lugar de `abbreviation` | El nombre completo (LOMLOE, LOE) es suficiente identificador; `end_year` se elimina porque es derivable de `start_year + 1` |
-| Sin ENUM para `teacher.role` | `VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))` — más portable y compatible con generación de código SQL; sin `module.abbreviation` (eliminado) |
+| `legislation.name` único | El nombre completo (LOMLOE, LOE) es el identificador; sin `abbreviation` ni `end_year` |
+| Sin ENUM para `teacher.role` | `VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))` — portable y compatible con generación de código SQL |
 
 ---
 

@@ -15,18 +15,18 @@ erDiagram
     }
 
     module {
-        serial      id             PK
-        varchar     name           "NOT NULL"
-        smallint    weekly_hours   "NOT NULL"
-        int         cycle_id       FK
+        serial      id            PK
+        varchar     name          "NOT NULL"
+        smallint    weekly_hours  "NOT NULL"
+        int         cycle_id      FK
     }
 
     teacher {
-        serial       id              PK
-        varchar      username        "UNIQUE NOT NULL"
-        text         password_hash   "NOT NULL"
-        varchar      role            "admin|teacher|tutor CHECK"
-        int          tutor_cycle_id  "FK nullable UNIQUE"
+        serial      id              PK
+        varchar     username        "UNIQUE NOT NULL"
+        text        password_hash   "NOT NULL"
+        varchar     role            "admin|teacher|tutor CHECK"
+        int         tutor_cycle_id  "FK nullable UNIQUE"
     }
 
     teacher_module {
@@ -48,7 +48,6 @@ erDiagram
     project {
         serial      id             PK
         varchar     name           "NOT NULL"
-        int         cycle_id       FK
         char9       academic_year  "NOT NULL e.g. 2024-2025"
     }
 
@@ -60,7 +59,6 @@ erDiagram
     rubric {
         serial      id             PK
         int         module_id      FK
-        int         teacher_id     FK
         char9       academic_year  "NOT NULL"
         varchar     name           "NULL optional"
     }
@@ -75,7 +73,7 @@ erDiagram
     rubric_level {
         serial      id              PK
         int         rubric_item_id  FK
-        varchar     name            "NOT NULL e.g. Excellent"
+        varchar     name            "NOT NULL"
         smallint    display_order   "NOT NULL"
         numeric52   score           "NOT NULL >= 0"
     }
@@ -85,6 +83,7 @@ erDiagram
         int         student_id     FK
         int         module_id      FK
         int         rubric_id      FK
+        int         teacher_id     FK
         char9       academic_year  "NOT NULL"
         numeric42   final_score    "CHECK 0..10"
     }
@@ -97,7 +96,6 @@ erDiagram
 
     legislation     ||--o{    cycle            : "frames"
     cycle           ||--o{    module           : "contains"
-    cycle           ||--o{    project          : "groups"
     cycle           o|--o|    teacher          : "tutored by (0-1)"
     teacher         ||--o{    teacher_module   : "teaches"
     teacher_module  }o--||    module           : "taught by"
@@ -107,30 +105,40 @@ erDiagram
     student         ||--o{    project_student  : "member of"
     project_student }o--||    project          : "includes"
     rubric          }o--||    module           : "scores"
-    rubric          }o--||    teacher          : "designed by"
     rubric          ||--o{    rubric_item      : "contains"
     rubric_item     ||--o{    rubric_level     : "has levels"
     correction      }o--||    student          : "of"
     correction      }o--||    module           : "in"
     correction      }o--||    rubric           : "using"
+    correction      }o--||    teacher          : "by"
     correction      ||--o{    correction_item  : "broken down by item"
     correction_item }o--||    rubric_level     : "level chosen"
 ```
 
-## Model notes
+## Notas del modelo
 
-- **`teacher.tutor_cycle_id`** — UNIQUE + nullable. Combined with `CHECK (role = 'tutor') = (tutor_cycle_id IS NOT NULL)`, this guarantees each cycle has at most 1 tutor and every tutor has exactly 1 assigned cycle. A trigger adds a descriptive error message on violation.
+- **`cycle` UNIQUE(name, legislation_id)** — El mismo nombre de ciclo puede existir bajo legislaciones distintas (e.g. "DAW" en LOE y en LOMLOE son registros independientes).
 
-- **`rubric_level` is scoped per item (irregular matrix).** Each item defines its own set of levels with independent names, ordering and score values. There is no shared level pool per rubric. This means item A can have 3 levels and item B can have 5 within the same rubric.
+- **`module` UNIQUE(name, cycle_id)** — No puede haber dos módulos con el mismo nombre dentro del mismo ciclo.
 
-- **`correction_item` composite FK** — `FOREIGN KEY (rubric_item_id, rubric_level_id) REFERENCES rubric_level(rubric_item_id, id)` enforces at the database level that the chosen level belongs to the stated item. No trigger needed.
+- **`teacher.role`** — `VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))`. Sin ENUM: más portable y compatible con generación de código SQL.
 
-- **`correction.final_score`** — computed by the application as `SUM(score of selected levels) / SUM(max score per item) × 10`. Not stored on `rubric` because it is always derived from `rubric_level.score`.
+- **`teacher.tutor_cycle_id`** — UNIQUE + nullable. `CHECK (role = 'tutor') = (tutor_cycle_id IS NOT NULL)` garantiza que cada tutor tiene exactamente un ciclo asignado y cada ciclo tiene como máximo un tutor. Un trigger añade un mensaje de error claro en caso de violación.
 
-- **`correction.academic_year`** — denormalised from `rubric.academic_year` to support `UNIQUE(student_id, module_id, academic_year)` without a JOIN and to facilitate queries like "all grades for student X in year Y".
+- **`project` sin `cycle_id`** — El ciclo se infiere siempre a través de los alumnos miembros (`project_student → student → cycle`). No se almacena FK directa para evitar redundancia.
 
-- **`project_student`** — one project per student per academic year enforced by trigger (`academic_year` lives on `project`, not on `project_student`, so a plain `UNIQUE` constraint cannot express this).
+- **`rubric` sin `teacher_id`** — La rúbrica es un recurso del módulo, no de un profesor concreto. Cualquier profesor asignado al módulo puede usarla o modificarla.
 
-- **`teacher_module` / `student_module`** — permanent assignments with no academic year. The temporal context is derivable via `module → cycle → legislation → start_year`.
+- **`correction.teacher_id`** — Registra el profesor que realizó la corrección. Se preserva aunque el profesor cambie de asignación de módulo posteriormente (trazabilidad de autoría).
 
-- **`legislation.name`** — replaces `abbreviation`; the full name (e.g. LOMLOE) is the unique identifier. `end_year` removed — derivable as `start_year + 1`.
+- **`rubric_level` con matriz irregular** — Los niveles se definen por ítem, no por rúbrica. Cada ítem define sus propios niveles con nombres, orden y puntuación independientes. El ítem A puede tener 3 niveles y el ítem B puede tener 5 dentro de la misma rúbrica.
+
+- **FK compuesta en `correction_item`** — `FOREIGN KEY (rubric_item_id, rubric_level_id) REFERENCES rubric_level(rubric_item_id, id)` garantiza a nivel de BD que el nivel elegido pertenece al ítem correcto. No se necesita trigger adicional.
+
+- **`correction.final_score`** — Calculado por la aplicación como `SUM(score de niveles elegidos) / SUM(score máximo por ítem) × 10`. No se almacena en `rubric` porque siempre es derivable.
+
+- **`correction.academic_year` denormalizado** — Copiado de `rubric.academic_year` para permitir `UNIQUE(student_id, module_id, academic_year)` sin JOIN y facilitar consultas directas por año.
+
+- **`project_student` con trigger** — La restricción "un alumno, un proyecto por año académico" no es expresable con una FK simple porque `academic_year` vive en `project`, no en `project_student`.
+
+- **`teacher_module` / `student_module` sin año académico** — Asignaciones permanentes. El contexto temporal es derivable vía `module → cycle → legislation → start_year`.

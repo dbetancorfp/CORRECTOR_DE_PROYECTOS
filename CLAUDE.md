@@ -353,10 +353,10 @@ customElements.define('corrector-button', CorrectorButton);
   No direct ciclo→profesor relation — the link is always ciclo→módulo→profesor.
 - **Alumno**: `nombre` (free text — professor may enter a real name or an anonymised code
   such as `JJ499`; the system does not enforce a format), ciclo
-- **Proyecto**: name, ciclo, academic year (e.g. `2024-2025`), list of alumnos;
-  one alumno belongs to at most one proyecto per academic year
-- **Rúbrica**: scoring grid tied to one módulo + academic year (UNIQUE); designed by a
-  profesor; contains a variable number of items and levels (defined by the professor).
+- **Proyecto**: name, academic year (e.g. `2024-2025`), list of alumnos; no direct FK to ciclo
+  (inferred via alumnos); one alumno belongs to at most one proyecto per academic year
+- **Rúbrica**: scoring grid tied to one módulo + academic year (UNIQUE); module resource with
+  no owner (no teacher FK); contains a variable number of items and levels (defined by the professor).
   Structure is a matrix item × level — each cell holds an independent numeric value.
   Correction flow: professor selects one level per item → system sums selected values and
   normalises to 10 automatically (max score is derived, not stored explicitly).

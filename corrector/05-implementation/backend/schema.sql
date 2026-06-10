@@ -7,7 +7,6 @@
 -- ---------------------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- gen_salt / crypt for password hashing
 
-
 -- No ENUM types — role domain enforced by CHECK constraint on the column.
 
 
@@ -22,7 +21,7 @@ CREATE TABLE legislation (
     created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  legislation IS 'Educational legal framework (e.g. LOMLOE, LOE)';
+COMMENT ON TABLE legislation IS 'Educational legal framework (e.g. LOMLOE, LOE)';
 
 
 CREATE TABLE cycle (
@@ -31,10 +30,12 @@ CREATE TABLE cycle (
     legislation_id  INT          NOT NULL REFERENCES legislation(id)
                                      ON DELETE RESTRICT
                                      ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+
+    UNIQUE (name, legislation_id)
 );
 
-COMMENT ON TABLE cycle IS 'Vocational training cycle (e.g. DAW, DAM, ASIR)';
+COMMENT ON TABLE cycle IS 'Vocational training cycle (e.g. DAW, DAM, ASIR); name is unique within a legislation';
 
 CREATE INDEX idx_cycle_legislation ON cycle(legislation_id);
 
@@ -46,10 +47,12 @@ CREATE TABLE module (
     cycle_id      INT          NOT NULL REFERENCES cycle(id)
                                    ON DELETE RESTRICT
                                    ON UPDATE CASCADE,
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+
+    UNIQUE (name, cycle_id)
 );
 
-COMMENT ON TABLE module IS 'Vocational module within a cycle';
+COMMENT ON TABLE module IS 'Vocational module within a cycle; name is unique within a cycle';
 
 CREATE INDEX idx_module_cycle ON module(cycle_id);
 
@@ -59,15 +62,15 @@ CREATE INDEX idx_module_cycle ON module(cycle_id);
 -- =============================================================================
 
 CREATE TABLE teacher (
-    id              SERIAL       PRIMARY KEY,
-    username        VARCHAR(60)  NOT NULL UNIQUE,
-    password_hash   TEXT         NOT NULL,
-    role            VARCHAR(10)  NOT NULL CHECK (role IN ('admin', 'teacher', 'tutor')),
-    tutor_cycle_id  INT          UNIQUE
-                                 REFERENCES cycle(id)
-                                     ON DELETE SET NULL
-                                     ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    id              SERIAL      PRIMARY KEY,
+    username        VARCHAR(60) NOT NULL UNIQUE,
+    password_hash   TEXT        NOT NULL,
+    role            VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'teacher', 'tutor')),
+    tutor_cycle_id  INT         UNIQUE
+                                REFERENCES cycle(id)
+                                    ON DELETE SET NULL
+                                    ON UPDATE CASCADE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- role='tutor'  ↔  tutor_cycle_id IS NOT NULL
     -- role='admin'  →  tutor_cycle_id IS NULL (covered by the biconditional)
@@ -77,13 +80,14 @@ CREATE TABLE teacher (
 
 COMMENT ON TABLE  teacher                IS 'System users: admin, teacher or tutor';
 COMMENT ON COLUMN teacher.password_hash  IS 'bcrypt hash — never store plaintext';
+COMMENT ON COLUMN teacher.role           IS 'Values: admin, teacher, tutor — enforced by CHECK, no ENUM';
 COMMENT ON COLUMN teacher.tutor_cycle_id IS 'NULL for admin and teacher; required for tutor';
 
 CREATE INDEX idx_teacher_tutor_cycle ON teacher(tutor_cycle_id) WHERE tutor_cycle_id IS NOT NULL;
 
 
--- Trigger: UNIQUE on tutor_cycle_id already prevents two tutors for the same cycle;
--- this function adds a descriptive error message.
+-- UNIQUE on tutor_cycle_id already prevents two tutors for the same cycle;
+-- this trigger adds a descriptive error message.
 CREATE OR REPLACE FUNCTION trg_max_tutors_per_cycle()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
@@ -108,16 +112,16 @@ CREATE TRIGGER trg_max_tutors
     FOR EACH ROW EXECUTE FUNCTION trg_max_tutors_per_cycle();
 
 
--- Teacher ↔ Module assignment (current assignment, no academic year history)
+-- Teacher ↔ Module assignment (permanent, no academic year history)
 CREATE TABLE teacher_module (
     teacher_id  INT NOT NULL REFERENCES teacher(id)
-                        ON DELETE CASCADE ON UPDATE CASCADE,
+                        ON DELETE CASCADE  ON UPDATE CASCADE,
     module_id   INT NOT NULL REFERENCES module(id)
                         ON DELETE RESTRICT ON UPDATE CASCADE,
     PRIMARY KEY (teacher_id, module_id)
 );
 
-COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers (no academic year history)';
+COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers; no academic year — temporal context via module → cycle → legislation';
 
 CREATE INDEX idx_teacher_module_module ON teacher_module(module_id);
 
@@ -136,22 +140,22 @@ CREATE TABLE student (
 );
 
 COMMENT ON TABLE  student      IS 'Student enrolled in a vocational cycle';
-COMMENT ON COLUMN student.name IS 'Free text: real name or anonymised code (e.g. JJ499)';
+COMMENT ON COLUMN student.name IS 'Free text: real name or anonymised code (e.g. JJ499); no format enforced';
 
 CREATE INDEX idx_student_cycle ON student(cycle_id);
 CREATE INDEX idx_student_name  ON student(name);
 
 
--- Student ↔ Module enrollment (explicit, managed by teacher, no academic year)
+-- Student ↔ Module enrollment (explicit, managed by teacher)
 CREATE TABLE student_module (
     student_id  INT NOT NULL REFERENCES student(id)
-                        ON DELETE CASCADE ON UPDATE CASCADE,
+                        ON DELETE CASCADE  ON UPDATE CASCADE,
     module_id   INT NOT NULL REFERENCES module(id)
                         ON DELETE RESTRICT ON UPDATE CASCADE,
     PRIMARY KEY (student_id, module_id)
 );
 
-COMMENT ON TABLE student_module IS 'Explicit student enrollment per module, managed by the teacher';
+COMMENT ON TABLE student_module IS 'Explicit student enrollment per module; a student in a cycle may not attend all its modules';
 
 CREATE INDEX idx_student_module_module ON student_module(module_id);
 
@@ -160,21 +164,18 @@ CREATE INDEX idx_student_module_module ON student_module(module_id);
 -- Projects
 -- =============================================================================
 
+-- No cycle_id here — the cycle is inferred via project_student → student → cycle.
 CREATE TABLE project (
     id            SERIAL       PRIMARY KEY,
     name          VARCHAR(120) NOT NULL,
-    cycle_id      INT          NOT NULL REFERENCES cycle(id)
-                                   ON DELETE RESTRICT
-                                   ON UPDATE CASCADE,
     academic_year CHAR(9)      NOT NULL
                                CHECK (academic_year ~ '^\d{4}-\d{4}$'),
     created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  project               IS 'End-of-cycle student project';
+COMMENT ON TABLE  project               IS 'End-of-cycle student project; cycle inferred through its members';
 COMMENT ON COLUMN project.academic_year IS 'Format YYYY-YYYY e.g. 2024-2025';
 
-CREATE INDEX idx_project_cycle         ON project(cycle_id);
 CREATE INDEX idx_project_academic_year ON project(academic_year);
 
 
@@ -186,13 +187,13 @@ CREATE TABLE project_student (
     PRIMARY KEY (project_id, student_id)
 );
 
-COMMENT ON TABLE project_student IS 'Student membership in a project; one project per student per academic year';
+COMMENT ON TABLE project_student IS 'Student membership in a project; one project per student per academic year (enforced by trigger)';
 
 CREATE INDEX idx_project_student_student ON project_student(student_id);
 
 
--- Trigger: one project per student per academic year
--- (academic_year lives on project, not on project_student, so a plain UNIQUE is not enough)
+-- Trigger: one project per student per academic year.
+-- academic_year lives on project, not on project_student, so a plain UNIQUE is not enough.
 CREATE OR REPLACE FUNCTION trg_unique_project_student_year()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE
@@ -227,12 +228,10 @@ CREATE TRIGGER trg_project_student_year
 -- Rubric
 -- =============================================================================
 
+-- The rubric is a module resource — no teacher_id (no owner).
 CREATE TABLE rubric (
     id            SERIAL       PRIMARY KEY,
     module_id     INT          NOT NULL REFERENCES module(id)
-                                   ON DELETE RESTRICT
-                                   ON UPDATE CASCADE,
-    teacher_id    INT          NOT NULL REFERENCES teacher(id)
                                    ON DELETE RESTRICT
                                    ON UPDATE CASCADE,
     academic_year CHAR(9)      NOT NULL
@@ -243,22 +242,21 @@ CREATE TABLE rubric (
     UNIQUE (module_id, academic_year)
 );
 
-COMMENT ON TABLE  rubric               IS 'Scoring rubric: one per module per academic year';
-COMMENT ON COLUMN rubric.name          IS 'Optional title; if NULL the module name is shown';
+COMMENT ON TABLE  rubric               IS 'Scoring rubric: one per module per academic year; owned by the module, not by any specific teacher';
+COMMENT ON COLUMN rubric.name          IS 'Optional title; if NULL the module name is shown in the UI';
 COMMENT ON COLUMN rubric.academic_year IS 'Allows a different rubric each year even if the teacher changes';
 
 CREATE INDEX idx_rubric_module        ON rubric(module_id);
-CREATE INDEX idx_rubric_teacher       ON rubric(teacher_id);
 CREATE INDEX idx_rubric_academic_year ON rubric(academic_year);
 
 
 CREATE TABLE rubric_item (
-    id            SERIAL    PRIMARY KEY,
-    rubric_id     INT       NOT NULL REFERENCES rubric(id)
-                                ON DELETE CASCADE
-                                ON UPDATE CASCADE,
-    description   TEXT      NOT NULL,
-    display_order SMALLINT  NOT NULL CHECK (display_order > 0),
+    id            SERIAL   PRIMARY KEY,
+    rubric_id     INT      NOT NULL REFERENCES rubric(id)
+                               ON DELETE CASCADE
+                               ON UPDATE CASCADE,
+    description   TEXT     NOT NULL,
+    display_order SMALLINT NOT NULL CHECK (display_order > 0),
 
     UNIQUE (rubric_id, display_order)
 );
@@ -305,6 +303,8 @@ CREATE TABLE correction (
                                    ON DELETE RESTRICT ON UPDATE CASCADE,
     rubric_id     INT          NOT NULL REFERENCES rubric(id)
                                    ON DELETE RESTRICT ON UPDATE CASCADE,
+    teacher_id    INT          NOT NULL REFERENCES teacher(id)
+                                   ON DELETE RESTRICT ON UPDATE CASCADE,
     academic_year CHAR(9)      NOT NULL
                                CHECK (academic_year ~ '^\d{4}-\d{4}$'),
     final_score   NUMERIC(4,2) NOT NULL
@@ -316,12 +316,14 @@ CREATE TABLE correction (
 );
 
 COMMENT ON TABLE  correction               IS 'Final grade for a student in a module for an academic year';
+COMMENT ON COLUMN correction.teacher_id    IS 'Teacher who performed the correction; preserved for audit even if teacher is later reassigned';
 COMMENT ON COLUMN correction.final_score   IS 'Normalised to 0–10: SUM(selected scores) / SUM(max score per item) × 10';
-COMMENT ON COLUMN correction.academic_year IS 'Denormalised from rubric.academic_year to support the UNIQUE constraint and direct queries';
+COMMENT ON COLUMN correction.academic_year IS 'Denormalised from rubric.academic_year to support UNIQUE(student_id, module_id, academic_year) without a JOIN';
 
 CREATE INDEX idx_correction_student       ON correction(student_id);
 CREATE INDEX idx_correction_module        ON correction(module_id);
 CREATE INDEX idx_correction_rubric        ON correction(rubric_id);
+CREATE INDEX idx_correction_teacher       ON correction(teacher_id);
 CREATE INDEX idx_correction_academic_year ON correction(academic_year);
 
 
