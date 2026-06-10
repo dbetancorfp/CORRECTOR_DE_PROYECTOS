@@ -32,16 +32,29 @@
                     <legend>Nuevo profesor:</legend>
                     <input type="text" name="nameTeacher" id="nameTeacher" data-element-id="7" placeholder="Nombre del profesor">
                     <input type="password" name="passwordTeacher" id="passwordTeacher" data-element-id="8" placeholder="Contraseña">
+
+                   <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="34">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                    </select>
+
+                    <select name="Law" id="Law" data-element-id="34">
+                        <option value="">Seleccionar legislación</option>
+                        <option value="law1">LOE</option>
+                        <option value="law2">LOMLOE</option>
+                    </select>
+
                     <!--Desplegable para seleccionar el ciclo-->
                     <select name="cicle" id="cicle" data-element-id="68">
-                        <option value="">Seleccionar proyecto</option>
+                        <option value="">Seleccionar ciclo</option>
                         <option value="1">Desarrollo de aplicaciones web (DAW)</option>
                         <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
                         <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
                     </select>
                     <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
                     <select name="module" id="module" data-element-id="68">
-                        <option value="">Seleccionar proyecto</option>
+                        <option value="">Seleccionar módulo</option>
                         <option value="1">Sistemas informáticos (SSF)</option>
                         <option value="2">Digitalización (DJK)</option> 
                         <option value="2">Despliegue</option>
@@ -66,14 +79,16 @@
             <tr>
                 <th>Nombre</th>
                 <th>Contraseña</th>
+                <th>Año</th>
                 <th data-element-id="26">Ciclo</th>
                 <th data-element-id="27">Módulos</th>
                 <th data-element-id="28">Editar</th>
                 <th data-element-id="29">Borrar</th>
             </tr>
             <tr>
-                <td>dbetqui</td>
+                <td>Juan Ford</td>
                 <td>12345678</td>
+                <td>2025</td>
                 <td>Desarrollo de aplicaciones web</td>
                 <td>DEW</td>
                 <td>Icono editar</td>
