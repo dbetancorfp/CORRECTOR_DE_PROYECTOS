@@ -62,10 +62,9 @@ que determinan el modelo.
 ```mermaid
 erDiagram
     legislation {
-        serial      id             PK
-        varchar     abbreviation   "UNIQUE NOT NULL"
-        smallint    start_year     "NOT NULL"
-        smallint    end_year       "NULL if still in force"
+        serial      id          PK
+        varchar     name        "UNIQUE NOT NULL"
+        smallint    start_year  "NOT NULL"
     }
 
     cycle {
@@ -190,7 +189,7 @@ erDiagram
 | `correction.academic_year` denormalizado | Permite `UNIQUE(student_id, module_id, academic_year)` sin JOIN |
 | `final_score` siempre derivado | `SUM(scores elegidos) / SUM(score máx. por ítem) × 10`; no se almacena en `rubric` |
 | `project_student` con trigger | `UNIQUE(student_id, academic_year)` cruza dos tablas; no expresable con FK simples |
-| `legislation.end_year` nullable | NULL = legislación todavía en vigor |
+| `legislation.name` en lugar de `abbreviation` | El nombre completo (LOMLOE, LOE) es suficiente identificador; `end_year` se elimina porque es derivable de `start_year + 1` |
 
 ---
 

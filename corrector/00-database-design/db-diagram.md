@@ -3,10 +3,9 @@
 ```mermaid
 erDiagram
     legislation {
-        serial      id             PK
-        varchar     abbreviation   "UNIQUE NOT NULL"
-        smallint    start_year     "NOT NULL"
-        smallint    end_year       "NULL if still in force"
+        serial      id          PK
+        varchar     name        "UNIQUE NOT NULL"
+        smallint    start_year  "NOT NULL"
     }
 
     cycle {
@@ -133,4 +132,6 @@ erDiagram
 
 - **`project_student`** — one project per student per academic year enforced by trigger (`academic_year` lives on `project`, not on `project_student`, so a plain `UNIQUE` constraint cannot express this).
 
-- **`teacher_module` / `student_module`** — permanent assignments with no academic year. The temporal context is derivable via `module → cycle → legislation → start_year / end_year`.
+- **`teacher_module` / `student_module`** — permanent assignments with no academic year. The temporal context is derivable via `module → cycle → legislation → start_year`.
+
+- **`legislation.name`** — replaces `abbreviation`; the full name (e.g. LOMLOE) is the unique identifier. `end_year` removed — derivable as `start_year + 1`.

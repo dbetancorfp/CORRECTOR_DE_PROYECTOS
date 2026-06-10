@@ -20,14 +20,12 @@ CREATE TYPE teacher_role AS ENUM ('admin', 'teacher', 'tutor');
 
 CREATE TABLE legislation (
     id           SERIAL       PRIMARY KEY,
-    abbreviation VARCHAR(20)  NOT NULL UNIQUE,
+    name         VARCHAR(20)  NOT NULL UNIQUE,
     start_year   SMALLINT     NOT NULL CHECK (start_year > 1900),
-    end_year     SMALLINT     CHECK (end_year IS NULL OR end_year > start_year),
     created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE  legislation           IS 'Educational legal framework (e.g. LOMLOE, LOE)';
-COMMENT ON COLUMN legislation.end_year  IS 'NULL if the legislation is still in force';
+COMMENT ON TABLE  legislation IS 'Educational legal framework (e.g. LOMLOE, LOE)';
 
 
 CREATE TABLE cycle (
