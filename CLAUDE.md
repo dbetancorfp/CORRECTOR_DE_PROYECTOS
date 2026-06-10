@@ -344,11 +344,11 @@ customElements.define('corrector-button', CorrectorButton);
 
 ### Data model
 
-- **Legislación**: abbreviation (e.g. LOMLOE), start/end year
+- **Legislación**: name (e.g. LOMLOE), start year
 - **Ciclo**: name, linked to legislación; can have 0 or 1 tutor; requires a tutor to be
   usable for corrections
-- **Módulo**: name, abbreviation (e.g. DEW), weekly hours, ciclo
-- **Profesor**: username, password_hash, rol (`admin | profesor | tutor`); optionally tutor
+- **Módulo**: name, weekly hours, ciclo
+- **Profesor**: username, password_hash, rol (`admin,  profesor,  tutor`), not ENUMs; optionally tutor
   of one ciclo (`tutor_ciclo_id` nullable, UNIQUE); linked to módulos via `profesor_modulo`.
   No direct ciclo→profesor relation — the link is always ciclo→módulo→profesor.
 - **Alumno**: `nombre` (free text — professor may enter a real name or an anonymised code

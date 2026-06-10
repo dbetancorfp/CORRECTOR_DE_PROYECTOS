@@ -17,8 +17,8 @@ El núcleo de usuarios del personal se gestiona en una estructura común, pero c
 
 - **¿Quién controla el cotarro? (El Admin):** Existe un rol `Admin` que tiene su propia pantalla y permisos para gestionar legislaciones, 
    ciclos, módulos y el alta de profesores. En la base de datos lo meteremos como un valor más de roles
-    (`'admin' | 'profesor' | 'tutor'`). Importante: un admin nunca va a tutorizar un ciclo ni va a impartir módulos, así que esos campos se 
-    quedan en blanco para ellos.
+   `'admin'`, `'profesor'` y `'tutor'`, sin hacer uso de ENUM. Importante: un admin nunca va a tutorizar un ciclo ni va a impartir módulos, así que esos campos se
+   quedan en blanco para ellos.
 
 - **Profesores y Módulos:** Un usuario con rol `profesor` es un todoterreno; puede impartir varios módulos y estos pueden pertenecer a ciclos 
     completamente diferentes.

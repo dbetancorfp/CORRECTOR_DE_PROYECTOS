@@ -8,10 +8,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- gen_salt / crypt for password hashing
 
 
--- ---------------------------------------------------------------------------
--- Enumerations
--- ---------------------------------------------------------------------------
-CREATE TYPE teacher_role AS ENUM ('admin', 'teacher', 'tutor');
+-- No ENUM types — role domain enforced by CHECK constraint on the column.
 
 
 -- =============================================================================
@@ -65,7 +62,7 @@ CREATE TABLE teacher (
     id              SERIAL       PRIMARY KEY,
     username        VARCHAR(60)  NOT NULL UNIQUE,
     password_hash   TEXT         NOT NULL,
-    role            teacher_role NOT NULL,
+    role            VARCHAR(10)  NOT NULL CHECK (role IN ('admin', 'teacher', 'tutor')),
     tutor_cycle_id  INT          UNIQUE
                                  REFERENCES cycle(id)
                                      ON DELETE SET NULL

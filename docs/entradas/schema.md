@@ -39,7 +39,7 @@ que determinan el modelo.
 
 **Admin**
 
-- Rol `'admin'` es un tercer valor del ENUM `teacher_role` en la tabla `teacher`.
+- Rol `'admin'` es un valor más del campo `role VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))` en la tabla `teacher`. No se usa ENUM.
   Un admin no tiene `tutor_cycle_id` ni entradas en `teacher_module`.
 
 **Student ↔ Project ↔ Module**
@@ -84,7 +84,7 @@ erDiagram
         serial       id              PK
         varchar      username        "UNIQUE NOT NULL"
         text         password_hash   "NOT NULL"
-        teacher_role role            "admin|teacher|tutor"
+        varchar      role            "admin|teacher|tutor CHECK"
         int          tutor_cycle_id  "FK nullable UNIQUE"
     }
 
@@ -189,6 +189,7 @@ erDiagram
 | `final_score` siempre derivado | `SUM(scores elegidos) / SUM(score máx. por ítem) × 10`; no se almacena en `rubric` |
 | `project_student` con trigger | `UNIQUE(student_id, academic_year)` cruza dos tablas; no expresable con FK simples |
 | `legislation.name` en lugar de `abbreviation` | El nombre completo (LOMLOE, LOE) es suficiente identificador; `end_year` se elimina porque es derivable de `start_year + 1` |
+| Sin ENUM para `teacher.role` | `VARCHAR(10) CHECK (role IN ('admin', 'teacher', 'tutor'))` — más portable y compatible con generación de código SQL; sin `module.abbreviation` (eliminado) |
 
 ---
 

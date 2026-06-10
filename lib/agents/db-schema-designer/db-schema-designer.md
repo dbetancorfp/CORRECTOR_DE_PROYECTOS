@@ -18,6 +18,9 @@ No asumas nada que no esté explícitamente confirmado por el cliente.
 
 Alinea tu enfoque con los principios de diseño de base de datos y las mejores prácticas de ingeniería de software.
 
+No hagas uso de ENUM en el diseño, ya que no es compatible con la generación de código SQL. En su lugar, utiliza tablas de referencia
+ para representar enumeraciones o dominios de valores.
+
 ---
 
 ## Contexto que debes dominar antes de empezar

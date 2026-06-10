@@ -25,7 +25,7 @@ erDiagram
         serial       id              PK
         varchar      username        "UNIQUE NOT NULL"
         text         password_hash   "NOT NULL"
-        teacher_role role            "admin|teacher|tutor"
+        varchar      role            "admin|teacher|tutor CHECK"
         int          tutor_cycle_id  "FK nullable UNIQUE"
     }
 
