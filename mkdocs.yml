@@ -78,9 +78,9 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Entradas al sistema:
-    - Entrevista inicial: entradas/entrevista-inicial.md
     - Entrevista: entradas/entrevista.md
-    - Boceto: entradas/boceto.md
+    - Boceto de vistas: entradas/boceto.md
+    - Entrevista inicial DB: entradas/entrevista-inicial.md
     - Esquema BD: entradas/schema.md
   - Guía de usuario: guia.md
   - Arquitectura técnica: arquitectura.md
