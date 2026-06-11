@@ -22,20 +22,79 @@
         <div class="tabs">
             <button type="button" id="pupils">Alumnos</button>
             <button type="button" id="proyects">Proyectos</button>
-            <button type="button" id="items" data-element-id="52">Rúbrica</button>
+            <button type="button" id="asignacion">Asignación Proyecto-Alumno</button>
+            <button class="clicked" type="button" id="items">Rúbrica</button>
         </div>
 
-        <div class="filters">
-            <!--Filtros reactivos-->
-            <input type="text" name="filterProject" id="filterProject" data-element-id="53" placeholder="Filtrar por proyecto">
-            <input type="text" name="filterYear" id="filterYear" data-element-id="54" placeholder="Filtrar por año">
-            <input type="text" name="filterLaw" id="filterLaw" placeholder="Filtrar por legislación">
-            <p>Nombre del proyecto</p>
-            <button type="button" data-element-id="55">Nuevo</button>
+        <div >
+            <fieldset class="form-row">
+                <legend>Filtrar por módulo:</legend>    
+                <input type="text" name="namePupil" id="namePupilFilter" data-element-id="84" placeholder="Filtrar por proyecto">
+
+                <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="85">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                </select>
+
+                <select name="Law" id="Law" data-element-id="86">
+                    <option value="">Seleccionar legislación</option>
+                    <option value="law1">LOE</option>
+                    <option value="law2">LOMLOE</option>
+                </select>
+
+                <!--Desplegable para seleccionar el ciclo-->
+                <select name="cicle" id="cicle" data-element-id="87">
+                    <option value="">Seleccionar ciclo</option>
+                    <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                    <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                    <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                </select>
+                <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                <select name="module" id="module" data-element-id="88">
+                    <option value="">Seleccionar módulo</option>
+                    <option value="1">Sistemas informáticos (SSF)</option>
+                    <option value="2">Digitalización (DJK)</option> 
+                    <option value="2">Despliegue</option>
+                </select>
+            </fieldset>   
         </div>
-        <div>
-          <table style="border: 1px solid black;" data-element-id="56">
-            <tr>
+
+
+        <div >
+            <fieldset class="form-row">
+                <legend>Nuevo item:</legend> 
+                <div style="display: flex; justify-content: right;">
+                    <button type="button" data-element-id="89">Nuevo nivel</button>
+                </div>
+                <div>
+                    <table class="rubrictable" data-element-id="90">
+                        <tr>
+                            <th>Item</th>
+                            <th>Excelente</th>
+                            <th>Bien</th>
+                            <th>Mal</th>
+                            <th>Borrar</th>
+                        </tr>
+                        <tr>
+                            <td data-element-id="57">Uso de lenguaje técnico en la presentación</td>
+                            <td data-element-id="58">2</td>
+                            <td data-element-id="60">1</td>
+                            <td data-element-id="62">0</td>
+                            <td data-element-id="90">Icono borrar</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="buttons-to-extreme">
+                    <button type="button" data-element-id="91">Añadir item</button>
+                    <button type="button" data-element-id="92">Subir rúbrica</button>
+                </div>
+            </fieldset>
+        </div>
+
+        <div style="width: 100%;">
+          <table style="border: 1px solid black; border-collapse: collapse;" data-element-id="93">
+            <tr> 
                 <th>Item</th>
                 <th>Excelente</th>
                 <th>Muy bien</th>
@@ -45,7 +104,7 @@
                 <th>Borrar</th>
             </tr>
             <tr>
-                <td data-element-id="57">Buena documentación</td>
+                <td data-element-id="57">Documentación completa</td>
                 <td data-element-id="58">2</td>
                 <td data-element-id="59">1.75</td>
                 <td data-element-id="60">1</td>
@@ -54,11 +113,7 @@
                 <td data-element-id="90">Icono borrar</td>
             </tr>
           </table>
-          <div class="score-bar">
-             <button type="button" data-element-id="63">Subir rúbrica</button>
-             <p>Puntuación máxima</p>
-             <p data-puntuacion="NotaMaximaRubrica" data-element-id="64">10</p>
-          </div>
+
         </div>
     </section>
 </body>

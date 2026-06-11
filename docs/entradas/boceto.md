@@ -1,6 +1,6 @@
 # Boceto — Prototipos HTML
 
-11 pantallas anotadas con `data-element-id` — 90 elementos en total.
+12 pantallas anotadas con `data-element-id` — 93 elementos en total.
 Cada número es el **sketchNumber** que traza todos los artefactos del pipeline.
 
 === "Login"

@@ -91,3 +91,24 @@ nav {
   grid-template-columns: repeat(3, 0.2fr);
   gap: 1rem;
 }
+
+.rubrictable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td, tr {
+  border: 1px solid black;
+  text-align: center;
+}
+
+.buttons-to-extreme {
+  display: grid;
+  grid-template-columns: auto auto; /* Dos columnas automáticas */
+  justify-content: space-between; /* Empuja los elementos a los extremos */
+  width: 100%;
+}
