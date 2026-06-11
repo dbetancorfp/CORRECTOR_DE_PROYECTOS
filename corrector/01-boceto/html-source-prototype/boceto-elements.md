@@ -77,42 +77,62 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 30 | Botón Imprimir notas | botón | Visible exclusivamente para el rol Tutor; accede a la impresión de notas |
+| 45 | Botón Imprimir notas | botón | Visible exclusivamente para el rol Tutor; accede a la impresión de notas |
+
+---
+
+## Elementos compartidos — Tabs Gestión (Alumnos · Proyectos · Asignación)
+
+Los IDs 46–57 aparecen en los tres tabs de Gestión del profesor representando los mismos
+controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) varía por tab.
+
+> ⚠️ **CONFLICTO DE IDs**: Los IDs 52–58 también aparecen en el tab Rúbrica (elementos distintos).
+> Es necesario renumerar antes de avanzar en el pipeline.
+
+| # | Elemento | Tipo | Descripción |
+|---|----------|------|-------------|
+| 46 | Campo nombre (formulario alta) | input texto | Nombre del alumno o proyecto a crear |
+| 47 | Selector año inicio (formulario alta) | select | Año de inicio del curso académico |
+| 48 | Selector legislación (formulario alta) | select | Legislación aplicable (LOE, LOMLOE…) |
+| 49 | Selector ciclo (formulario alta) | select | Ciclo formativo, filtrado por legislación |
+| 50 | Selector módulo (formulario alta) | select | Módulo del ciclo, filtrado por ciclo |
+| 51 | Botón Nuevo | botón | Persiste el nuevo alumno o proyecto con los datos del formulario |
+| 52 | Botón Subir lista | botón | Importación masiva desde fichero (CSV / Excel) — sólo en tab Alumnos |
+| 53 | Filtro por nombre/proyecto | input texto | Filtro reactivo sobre el listado |
+| 54 | Filtro por año (listado) | select | Acota el listado por año de inicio del curso |
+| 55 | Filtro por legislación (listado) | select | Acota el listado por legislación |
+| 56 | Filtro por ciclo (listado) | select | Acota el listado por ciclo formativo |
+| 57 | Filtro por módulo (listado) | select | Acota el listado por módulo |
 
 ---
 
 ## vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html — Profesor · Tab Alumnos
 
+> Usa los elementos compartidos 46–57. Elementos propios:
+
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 31 | Tab Alumnos | botón | Activa la vista de gestión de alumnos (estado seleccionado) |
-| 32 | Filtro por nombre | input texto | Filtro reactivo: reduce la tabla al escribir parte del identificador del alumno |
-| 33 | Filtro por ciclo | input texto | Filtro reactivo: reduce la tabla al escribir el ciclo |
-| 34 | Filtro por legislación | input texto | Filtro reactivo: reduce la tabla al escribir la legislación |
-| 35 | Botón Nuevo | botón | Abre el formulario para dar de alta a un nuevo alumno |
-| 36 | Tabla de alumnos | tabla | Lista todos los alumnos con nombre, ciclo, legislación y acciones |
-| 37 | Columna Ciclo | cabecera columna | Ciclo al que pertenece el alumno |
-| 38 | Columna Legislación | cabecera columna | Legislación bajo la que cursa el alumno |
-| 39 | Columna Editar | cabecera columna | Columna de acciones de edición por fila |
-| 40 | Columna Borrar | cabecera columna | Columna de acciones de borrado por fila |
-| 41 | Botón Subir lista de alumnos | botón | Importación masiva de alumnos desde fichero (CSV / Excel) |
+| 58 | Tabla de alumnos | tabla | Lista alumnos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
 
 ---
 
 ## vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html — Profesor · Tab Proyectos
 
+> Usa los elementos compartidos 46–57. Elementos propios:
+
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 42 | Botón Seleccionar módulo | botón | Permite cambiar el módulo activo sobre el que se gestionan proyectos |
-| 43 | Filtro por proyecto | input texto | Filtro reactivo: reduce la tabla al escribir el nombre del proyecto |
-| 44 | Filtro por año | input texto | Filtro reactivo: reduce la tabla al escribir el año académico |
-| 45 | Filtro por legislación | input texto | Filtro reactivo: reduce la tabla al escribir la legislación |
-| 46 | Botón Nuevo | botón | Abre el formulario para crear un nuevo proyecto |
-| 47 | Tabla de proyectos | tabla | Lista todos los proyectos con nombre, alumnado y acciones |
-| 48 | Columna Alumnado | cabecera columna | Muestra los alumnos asignados al proyecto |
-| 49 | Columna Añadir alumnado | cabecera columna | Acción para gestionar qué alumnos pertenecen al proyecto (icono rueda dentada) |
-| 50 | Columna Editar | cabecera columna | Columna de acciones de edición por fila |
-| 51 | Columna Borrar | cabecera columna | Columna de acciones de borrado por fila |
+| 47 | Tabla de proyectos | tabla | Lista proyectos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
+
+---
+
+## vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html — Profesor · Tab Asignación Proyecto-Alumno
+
+> Usa los elementos de filtro compartidos 53–57. Elementos propios:
+
+| # | Elemento | Tipo | Descripción |
+|---|----------|------|-------------|
+| 47 | Tabla de asignaciones | tabla | Lista proyectos con alumnos asignados: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
 
 ---
 

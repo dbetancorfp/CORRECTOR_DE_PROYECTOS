@@ -21,50 +21,16 @@
         <!-- Tabs- tab Proyectos seleccionado -->
         <div class="tabs">
             <button type="button" id="pupils">Alumnos</button>
-            <button class="clicked"  type="button" id="proyects">Proyectos</button>
-            <button type="button" id="asignacion">Asignación Proyecto-Alumno</button>
+            <button type="button" id="proyects">Proyectos</button>
+            <button class="clicked" type="button" id="asignacion">Asignación Proyecto-Alumno</button>
             <button type="button" id="items">Rúbrica</button>
         </div>
 
-        <form action="">
+
+
+        <div class="doscolfilter">
             <fieldset class="form-row">
-                <legend>Nuevo proyecto:</legend>
-                    <input type="text" name="nameProject" id="nameProject" data-element-id="46" placeholder="Nombre del proyecto">
-
-                <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="47">
-                        <option value="">Seleccionar año</option>
-                        <option value="2024">2024</option>
-                        <option value="2026">2026</option>
-                </select>
-
-                <select name="Law" id="Law" data-element-id="48">
-                    <option value="">Seleccionar legislación</option>
-                    <option value="law1">LOE</option>
-                    <option value="law2">LOMLOE</option>
-                </select>
-
-                <!--Desplegable para seleccionar el ciclo-->
-                <select name="cicle" id="cicle" data-element-id="49">
-                    <option value="">Seleccionar ciclo</option>
-                    <option value="1">Desarrollo de aplicaciones web (DAW)</option>
-                    <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
-                    <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
-                </select>
-                <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
-                <select name="module" id="module" data-element-id="50">
-                    <option value="">Seleccionar módulo</option>
-                    <option value="1">Sistemas informáticos (SSF)</option>
-                    <option value="2">Digitalización (DJK)</option> 
-                    <option value="2">Despliegue</option>
-                </select>
-
-                <button type="button" data-element-id="51">Nuevo</button>                       
-            </fieldset>
-        </form>
-
-        <div>
-        <fieldset class="form-row">
-            <legend>Filtrar por:</legend>    
+                <legend>Filtrar por:</legend>    
                 <input type="text" name="namePupil" id="namePupilFilter" data-element-id="53" placeholder="Filtrar por proyecto">
 
                 <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="54">
@@ -95,8 +61,58 @@
                 </select>
 
 
+                </fieldset>       
+                <fieldset class="form-row">
+                    <legend>Filtrar por:</legend>    
+                    <input type="text" name="namePupil" id="namePupilFilter" data-element-id="53" placeholder="Filtrar por nombre">
+
+                    <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="54">
+                            <option value="">Seleccionar año</option>
+                            <option value="2024">2024</option>
+                            <option value="2026">2026</option>
+                    </select>
+
+                    <select name="Law" id="Law" data-element-id="55">
+                        <option value="">Seleccionar legislación</option>
+                        <option value="law1">LOE</option>
+                        <option value="law2">LOMLOE</option>
+                    </select>
+
+                    <!--Desplegable para seleccionar el ciclo-->
+                    <select name="cicle" id="cicle" data-element-id="56">
+                        <option value="">Seleccionar ciclo</option>
+                        <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                        <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                        <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                    </select>
+                    <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                    <select name="module" id="module" data-element-id="57">
+                        <option value="">Seleccionar módulo</option>
+                        <option value="1">Sistemas informáticos (SSF)</option>
+                        <option value="2">Digitalización (DJK)</option> 
+                        <option value="2">Despliegue</option>
+                    </select>
             </fieldset>   
         </div>
+
+        <div class="trescolfilter">
+            <fieldset>
+                <legend>Módulo:</legend>  
+                Sistemas informáticos (SSF)  
+            </fieldset>
+
+            <button type="text">Agregar alumnos</button>
+
+            <fieldset>
+                <legend>Alumnos:</legend>    
+                John Doe <br>
+                David Smith<br>
+            </fieldset>
+            
+        </div>
+
+        <br>
+
         <div>
           <table style="border: 1px solid black;" data-element-id="47">
             <tr>

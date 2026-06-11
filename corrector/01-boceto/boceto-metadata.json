@@ -4,8 +4,13 @@
   "boecetoPath": "./html-source-prototype/",
   "elementsRegistry": "./html-source-prototype/boceto-elements.md",
   "totalElements": 90,
-  "deprecatedElements": [49],
-  "notes": "Elements #81–#84 (Legislación CRUD actions) and #85–#90 (Ver Notas screen + Rúbrica delete icon) added during BA client interview (2026-05-31). Element #49 deprecated: student assignment consolidated into project creation modal (#46). Element #53 corrected: filter operates on módulo, not proyecto.",
+  "deprecatedElements": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 49],
+  "conflicts": {
+    "description": "IDs 52–58 appear in both Tab Alumnos (redesigned) and Tab Rúbrica (unchanged). Renumbering required before advancing in the pipeline.",
+    "duplicateIds": [52, 53, 54, 55, 56, 57, 58],
+    "screens": ["vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html", "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html"]
+  },
+  "notes": "2026-06-11: Redesigned Gestión tabs (Alumnos, Proyectos) with structured forms; added new Tab Asignación Proyecto-Alumno screen. Old IDs 30–51 replaced by shared form/filter elements 46–57 + Alumnos table #58. Element #45 reassigned: was Proyectos filter, now Imprimir notas button (Landing Profesor). WARNING: ID conflicts 52–58 vs Rúbrica tab — resolve before pipeline continues. Previous notes: Elements #81–#84 (Legislación CRUD actions) and #85–#90 (Ver Notas screen + Rúbrica delete icon) added during BA client interview (2026-05-31).",
   "screens": [
     {
       "file": "index.html",
@@ -35,22 +40,31 @@
     {
       "file": "vista_profesor-landing.html",
       "label": "Landing Profesor",
-      "sketchNumbers": [30]
+      "sketchNumbers": [45]
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
       "label": "Profesor · Tab Alumnos",
-      "sketchNumbers": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+      "sketchNumbers": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
+      "note": "IDs 46–57 are shared with Proyectos and Asignación tabs. IDs 52–58 conflict with Tab Rúbrica."
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
       "label": "Profesor · Tab Proyectos",
-      "sketchNumbers": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+      "sketchNumbers": [46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 57],
+      "note": "IDs 46–57 shared with Alumnos and Asignación tabs."
+    },
+    {
+      "file": "vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html",
+      "label": "Profesor · Tab Asignación Proyecto-Alumno",
+      "sketchNumbers": [47, 53, 54, 55, 56, 57],
+      "note": "Filter IDs 53–57 shared with Alumnos and Proyectos tabs."
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
       "label": "Profesor · Tab Rúbrica",
-      "sketchNumbers": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 90]
+      "sketchNumbers": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 90],
+      "note": "IDs 52–58 conflict with redesigned Alumnos tab — renumbering pending."
     },
     {
       "file": "vista_profesor-landing-ver_notas.html",

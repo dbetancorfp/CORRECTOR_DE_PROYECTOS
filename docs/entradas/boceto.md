@@ -51,6 +51,12 @@ Cada número es el **sketchNumber** que traza todos los artefactos del pipeline.
             style="border:1px solid #e0e0e0;border-radius:6px;background:#fff;">
     </iframe>
 
+=== "Profesor — Asignación"
+    <iframe src="../../boceto-screens/vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html"
+            width="100%" height="620"
+            style="border:1px solid #e0e0e0;border-radius:6px;background:#fff;">
+    </iframe>
+
 === "Profesor — Rúbrica"
     <iframe src="../../boceto-screens/vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html"
             width="100%" height="620"

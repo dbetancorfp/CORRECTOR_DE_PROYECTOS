@@ -20,36 +20,109 @@
         <div><p><h2>Gestión</h2></p></div>
         <!-- Tabs- tab Alumnos seleccionado -->
         <div class="tabs">
-            <button type="button" id="pupils" data-element-id="31">Alumnos</button>
+            <button class="clicked" type="button" id="pupils">Alumnos</button>
             <button type="button" id="proyects">Proyectos</button>
+            <button type="button" id="asignacion">Asignación Proyecto-Alumno</button>
             <button type="button" id="items">Rúbrica</button>
         </div>
 
-        <div class="filters">
-            <!--Filtros reactivos-->
-            <input type="text" name="filterName" id="filterName" data-element-id="32" placeholder="Filtrar por nombre">
-            <input type="text" name="filterCicle" id="filterCicle" data-element-id="33" placeholder="Filtrar por ciclo">
-            <input type="text" name="filterLaw" id="filterLaw" data-element-id="34" placeholder="Filtrar por legislación">
-            <button type="button" data-element-id="35">Nuevo</button>
-        </div>
+        <form action="">
+            <fieldset class="form-row">
+                <legend>Nuevo alumno:</legend>
+                    <input type="text" name="namePupil" id="namePupil" data-element-id="46" placeholder="Nombre del alumno">
+
+                <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="47">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                </select>
+
+                <select name="Law" id="Law" data-element-id="48">
+                    <option value="">Seleccionar legislación</option>
+                    <option value="law1">LOE</option>
+                    <option value="law2">LOMLOE</option>
+                </select>
+
+                <!--Desplegable para seleccionar el ciclo-->
+                <select name="cicle" id="cicle" data-element-id="49">
+                    <option value="">Seleccionar ciclo</option>
+                    <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                    <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                    <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                </select>
+                <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                <select name="module" id="module" data-element-id="50">
+                    <option value="">Seleccionar módulo</option>
+                    <option value="1">Sistemas informáticos (SSF)</option>
+                    <option value="2">Digitalización (DJK)</option> 
+                    <option value="2">Despliegue</option>
+                </select>
+                <div>
+                    <button type="button" data-element-id="51">Nuevo</button>
+                    <button type="button" data-element-id="52">Subir lista de alumnos</button>
+                </div>
+                    
+            </fieldset>
+        </form>
+
         <div>
-          <table style="border: 1px solid black;" data-element-id="36">
+        <fieldset class="form-row">
+            <legend>Filtrar por:</legend>    
+                <input type="text" name="namePupil" id="namePupilFilter" data-element-id="53" placeholder="Filtrar por nombre">
+
+                <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="54">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                </select>
+
+                <select name="Law" id="Law" data-element-id="55">
+                    <option value="">Seleccionar legislación</option>
+                    <option value="law1">LOE</option>
+                    <option value="law2">LOMLOE</option>
+                </select>
+
+                <!--Desplegable para seleccionar el ciclo-->
+                <select name="cicle" id="cicle" data-element-id="56">
+                    <option value="">Seleccionar ciclo</option>
+                    <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                    <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                    <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                </select>
+                <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                <select name="module" id="module" data-element-id="57">
+                    <option value="">Seleccionar módulo</option>
+                    <option value="1">Sistemas informáticos (SSF)</option>
+                    <option value="2">Digitalización (DJK)</option> 
+                    <option value="2">Despliegue</option>
+                </select>
+
+
+            </fieldset>   
+        </div>
+
+        <div>
+          <table style="border: 1px solid black;" data-element-id="58">
             <tr>
                 <th>Nombre</th>
-                <th data-element-id="37">Ciclo</th>
-                <th data-element-id="38">Legislación</th>
-                <th data-element-id="39">Editar</th>
-                <th data-element-id="40">Borrar</th>
+                <th>Módulo</th>
+                <th>Ciclo</th>
+                <th>Legislación</th>
+                <th>Año de inicio</th>
+                <th>Editar</th>
+                <th>Borrar</th>
             </tr>
             <tr>
-                <td>JJ499</td>
-                <td>Desarrollo de aplicaciones web</td>
+                <td>Michael Knight</td>
+                <td>Desarrollo del lado del cliente (DEW)</td>
+                <td>Desarrollo de aplicaciones web (DAW)</td>
                 <td>LOMLOE</td>
+                <td>2025</td>
                 <td>Icono editar</td>
                 <td>Icono borrar</td>
             </tr>
           </table>
-          <button type="button" data-element-id="41">Subir lista de alumnos</button>
+          
         </div>
     </section>
 </body>

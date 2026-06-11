@@ -79,3 +79,15 @@ nav {
 .clicked {
   background-color: darkgray;
 }
+
+.doscolfilter {
+  display: grid;
+  grid-template-columns: repeat(2, 0.2fr);
+  gap: 1rem;
+}
+
+.trescolfilter {
+  display: grid;
+  grid-template-columns: repeat(3, 0.2fr);
+  gap: 1rem;
+}
