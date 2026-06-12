@@ -57,23 +57,33 @@ nav {
 }
 
 /* Checkbox selection row */
-.checkbox-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
+.checkbox-column {
+  display: flex;
+  flex-direction: column; /* Alineación vertical estricta */
   gap: 0.75rem;
-  align-items: center;
-  margin-block: 0.5rem;
+  margin-block: 0.2rem;
+  width: max-content;    /* Evita que ocupe todo el ancho si no es necesario */
+}
+
+.checkbox-column label {
+  display: flex;
+  align-items: center;   /* Centra verticalmente el checkbox con el texto */
+  gap: 0.5rem;           /* Espacio entre el cuadrito y el nombre */
+  cursor: pointer;
 }
 
 /* Score / action bar */
 .score-bar {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  gap: 1rem;
-  align-items: center;
+  display: flex;
+  flex-direction: column; /* Alinea una frase debajo de la otra */
+  gap: 0.75rem;          /* Espacio entre las dos frases */
   margin-block: 0.5rem;
+}
+
+.score-line {
+  display: flex;
+  gap: 0.5rem;           /* Espacio entre el texto y el número */
+  align-items: center;
 }
 
 .clicked {

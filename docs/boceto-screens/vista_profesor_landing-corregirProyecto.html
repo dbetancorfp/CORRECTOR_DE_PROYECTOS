@@ -20,48 +20,99 @@
     </section>
 
     <!--Filtros reactivos-->
-    <div class="filters">
-        <input type="text" name="filterYear" id="filterYear" data-element-id="65" placeholder="Filtrar por año">
-        <input type="text" name="filterCicle" id="filterCicle" data-element-id="66" placeholder="Filtrar por ciclo">
-        <input type="text" name="filterModule" id="filterModule" data-element-id="67" placeholder="Filtrar por módulo">
+    <div >
+        <fieldset class="form-row">
+            <legend>Filtrar por módulo:</legend>    
+                <select name="firstYearAcademicLaw" id="firstYearAcademicLaw" data-element-id="94">
+                        <option value="">Seleccionar año</option>
+                        <option value="2024">2024</option>
+                        <option value="2026">2026</option>
+                </select>
+
+                <select name="Law" id="Law" data-element-id="95">
+                    <option value="">Seleccionar legislación</option>
+                    <option value="law1">LOE</option>
+                    <option value="law2">LOMLOE</option>
+                </select>
+
+                <!--Desplegable para seleccionar el ciclo-->
+                <select name="cicle" id="cicle" data-element-id="96">
+                    <option value="">Seleccionar ciclo</option>
+                    <option value="1">Desarrollo de aplicaciones web (DAW)</option>
+                    <option value="2">Desarrollo de aplicaciones multiplanatormas (DAM)</option> 
+                    <option value="2">Sistemas de aplicaciones informáticas (ASR)</option>
+                </select>
+
+                <!--Desplegable para seleccionar el módulo filtrado por ciclo-->
+                <select name="module" id="module" data-element-id="97">
+                    <option value="">Seleccionar módulo</option>
+                    <option value="1">Sistemas informáticos (SSF)</option>
+                    <option value="2">Digitalización (DJK)</option> 
+                    <option value="2">Despliegue</option>
+                </select>
+
+                <!--Desplegable para seleccionar el proyecto-->
+                <select name="proyect" id="proyect" data-element-id="98">
+                    <option value="">Seleccionar proyecto</option>
+                    <option value="1">Simulador de submarino</option>
+                    <option value="2">Gestion de marketing</option> 
+                    <option value="2">Quick Taxi</option>
+                </select>
+
+        </fieldset>   
     </div>
 
-    <!--Desplegable para seleccionar el proyecto a corregir-->
-    <select name="project" id="project" data-element-id="68">
-        <option value="">Seleccionar proyecto</option>
-        <option value="1">Proyecto 1</option>
-        <option value="2">Proyecto 2</option>
-    </select>
-
-    <div class="checkbox-row">
-        <input type="checkbox" name="group" id="group" data-element-id="77"> Corregir por grupo
-        <input type="checkbox" name="pupil_1" id="pupil_1" data-element-id="78">
-        <input type="checkbox" name="pupil_2" id="pupil_2" data-element-id="79">
-        <input type="checkbox" name="pupil_3" id="pupil_3" data-element-id="80">
+    <div class="checkbox-column">
+        <label><input type="checkbox" name="group" id="group" data-element-id="99"> Corregir por grupo</label>
+        <label><input type="checkbox" name="pupil_1" id="pupil_1" data-element-id="100"> John English</label>
+        <label><input type="checkbox" name="pupil_2" id="pupil_2" data-element-id="101"> Chu Waka</label>
+        <label><input type="checkbox" name="pupil_3" id="pupil_3" data-element-id="102"> McDonald</label>
     </div>
 
-    <div>
-        <table style="border: 1px solid black;" data-element-id="69">
-            <tr>
-                <th>Item</th>
-                <th>Excelente</th>
-                <th>Muy bien</th>
-                <th>Bien</th>
-                <th>Regular</th>
-                <th>Mal</th>
-            </tr>
-            <tr>
-                <td data-element-id="70">Grupo 1</td>
-                <td data-element-id="71">2</td>
-                <td data-element-id="72">1.75</td>
-                <td data-element-id="73">1</td>
-                <td data-element-id="74">0.5</td>
-                <td data-element-id="75">0</td>
-            </tr>
-        </table>
-        <div class="score-bar">
-             <p>Puntuación obtenida</p>
-             <p data-puntuacion="NotaObtenida" data-element-id="76">8.5</p>
+<div>
+    <table style="border: 1px solid black; border-collapse: collapse;" data-element-id="103">
+        <tr>
+            <th style="width: 350px;">Item</th>
+            <th>Excelente</th>
+            <th>Muy bien</th>
+            <th>Bien</th>
+            <th>Regular</th>
+            <th>Mal</th>
+        </tr>
+        <tr>
+            <td>Usa términos técnicos en la presentación</td>
+            <td>2</td>
+            <td style="background-color: lightgray;">1.75</td>
+            <td>1</td>
+            <td>0.5</td>
+            <td>0</td>
+        </tr>
+    </table>
+    
+    <table style="border: 1px solid black; border-collapse: collapse;" data-element-id="103">
+        <tr>
+            <th style="width: 350px;"></th>
+            <th>Excelente</th>
+            <th>Bien</th>
+            <th>Mal</th>
+        </tr>
+        <tr>
+            <td>Presenta documentación en inglés</td>
+            <td style="background-color: lightgray;">2</td>
+            <td>1</td>
+            <td>0</td>
+        </tr>
+    </table>
+</div>
+
+    <div class="score-bar">
+        <div class="score-line">
+            <span>Puntuación obtenida en la rúbrica:</span>
+            <strong data-puntuacion="NotaObtenida" data-element-id="104">3.75</strong>
+        </div>
+        <div class="score-line">
+            <span>Puntuación obtenida sobre 10:</span>
+            <strong data-puntuacion="NotaObtenidaSobreDiez" data-element-id="105">9,38</strong>
         </div>
     </div>
 
