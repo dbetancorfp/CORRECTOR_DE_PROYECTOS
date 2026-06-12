@@ -3,42 +3,12 @@
   "description": "Corrector de Proyectos — aplicación para calificación de proyectos de fin de ciclo FP mediante rúbricas",
   "boecetoPath": "./html-source-prototype/",
   "elementsRegistry": "./html-source-prototype/boceto-elements.md",
-  "totalElements": 105,
+  "totalElements": 117,
   "conflicts": {
-    "description": "Conflicts remain: Rúbrica Nuevo-item table reuses Alumnos IDs 57–58 and Proyectos IDs 60, 62. Rúbrica filter section shares IDs 85–89 with Ver Notas. Element 103 assigned to two different tables within Corregir Proyecto (intra-screen duplicate). Resolve before advancing in the pipeline.",
-    "groups": [
-      {
-        "duplicateIds": [57, 58],
-        "screens": [
-          "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
-          "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html"
-        ]
-      },
-      {
-        "duplicateIds": [60, 62],
-        "screens": [
-          "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
-          "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html"
-        ]
-      },
-      {
-        "duplicateIds": [85, 86, 87, 88, 89],
-        "screens": [
-          "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
-          "vista_profesor-landing-ver_notas.html"
-        ]
-      },
-      {
-        "duplicateIds": [103],
-        "screens": [
-          "vista_profesor_landing-corregirProyecto.html",
-          "vista_profesor_landing-corregirProyecto.html"
-        ],
-        "note": "Intra-screen duplicate: two different rubric tables both carry data-element-id=103"
-      }
-    ]
+    "description": "No conflicts. All 117 IDs are unique across all screens.",
+    "groups": []
   },
-  "notes": "2026-06-12 (latest): Corregir Proyecto screen fully redesigned — free-text filters replaced by cascaded fieldset dropdowns (año #94, legislación #95, ciclo #96, módulo #97, proyecto #98); checkboxes moved to vertical column layout (grupo #99, alumno1 #100, alumno2 #101, alumno3 #102); two rubric tables both marked #103 (intra-screen duplicate pending fix); score bar split into two labelled lines (#104 raw score, #105 score-out-of-10). ID range extended to 105. Rúbrica screen: data-element-id removed from main-table cells (57–62, 90) — those IDs remain only in the Nuevo-item table. Conflicts resolved: IDs 65–70 and 71–80 no longer shared between Corregir Proyecto and the Proyectos/Asignación tabs. 2026-06-11: Proyectos tab renumbered 46–57 → 59–70; Asignación tab renumbered → 71–83, split into two filter fieldsets (by module and by student); Rúbrica tab redesigned — filter section 84–88, Nuevo nivel button #89, Nuevo item table #90, Añadir item #91, Subir rúbrica #92, main rúbrica table #93. Admin screen IDs corrected in metadata: Ciclos 5+11–20, Módulos 21–31, Profesorado 32–44.",
+  "notes": "2026-06-12 (latest): All duplicate data-element-id values resolved — 117 unique IDs, no conflicts, no gaps. Renumbered: Ciclos nav #5→#106; Rúbrica Nuevo-item cells #57→#107, #58→#108, #60→#109, #62→#110, #90(td)→#111; Ver Notas filters/table #85–89→#112–116; Corregir Proyecto second rubric table #103→#117. ID range extended to 117. Previous (2026-06-12): Corregir Proyecto screen fully redesigned — free-text filters replaced by cascaded fieldset dropdowns (año #94, legislación #95, ciclo #96, módulo #97, proyecto #98); checkboxes moved to vertical column layout (grupo #99, alumno1 #100, alumno2 #101, alumno3 #102); score bar split into two labelled lines (#104 raw score, #105 score-out-of-10). Rúbrica screen: data-element-id removed from main-table cells. 2026-06-11: Proyectos tab renumbered → 59–70; Asignación tab renumbered → 71–83; Rúbrica tab redesigned — filter section 84–88, Nuevo nivel button #89, Nuevo item table #90, Añadir item #91, Subir rúbrica #92, main rúbrica table #93. Admin screen IDs: Legislación 4–10, Ciclos 11–20+#106(nav), Módulos 21–31, Profesorado 32–44.",
   "screens": [
     {
       "file": "index.html",
@@ -53,7 +23,7 @@
     {
       "file": "vista_admin-tab_ciclos_seleccionado.html",
       "label": "Admin · Tab Ciclos",
-      "sketchNumbers": [5, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+      "sketchNumbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 106]
     },
     {
       "file": "vista_admin-tab_modulos_seleccionado.html",
@@ -88,17 +58,17 @@
     {
       "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
       "label": "Profesor · Tab Rúbrica",
-      "sketchNumbers": [57, 58, 60, 62, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93]
+      "sketchNumbers": [84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 107, 108, 109, 110, 111]
     },
     {
       "file": "vista_profesor-landing-ver_notas.html",
       "label": "Ver Notas",
-      "sketchNumbers": [85, 86, 87, 88, 89]
+      "sketchNumbers": [112, 113, 114, 115, 116]
     },
     {
       "file": "vista_profesor_landing-corregirProyecto.html",
       "label": "Corregir Proyecto",
-      "sketchNumbers": [94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]
+      "sketchNumbers": [94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 117]
     }
   ]
 }
