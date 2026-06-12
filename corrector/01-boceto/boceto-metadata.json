@@ -5,10 +5,10 @@
   "elementsRegistry": "./html-source-prototype/boceto-elements.md",
   "totalElements": 117,
   "conflicts": {
-    "description": "No conflicts. All 117 IDs are unique across all screens.",
+    "description": "No conflicts. All 117 IDs are unique, consecutive, and contiguous within each screen.",
     "groups": []
   },
-  "notes": "2026-06-12 (latest): All duplicate data-element-id values resolved — 117 unique IDs, no conflicts, no gaps. Renumbered: Ciclos nav #5→#106; Rúbrica Nuevo-item cells #57→#107, #58→#108, #60→#109, #62→#110, #90(td)→#111; Ver Notas filters/table #85–89→#112–116; Corregir Proyecto second rubric table #103→#117. ID range extended to 117. Previous (2026-06-12): Corregir Proyecto screen fully redesigned — free-text filters replaced by cascaded fieldset dropdowns (año #94, legislación #95, ciclo #96, módulo #97, proyecto #98); checkboxes moved to vertical column layout (grupo #99, alumno1 #100, alumno2 #101, alumno3 #102); score bar split into two labelled lines (#104 raw score, #105 score-out-of-10). Rúbrica screen: data-element-id removed from main-table cells. 2026-06-11: Proyectos tab renumbered → 59–70; Asignación tab renumbered → 71–83; Rúbrica tab redesigned — filter section 84–88, Nuevo nivel button #89, Nuevo item table #90, Añadir item #91, Subir rúbrica #92, main rúbrica table #93. Admin screen IDs: Legislación 4–10, Ciclos 11–20+#106(nav), Módulos 21–31, Profesorado 32–44.",
+  "notes": "2026-06-13 (latest): Full global renumbering — each screen now occupies a strictly consecutive block in document order. No intra-file gaps, no cross-file conflicts. Blocks: Login 1–3, Legislación 4–10, Ciclos 11–21, Módulos 22–32, Profesorado 33–45, Landing 46, Alumnos 47–59, Proyectos 60–71, Asignación 72–84, Rúbrica 85–99, Corregir 100–112, Ver Notas 113–117.",
   "screens": [
     {
       "file": "index.html",
@@ -23,52 +23,52 @@
     {
       "file": "vista_admin-tab_ciclos_seleccionado.html",
       "label": "Admin · Tab Ciclos",
-      "sketchNumbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 106]
+      "sketchNumbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
     },
     {
       "file": "vista_admin-tab_modulos_seleccionado.html",
       "label": "Admin · Tab Módulos",
-      "sketchNumbers": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+      "sketchNumbers": [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
     },
     {
       "file": "vista_admin-tab_profesorado_seleccionado.html",
       "label": "Admin · Tab Profesorado",
-      "sketchNumbers": [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+      "sketchNumbers": [33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45]
     },
     {
       "file": "vista_profesor-landing.html",
       "label": "Landing Profesor",
-      "sketchNumbers": [45]
+      "sketchNumbers": [46]
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
       "label": "Profesor · Tab Alumnos",
-      "sketchNumbers": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
+      "sketchNumbers": [47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
       "label": "Profesor · Tab Proyectos",
-      "sketchNumbers": [59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70]
+      "sketchNumbers": [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html",
       "label": "Profesor · Tab Asignación Proyecto-Alumno",
-      "sketchNumbers": [71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]
+      "sketchNumbers": [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84]
     },
     {
       "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
       "label": "Profesor · Tab Rúbrica",
-      "sketchNumbers": [84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 107, 108, 109, 110, 111]
-    },
-    {
-      "file": "vista_profesor-landing-ver_notas.html",
-      "label": "Ver Notas",
-      "sketchNumbers": [112, 113, 114, 115, 116]
+      "sketchNumbers": [85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
     },
     {
       "file": "vista_profesor_landing-corregirProyecto.html",
       "label": "Corregir Proyecto",
-      "sketchNumbers": [94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 117]
+      "sketchNumbers": [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112]
+    },
+    {
+      "file": "vista_profesor-landing-ver_notas.html",
+      "label": "Ver Notas",
+      "sketchNumbers": [113, 114, 115, 116, 117]
     }
   ]
 }
