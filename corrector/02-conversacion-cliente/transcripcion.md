@@ -1,6 +1,6 @@
 # Transcripción de entrevista — Corrector de Proyectos
 
-**Cliente:** David Betancor, Profesor FP · IES Telesforo Bravo
+**Cliente:** Profesor FP
 **Feature ID:** corrector-v1
 
 ---
@@ -89,11 +89,34 @@ Una vez autenticado, el profesor podra:
 - No se puede borrar una Legislación si tiene Ciclos asociados.
 
 
-### Administración — Tab Ciclos - vista_admin-tab_ciclos_seleccionado.html (#11–#15)
+### Administración — Tab Ciclos - vista_admin-tab_ciclos_seleccionado.html (#11–#21)
 
-- Un ciclo es únicamente un nombre (p. ej. "Desarrollo de Aplicaciones Web"). **No lleva legislación asociada directamente.**
+- #11 Cabecera.
+- #12 Tab "Ciclos" seleccionado: muestra los elementos para la gestión de ciclos.
+- Para crear un nuevo ciclo introducimos los campos nombre (#13), selector de año de inicio (#14) y legislación (#15). 
+    Pulsando el botón Guardar (#16) se persiste en la base de datos y se añade automáticamente a la tabla #20 sin necesidad de recargar la página,
+    siempre que los filtros #17, #18 y #19 no lo oculten.
+- Hay unos filtros de búsqueda (#17 año inicio, #18 nombre, #19 legislación) que permiten acotar los ciclos mostrados en la tabla #20. 
+    Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente para mostrar solo
+    los ciclos que coinciden con los criterios de búsqueda.   
+
+- Un ciclo es únicamente un nombre (p. ej. "Desarrollo de Aplicaciones Web (DEW)"). **No lleva legislación asociada directamente.**
 - La legislación se asocia a los módulos, no al ciclo.
 - La jerarquía corregida queda: Ciclo → Módulos (cada módulo lleva su legislación) → Proyectos → Alumnos.
+
+
+### Administración — Tab Módulos - vista_admin-tab_modulos_seleccionado.html (#22-#32)
+
+- #22 Tab "Módulos" seleccionado: muestra los elementos para la gestión de módulos.
+- Para crear un nuevo módulo introducimos los campos nombre (#23), seleccionamos en ciclo (#24), seleccionamos el año de inicio (#25), 
+    selector de horas semanales (#26) y selector de ciclo (#27). 
+    Pulsando el botón Guardar (#28) se persiste en la base de datos y se añade automáticamente a la tabla #32 sin necesidad de recargar la página,
+    siempre que los filtros #29, #30 y #31 no lo oculten.
+- El formulario de creación de un módulo tiene exactamente cinco campos: nombre, siglas, legislación, horas semanales y ciclo.
+- La tabla (#18) muestra esos mismos cinco campos más los iconos de Editar (#21) y Borrar (#22).
+
+
+
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -185,10 +208,7 @@ Una vez autenticado, el profesor podra:
 - Borrado (#40): si el alumno tiene dependencias (notas, proyectos), se muestra un aviso emergente (pop-up) indicando que deben eliminarse las dependencias antes de poder borrar el alumno. El borrado queda bloqueado hasta que se resuelvan.
 - Subida masiva (#41): el fichero tiene formato **YAML** y contiene los campos: `nombre_completo`, `identificador`, `ciclo` y `legislación`. El proceso carga el identificador, ciclo y legislación en la tabla principal de alumnos, y el par nombre_completo ↔ identificador en la tabla segura.
 
-### Administración — Tab Módulos: campos del formulario (#17)
 
-- El formulario de creación de un módulo tiene exactamente cinco campos: nombre, siglas, legislación, horas semanales y ciclo.
-- La tabla (#18) muestra esos mismos cinco campos más los iconos de Editar (#21) y Borrar (#22).
 
 ### Administración — Cuenta de Administrador
 
