@@ -108,8 +108,8 @@ Una vez autenticado, el profesor podra:
 ### Administración — Tab Módulos - vista_admin-tab_modulos_seleccionado.html (#22-#32)
 
 - #22 Tab "Módulos" seleccionado: muestra los elementos para la gestión de módulos.
-- Para crear un nuevo módulo introducimos los campos nombre (#23), seleccionamos en ciclo (#24), seleccionamos el año de inicio (#25), 
-    selector de horas semanales (#26) y selector de ciclo (#27). 
+- Para crear un nuevo módulo introducimos los campos nombre (#23) y horas semanales del módulo (#24) luego seleccionamos el ciclo (#25), 
+    seleccionamos el año de inicio (#26) y selector legislación (#27). 
     Pulsando el botón Guardar (#28) se persiste en la base de datos y se añade automáticamente a la tabla #32 sin necesidad de recargar la página,
     siempre que los filtros #29, #30 y #31 no lo oculten.
 - El formulario de creación de un módulo tiene exactamente cinco campos: nombre, siglas, legislación, horas semanales y ciclo.
