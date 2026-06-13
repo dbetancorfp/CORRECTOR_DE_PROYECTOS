@@ -20,51 +20,54 @@
         <div><p><h2>Ver notas</h2></p></div>
 
         <!-- Filtros enlazados: año → ciclo → módulo -->
-        <div class="filters">
-            <select name="filterYear" id="filterYear" data-element-id="113">
-                <option value="">Año académico</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-            </select>
+       <fieldset class="form-row">
+            <legend>Filtrar por:</legend>    
+                <input type="text" name="filterYearInit" id="filterYearInit" data-element-id="113" placeholder="Filtrar por año de inicio">
+                <input type="text" name="filterLaw" id="filterLaw" data-element-id="114" placeholder="Filtrar por legislación">
+                <input type="text" name="filterCicle" id="filterCicle" data-element-id="115" placeholder="Filtrar por ciclo">
+                <input type="text" name="nameModule" id="nameModule" data-element-id="116" placeholder="Filtrar por módulo">
+                <select name="project" id="project" data-element-id="117">
+                    <option value="">Seleccionar proyecto</option>
+                    <option value="1">Quick Taxi</option>
+                    <option value="2">Smile Shop</option> 
+                    <option value="3">Marketing Lightning</option>
+                </select>
 
-            <!-- Opciones de ciclo se cargan según el año seleccionado -->
-            <select name="filterCicle" id="filterCicle" data-element-id="114">
-                <option value="">Ciclo</option>
-                <option value="DAW">Desarrollo de Aplicaciones Web</option>
-                <option value="DAM">Desarrollo de Aplicaciones Multiplataforma</option>
-                <option value="ASR">Administración de Sistemas en Red</option>
-            </select>
 
-            <!-- Opciones de módulo se cargan según el ciclo seleccionado, limitadas a los módulos del profesor -->
-            <select name="filterModule" id="filterModule" data-element-id="115">
-                <option value="">Módulo</option>
-                <option value="DEW">Desarrollo Web en Entorno Cliente (DEW)</option>
-                <option value="DAW">Desarrollo Web en Entorno Servidor (DAW)</option>
-            </select>
-
-            <button type="button" data-element-id="116">Descarga PDF</button>
-        </div>
+        </fieldset>   
 
         <!-- Vista previa de los datos que contendrá el PDF -->
         <div>
-            <table style="border: 1px solid black;" data-element-id="117">
+            <table style="border: 1px solid black;" data-element-id="118">
                 <tr>
                     <th>Proyecto</th>
                     <th>Nombre alumno</th>
-                    <th>Niveles evaluados</th>
-                    <th>Nota final</th>
+                    <th>Item</th>
+                    <th>Nota</th>
                 </tr>
                 <tr>
-                    <td>Proyecto Alpha</td>
-                    <td>JJ499</td>
-                    <td>Excelente / Muy bien / Bien</td>
+                    <td>Quick Taxi</td>
+                    <td>John Doe</td>
+                    <td>Usa terminología técnica en presentación</td>
                     <td>8.50</td>
                 </tr>
                 <tr>
-                    <td>Proyecto Alpha</td>
-                    <td>MnP454</td>
-                    <td>Muy bien / Bien / Regular</td>
+                    <td>Quick Taxi</td>
+                    <td>John Doe</td>
+                    <td>Se expresa correctamente</td>
                     <td>6.25</td>
+                </tr>
+                <tr>
+                    <td>Quick Taxi</td>
+                    <td>Maximus Cornelius</td>
+                    <td>Usa terminología técnica en presentación</td>
+                    <td>6.50</td>
+                </tr>
+                <tr>
+                    <td>Quick Taxi</td>
+                    <td>Maximus Cornelius</td>
+                    <td>Se expresa correctamente</td>
+                    <td>4</td>
                 </tr>
             </table>
         </div>

@@ -63,7 +63,7 @@ Una vez autenticado, el profesor podra:
 
 ## Aclaraciones de comportamiento (sesión de entrevista)
 
-### Login y autenticación (#1–#3)
+### Login y autenticación - index.html (#1–#3)
 
 - Si el usuario introduce credenciales incorrectas, se muestra el mensaje "Credenciales incorrectas" en la misma pantalla del login.
 - Se permiten un máximo de 3 intentos fallidos consecutivos. Al tercer intento fallido se muestra el mensaje "Póngase en contacto con el Administrador" y la cuenta queda bloqueada.
@@ -75,10 +75,28 @@ Una vez autenticado, el profesor podra:
 - El borrado de un Ciclo queda **bloqueado** si tiene Módulos asociados. El usuario debe eliminar primero todas las dependencias antes de poder borrar el Ciclo.
 - El mismo principio aplica en cascada: no se puede borrar un Módulo si tiene Proyectos asociados.
 
-### Administración — Tab Legislación (#7–#10, #81–#84)
+### Administración — Tab Legislación - vista_admin-tab_legislacion_seleccionado.html (#4–#10)
 
-- El boceto ha sido corregido: ahora incluye botón Nuevo (#81), tabla de legislaciones (#82) y acciones Editar (#83) y Borrar (#84), en línea con los demás tabs de administración.
+- #4 Tab de legislación seleccionado: muesta los elementos para la gestiṕon de legislaciones.
+- Para crear una nueva legislación introducimos los campos nombre (#5) y año inicio (#6), y pulsamos el botón Guardar (#7) para persistir 
+    en la base de datos. Y como la tabla #10 es reactiva se añadirá automáticamente a la tabla sin necesidad de recargar la página, siempre que los 
+   filtros #8 y #9 no lo oculten.
+- Hay unos filtros de búsqueda (#8 año inicio, #9 nombre) que permiten acotar las legislaciones mostradas en la tabla #10. 
+    Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente para mostrar solo
+    las legislaciones que coinciden con los criterios de búsqueda.
+- La tabla #10 muestra las legislaciones existentes con sus campos: año inicio y nombre, según aplique los filtros #8 (año inicio) y #9 (nombre),
+   la tabla se actualiza automáticamente para mostrar solo las legislaciones que coinciden con los criterios de búsqueda.
 - No se puede borrar una Legislación si tiene Ciclos asociados.
+
+
+### Administración — Tab Ciclos - vista_admin-tab_ciclos_seleccionado.html (#11–#15)
+
+- Un ciclo es únicamente un nombre (p. ej. "Desarrollo de Aplicaciones Web"). **No lleva legislación asociada directamente.**
+- La legislación se asocia a los módulos, no al ciclo.
+- La jerarquía corregida queda: Ciclo → Módulos (cada módulo lleva su legislación) → Proyectos → Alumnos.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 ### Administración — Tab Profesorado (#25)
 
@@ -185,11 +203,7 @@ Una vez autenticado, el profesor podra:
 - Los filtros de año (#44, #54, #65) aceptan texto libre con ese formato.
 - Por defecto, los filtros muestran el año académico en curso.
 
-### Administración — Tab Ciclos: estructura del dominio (#11–#15)
 
-- Un ciclo es únicamente un nombre (p. ej. "Desarrollo de Aplicaciones Web"). **No lleva legislación asociada directamente.**
-- La legislación se asocia a los módulos, no al ciclo.
-- La jerarquía corregida queda: Ciclo → Módulos (cada módulo lleva su legislación) → Proyectos → Alumnos.
 
 ### Administración — Tab Profesorado: identificador de usuario (#23–#27)
 
