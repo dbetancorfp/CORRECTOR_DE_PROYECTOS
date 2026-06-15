@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: corrector
+      POSTGRES_USER: corrector
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-corrector}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corrector"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://corrector:${DB_PASSWORD:-corrector}@db:5432/corrector
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
