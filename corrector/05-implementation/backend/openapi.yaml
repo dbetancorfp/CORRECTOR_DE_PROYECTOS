@@ -1,0 +1,369 @@
+openapi: "3.0.3"
+info:
+  title: Corrector de Proyectos API
+  description: API RESTful para la gestión de proyectos FP. Rúbricas, correcciones y ciclos formativos.
+  version: "1.0.0"
+  contact:
+    name: David Betancor
+    url: https://github.com/anomalyco/corrector-de-proyectos
+
+servers:
+  - url: http://localhost:3000
+    description: Desarrollo local
+
+paths:
+  # ─── Legislation ───────────────────────────────────────────────────
+  /api/legislation:
+    get:
+      operationId: listLegislations
+      summary: Listar todas las legislaciones
+      tags: [Legislation]
+      responses:
+        "200":
+          description: Lista de legislaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Legislation"
+
+    post:
+      operationId: createLegislation
+      summary: Crear una legislación
+      tags: [Legislation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLegislationDTO"
+      responses:
+        "201":
+          description: Legislación creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Legislation"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+
+  /api/legislation/{id}:
+    get:
+      operationId: getLegislationById
+      summary: Obtener una legislación por ID
+      tags: [Legislation]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Legislación encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Legislation"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+    put:
+      operationId: updateLegislation
+      summary: Actualizar una legislación
+      tags: [Legislation]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLegislationDTO"
+      responses:
+        "200":
+          description: Legislación actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Legislation"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+
+    delete:
+      operationId: deleteLegislation
+      summary: Eliminar una legislación
+      tags: [Legislation]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Legislación eliminada (sin contenido)
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  # ─── Cycle ─────────────────────────────────────────────────────────
+  /api/cycle:
+    get:
+      operationId: listCycles
+      summary: Listar ciclos formativos
+      description: |
+        Si se proporciona el parámetro `legislation_id`, filtra los ciclos
+        pertenecientes a esa legislación. Sin filtro, devuelve todos.
+      tags: [Cycle]
+      parameters:
+        - in: query
+          name: legislation_id
+          schema:
+            type: integer
+            minimum: 1
+          required: false
+          description: Filtrar por legislación
+      responses:
+        "200":
+          description: Lista de ciclos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cycle"
+
+    post:
+      operationId: createCycle
+      summary: Crear un ciclo formativo
+      tags: [Cycle]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCycleDTO"
+      responses:
+        "201":
+          description: Ciclo creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cycle"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+
+  /api/cycle/{id}:
+    get:
+      operationId: getCycleById
+      summary: Obtener un ciclo por ID
+      tags: [Cycle]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Ciclo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cycle"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+    put:
+      operationId: updateCycle
+      summary: Actualizar un ciclo formativo
+      tags: [Cycle]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCycleDTO"
+      responses:
+        "200":
+          description: Ciclo actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cycle"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+
+    delete:
+      operationId: deleteCycle
+      summary: Eliminar un ciclo formativo
+      tags: [Cycle]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Ciclo eliminado (sin contenido)
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+components:
+  parameters:
+    IdParam:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del recurso
+
+  responses:
+    ValidationError:
+      description: Error de validación en los datos de entrada
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFoundError:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ConflictError:
+      description: Conflicto — el recurso ya existe
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    # ── Commons ──────────────────────────────────────────────────────
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Mensaje descriptivo del error
+      example:
+        error: "Name must be between 1 and 20 characters"
+
+    # ── Legislation ──────────────────────────────────────────────────
+    Legislation:
+      type: object
+      required: [id, name, start_year, created_at]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único
+        name:
+          type: string
+          maxLength: 20
+          description: Nombre de la legislación (ej. LOMLOE, LOE)
+        start_year:
+          type: integer
+          minimum: 1901
+          description: Año de entrada en vigor
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Fecha de creación
+      example:
+        id: 1
+        name: LOMLOE
+        start_year: 2020
+        created_at: "2026-06-15T10:00:00Z"
+
+    CreateLegislationDTO:
+      type: object
+      required: [name, start_year]
+      properties:
+        name:
+          type: string
+          maxLength: 20
+          description: Nombre de la legislación
+        start_year:
+          type: integer
+          minimum: 1901
+          description: Año de entrada en vigor
+      example:
+        name: LOMLOE
+        start_year: 2020
+
+    UpdateLegislationDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 20
+          description: Nombre de la legislación
+        start_year:
+          type: integer
+          minimum: 1901
+          description: Año de entrada en vigor
+      example:
+        name: LOMLOE-2
+
+    # ── Cycle ────────────────────────────────────────────────────────
+    Cycle:
+      type: object
+      required: [id, name, legislation_id, created_at]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único
+        name:
+          type: string
+          maxLength: 120
+          description: Nombre del ciclo formativo (ej. DAW, DAM, ASIR)
+        legislation_id:
+          type: integer
+          minimum: 1
+          description: ID de la legislación a la que pertenece
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Fecha de creación
+      example:
+        id: 1
+        name: DAW
+        legislation_id: 1
+        created_at: "2026-06-15T10:00:00Z"
+
+    CreateCycleDTO:
+      type: object
+      required: [name, legislation_id]
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          description: Nombre del ciclo formativo
+        legislation_id:
+          type: integer
+          minimum: 1
+          description: ID de la legislación
+      example:
+        name: DAW
+        legislation_id: 1
+
+    UpdateCycleDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          description: Nombre del ciclo formativo
+        legislation_id:
+          type: integer
+          minimum: 1
+          description: ID de la legislación
+      example:
+        name: DAW-v2

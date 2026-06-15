@@ -32,7 +32,7 @@ docker compose down
 docker compose build api
 
 # Run a command inside the api container
-docker compose exec api bun run index.js
+docker compose exec api bun run src/index.ts
 
 # Open a shell inside the api container
 docker compose exec api sh
@@ -58,6 +58,8 @@ See `.env.example`. Key variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DB_PASSWORD` | `corrector` | PostgreSQL password |
+| `DATABASE_URL` | `postgres://corrector:corrector@localhost:5432/corrector` | Conexión a la base de datos |
+| `PORT` | `3000` | Puerto del servidor Express |
 
 ## Project structure
 
@@ -66,8 +68,7 @@ backend/
 ├── Dockerfile              # Bun container image
 ├── docker-compose.yml      # api + db services
 ├── schema.sql              # PostgreSQL DDL (source of truth)
-├── index.js                # Entry point
-├── src/                    # Application source
+├── src/                    # Application source (Express + TypeScript)
 ├── tests/                  # Unit tests (bun test)
 ├── package.json
 └── tsconfig.json

@@ -21,7 +21,6 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules
     environment:
       DATABASE_URL: postgres://corrector:${DB_PASSWORD:-corrector}@db:5432/corrector
       NODE_ENV: development
