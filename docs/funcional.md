@@ -1,6 +1,6 @@
 # Especificación Funcional
 
-Especificación funcional estructurada: 90 elementos con `behavior`, `businessRules` y
+Especificación funcional estructurada: 119 elementos con `behavior`, `businessRules` y
 `acceptanceCriteria` por sketchNumber, generada por el **Agente 4 — Generador Func. Spec**.
 
 ## Estado
@@ -48,25 +48,26 @@ Una vez generado, `functional-spec.json` tiene esta forma:
 
 | Pantalla | sketchNumbers | Elementos |
 |----------|--------------|-----------|
-| Login | #1–#5 | 5 |
-| Admin — Legislación | #6–#10, #81–#84 | 9 |
-| Admin — Ciclos | #11–#15 | 5 |
-| Admin — Módulos | #16–#22 | 7 |
-| Admin — Profesorado | #23–#29 | 7 |
-| Profesor — Landing | #30 | 1 |
-| Profesor — Alumnos | #31–#41 | 11 |
-| Profesor — Proyectos | #42–#51 | 10 |
-| Profesor — Rúbrica | #52–#64, #90 | 14 |
-| Profesor — Corregir | #65–#80 | 16 |
-| Profesor — Ver notas | #85–#89 | 5 |
-| **Total** | **#1–#90** | **90** |
+| Login | #1–#3 | 3 |
+| Admin — Legislación | #4–#10 | 7 |
+| Admin — Ciclos | #11–#21 | 11 |
+| Admin — Módulos | #22–#33 | 12 |
+| Admin — Profesorado | #34–#46 | 13 |
+| Profesor — Landing | #47 | 1 |
+| Profesor — Alumnos | #48–#60 | 13 |
+| Profesor — Proyectos | #61–#72 | 12 |
+| Profesor — Asignación | #73–#85 | 13 |
+| Profesor — Rúbrica | #86–#100 | 15 |
+| Profesor — Corregir | #101–#113 | 13 |
+| Profesor — Ver notas | #114–#120 | 7 |
+| **Total** | **#1–#120** | **119** |
 
 ## Schema Zod
 
 ```ts
 const FunctionalSpecSchema = z.object({
   elementSpecs: z.array(z.object({
-    sketchNumber:      z.number().int().min(1).max(90),
+    sketchNumber:      z.number().int().min(1).max(120),
     behavior:          z.string().min(1),
     businessRules:     z.array(z.string()),
     acceptanceCriteria: z.array(z.string()),

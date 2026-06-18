@@ -365,7 +365,7 @@ CORRECTOR_DE_PROYECTOS/
 ├── corrector/               # Workspace del pipeline — proyecto real (corrector-v1)
 │   ├── 01-boceto/
 │   │   ├── boceto-metadata.json    # Agente 0 output · entrada Agente 1
-│   │   └── html-source-prototype/  # Bocetos HTML anotados (90 elementos, 11 pantallas)
+│   │   └── html-source-prototype/  # Bocetos HTML anotados (119 elementos, 12 pantallas)
 │   │       └── boceto-elements.md  # Agente 0 output — registro descriptivo de elementos
 │   ├── 02-conversacion-cliente/
 │   │   ├── transcripcion.md        # Agente 2 output — entrevista completa

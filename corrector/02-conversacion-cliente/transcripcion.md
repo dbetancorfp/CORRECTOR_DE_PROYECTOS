@@ -63,12 +63,22 @@ Una vez autenticado, el profesor podra:
 
 ## Aclaraciones de comportamiento (sesión de entrevista)
 
+### Barra de navegación — Botón Salir (#5)
+
+- Al pulsar "Salir", la sesión se cierra inmediatamente: se destruyen la cookie/token de sesión y el usuario es redirigido a la pantalla de login.
+- No se muestra ningún diálogo de confirmación antes de cerrar sesión.
+
 ### Login y autenticación - index.html (#1–#3)
 
 - Si el usuario introduce credenciales incorrectas, se muestra el mensaje "Credenciales incorrectas" en la misma pantalla del login.
-- Se permiten un máximo de 3 intentos fallidos consecutivos. Al tercer intento fallido se muestra el mensaje "Póngase en contacto con el Administrador" y la cuenta queda bloqueada.
-- El desbloqueo de cuenta lo realiza el Administrador.
-- En el primer acceso (contraseña por defecto `12345678`), en la misma pantalla del login aparecen dos campos de texto adicionales para introducir la nueva contraseña dos veces. Si ambas coinciden, se actualiza la base de datos y se redirige a la landing page correspondiente al rol. Si no coinciden, se muestra un error en la misma pantalla y se repite el proceso.
+- Se permiten un máximo de 3 intentos fallidos consecutivos. 
+- En el primer acceso (contraseña por defecto `12345678`), en la misma pantalla del login aparecen dos campos de texto adicionales para 
+   introducir la nueva contraseña dos veces. Si ambas coinciden, se actualiza la base de datos y se redirige a la landing page 
+   correspondiente al rol. Si no coinciden, se muestra un error en la misma pantalla y se repite el proceso.
+- Si es un profesor el que intenta autenticarse y realiza el tercer intento fallido se muestra el mensaje "Póngase en contacto con el Administrador" y la cuenta queda bloqueada.
+  El desbloqueo de cuenta lo realiza el Administrador.
+- Si es el Administrador el que intenta autenticarse y realiza el tercer intento fallido, se muestra el mensaje 
+    "Póngase en contacto con el soporte técnico" y la cuenta queda bloqueada. El desbloqueo de cuenta lo realiza el soporte técnico accediendo directamente a la BBDD.
 
 ### Administración — reglas de borrado
 
@@ -86,7 +96,12 @@ Una vez autenticado, el profesor podra:
     las legislaciones que coinciden con los criterios de búsqueda.
 - La tabla #10 muestra las legislaciones existentes con sus campos: año inicio y nombre, según aplique los filtros #8 (año inicio) y #9 (nombre),
    la tabla se actualiza automáticamente para mostrar solo las legislaciones que coinciden con los criterios de búsqueda.
-- No se puede borrar una Legislación si tiene Ciclos asociados.
+- En la tabla #10 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #10 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
 
 ### Administración — Tab Ciclos - vista_admin-tab_ciclos_seleccionado.html (#11–#21)
@@ -99,185 +114,134 @@ Una vez autenticado, el profesor podra:
 - Hay unos filtros de búsqueda (#17 año inicio, #18 nombre, #19 legislación) que permiten acotar los ciclos mostrados en la tabla #20. 
     Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente para mostrar solo
     los ciclos que coinciden con los criterios de búsqueda.   
-
 - Un ciclo es únicamente un nombre (p. ej. "Desarrollo de Aplicaciones Web (DEW)"). **No lleva legislación asociada directamente.**
 - La legislación se asocia a los módulos, no al ciclo.
 - La jerarquía corregida queda: Ciclo → Módulos (cada módulo lleva su legislación) → Proyectos → Alumnos.
+- En la tabla #20 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #20 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
 
 ### Administración — Tab Módulos - vista_admin-tab_modulos_seleccionado.html (#22-#32)
 
 - #22 Tab "Módulos" seleccionado: muestra los elementos para la gestión de módulos.
-- Para crear un nuevo módulo introducimos los campos nombre (#23) y horas semanales del módulo (#24) luego seleccionamos el ciclo (#25), 
-    seleccionamos el año de inicio (#26) y selector legislación (#27). 
-    Pulsando el botón Guardar (#28) se persiste en la base de datos y se añade automáticamente a la tabla #32 sin necesidad de recargar la página,
-    siempre que los filtros #29, #30 y #31 no lo oculten.
-- El formulario de creación de un módulo tiene exactamente cinco campos: nombre, siglas, legislación, horas semanales y ciclo.
-- La tabla (#18) muestra esos mismos cinco campos más los iconos de Editar (#21) y Borrar (#22).
+- Para crear un nuevo módulo introducimos los campos nombre (#23) y horas semanales del módulo (#24) luego seleccionamos legislación (#25), 
+    el siguiente filtro "año de inicio" (#26) se rellena automáticamente con el año de inicio del ciclo seleccionado. Tras seleccionar 
+    "año de de inicio" el siguiente selecttor mostrará solo los Ciclos (#27) que pertenecen a la legislación y año de inicio seleccionados. 
+    Pulsando el botón Guardar (#28) se persiste en la base de datos y se añade automáticamente a la tabla #33 sin necesidad de recargar la página,
+    siempre que los filtros #29, #30, #31 Y #32 no lo oculten.
+- El formulario de creación de un módulo tiene exactamente cinco campos: nombre, hora semanales, legislación, año de inicio y ciclo.
+- La tabla (#33) muestra esos mismos cinco campos más los iconos de Editar (#21) y Borrar (#22).
+- En la tabla #33 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #33 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
 
+### Administración — Tab Profesorado -  vista_admin-tab_profesorado_seleccionado.html (#34-#46)
 
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-### Administración — Tab Profesorado (#25)
+- #34 Tab "Profesorado" seleccionado: muestra los elementos para la gestión de profesorado.
+- Para crear un nuevo profesor introducimos los campos "nombre del profesor" (#35), "contraseña" (#36) y luego seleccionamos el "año de inicio" (#37),
+    la legislación (#38), el ciclo (#39) y el módulo (#40). Luego pulsamos el botón Guardar (#41) para persistir en la base de datos y se añade automáticamente a la tabla #42 sin necesidad de recargar la página,
+    El selector legislación (#38) mostrará únicamente los que tienen el año de inicio coincidente en #37. Tras seleccionar la legislación, 
+    el selector de ciclo (#39) mostrará únicamente los ciclos que pertenecen a la legislación seleccionada. Tras seleccionar el ciclo, 
+    el selector de módulo (#40) mostrará únicamente los módulos que pertenecen al ciclo seleccionado.
+- Hay unos filtros de búsqueda (#42 año inicio, #43 legislación, #44 ciclo, #45 módulo) que permiten acotar los profesores mostrados 
+    en la tabla #46. 
+    Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente para mostrar solo
+    los profesores que coinciden con los criterios de búsqueda.
 
 - La columna Contraseña muestra el valor `12345678` mientras el profesor no haya cambiado su contraseña (indica que el primer acceso está pendiente).
 - Una vez que el profesor cambia su contraseña, la columna muestra asteriscos (`********`) en lugar del valor real.
 
-### Tab Proyectos — formulario y gestión (#46–#51)
+- En la tabla #46 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #46 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
-- El formulario de nuevo proyecto (#46) es un **modal** con tres campos: **nombre**, **ciclo** y **alumnos**.
-  - El campo "ciclo" sirve para filtrar la lista de alumnos disponibles.
-  - El campo "alumnos" muestra una lista de alumnos del ciclo seleccionado que **no han sido asignados a ningún proyecto** todavía. El profesor marca los que participan en el proyecto (1 a 3 alumnos).
-  - El proyecto queda implícitamente vinculado al módulo activo seleccionado previamente con #42.
-- ⚠️ **Corrección del boceto**: el elemento #49 (Columna Añadir alumnado — icono rueda dentada) queda **eliminado**. La asignación de alumnado se realiza dentro del propio formulario modal de creación (#46), no como acción separada en la tabla.
-- Borrado de proyecto (#51): queda bloqueado si el proyecto tiene correcciones guardadas. Se muestra un mensaje de aviso.
-- Un alumno solo puede pertenecer a un proyecto a la vez (no aparece en la lista si ya está asignado).
-
-### Pantalla Corregir Proyecto — desplegable de proyectos (#68)
-
-- El desplegable #68 muestra **todos los proyectos** que quedan tras aplicar los tres filtros (#65 año, #66 ciclo, #67 módulo). No se filtran por estado de corrección ni por presencia de alumnos.
-
-### Tab Rúbrica — estructura de la tabla y validaciones (#55–#64, #90)
-
-- #55 (Botón Nuevo): añade una fila nueva a la tabla con los campos inmediatamente editables; no abre modal.
-- #57 (Nombre del ítem) es un **input text** siempre visible; no requiere activar modo edición.
-- #58–#61 (Excelente, Muy bien, Bien, Regular) son **input number con 2 decimales** siempre visibles. El profesor edita directamente.
-- #62 (Mal): valor **fijo siempre igual a 0.00**. No es editable. Se muestra como campo de solo lectura.
-- Los valores de los niveles editables (#58–#61) deben estar ordenados de **mayor a menor**: Excelente > Muy bien > Bien > Regular > 0. El sistema valida este orden.
-- Cada ítem tiene su propia valoración independiente por nivel.
-- **Regla crítica**: la suma de todos los valores "Excelente" (#58) de todos los ítems debe ser **exactamente 10.00** — ni más ni menos. El sistema no permite guardar o abandonar la celda si la suma resultante supera o es inferior a 10.
-- #63 (Subir rúbrica): formato **YAML**. Si ya existe una rúbrica para el módulo, la subida de un nuevo fichero **borra la anterior y escribe la nueva**. Se muestra un aviso al usuario de pérdida de datos antes de confirmar.
-- #64 (Puntuación máxima): muestra la suma de los valores "Excelente" de todos los ítems en tiempo real. Debe mostrar siempre 10.00 cuando la rúbrica es válida.
-- #90 (Icono Borrar — ítem rúbrica): elimina la fila del ítem. Al borrar, la puntuación máxima se recalcula en #64 y el sistema vuelve a requerir que la suma llegue a 10.00 antes de que la rúbrica sea válida.
-
-### Tab Rúbrica — aclaración del dominio (#52–#64)
-
-- La rúbrica pertenece al **módulo**, no al proyecto. Un módulo tiene una única rúbrica que aplica a todos sus proyectos.
-- El filtro #53 del boceto está etiquetado "por proyecto" pero debe filtrar **por módulo**. Es una inconsistencia del boceto que debe corregirse en fases posteriores del pipeline.
-
-### Tab Proyectos — botón Seleccionar módulo (#42)
-
-- El botón #42 carga los módulos asignados al profesor autenticado, dado que un módulo puede tener varios proyectos. El profesor debe seleccionar primero su módulo para ver y gestionar los proyectos que le corresponden.
-
-### Ver notas — cálculo de nota final y output (#flujo-ver-notas)
-
-- Cada módulo puntúa sobre 10. La nota de módulo se calcula a partir de la rúbrica: suma de los niveles seleccionados por ítem, con un máximo de 10.
-- La nota final se calcula como la **suma de las notas de cada módulo ponderadas por el peso de ese módulo**, donde el peso es proporcional a las horas semanales del módulo sobre el total de horas del ciclo. Un alumno con "Excelente" en todos los ítems de todos los módulos obtiene exactamente 10 en la nota final.
-- Fórmula: `nota_final = Σ (nota_módulo_i × (horas_módulo_i / horas_totales_ciclo))`
-- El output de "Ver notas" es un **PDF descargable** (no Excel). La descripción original que mencionaba Excel queda corregida.
-- El PDF muestra: nombre del Ciclo como cabecera, seguido de una tabla con todos los alumnos agrupados por Proyecto (filas) y la nota obtenida por módulo (columnas).
-- "Grupo" era un lapsus; el término correcto es **Proyecto**.
-
-### Pantalla Corregir Proyecto — guardado automático y re-corrección (#69–#76)
-
-- **No existe botón "Guardar y finalizar" ni "Guardar borrador"**. El guardado es automático: al seleccionar un nivel para un ítem, la puntuación se guarda primero en local y luego se persiste en la base de datos de forma **asíncrona**.
-- #71–#75 (celdas seleccionables por ítem) funcionan como radio buttons por fila: solo puede estar seleccionado un nivel a la vez. Si el profesor pulsa otro nivel, el anterior se deselecciona y el nuevo se guarda.
-- Un profesor puede re-corregir a un alumno en cualquier momento seleccionando otro nivel; la nota anterior queda sobreescrita.
-- **Todos los ítems son obligatorios**. Una corrección no se considera completa hasta que todos los ítems tienen un nivel seleccionado.
-- #76 (Puntuación obtenida): se actualiza en tiempo real conforme el profesor selecciona niveles.
-
-### Pantalla Corregir Proyecto — flujo de carga (#65–#69)
-
-- Los filtros #65 (año), #66 (ciclo) y #67 (módulo) acotan las opciones disponibles.
-- El filtro #67 muestra únicamente los módulos asignados al profesor autenticado (no todos los módulos del ciclo).
-- La tabla de corrección #69 se carga únicamente después de que el usuario ha aplicado los tres filtros y ha seleccionado un proyecto en el desplegable #68.
-
-### Pantalla Corregir Proyecto — obligatoriedad de puntuación (#65–#80)
-
-- Todos los ítems de la rúbrica son obligatorios para cada alumno. Si el profesor intenta salir de la pantalla con ítems sin puntuar, el sistema avisa.
-- Además, todos los alumnos del proyecto deben tener todos sus ítems puntuados antes de que la corrección se considere completa.
-
-### Pantalla Corregir Proyecto — checkboxes de alumno (#77–#80)
-
-- Los checkboxes #77 (Corregir por grupo) y #78–#80 (Alumno 1, 2, 3) forman un grupo de selección exclusiva:
-  - Si se marca #77, se desmarcan #78, #79 y #80. La puntuación de cada ítem se asigna a **todos los alumnos del proyecto**.
-  - Si se marca cualquiera de #78, #79 o #80, se desmarca #77 y los demás checkboxes de alumno individual. Solo se puede seleccionar **un alumno individual a la vez**. La puntuación de cada ítem se asigna únicamente a ese alumno.
-
-### Landing Profesor — Rol Tutor (#30)
-
-- El Tutor puede acceder a "Visualizar notas" y a "Imprimir notas". No puede acceder a "Gestionar" ni a "Corregir".
-- #30 (Botón Imprimir notas): genera un **PDF descargable**. No abre el diálogo de impresión del navegador.
-
-### Tab Alumnos — formulario y gestión (#35, #40, #41)
-
-- El formulario de nuevo alumno (#35) tiene exactamente tres campos: **identificador/código** (nombre de usuario anonimizado, ej. `JJ499`), **ciclo** y **legislación**. No se almacena el nombre real del alumno en la tabla principal.
-- Privacidad: la aplicación usa identificadores anónimos. Los nombres reales se guardan en una tabla separada con nivel de seguridad elevado, que relaciona nombre real ↔ identificador. Esta tabla se carga también desde el fichero de importación.
-- Borrado (#40): si el alumno tiene dependencias (notas, proyectos), se muestra un aviso emergente (pop-up) indicando que deben eliminarse las dependencias antes de poder borrar el alumno. El borrado queda bloqueado hasta que se resuelvan.
-- Subida masiva (#41): el fichero tiene formato **YAML** y contiene los campos: `nombre_completo`, `identificador`, `ciclo` y `legislación`. El proceso carga el identificador, ciclo y legislación en la tabla principal de alumnos, y el par nombre_completo ↔ identificador en la tabla segura.
+### Profesor — landing - vista_profesor-landing.html (#47)
+- La landing page del profesor muestra tres botones: "Gestionar", "Corregir", "Visualizar notas" y "Imprimir notas" (#47).
 
 
+### Profesor - Landing - Gestionar - Tab Alumnos - vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html (#48–#60)
+- Con el tab Alumnos seleccionado, el profesor puede crear un nuevo alumno.
+- Para crear un nuevo el profesor escribirá el nombre del alumno (#48) y seleccionará el año de inicio (#49), 
+    la legislación (#50), el ciclo (#51) y el módulo (#52). Tras pulsar el botón Nuevo (#53) se persiste en la base de datos 
+    y se añade automáticamente a la tabla #60 sin necesidad de recargar la página, siempre que los filtros #55, #56, #57,
+    #58 y #59 no lo oculten.
+- Podemos subir un archivo YAML, JSON o CSV con varios alumnos al pulsar (#54). El archivo contiene los campos: `nombre`,
+   `año de inicio`, `legislación`, `ciclo` y `módulo`. Los datos se persisten en la base de datos y se añaden automáticamente
+    a la tabla #60 sin necesidad de recargar la página, siempre que los filtros #55, #56, #57, #58 y #59 no lo oculten.
+- Tenemos unos filtros de búsqueda (#55 año inicio, #56 legislación, #57 ciclo, #58 módulo y #59 nombre) que permiten acotar 
+    los alumnos mostrados en la tabla #60. 
+    Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente para
+    mostrar solo los alumnos que coinciden con los criterios de búsqueda.
+- En la tabla #60 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #60 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
-### Administración — Cuenta de Administrador
 
-- Solo puede existir **un único administrador** en el sistema.
-- Está registrado en la base de datos con: nombre de usuario `Admin` y contraseña por defecto `12345678`.
-- En el primer acceso, el flujo de cambio de contraseña muestra dos campos (nueva contraseña y confirmación). Si no coinciden, se muestra aviso de error y se concede **una única oportunidad adicional**. Si falla también esa segunda oportunidad, se redirige de vuelta a la pantalla de login (sin bloqueo de cuenta).
-- Si coinciden, se guarda la nueva contraseña y se redirige a la vista de Administrador.
+### Profesor - Landing - Gestionar - Tab Proyectos - vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html (#61–#72)
+- Con el tab Proyectos seleccionado, el profesor puede crear un nuevo proyecto.
+- Para crear un nuevo proyecto el profesor escribirá el nombre del proyecto (#61) y seleccionará el año de inicio (#62), 
+    la legislación (#63), el ciclo (#64) y el módulo (#65). Tras pulsar el botón Nuevo (#66) se persiste en la base de datos 
+    y se añade automáticamente a la tabla #72 sin necesidad de recargar la página, siempre que los filtros #67, #68, #69,
+    #70 y #71 no lo oculten.
+- Tenemos unos filtros de búsqueda (#67 nombre del proyecto, #68 año de inicio, #69 legislación, #70 ciclo y #71 módulo) 
+    que permiten acotar los proyectos mostrados en la tabla #72. 
+    Son filtros de texto libre con filtrado reactivo: conforme el usuario escribe, la tabla se actualiza automáticamente 
+    para mostrar solo los proyectos que coinciden con los criterios de búsqueda.
+- En la tabla #72 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #72 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
-### Año académico — formato global
+### Profesor - Landing - Gestionar - Tab Asignación Proyecto-Alumno - vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html (#73–#85)
+- Con el tab "Asignación Proyecto-Alumno seleccionado, el profesor asignar alumnos a proyectos.
+- Por un lado tenemos dos filtros; para filtrar por proyecto y otro para filtrar alumnos.
+- Para filtrar por módulo podemos escribir el nombre del proyecto (#73) o seleccionar el año de inicio (#74), la legislación (#75), el ciclo (#76)
+    y el módulo (#77). 
+- Tras aplicar los filtros de "Filtrar por proyecto", en el agrupamiento #83 se muestran el proyecto que coinciden con los criterios de búsqueda.
+- Tras aplicar los filtros de "Filtrar por alumno", en el agrupamiento #84 se muestran los alumnos que coinciden con los criterios de búsqueda.
+- Para asignar un alumno a un proyecto, el profesor selecciona los alumnos de #84 y el proyecto de #83 y pulsa el botón "Agregar alumnos". 
+    La asignación se persiste en la base de datos y se refleja inmediatamente en la tabla (#85) de asignaciones sin necesidad de recargar la página.
+- En la tabla #85 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #85 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
-- El año académico se representa como un **único año entero** correspondiente al año de inicio del curso (ej. `2025` → curso 2025-2026).
-- Los filtros de año (#44, #54, #65) aceptan texto libre con ese formato.
-- Por defecto, los filtros muestran el año académico en curso.
+### Profesor - Landing - Gestionar - Tab Rúbrica - vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html (#86–#100)
+- Con el tab Rúbrica seleccionado, el profesor puede crear la rúbrica de un módulo.
+- A través del ls filtros de "Filtrar por módulo" (#86 nombre del módulo, #87 año de inicio, #88 legislación, #89 ciclo y #90 módulo) el profesor
+    selecciona el módulo que imparte.
+- En el agrupamiento "Nuevo item" el profesor edita el item en la tabla (#92) columna "Item" y crea los niveles necesario pulsando
+    el botón (#91) y asignado a cada celda editable de nivel la puntuación del nivel. 
+    Al pusar el botón "Añadir item" (#91) se persiste en la base de datos y se añade automáticamente a la tabla #100 
+    sin necesidad de recargar la página, siempre que los filtros #86, #87, #88, #89 y #90 no lo oculten.
+- Se podrá subir una rúbrica en formatos CSV, JSON y YAML con los campos items, niveles y sus puntuaciones.
+- En la tabla #100 cada fila puede ser editada (icono en columna "Editar") o borrada (icono en columna "Borrar"). Si pulsamos el "Icono editar" los campos
+    de la fila se podrán editar y el texto del botón "Icono editar" cambia a "Guardar". Tras los cambios, pulsamos "Guardar" y se persistirán los cambios
+    en la BBDD y se actualizará la tabla de forma automática.
+    En caso de pulsar "Borrar" aparecerá una ventana de aviso de confirmación. Si aceptamos continuar el borrado este se elimina de la BBDD y se
+    actualizará la tabla #100 de forma automática. En caso de que tenga dependencias no se podrá borrar hasta que no se
+    borren las dependencias, mostrando un mensaje advirtiendo este caso.
 
-
-
-### Administración — Tab Profesorado: identificador de usuario (#23–#27)
-
-- El campo "Nombre" en la tabla de profesorado es el **nombre de usuario de la Consejería de Educación** (ej. `dbetqui`), no el correo electrónico.
-- El campo #1 (Campo usuario) del login es el nombre de usuario de Consejería (ej. `dbetqui`) para los profesores. El administrador usa el nombre de usuario literal `Admin` (cuenta de sistema, no de Consejería).
-- Los roles Admin y Profesor son estrictamente separados. La cuenta `Admin` no puede corregir proyectos ni acceder a las vistas de Profesor.
-- El formulario de nuevo profesor (#24) tiene cuatro campos: **nombre de usuario de Consejería**, **nombre completo**, **ciclo(s)** y **módulo(s)**. La tabla #25 muestra estos mismos datos más la columna de contraseña.
-- Un profesor puede tener módulos asignados de **distintos ciclos** (no está restringido a un único ciclo).
-
-### Comportamiento Editar en todas las tablas (#14, #21, #28, #39, #50, #83 y equivalentes)
-
-- Al pulsar el icono Editar en cualquier tabla, **se activa la edición inline directamente en la fila**. No se abre ningún modal.
-- El borrado de cualquier entidad con dependencias queda bloqueado con un mensaje de aviso (patrón uniforme): Legislación, Ciclo, Módulo, Profesor, Alumno, Proyecto.
-- Borrar Profesor (#29): bloqueado si el profesor tiene módulos asignados o correcciones guardadas.
-
-### Ver notas — pantalla y generación del PDF (#85–#89)
-
-- Nuevo boceto creado: `vista_profesor-landing-ver_notas.html` (elementos #85–#89).
-- La pantalla tiene tres **filtros enlazados en cascada**: #85 año académico → #86 ciclo → #87 módulo. Los módulos disponibles en #87 están limitados a los asignados al profesor autenticado.
-- El botón #88 (Descarga PDF) genera el PDF parametrizado con los valores seleccionados en los tres filtros.
-- El PDF contiene: los filtros usados como cabecera, seguido de una tabla con columnas: **Proyecto**, **Nombre alumno**, **Niveles evaluados**, **Nota final**.
-- La tabla #89 muestra una vista previa en pantalla del mismo contenido antes de descargar.
-
-### Tab Rúbrica — guardado automático de celdas (#57–#61)
-
-- Al abandonar cualquier celda editable de la rúbrica (on blur), el valor se persiste en la base de datos de forma automática. No hay botón "Guardar rúbrica" explícito.
-
-### Validaciones de campos de formulario — reglas globales
-
-- **Siglas** (legislación #7, módulo): deben ser **únicas en el sistema**, escritas en **mayúsculas**, con una longitud máxima de **10 caracteres**.
-- **Años de legislación** (#8 año inicio, #9 año finalización): el año de finalización debe ser exactamente el año de inicio más uno (`año_fin = año_inicio + 1`). Ambos campos son enteros de 4 dígitos.
-- **Éxito al guardar** (#10 y todos los botones Guardar equivalentes): tras persistir un nuevo registro, la tabla **se refresca leyendo de la base de datos** (el nuevo registro ya estará incluido). No hay inserción optimista en cliente.
-- El formulario no se limpia automáticamente tras guardar; se refresca la tabla y el formulario queda disponible para una nueva entrada.
-
-### Tabla de Profesorado — columnas Ciclo y Módulos (#26, #27)
-
-- Si un profesor imparte módulos de varios ciclos, la columna **Módulos** (#27) muestra las siglas de todos los módulos separadas por coma (ej. `DEW, DAW`).
-- La columna **Ciclo** (#26) muestra igualmente todos los ciclos asociados al profesor separados por coma cuando hay más de uno.
-
-### Tab Proyectos — año académico en formulario Nuevo (#46)
-
-- El formulario modal de nuevo proyecto tiene **cuatro campos**: nombre, año académico, ciclo y alumnos.
-- El campo año académico es un `select` cuya primera opción por defecto es el año académico en curso. El profesor puede cambiarlo para crear proyectos de años anteriores.
-
-### Patrón de filtros en toda la aplicación (#32–#34, #43–#45, #53–#54, #65–#67, #85–#87)
-
-- Los filtros sobre tablas son siempre **input text con filtrado reactivo**: la tabla se actualiza automáticamente conforme el usuario escribe, sin necesidad de pulsar ningún botón.
-- Los campos de **formularios modales** (Nuevo/Editar) usan `select` cuando el campo toma valores de una lista cerrada (ciclo, legislación, módulo, alumnos).
-
-### Pantalla Corregir Proyecto — estado inicial de checkboxes (#77–#80)
-
-- Al entrar en la pantalla de corrección, todos los checkboxes (#77 Corregir por grupo, #78 Alumno 1, #79 Alumno 2, #80 Alumno 3) están **desmarcados por defecto**. El profesor debe seleccionar explícitamente el modo de corrección antes de puntuar.
-
-### Barra de navegación — Botón Salir (#5)
-
-- Al pulsar "Salir", la sesión se cierra inmediatamente: se destruyen la cookie/token de sesión y el usuario es redirigido a la pantalla de login.
-- No se muestra ningún diálogo de confirmación antes de cerrar sesión.
+### Profesor — landing - vista_profesor-landing-ver_notas.html (#114-#119)
+- Se disponen de los filtros: año de inicio (#114), legislación (#115), ciclo (#116), módulo (#117) y proyecto (#118) mostrandose en
+    la tabla (#119) los resultados de aplicar el filtro. Cuando se aplica el filtro "año de inicio" en el filtro "legislación" solo 
+    aparecerán los coincidentes y así sucesivamente con el resto de filtros.
+- Al pulsar el botón "Imprimir" (#120) mostrará un pdf con la tabla (#119) para descargar.

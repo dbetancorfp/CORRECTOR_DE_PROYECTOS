@@ -7,7 +7,7 @@ Visualización del flujo completo de artefactos, desde el boceto hasta el códig
 ```mermaid
 flowchart TD
     CLAUDE["⚙️ CLAUDE.md\nConfig global"]
-    BOCETO["🎨 Boceto HTML\n90 elementos · 11 pantallas"]
+    BOCETO["🎨 Boceto HTML\n119 elementos · 12 pantallas"]
     TRANS_IN["📝 transcripcion.md\nEntrevista inicial"]
     SCHEMA["🗄️ schema.sql\nPostgreSQL 16 DDL"]
 
@@ -95,7 +95,7 @@ flowchart TD
 | Artefacto | Ruta | Descripción |
 |-----------|------|-------------|
 | `CLAUDE.md` | `/CLAUDE.md` | Configuración global del proyecto y del pipeline |
-| Boceto HTML | `corrector/01-boceto/html-source-prototype/` | 11 pantallas · 90 elementos con `data-element-id` |
+| Boceto HTML | `corrector/01-boceto/html-source-prototype/` | 12 pantallas · 119 elementos con `data-element-id` |
 | Entrevista inicial | `corrector/02-conversacion-cliente/transcripcion.md` | Transcripción parcial (entrada al Agente 2) |
 | `schema.sql` | `corrector/05-implementation/backend/schema.sql` | DDL PostgreSQL 16 — fuente de verdad del modelo de datos |
 

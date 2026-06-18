@@ -41,7 +41,7 @@ frontend completamente trazable y testado.
 
     ---
 
-    90 elementos con comportamiento, reglas de negocio y criterios de aceptación.
+    119 elementos con comportamiento, reglas de negocio y criterios de aceptación.
 
     [:octicons-arrow-right-24: Ver especificación](funcional.md)
 
@@ -104,7 +104,7 @@ Las tres entradas del pipeline están listas:
 
 | Entrada | Artefacto | Estado |
 |---------|-----------|--------|
-| Boceto | 90 elementos · 11 pantallas | ✅ Listo |
+| Boceto | 119 elementos · 12 pantallas | ✅ Listo |
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | ✅ Lista |
 | Esquema BD | `corrector/05-implementation/backend/schema.sql` · 15 tablas · 3 triggers | ✅ Listo |
 
