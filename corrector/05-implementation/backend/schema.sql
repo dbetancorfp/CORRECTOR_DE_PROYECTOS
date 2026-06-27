@@ -62,15 +62,16 @@ CREATE INDEX idx_module_cycle ON module(cycle_id);
 -- =============================================================================
 
 CREATE TABLE teacher (
-    id              SERIAL      PRIMARY KEY,
-    username        VARCHAR(60) NOT NULL UNIQUE,
-    password_hash   TEXT        NOT NULL,
-    role            VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'teacher', 'tutor')),
-    tutor_cycle_id  INT         UNIQUE
-                                REFERENCES cycle(id)
-                                    ON DELETE SET NULL
-                                    ON UPDATE CASCADE,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    id                   SERIAL      PRIMARY KEY,
+    username             VARCHAR(60) NOT NULL UNIQUE,
+    password_hash        TEXT        NOT NULL,
+    role                 VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'profesor', 'tutor')),
+    must_change_password BOOLEAN     NOT NULL DEFAULT TRUE,
+    tutor_cycle_id       INT         UNIQUE
+                                     REFERENCES cycle(id)
+                                         ON DELETE SET NULL
+                                         ON UPDATE CASCADE,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- role='tutor'  ↔  tutor_cycle_id IS NOT NULL
     -- role='admin'  →  tutor_cycle_id IS NULL (covered by the biconditional)
@@ -78,10 +79,11 @@ CREATE TABLE teacher (
         CHECK ( (role = 'tutor') = (tutor_cycle_id IS NOT NULL) )
 );
 
-COMMENT ON TABLE  teacher                IS 'System users: admin, teacher or tutor';
-COMMENT ON COLUMN teacher.password_hash  IS 'bcrypt hash — never store plaintext';
-COMMENT ON COLUMN teacher.role           IS 'Values: admin, teacher, tutor — enforced by CHECK, no ENUM';
-COMMENT ON COLUMN teacher.tutor_cycle_id IS 'NULL for admin and teacher; required for tutor';
+COMMENT ON TABLE  teacher                      IS 'System users: admin, profesor or tutor';
+COMMENT ON COLUMN teacher.password_hash        IS 'bcrypt hash — never store plaintext';
+COMMENT ON COLUMN teacher.role                 IS 'Values: admin, profesor, tutor — enforced by CHECK, no ENUM';
+COMMENT ON COLUMN teacher.must_change_password IS 'TRUE until the user completes the mandatory first-login password change';
+COMMENT ON COLUMN teacher.tutor_cycle_id       IS 'NULL for admin and profesor; required for tutor';
 
 CREATE INDEX idx_teacher_tutor_cycle ON teacher(tutor_cycle_id) WHERE tutor_cycle_id IS NOT NULL;
 
@@ -112,16 +114,17 @@ CREATE TRIGGER trg_max_tutors
     FOR EACH ROW EXECUTE FUNCTION trg_max_tutors_per_cycle();
 
 
--- Teacher ↔ Module assignment (permanent, no academic year history)
+-- Teacher ↔ Module assignment (one teacher per module, permanent, no academic year history)
 CREATE TABLE teacher_module (
     teacher_id  INT NOT NULL REFERENCES teacher(id)
                         ON DELETE CASCADE  ON UPDATE CASCADE,
     module_id   INT NOT NULL REFERENCES module(id)
                         ON DELETE RESTRICT ON UPDATE CASCADE,
-    PRIMARY KEY (teacher_id, module_id)
+    PRIMARY KEY (teacher_id, module_id),
+    UNIQUE (module_id)  -- one teacher per module
 );
 
-COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers; no academic year — temporal context via module → cycle → legislation';
+COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers; UNIQUE(module_id) enforces one teacher per module; no academic year — temporal context via module → cycle → legislation';
 
 CREATE INDEX idx_teacher_module_module ON teacher_module(module_id);
 
@@ -354,6 +357,6 @@ CREATE INDEX idx_correction_item_level ON correction_item(rubric_level_id);
 -- =============================================================================
 
 -- Default admin user (password must be changed on first login)
--- Password: 'changeme' — bcrypt cost 10
-INSERT INTO teacher (username, password_hash, role)
-VALUES ('admin', crypt('changeme', gen_salt('bf', 10)), 'admin');
+-- Password: '12345678' — bcrypt cost 10
+INSERT INTO teacher (username, password_hash, role, must_change_password)
+VALUES ('admin', crypt('12345678', gen_salt('bf', 10)), 'admin', TRUE);
