@@ -133,6 +133,7 @@ controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) v
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
 | 47 | Tabla de asignaciones | tabla | Lista proyectos con alumnos asignados: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
+| 121 | Botón Agregar alumnos | botón | Confirma la asignación del alumno seleccionado en #84 al proyecto seleccionado en #83; activo solo cuando ambos paneles tienen selección |
 
 ---
 
@@ -166,6 +167,7 @@ controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) v
 | 87 | Filtro módulo | select | Selector de módulo asignado al profesor, enlazado a #86 |
 | 88 | Botón Descarga PDF | botón | Genera y descarga el PDF con los datos filtrados por #85, #86 y #87 |
 | 89 | Tabla de resultados | tabla | Vista previa del PDF: columnas Proyecto, Nombre alumno, Niveles evaluados, Nota final |
+| 122 | Labels estado por módulo | párrafo | Grupo de badges por módulo: fondo verde si todos los alumnos tienen corrección, rojo si falta al menos uno; aparece entre los filtros y la tabla #119 |
 
 ---
 

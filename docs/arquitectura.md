@@ -43,7 +43,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `01-boceto/boceto-metadata.json` · `boceto-elements.md` |
 
 === "Agente 1 ∥ — Diseñador Front"
-    **:white_check_mark: Implementado** · `/designer-front` · **:white_check_mark: Ejecutado** — `ui-spec.json` generado · 12 pantallas · 120 elementos
+    **:white_check_mark: Implementado** · `/designer-front` · **:white_check_mark: Ejecutado** — `ui-spec.json` generado · 12 pantallas · 122 elementos
 
     Especifica cada elemento UI: tipo, props, estados, interacciones, validaciones y
     accesibilidad por sketchNumber.
@@ -54,7 +54,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `03-generated-artifacts/ui-spec.json` · phase: `ui-spec` |
 
 === "Agente 2 ∥ — Analista de Negocio"
-    **:white_check_mark: Implementado** · `/business-analyst` · **:white_check_mark: Ejecutado** — `transcripcion.md` completada · 120 elementos cubiertos · 5 propuestas en `boceto-suggestions.md`
+    **:white_check_mark: Implementado** · `/business-analyst` · **:white_check_mark: Ejecutado** — `transcripcion.md` completada · 122 elementos cubiertos · 5 propuestas en `boceto-suggestions.md`
 
     Entrevista al cliente y completa `transcripcion.md` hasta cubrir todos los elementos
     del boceto. Propone cambios en el boceto cuando detecta gaps.
@@ -65,10 +65,18 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `02-conversacion-cliente/transcripcion.md` · `boceto-suggestions.md` |
 
 === "Agente 3 — Validador de Alineación"
-    **:white_check_mark: Implementado** · `/alignment-validator`
+    **:white_check_mark: Implementado** · `/alignment-validator` · **:x: Ejecutado — FAIL** — `valid: false` · 3 errores bloqueantes en schema.sql
 
     Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes entre sí
     antes de generar ninguna especificación. Si falla, el pipeline se detiene.
+
+    **Errores bloqueantes detectados:**
+
+    1. `teacher.role` CHECK constraint usa `'teacher'`; debe ser `'profesor'`
+    2. `teacher_module` sin `UNIQUE(module_id)` — viola "un profesor por módulo"
+    3. `teacher` sin columna `must_change_password BOOLEAN` — flujo primer acceso imposible
+
+    **Advertencias adicionales:** seed password, `cycle.legislation_id` vs. prosa de transcripción, sin tracking de intentos fallidos.
 
     | | |
     |--|--|

@@ -1,10 +1,10 @@
 {
   "feature_id": "corrector-v1",
-  "version": 1,
-  "generated_at": "2026-06-27T12:00:00.000Z",
+  "version": 2,
+  "generated_at": "2026-06-27T14:00:00.000Z",
   "agent": "designer-front",
   "model": "claude-code",
-  "total_elements": 120,
+  "total_elements": 122,
   "screens": [
     {
       "screen_id": "screen-login",
@@ -280,8 +280,9 @@
         {
           "sketchNumber": 15,
           "type": "select",
-          "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "label": "Filtrar por legislación",
+          "props": { "placeholder": "Filtrar por legislación", "is_read_only": false },
+          "note": "Navigation filter only — the cycle entity has no legislation FK. Selecting a value narrows available options but is not persisted.",
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder option shown"], "condition": "Initial render" },
             { "name": "focus", "description": "Dropdown open", "visual_cues": ["options list visible"], "condition": "User clicks select" },
@@ -941,7 +942,7 @@
           "sketchNumber": 54,
           "type": "file-upload",
           "label": "Subir lista de alumnos",
-          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.xlsx" },
+          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.json,.yaml,.yml" },
           "states": [
             { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
             { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
@@ -1249,7 +1250,7 @@
       "file": "vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html",
       "route": "/profesor/gestionar/asignacion",
       "role_guard": ["profesor", "tutor"],
-      "sketch_numbers": [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85],
+      "sketch_numbers": [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 121],
       "data_needs": ["Proyecto", "Alumno", "Ciclo", "Modulo", "Legislacion"],
       "notes": "Assignment tab. Two independent filter groups: one for projects (#73–#77) and one for students (#78–#82). #83 is a read-only panel showing the currently selected project; #84 shows assigned students. Route is inferred — not listed in designer-front.md route table.",
       "components": [
@@ -1421,6 +1422,22 @@
           "interactions": [],
           "accessibility": { "role": "status", "aria_label": "Students assigned to the selected project", "aria_live": "polite", "keyboard": "Not interactive" },
           "depends_on": [83]
+        },
+        {
+          "sketchNumber": 121,
+          "type": "button",
+          "label": "Agregar alumnos",
+          "props": { "variant": "primary", "size": "md", "icon": "plus" },
+          "states": [
+            { "name": "default", "description": "Ready to assign selected student(s) to selected project", "visual_cues": ["primary button"], "condition": "Both #83 and #84 have a selection" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background", "cursor pointer"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "No project or no student selected", "visual_cues": ["greyed out", "not interactive"], "condition": "Panel #83 or panel #84 has no selection" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "assign-alumnos-to-proyecto", "payload": { "proyecto_id": "number", "alumno_ids": "number[]" }, "response": "Persists assignment to DB; updates table #85 immediately without page reload", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Assign selected students to selected project", "aria_live": "polite", "keyboard": "Tab to focus, Enter or Space to activate" },
+          "depends_on": [83, 84]
         },
         {
           "sketchNumber": 85,
@@ -1661,7 +1678,7 @@
           "sketchNumber": 99,
           "type": "file-upload",
           "label": "Subir rúbrica",
-          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.xlsx" },
+          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.json,.yaml,.yml" },
           "states": [
             { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
             { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
@@ -1916,7 +1933,7 @@
       "file": "vista_profesor-landing-ver_notas.html",
       "route": "/profesor/notas",
       "role_guard": ["profesor", "tutor"],
-      "sketch_numbers": [114, 115, 116, 117, 118, 119, 120],
+      "sketch_numbers": [114, 115, 116, 117, 118, 119, 120, 122],
       "data_needs": ["Correccion", "Proyecto", "Alumno", "Modulo", "Ciclo", "Legislacion"],
       "notes": "Grade view and PDF print screen. Cascade: #114 (year) → #116 (ciclo) → #117 (módulo) → #118 (proyecto) → filters table #119. #115 (legislación) is also a filter. Print button #120 is disabled until all five selects have a value. Tutor uses this screen for panorámica (all modules).",
       "components": [
@@ -2010,6 +2027,19 @@
           "interactions": [],
           "accessibility": { "role": "table", "aria_label": "Grade results preview", "aria_live": "polite", "keyboard": "Arrow keys to navigate rows" },
           "depends_on": [114, 115, 116, 117, 118]
+        },
+        {
+          "sketchNumber": 122,
+          "type": "paragraph",
+          "label": "Labels estado por módulo",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "One badge per module in selected cycle: green background if all students have a correction, red if at least one is missing", "visual_cues": ["row of coloured badges with module abbreviation"], "condition": "Cycle selected in #116" },
+            { "name": "empty", "description": "No cycle selected yet", "visual_cues": ["no badges rendered"], "condition": "#116 has no value" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "status", "aria_label": "Module grading status indicators", "aria_live": "polite", "keyboard": "Not interactive" },
+          "depends_on": [116]
         },
         {
           "sketchNumber": 120,
