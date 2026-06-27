@@ -54,7 +54,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `03-generated-artifacts/ui-spec.json` · phase: `ui-spec` |
 
 === "Agente 2 ∥ — Analista de Negocio"
-    **:white_check_mark: Implementado** · `/business-analyst`
+    **:white_check_mark: Implementado** · `/business-analyst` · **:white_check_mark: Ejecutado** — `transcripcion.md` completada · 120 elementos cubiertos · 5 propuestas en `boceto-suggestions.md`
 
     Entrevista al cliente y completa `transcripcion.md` hasta cubrir todos los elementos
     del boceto. Propone cambios en el boceto cuando detecta gaps.

@@ -25,7 +25,7 @@ flowchart TD
 
     META["boceto-metadata.json\nboceto-elements.md"]
     UISPEC["✓ ui-spec.json\n12 pantallas · 120 elementos"]
-    TRANS_OUT["transcripcion.md\nboceto-suggestions.md"]
+    TRANS_OUT["✓ transcripcion.md\n✓ boceto-suggestions.md\n120 elementos cubiertos"]
     ALIGN["alignment-report.json\n(local — no RAG)"]
     FSPEC["functional-spec.json"]
     RECON["reconciliation.json\n(local — no RAG)"]
