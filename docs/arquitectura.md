@@ -43,7 +43,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `01-boceto/boceto-metadata.json` · `boceto-elements.md` |
 
 === "Agente 1 ∥ — Diseñador Front"
-    **:white_check_mark: Implementado** · `/designer-front`
+    **:white_check_mark: Implementado** · `/designer-front` · **:white_check_mark: Ejecutado** — `ui-spec.json` generado · 12 pantallas · 120 elementos
 
     Especifica cada elemento UI: tipo, props, estados, interacciones, validaciones y
     accesibilidad por sketchNumber.

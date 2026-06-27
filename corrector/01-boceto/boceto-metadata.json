@@ -3,12 +3,12 @@
   "description": "Corrector de Proyectos — aplicación para calificación de proyectos de fin de ciclo FP mediante rúbricas",
   "boecetoPath": "./html-source-prototype/",
   "elementsRegistry": "./html-source-prototype/boceto-elements.md",
-  "totalElements": 119,
+  "totalElements": 120,
   "conflicts": {
-    "description": "No conflicts. All 119 IDs are unique, consecutive, and contiguous within each screen.",
+    "description": "No conflicts. All 120 IDs are unique, consecutive, and contiguous within each screen.",
     "groups": []
   },
-  "notes": "2026-06-13 (latest): Added element #24 (horasModule text input) to Tab Módulos form. All IDs from 24 onwards shifted +1. Blocks: Login 1–3, Legislación 4–10, Ciclos 11–21, Módulos 22–33, Profesorado 34–46, Landing 47, Alumnos 48–60, Proyectos 61–72, Asignación 73–85, Rúbrica 86–100, Corregir 101–113, Ver Notas 114–119.",
+  "notes": "2026-06-18 (latest): Added element #120 (print button) to Ver Notas screen. Blocks: Login 1–3, Legislación 4–10, Ciclos 11–21, Módulos 22–33, Profesorado 34–46, Landing 47, Alumnos 48–60, Proyectos 61–72, Asignación 73–85, Rúbrica 86–100, Corregir 101–113, Ver Notas 114–120.",
   "screens": [
     {
       "file": "index.html",

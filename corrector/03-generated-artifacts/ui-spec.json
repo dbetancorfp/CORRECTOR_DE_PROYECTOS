@@ -1,0 +1,2035 @@
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "2026-06-27T12:00:00.000Z",
+  "agent": "designer-front",
+  "model": "claude-code",
+  "total_elements": 120,
+  "screens": [
+    {
+      "screen_id": "screen-login",
+      "screen_name": "Login",
+      "file": "index.html",
+      "route": "/",
+      "role_guard": ["admin", "profesor", "tutor"],
+      "sketch_numbers": [1, 2, 3],
+      "data_needs": [],
+      "notes": "Public screen. Redirects to /admin or /profesor based on authenticated role.",
+      "components": [
+        {
+          "sketchNumber": 1,
+          "type": "text-input",
+          "label": "Usuario",
+          "props": { "placeholder": "Usuario", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field on first render", "visual_cues": ["placeholder text visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User is typing their username", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into the field" },
+            { "name": "error", "description": "Field empty on submit or credentials invalid", "visual_cues": ["red border", "error message below field"], "condition": "Submit attempted with empty field or server returns 401" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-login", "payload": { "username": "string", "password": "string" }, "response": "Triggers form submission", "target_elements": [3] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Username", "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Username is required" },
+            { "rule": "format:username", "message": "Username must be 4–20 alphanumeric characters" }
+          ]
+        },
+        {
+          "sketchNumber": 2,
+          "type": "password-input",
+          "label": "Contraseña",
+          "props": { "placeholder": "Contraseña", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty password field", "visual_cues": ["placeholder text visible", "characters masked"], "condition": "Initial render" },
+            { "name": "focus", "description": "User is entering password", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into field" },
+            { "name": "error", "description": "Password missing or credentials rejected", "visual_cues": ["red border", "error message below field"], "condition": "Submit with empty field or auth failure" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-login", "payload": { "username": "string", "password": "string" }, "response": "Triggers form submission", "target_elements": [3] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Password", "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Password is required" },
+            { "rule": "min:8", "message": "Password must be at least 8 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 3,
+          "type": "submit-button",
+          "label": "Acceder",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Ready to submit", "visual_cues": ["primary style"], "condition": "Initial render" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background", "cursor pointer"], "condition": "Mouse hovers button" },
+            { "name": "loading", "description": "Authentication request in flight", "visual_cues": ["spinner icon", "button disabled"], "condition": "Form submitted, awaiting server response" },
+            { "name": "error", "description": "Authentication failed", "visual_cues": ["returns to default", "error message shown near form"], "condition": "Server returns 401" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-login", "payload": { "username": "string", "password": "string" }, "response": "Shows loading state; redirects to /admin or /profesor on success", "target_elements": [1, 2] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Log in", "aria_live": "polite", "keyboard": "Enter or Space to activate" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-admin-legislacion",
+      "screen_name": "Admin · Tab Legislación",
+      "file": "vista_admin-tab_legislacion_seleccionado.html",
+      "route": "/admin/legislacion",
+      "role_guard": ["admin"],
+      "sketch_numbers": [4, 5, 6, 7, 8, 9, 10],
+      "data_needs": ["Legislacion"],
+      "notes": "Admin screen for managing legislaciones. Inline form always visible (no modal). Boceto element #5 has wrong placeholder 'Nombre del ciclo' — field represents legislation abbreviation (siglas). End-year field is absent from boceto form; only start-year is captured here.",
+      "components": [
+        {
+          "sketchNumber": 4,
+          "type": "tab",
+          "label": "Legislación",
+          "props": { "variant": "primary" },
+          "states": [
+            { "name": "selected", "description": "Legislación tab is the active tab", "visual_cues": ["highlighted/underlined tab", "clicked CSS class"], "condition": "Current route is /admin/legislacion" },
+            { "name": "hover", "description": "Cursor over tab", "visual_cues": ["cursor pointer", "subtle highlight"], "condition": "Mouse hovers tab" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "switch-tab-legislacion", "payload": {}, "response": "Navigates to /admin/legislacion, shows legislación form and table", "target_elements": [] }
+          ],
+          "accessibility": { "role": "tab", "aria_label": "Legislación tab", "aria_live": "off", "keyboard": "Tab/Arrow to navigate tabs, Enter to select" }
+        },
+        {
+          "sketchNumber": 5,
+          "type": "text-input",
+          "label": "Siglas",
+          "props": { "placeholder": "Nombre del ciclo", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field ready to receive siglas", "visual_cues": ["placeholder visible"], "condition": "Initial render or after save" },
+            { "name": "focus", "description": "User is typing abbreviation", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into field" },
+            { "name": "error", "description": "Validation fails on submit", "visual_cues": ["red border", "error message below field"], "condition": "Field empty or pattern mismatch on submit" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-save-legislacion", "payload": { "abbreviation": "string", "start_year": "number" }, "response": "Submits form", "target_elements": [7] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Legislation abbreviation", "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Abbreviation is required" },
+            { "rule": "pattern:^[A-Z]{2,10}$", "message": "Abbreviation must be 2–10 uppercase letters" },
+            { "rule": "unique", "message": "This abbreviation already exists" }
+          ],
+          "note": "Boceto placeholder reads 'Nombre del ciclo' — copy-paste error. Field represents legislation abbreviation (e.g. LOMLOE, LOE)."
+        },
+        {
+          "sketchNumber": 6,
+          "type": "number-input",
+          "label": "Año de inicio",
+          "props": { "placeholder": "Año de inicio de la legislación", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User is entering year", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
+            { "name": "error", "description": "Invalid year on submit", "visual_cues": ["red border", "error message below field"], "condition": "Empty or outside 1900–2099 range" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-save-legislacion", "payload": { "abbreviation": "string", "start_year": "number" }, "response": "Submits form", "target_elements": [7] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Legislation start year", "aria_live": "off", "keyboard": "Tab to focus, Enter to submit" },
+          "validation": [
+            { "rule": "required", "message": "Start year is required" },
+            { "rule": "format:year", "message": "Year must be a whole number between 1900 and 2099" }
+          ]
+        },
+        {
+          "sketchNumber": 7,
+          "type": "submit-button",
+          "label": "Guardar",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Ready to save new legislación", "visual_cues": ["primary style"], "condition": "Form ready" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background", "cursor pointer"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "Save request in flight", "visual_cues": ["spinner", "button disabled"], "condition": "POST /api/legislaciones in progress" },
+            { "name": "disabled", "description": "Form fields are invalid", "visual_cues": ["greyed out", "not interactive"], "condition": "Validation errors present" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-legislacion", "payload": { "abbreviation": "string", "start_year": "number" }, "response": "Clears form, reloads table #10 with new entry", "target_elements": [5, 6, 10] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save legislation", "aria_live": "polite", "keyboard": "Enter or Space to activate" }
+        },
+        {
+          "sketchNumber": 8,
+          "type": "reactive-filter",
+          "label": "Filtrar por año de inicio",
+          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User is typing filter value", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
+            { "name": "active", "description": "Filter is applied", "visual_cues": ["non-empty text", "table rows filtered"], "condition": "User has typed one or more characters" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-legislaciones", "payload": { "start_year": "string" }, "response": "Filters rows in table #10 by start year in real time", "target_elements": [10] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter by start year", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 9,
+          "type": "reactive-filter",
+          "label": "Filtrar por legislación",
+          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User is typing", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
+            { "name": "active", "description": "Filter applied on abbreviation/name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed one or more characters" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-legislaciones", "payload": { "name": "string" }, "response": "Filters rows in table #10 by abbreviation/name in real time", "target_elements": [10] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter by legislation name", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 10,
+          "type": "table",
+          "label": "Tabla de legislaciones",
+          "props": { "columns": ["start_year", "name", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with existing legislaciones", "visual_cues": ["rows with data"], "condition": "Data loaded from API" },
+            { "name": "loading", "description": "Fetching data from server", "visual_cues": ["skeleton rows or spinner overlay"], "condition": "API request in progress" },
+            { "name": "empty", "description": "No legislaciones exist yet", "visual_cues": ["empty state message: 'No hay legislaciones registradas'"], "condition": "API returns empty array" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-legislacion-row", "payload": { "id": "number" }, "response": "Populates form #5/#6 with row data for editing", "target_elements": [5, 6] },
+            { "trigger": "click", "event": "delete-legislacion-row", "payload": { "id": "number" }, "response": "Shows confirmation dialog; on confirm removes row and reloads table", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Legislaciones list", "aria_live": "polite", "keyboard": "Arrow keys to navigate rows" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-admin-ciclos",
+      "screen_name": "Admin · Tab Ciclos",
+      "file": "vista_admin-tab_ciclos_seleccionado.html",
+      "route": "/admin/ciclos",
+      "role_guard": ["admin"],
+      "sketch_numbers": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+      "data_needs": ["Ciclo", "Legislacion"],
+      "notes": "Admin screen for managing ciclos. Nav (#11) is the shared navigation bar annotated on this screen. #21 is a <th> for the 'Año finalización' column, annotated separately.",
+      "components": [
+        {
+          "sketchNumber": 11,
+          "type": "nav",
+          "label": "Barra de navegación",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Navigation bar rendered with logo, title, username and logout button", "visual_cues": ["logo image", "app title", "welcome + username", "Salir button"], "condition": "Any authenticated screen" },
+            { "name": "hover", "description": "Salir button is hovered", "visual_cues": ["Salir button highlighted", "cursor pointer"], "condition": "Mouse hovers the Salir button" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "logout", "payload": {}, "response": "Clears session and redirects to /", "target_elements": [] }
+          ],
+          "accessibility": { "role": "navigation", "aria_label": "Main navigation", "aria_live": "off", "keyboard": "Tab to reach Salir button, Enter to logout" }
+        },
+        {
+          "sketchNumber": 12,
+          "type": "tab",
+          "label": "Ciclos",
+          "props": { "variant": "primary" },
+          "states": [
+            { "name": "selected", "description": "Ciclos tab is active", "visual_cues": ["highlighted tab", "clicked CSS class"], "condition": "Current route is /admin/ciclos" },
+            { "name": "hover", "description": "Cursor over tab", "visual_cues": ["cursor pointer", "subtle highlight"], "condition": "Mouse hovers tab" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "switch-tab-ciclos", "payload": {}, "response": "Navigates to /admin/ciclos", "target_elements": [] }
+          ],
+          "accessibility": { "role": "tab", "aria_label": "Ciclos tab", "aria_live": "off", "keyboard": "Arrow keys to navigate tabs, Enter to select" }
+        },
+        {
+          "sketchNumber": 13,
+          "type": "text-input",
+          "label": "Nombre del ciclo",
+          "props": { "placeholder": "Nombre del ciclo", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing cycle name", "visual_cues": ["focus ring"], "condition": "Field clicked or tabbed" },
+            { "name": "error", "description": "Validation failed", "visual_cues": ["red border", "error message"], "condition": "Empty or too short on submit" }
+          ],
+          "interactions": [
+            { "trigger": "keypress:Enter", "event": "submit-save-ciclo", "payload": { "name": "string", "start_year": "number", "legislation_id": "number" }, "response": "Submits form", "target_elements": [16] }
+          ],
+          "accessibility": { "role": "textbox", "aria_label": "Cycle name", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Cycle name is required" },
+            { "rule": "min:3", "message": "Name must be at least 3 characters" },
+            { "rule": "max:100", "message": "Name must not exceed 100 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 14,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder option shown"], "condition": "Initial render" },
+            { "name": "focus", "description": "Dropdown open", "visual_cues": ["focus ring", "options list visible"], "condition": "User clicks select" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["selected year displayed"], "condition": "User picks an option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border", "error message"], "condition": "Form submitted without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Filters available legislaciones in #15 to those valid for the chosen year", "target_elements": [15] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select start year for cycle", "aria_live": "off", "keyboard": "Tab to focus, arrows to navigate, Enter to select" },
+          "validation": [
+            { "rule": "required", "message": "Start year is required" }
+          ]
+        },
+        {
+          "sketchNumber": 15,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder option shown"], "condition": "Initial render" },
+            { "name": "focus", "description": "Dropdown open", "visual_cues": ["options list visible"], "condition": "User clicks select" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["selected legislation shown"], "condition": "User picks an option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border", "error message"], "condition": "Form submitted without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "submit-save-ciclo", "payload": {}, "response": "Updates internal form state", "target_elements": [] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for cycle", "aria_live": "off", "keyboard": "Tab to focus, arrows to navigate" },
+          "validation": [
+            { "rule": "required", "message": "Legislation is required" }
+          ],
+          "depends_on": [14]
+        },
+        {
+          "sketchNumber": 16,
+          "type": "submit-button",
+          "label": "Guardar",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Ready to save", "visual_cues": ["primary style"], "condition": "Form ready" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "Save in progress", "visual_cues": ["spinner", "disabled"], "condition": "POST in progress" },
+            { "name": "disabled", "description": "Form invalid", "visual_cues": ["greyed out"], "condition": "Validation errors present" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-ciclo", "payload": { "name": "string", "start_year": "number", "legislation_id": "number" }, "response": "Clears form, reloads table #20", "target_elements": [13, 14, 15, 20] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save cycle", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 17,
+          "type": "reactive-filter",
+          "label": "Filtrar por año de inicio",
+          "props": { "placeholder": "Filtrar por año de inicio de la legislación", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by year", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-ciclos", "payload": { "start_year": "string" }, "response": "Filters table #20 in real time", "target_elements": [20] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter cycles by start year", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 18,
+          "type": "reactive-filter",
+          "label": "Filtrar por legislación",
+          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by legislation name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-ciclos", "payload": { "legislation": "string" }, "response": "Filters table #20 in real time", "target_elements": [20] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter cycles by legislation", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 19,
+          "type": "reactive-filter",
+          "label": "Filtrar por ciclo",
+          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by cycle name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-ciclos", "payload": { "name": "string" }, "response": "Filters table #20 in real time", "target_elements": [20] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter by cycle name", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 20,
+          "type": "table",
+          "label": "Tabla de ciclos",
+          "props": { "columns": ["name", "abbreviation", "start_year", "end_year", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with ciclos", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API request in progress" },
+            { "name": "empty", "description": "No ciclos exist", "visual_cues": ["empty state message"], "condition": "API returns empty array" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-ciclo-row", "payload": { "id": "number" }, "response": "Populates form fields #13/#14/#15 for editing", "target_elements": [13, 14, 15] },
+            { "trigger": "click", "event": "delete-ciclo-row", "payload": { "id": "number" }, "response": "Confirms and removes row", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Ciclos list", "aria_live": "polite", "keyboard": "Arrow keys to navigate rows" }
+        },
+        {
+          "sketchNumber": 21,
+          "type": "table-header-cell",
+          "label": "Año finalización",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Column header rendered", "visual_cues": ["bold header text"], "condition": "Table rendered" },
+            { "name": "hover", "description": "Cursor over header (potential sort)", "visual_cues": ["cursor pointer if sortable"], "condition": "Mouse hovers header" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "columnheader", "aria_label": "End year column header", "aria_live": "off", "keyboard": "Not interactable" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-admin-modulos",
+      "screen_name": "Admin · Tab Módulos",
+      "file": "vista_admin-tab_modulos_seleccionado.html",
+      "route": "/admin/modulos",
+      "role_guard": ["admin"],
+      "sketch_numbers": [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33],
+      "data_needs": ["Modulo", "Ciclo", "Legislacion"],
+      "notes": "Admin screen for managing módulos. Ciclo select (#27) depends on Legislación (#25) and year (#26). Horas semanales (#24) is a numeric field despite using text input in boceto.",
+      "components": [
+        {
+          "sketchNumber": 22,
+          "type": "tab",
+          "label": "Módulos",
+          "props": { "variant": "primary" },
+          "states": [
+            { "name": "selected", "description": "Módulos tab is active", "visual_cues": ["highlighted tab"], "condition": "Current route is /admin/modulos" },
+            { "name": "hover", "description": "Cursor over tab", "visual_cues": ["cursor pointer"], "condition": "Mouse hovers" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "switch-tab-modulos", "payload": {}, "response": "Navigates to /admin/modulos", "target_elements": [] }
+          ],
+          "accessibility": { "role": "tab", "aria_label": "Módulos tab", "aria_live": "off", "keyboard": "Arrow keys to navigate, Enter to select" }
+        },
+        {
+          "sketchNumber": 23,
+          "type": "text-input",
+          "label": "Nombre del módulo",
+          "props": { "placeholder": "Nombre del módulo", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing module name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
+            { "name": "error", "description": "Validation failed", "visual_cues": ["red border", "error message"], "condition": "Empty or out of range on submit" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Module name", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Module name is required" },
+            { "rule": "min:3", "message": "Name must be at least 3 characters" },
+            { "rule": "max:100", "message": "Name must not exceed 100 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 24,
+          "type": "number-input",
+          "label": "Horas semanales",
+          "props": { "placeholder": "Horas semanales", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing hours", "visual_cues": ["focus ring"], "condition": "Field clicked" },
+            { "name": "error", "description": "Invalid value", "visual_cues": ["red border", "error message"], "condition": "Value out of 1–30 range or empty" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Weekly hours", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Weekly hours is required" },
+            { "rule": "min:1", "message": "Hours must be at least 1" },
+            { "rule": "max:30", "message": "Hours must not exceed 30" }
+          ]
+        },
+        {
+          "sketchNumber": 25,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["selected value shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Reloads ciclo options in #27 filtered by this legislation", "target_elements": [26, 27] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Legislation is required" }]
+        },
+        {
+          "sketchNumber": 26,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Narrows ciclo options in #27", "target_elements": [27] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select start year for module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Start year is required" }]
+        },
+        {
+          "sketchNumber": 27,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
+            { "name": "disabled", "description": "No legislation or year selected yet", "visual_cues": ["greyed out", "not interactive"], "condition": "Parent selects #25 or #26 have no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo name shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Cycle is required" }],
+          "depends_on": [25, 26]
+        },
+        {
+          "sketchNumber": 28,
+          "type": "submit-button",
+          "label": "Guardar",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Ready to save", "visual_cues": ["primary style"], "condition": "Form ready" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "Save in progress", "visual_cues": ["spinner", "disabled"], "condition": "POST in progress" },
+            { "name": "disabled", "description": "Form invalid", "visual_cues": ["greyed out"], "condition": "Validation errors present" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-modulo", "payload": { "name": "string", "weekly_hours": "number", "legislation_id": "number", "start_year": "number", "ciclo_id": "number" }, "response": "Clears form, reloads table #33", "target_elements": [23, 24, 25, 26, 27, 33] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save module", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 29,
+          "type": "reactive-filter",
+          "label": "Filtrar por año de inicio",
+          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by year", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-modulos", "payload": { "start_year": "string" }, "response": "Filters table #33", "target_elements": [33] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter modules by start year", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 30,
+          "type": "reactive-filter",
+          "label": "Filtrar por legislación",
+          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by legislation", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-modulos", "payload": { "legislation": "string" }, "response": "Filters table #33", "target_elements": [33] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter modules by legislation", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 31,
+          "type": "reactive-filter",
+          "label": "Filtrar por ciclo",
+          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by ciclo", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-modulos", "payload": { "ciclo": "string" }, "response": "Filters table #33", "target_elements": [33] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter modules by cycle", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 32,
+          "type": "reactive-filter",
+          "label": "Filtrar por módulo",
+          "props": { "placeholder": "Filtrar por módulo", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by module name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-modulos", "payload": { "name": "string" }, "response": "Filters table #33", "target_elements": [33] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter by module name", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 33,
+          "type": "table",
+          "label": "Tabla de módulos",
+          "props": { "columns": ["name", "cycle", "start_year", "legislation", "weekly_hours", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with módulos", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API in progress" },
+            { "name": "empty", "description": "No módulos exist", "visual_cues": ["empty state message"], "condition": "API returns empty array" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-modulo-row", "payload": { "id": "number" }, "response": "Populates form #23–#27 for editing", "target_elements": [23, 24, 25, 26, 27] },
+            { "trigger": "click", "event": "delete-modulo-row", "payload": { "id": "number" }, "response": "Confirms and removes row", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Módulos list", "aria_live": "polite", "keyboard": "Arrow keys to navigate rows" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-admin-profesorado",
+      "screen_name": "Admin · Tab Profesorado",
+      "file": "vista_admin-tab_profesorado_seleccionado.html",
+      "route": "/admin/profesorado",
+      "role_guard": ["admin"],
+      "sketch_numbers": [34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46],
+      "data_needs": ["Profesor", "Ciclo", "Modulo", "Legislacion"],
+      "notes": "Admin screen for managing profesorado. Módulo select (#40) depends on ciclo (#39). Table shows password in plaintext in boceto — implementation must hash/mask.",
+      "components": [
+        {
+          "sketchNumber": 34,
+          "type": "tab",
+          "label": "Profesorado",
+          "props": { "variant": "primary" },
+          "states": [
+            { "name": "selected", "description": "Profesorado tab is active", "visual_cues": ["highlighted tab"], "condition": "Current route is /admin/profesorado" },
+            { "name": "hover", "description": "Cursor over tab", "visual_cues": ["cursor pointer"], "condition": "Mouse hovers" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "switch-tab-profesorado", "payload": {}, "response": "Navigates to /admin/profesorado", "target_elements": [] }
+          ],
+          "accessibility": { "role": "tab", "aria_label": "Profesorado tab", "aria_live": "off", "keyboard": "Arrow keys, Enter to select" }
+        },
+        {
+          "sketchNumber": 35,
+          "type": "text-input",
+          "label": "Nombre del profesor",
+          "props": { "placeholder": "Nombre del profesor", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing username", "visual_cues": ["focus ring"], "condition": "Field clicked" },
+            { "name": "error", "description": "Validation failed", "visual_cues": ["red border", "error message"], "condition": "Invalid or empty on submit" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Teacher username", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Username is required" },
+            { "rule": "pattern:^[a-zA-Z0-9]{4,20}$", "message": "Username must be 4–20 alphanumeric characters" },
+            { "rule": "unique", "message": "This username already exists" }
+          ]
+        },
+        {
+          "sketchNumber": 36,
+          "type": "password-input",
+          "label": "Contraseña",
+          "props": { "placeholder": "Contraseña", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty password field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User entering password", "visual_cues": ["focus ring", "masked characters"], "condition": "Field clicked" },
+            { "name": "error", "description": "Too short or empty on submit", "visual_cues": ["red border", "error message"], "condition": "Fails min:8 validation" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Teacher password", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Password is required" },
+            { "rule": "min:8", "message": "Password must be at least 8 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 37,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Reloads ciclo options in #39", "target_elements": [38, 39] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select year for teacher assignment", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Year is required" }]
+        },
+        {
+          "sketchNumber": 38,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Reloads ciclo options in #39", "target_elements": [39] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for teacher", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Legislation is required" }],
+          "depends_on": [37]
+        },
+        {
+          "sketchNumber": 39,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for parent selects", "visual_cues": ["greyed out"], "condition": "#37 or #38 have no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Reloads module options in #40 filtered by this ciclo", "target_elements": [40] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for teacher", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Cycle is required" }],
+          "depends_on": [37, 38]
+        },
+        {
+          "sketchNumber": 40,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#39 has no value" },
+            { "name": "selected", "description": "Module chosen", "visual_cues": ["module shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "combobox", "aria_label": "Select module for teacher", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Module is required" }],
+          "depends_on": [39]
+        },
+        {
+          "sketchNumber": 41,
+          "type": "submit-button",
+          "label": "Guardar",
+          "props": { "variant": "primary", "size": "md" },
+          "states": [
+            { "name": "default", "description": "Ready to save", "visual_cues": ["primary style"], "condition": "Form ready" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "Save in progress", "visual_cues": ["spinner", "disabled"], "condition": "POST in progress" },
+            { "name": "disabled", "description": "Form invalid", "visual_cues": ["greyed out"], "condition": "Validation errors" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-profesor", "payload": { "username": "string", "password": "string", "year": "number", "legislation_id": "number", "ciclo_id": "number", "modulo_id": "number" }, "response": "Clears form, reloads table #46", "target_elements": [35, 36, 37, 38, 39, 40, 46] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save teacher", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 42,
+          "type": "reactive-filter",
+          "label": "Filtrar por año de inicio",
+          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-profesorado", "payload": { "start_year": "string" }, "response": "Filters table #46", "target_elements": [46] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter teachers by start year", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 43,
+          "type": "reactive-filter",
+          "label": "Filtrar por legislación",
+          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-profesorado", "payload": { "legislation": "string" }, "response": "Filters table #46", "target_elements": [46] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter teachers by legislation", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 44,
+          "type": "reactive-filter",
+          "label": "Filtrar por ciclo",
+          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-profesorado", "payload": { "ciclo": "string" }, "response": "Filters table #46", "target_elements": [46] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter teachers by cycle", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 45,
+          "type": "reactive-filter",
+          "label": "Filtrar por módulo",
+          "props": { "placeholder": "Filtrar por módulo", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-profesorado", "payload": { "modulo": "string" }, "response": "Filters table #46", "target_elements": [46] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter teachers by module", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 46,
+          "type": "table",
+          "label": "Tabla de profesorado",
+          "props": { "columns": ["name", "password", "year", "cycle", "modules", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with profesores", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API in progress" },
+            { "name": "empty", "description": "No profesores exist", "visual_cues": ["empty state message"], "condition": "API returns empty array" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-profesor-row", "payload": { "id": "number" }, "response": "Populates form #35–#40 for editing", "target_elements": [35, 36, 37, 38, 39, 40] },
+            { "trigger": "click", "event": "delete-profesor-row", "payload": { "id": "number" }, "response": "Confirms and removes row", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Teachers list", "aria_live": "polite", "keyboard": "Arrow keys to navigate" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-profesor-landing",
+      "screen_name": "Landing Profesor",
+      "file": "vista_profesor-landing.html",
+      "route": "/profesor",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [47],
+      "data_needs": [],
+      "notes": "Landing screen for profesor/tutor role. Buttons Gestionar, Corregir, Visualizar notas are present in the boceto but not annotated with data-element-id — they are navigation elements not requiring individual spec. Only #47 (Imprimir notas) is annotated because it is role-restricted to tutor.",
+      "components": [
+        {
+          "sketchNumber": 47,
+          "type": "button",
+          "label": "Imprimir notas",
+          "props": { "variant": "secondary", "size": "md", "role_guard": ["tutor"], "icon": "download" },
+          "states": [
+            { "name": "default", "description": "Visible only to tutor role; navigates to print view", "visual_cues": ["secondary button style"], "condition": "Authenticated user has rol=tutor" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background", "cursor pointer"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "Hidden/disabled for non-tutor roles", "visual_cues": ["not rendered for profesor"], "condition": "Authenticated user has rol=profesor" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "navigate-print-notas", "payload": {}, "response": "Navigates to /profesor/notas (print panorámica for all modules)", "target_elements": [] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Print all module grades (tutor only)", "aria_live": "off", "keyboard": "Tab to focus, Enter to activate" },
+          "note": "Only rendered when rol === 'tutor'. Profesor role must not see this button."
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-profesor-alumnos",
+      "screen_name": "Profesor · Tab Alumnos",
+      "file": "vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html",
+      "route": "/profesor/gestionar/alumnos",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60],
+      "data_needs": ["Alumno", "Ciclo", "Modulo", "Legislacion"],
+      "notes": "Gestión tab for alumnos. The 'Nuevo' button (#53) saves the inline form directly. Tab navigation buttons (Alumnos/Proyectos/Asignación/Rúbrica) are not annotated in boceto — handled implicitly by the tab-group container.",
+      "components": [
+        {
+          "sketchNumber": 48,
+          "type": "text-input",
+          "label": "Nombre del alumno",
+          "props": { "placeholder": "Nombre del alumno", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing student name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
+            { "name": "error", "description": "Empty or too short on submit", "visual_cues": ["red border", "error message"], "condition": "Validation failure" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Student name or code", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Student name is required" },
+            { "rule": "min:2", "message": "Name must be at least 2 characters" },
+            { "rule": "max:100", "message": "Name must not exceed 100 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 49,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Updates options in #50 and #51", "target_elements": [50, 51] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select start year for student", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Year is required" }]
+        },
+        {
+          "sketchNumber": 50,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Updates ciclo options in #51", "target_elements": [51] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for student", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Legislation is required" }],
+          "depends_on": [49]
+        },
+        {
+          "sketchNumber": 51,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for legislation selection", "visual_cues": ["greyed out"], "condition": "#50 has no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Loads module options in #52", "target_elements": [52] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for student", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Cycle is required" }],
+          "depends_on": [49, 50]
+        },
+        {
+          "sketchNumber": 52,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#51 has no value" },
+            { "name": "selected", "description": "Module chosen", "visual_cues": ["module shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "combobox", "aria_label": "Select module for student", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Module is required" }],
+          "depends_on": [51]
+        },
+        {
+          "sketchNumber": 53,
+          "type": "button",
+          "label": "Nuevo",
+          "props": { "variant": "primary", "size": "md", "icon": "plus" },
+          "states": [
+            { "name": "default", "description": "Ready to save new student", "visual_cues": ["primary button"], "condition": "Form has values" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background", "cursor pointer"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "Form incomplete", "visual_cues": ["greyed out"], "condition": "Required fields empty" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-alumno", "payload": { "nombre": "string", "start_year": "number", "legislation_id": "number", "ciclo_id": "number", "modulo_id": "number" }, "response": "Saves alumno, clears form, reloads table #60", "target_elements": [48, 49, 50, 51, 52, 60] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save new student", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 54,
+          "type": "file-upload",
+          "label": "Subir lista de alumnos",
+          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.xlsx" },
+          "states": [
+            { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "File upload in progress", "visual_cues": ["progress indicator", "disabled"], "condition": "File selected and upload started" },
+            { "name": "error", "description": "File format invalid or upload failed", "visual_cues": ["error toast message"], "condition": "Wrong file type or server error" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "upload-alumnos-file", "payload": { "file": "File" }, "response": "Opens file picker; on select uploads CSV/Excel; on success reloads table #60", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Upload student list from CSV or Excel", "aria_live": "polite", "keyboard": "Enter or Space to open file picker" }
+        },
+        {
+          "sketchNumber": 55,
+          "type": "reactive-filter",
+          "label": "Filtrar por nombre",
+          "props": { "placeholder": "Filtrar por nombre", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by student name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-alumnos", "payload": { "nombre": "string" }, "response": "Filters table #60 in real time", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter students by name", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" }
+        },
+        {
+          "sketchNumber": 56,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "start_year": "number" }, "response": "Filters table #60", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by year", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 57,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "legislation_id": "number" }, "response": "Filters table #60", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by legislation", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 58,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "ciclo_id": "number" }, "response": "Filters table #60", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by cycle", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [57]
+        },
+        {
+          "sketchNumber": 59,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "modulo_id": "number" }, "response": "Filters table #60", "target_elements": [60] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [58]
+        },
+        {
+          "sketchNumber": 60,
+          "type": "table",
+          "label": "Tabla de alumnos",
+          "props": { "columns": ["name", "module", "cycle", "legislation", "start_year", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with alumnos", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API in progress" },
+            { "name": "empty", "description": "No alumnos match filters or none created yet", "visual_cues": ["empty state message: 'No hay alumnos registrados'"], "condition": "Empty API response" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-alumno-row", "payload": { "id": "number" }, "response": "Populates form #48–#52 for editing", "target_elements": [48, 49, 50, 51, 52] },
+            { "trigger": "click", "event": "delete-alumno-row", "payload": { "id": "number" }, "response": "Confirms and removes row", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Students list", "aria_live": "polite", "keyboard": "Arrow keys to navigate" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-profesor-proyectos",
+      "screen_name": "Profesor · Tab Proyectos",
+      "file": "vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html",
+      "route": "/profesor/gestionar/proyectos",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72],
+      "data_needs": ["Proyecto", "Ciclo", "Modulo", "Legislacion"],
+      "notes": "Gestión tab for proyectos. 'Nuevo' button (#66) saves the inline form. Ciclo (#64) depends on legislation (#63) and year (#62). Module (#65) depends on ciclo (#64).",
+      "components": [
+        {
+          "sketchNumber": 61,
+          "type": "text-input",
+          "label": "Nombre del proyecto",
+          "props": { "placeholder": "Nombre del proyecto", "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "focus", "description": "User typing project name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
+            { "name": "error", "description": "Empty or too short on submit", "visual_cues": ["red border", "error message"], "condition": "Validation failure" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "textbox", "aria_label": "Project name", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [
+            { "rule": "required", "message": "Project name is required" },
+            { "rule": "min:2", "message": "Name must be at least 2 characters" },
+            { "rule": "max:100", "message": "Name must not exceed 100 characters" }
+          ]
+        },
+        {
+          "sketchNumber": 62,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Updates ciclo options in #64", "target_elements": [63, 64] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select year for project", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Year is required" }]
+        },
+        {
+          "sketchNumber": 63,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Updates ciclo options in #64", "target_elements": [64] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for project", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Legislation is required" }],
+          "depends_on": [62]
+        },
+        {
+          "sketchNumber": 64,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for legislation selection", "visual_cues": ["greyed out"], "condition": "#63 has no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Loads module options in #65", "target_elements": [65] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for project", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Cycle is required" }],
+          "depends_on": [62, 63]
+        },
+        {
+          "sketchNumber": 65,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#64 has no value" },
+            { "name": "selected", "description": "Module chosen", "visual_cues": ["module shown"], "condition": "User picks option" },
+            { "name": "error", "description": "Not selected on submit", "visual_cues": ["red border"], "condition": "Submit without selection" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "combobox", "aria_label": "Select module for project", "aria_live": "off", "keyboard": "Tab to focus" },
+          "validation": [{ "rule": "required", "message": "Module is required" }],
+          "depends_on": [64]
+        },
+        {
+          "sketchNumber": 66,
+          "type": "button",
+          "label": "Nuevo",
+          "props": { "variant": "primary", "size": "md", "icon": "plus" },
+          "states": [
+            { "name": "default", "description": "Ready to save new project", "visual_cues": ["primary button"], "condition": "Form has values" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "Form incomplete", "visual_cues": ["greyed out"], "condition": "Required fields empty" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-proyecto", "payload": { "name": "string", "start_year": "number", "legislation_id": "number", "ciclo_id": "number", "modulo_id": "number" }, "response": "Saves proyecto, clears form, reloads table #72", "target_elements": [61, 62, 63, 64, 65, 72] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Save new project", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 67,
+          "type": "reactive-filter",
+          "label": "Filtrar por proyecto",
+          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by project name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-proyectos", "payload": { "name": "string" }, "response": "Filters table #72 in real time", "target_elements": [72] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter projects by name", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 68,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "start_year": "number" }, "response": "Filters table #72", "target_elements": [72] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by year", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 69,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "legislation_id": "number" }, "response": "Filters table #72", "target_elements": [72] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by legislation", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 70,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "ciclo_id": "number" }, "response": "Filters table #72", "target_elements": [72] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by cycle", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [69]
+        },
+        {
+          "sketchNumber": 71,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "modulo_id": "number" }, "response": "Filters table #72", "target_elements": [72] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [70]
+        },
+        {
+          "sketchNumber": 72,
+          "type": "table",
+          "label": "Tabla de proyectos",
+          "props": { "columns": ["name", "module", "cycle", "legislation", "start_year", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with proyectos", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API in progress" },
+            { "name": "empty", "description": "No proyectos match filters or none created yet", "visual_cues": ["empty state message"], "condition": "Empty API response" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-proyecto-row", "payload": { "id": "number" }, "response": "Populates form #61–#65 for editing", "target_elements": [61, 62, 63, 64, 65] },
+            { "trigger": "click", "event": "delete-proyecto-row", "payload": { "id": "number" }, "response": "Confirms and removes row", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Projects list", "aria_live": "polite", "keyboard": "Arrow keys to navigate" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-profesor-asignacion",
+      "screen_name": "Profesor · Tab Asignación Proyecto-Alumno",
+      "file": "vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html",
+      "route": "/profesor/gestionar/asignacion",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85],
+      "data_needs": ["Proyecto", "Alumno", "Ciclo", "Modulo", "Legislacion"],
+      "notes": "Assignment tab. Two independent filter groups: one for projects (#73–#77) and one for students (#78–#82). #83 is a read-only panel showing the currently selected project; #84 shows assigned students. Route is inferred — not listed in designer-front.md route table.",
+      "components": [
+        {
+          "sketchNumber": 73,
+          "type": "reactive-filter",
+          "label": "Filtrar por proyecto",
+          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all projects shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by project name", "visual_cues": ["non-empty text", "filtered"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-proyectos", "payload": { "name": "string" }, "response": "Filters project rows in table #85", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter projects by name", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 74,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No project-year filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "start_year": "number" }, "response": "Filters table #85 by project year", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by year", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 75,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "legislation_id": "number" }, "response": "Filters table #85", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by legislation", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 76,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "ciclo_id": "number" }, "response": "Filters table #85", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by cycle", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [75]
+        },
+        {
+          "sketchNumber": 77,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-proyectos", "payload": { "modulo_id": "number" }, "response": "Filters table #85", "target_elements": [85] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter projects by module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [76]
+        },
+        {
+          "sketchNumber": 78,
+          "type": "reactive-filter",
+          "label": "Filtrar por nombre",
+          "props": { "placeholder": "Filtrar por nombre", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all students shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering students by name", "visual_cues": ["non-empty text", "filtered"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-alumnos", "payload": { "nombre": "string" }, "response": "Filters student pool for assignment (updates #84 candidate list)", "target_elements": [84] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter students by name", "aria_live": "polite", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 79,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No student-year filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "start_year": "number" }, "response": "Filters student pool", "target_elements": [84] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by year", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 80,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "legislation_id": "number" }, "response": "Filters student pool", "target_elements": [84] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by legislation", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 81,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "ciclo_id": "number" }, "response": "Filters student pool", "target_elements": [84] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by cycle", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [80]
+        },
+        {
+          "sketchNumber": 82,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-alumnos", "payload": { "modulo_id": "number" }, "response": "Filters student pool", "target_elements": [84] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Filter students by module", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [81]
+        },
+        {
+          "sketchNumber": 83,
+          "type": "paragraph",
+          "label": "Proyecto seleccionado",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Shows name of the currently selected project", "visual_cues": ["project name text inside fieldset legend 'Proyecto:'"], "condition": "A project row is selected in #85" },
+            { "name": "empty", "description": "No project selected yet", "visual_cues": ["empty fieldset or placeholder text"], "condition": "No project row selected" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "status", "aria_label": "Currently selected project", "aria_live": "polite", "keyboard": "Not interactive" }
+        },
+        {
+          "sketchNumber": 84,
+          "type": "paragraph",
+          "label": "Alumnos asignados",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Lists students assigned to selected project", "visual_cues": ["student names inside fieldset legend 'Alumnos:'"], "condition": "Project selected and has students" },
+            { "name": "empty", "description": "No students assigned yet", "visual_cues": ["empty list or 'Sin alumnos asignados' message"], "condition": "Project selected but no students assigned" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "status", "aria_label": "Students assigned to the selected project", "aria_live": "polite", "keyboard": "Not interactive" },
+          "depends_on": [83]
+        },
+        {
+          "sketchNumber": 85,
+          "type": "table",
+          "label": "Tabla de asignaciones",
+          "props": { "columns": ["name", "module", "cycle", "legislation", "start_year", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Populated with proyecto-alumno assignments", "visual_cues": ["rows with data"], "condition": "Data loaded" },
+            { "name": "loading", "description": "Fetching data", "visual_cues": ["skeleton rows"], "condition": "API in progress" },
+            { "name": "empty", "description": "No assignments exist", "visual_cues": ["empty state message"], "condition": "Empty API response" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "select-proyecto-for-assignment", "payload": { "id": "number" }, "response": "Updates panels #83 and #84 with selected project and its students", "target_elements": [83, 84] },
+            { "trigger": "click", "event": "edit-asignacion-row", "payload": { "id": "number" }, "response": "Opens assignment editor for the row", "target_elements": [] },
+            { "trigger": "click", "event": "delete-asignacion-row", "payload": { "id": "number" }, "response": "Confirms and removes assignment", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Project-student assignments list", "aria_live": "polite", "keyboard": "Arrow keys to navigate" }
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-profesor-rubrica",
+      "screen_name": "Profesor · Tab Rúbrica",
+      "file": "vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html",
+      "route": "/profesor/gestionar/rubrica",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100],
+      "data_needs": ["RubricaItem", "Modulo", "Ciclo", "Legislacion"],
+      "notes": "Rubric management. Filter cascade #87→#89→#90 loads the rubric for the selected module. #92 is the inline item-builder table (3 levels shown in boceto); #100 is the full rubric display. Boceto shows only 3 levels in the builder (Excelente, Bien, Mal) but domain supports 5 (Excelente, Muy bien, Bien, Regular, Mal). Button #91 'Nuevo nivel' suggests levels are configurable.",
+      "components": [
+        {
+          "sketchNumber": 86,
+          "type": "reactive-filter",
+          "label": "Filtrar por proyecto",
+          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "states": [
+            { "name": "default", "description": "Empty, all rubric items shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
+            { "name": "active", "description": "Filtering by module name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
+          ],
+          "interactions": [
+            { "trigger": "input", "event": "filter-rubrica-modulo", "payload": { "modulo_name": "string" }, "response": "Reloads rubric items in #100 for matching módulo", "target_elements": [100] }
+          ],
+          "accessibility": { "role": "searchbox", "aria_label": "Filter rubric by module name", "aria_live": "polite", "keyboard": "Tab to focus, type to filter" },
+          "note": "CORRECTION: despite boceto label 'filter by proyecto', this filter operates on módulo. It reloads the rubric template for the selected módulo."
+        },
+        {
+          "sketchNumber": 87,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Updates ciclo options in #89", "target_elements": [88, 89] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select year to load rubric", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 88,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Updates ciclo options in #89", "target_elements": [89] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for rubric", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [87]
+        },
+        {
+          "sketchNumber": 89,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for legislation", "visual_cues": ["greyed out"], "condition": "#88 has no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Loads module options in #90", "target_elements": [90] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for rubric", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [87, 88]
+        },
+        {
+          "sketchNumber": 90,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#89 has no value" },
+            { "name": "selected", "description": "Module chosen, rubric items loaded in #100", "visual_cues": ["module name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "filter-rubrica-modulo", "payload": { "modulo_id": "number" }, "response": "Loads rubric items for this module in table #100", "target_elements": [100] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select module to load rubric", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [89]
+        },
+        {
+          "sketchNumber": 91,
+          "type": "button",
+          "label": "Nuevo nivel",
+          "props": { "variant": "secondary", "size": "sm", "icon": "plus" },
+          "states": [
+            { "name": "default", "description": "Ready to add a new level column", "visual_cues": ["secondary button"], "condition": "Rubric form open" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "Maximum number of levels reached", "visual_cues": ["greyed out"], "condition": "5 levels already exist" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "add-rubrica-level", "payload": {}, "response": "Adds a new editable column to the item-builder table #92", "target_elements": [92] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Add a new rubric level column", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 92,
+          "type": "table",
+          "label": "Tabla de nuevo ítem",
+          "props": { "columns": ["item", "excelente", "bien", "mal", "delete"], "is_read_only": false, "is_editable": true },
+          "states": [
+            { "name": "default", "description": "Item-builder mini-table with editable cells and one empty row ready", "visual_cues": ["editable cells with placeholder values"], "condition": "Initial render" },
+            { "name": "loading", "description": "Saving item to server", "visual_cues": ["spinner overlay"], "condition": "POST in progress" },
+            { "name": "empty", "description": "No items in builder yet", "visual_cues": ["empty row ready for input"], "condition": "No items added" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "table", "aria_label": "Rubric item builder", "aria_live": "polite", "keyboard": "Tab between cells to edit" }
+        },
+        {
+          "sketchNumber": 93,
+          "type": "table-editable-cell",
+          "label": "Nombre del ítem",
+          "props": { "is_editable": true, "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Displays item description text", "visual_cues": ["text in cell"], "condition": "Not in edit mode" },
+            { "name": "focus", "description": "Cell is being edited", "visual_cues": ["focus border", "cursor in text"], "condition": "User clicks cell" },
+            { "name": "error", "description": "Empty on save attempt", "visual_cues": ["red cell border"], "condition": "Submit with empty item name" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-rubrica-item-name", "payload": { "item_id": "number", "value": "string" }, "response": "Enters edit mode for item name", "target_elements": [] }
+          ],
+          "accessibility": { "role": "gridcell", "aria_label": "Rubric item description", "aria_live": "off", "keyboard": "Tab to focus, Enter to edit, Escape to cancel" },
+          "validation": [{ "rule": "required", "message": "Item name is required" }]
+        },
+        {
+          "sketchNumber": 94,
+          "type": "table-editable-cell",
+          "label": "Excelente",
+          "props": { "is_editable": true, "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Shows numeric value for Excelente level", "visual_cues": ["numeric value in cell"], "condition": "Not in edit mode" },
+            { "name": "focus", "description": "Cell is being edited", "visual_cues": ["focus border"], "condition": "User clicks cell" },
+            { "name": "error", "description": "Non-numeric or negative value", "visual_cues": ["red cell border"], "condition": "Invalid value entered" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "recalculate-puntuacion-maxima", "payload": { "item_id": "number", "value": "number" }, "response": "Updates cell value; triggers max score recalculation", "target_elements": [] }
+          ],
+          "accessibility": { "role": "gridcell", "aria_label": "Excelente level score", "aria_live": "off", "keyboard": "Tab to focus, Enter to edit" },
+          "validation": [
+            { "rule": "required", "message": "Score is required" },
+            { "rule": "min:0", "message": "Score must be 0 or greater" }
+          ]
+        },
+        {
+          "sketchNumber": 95,
+          "type": "table-editable-cell",
+          "label": "Bien",
+          "props": { "is_editable": true, "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Shows numeric value for Bien level", "visual_cues": ["numeric value in cell"], "condition": "Not in edit mode" },
+            { "name": "focus", "description": "Cell being edited", "visual_cues": ["focus border"], "condition": "User clicks cell" },
+            { "name": "error", "description": "Invalid value", "visual_cues": ["red cell border"], "condition": "Non-numeric or negative value" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-rubrica-level-value", "payload": { "item_id": "number", "level": "bien", "value": "number" }, "response": "Updates cell value", "target_elements": [] }
+          ],
+          "accessibility": { "role": "gridcell", "aria_label": "Bien level score", "aria_live": "off", "keyboard": "Tab to focus, Enter to edit" },
+          "validation": [
+            { "rule": "required", "message": "Score is required" },
+            { "rule": "min:0", "message": "Score must be 0 or greater" }
+          ]
+        },
+        {
+          "sketchNumber": 96,
+          "type": "table-editable-cell",
+          "label": "Mal",
+          "props": { "is_editable": true, "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Shows numeric value for Mal level", "visual_cues": ["numeric value in cell"], "condition": "Not in edit mode" },
+            { "name": "focus", "description": "Cell being edited", "visual_cues": ["focus border"], "condition": "User clicks cell" },
+            { "name": "error", "description": "Invalid value", "visual_cues": ["red cell border"], "condition": "Non-numeric or negative value" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-rubrica-level-value", "payload": { "item_id": "number", "level": "mal", "value": "number" }, "response": "Updates cell value", "target_elements": [] }
+          ],
+          "accessibility": { "role": "gridcell", "aria_label": "Mal level score", "aria_live": "off", "keyboard": "Tab to focus, Enter to edit" },
+          "validation": [
+            { "rule": "required", "message": "Score is required" },
+            { "rule": "min:0", "message": "Score must be 0 or greater" }
+          ]
+        },
+        {
+          "sketchNumber": 97,
+          "type": "icon-button",
+          "label": "Icono borrar",
+          "props": { "icon": "trash", "variant": "danger", "size": "sm" },
+          "states": [
+            { "name": "default", "description": "Delete icon visible on row", "visual_cues": ["trash icon"], "condition": "Row rendered" },
+            { "name": "hover", "description": "Icon highlighted on hover", "visual_cues": ["red highlight", "cursor pointer"], "condition": "Mouse hovers icon" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "delete-rubrica-item-row", "payload": { "item_id": "number" }, "response": "Removes item row from #92 and reloads #100", "target_elements": [92, 100] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Delete rubric item row", "aria_live": "off", "keyboard": "Tab to focus, Enter to delete" }
+        },
+        {
+          "sketchNumber": 98,
+          "type": "button",
+          "label": "Añadir item",
+          "props": { "variant": "primary", "size": "md", "icon": "plus" },
+          "states": [
+            { "name": "default", "description": "Ready to add item to rubric", "visual_cues": ["primary button"], "condition": "Builder has a valid item" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background"], "condition": "Mouse hovers" },
+            { "name": "disabled", "description": "Builder has no valid item to save", "visual_cues": ["greyed out"], "condition": "Item name or values empty" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "submit-save-rubrica-item", "payload": { "modulo_id": "number", "name": "string", "levels": "object" }, "response": "Saves item to rubric, clears builder row, reloads full table #100", "target_elements": [92, 100] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Add rubric item to the rubric", "aria_live": "polite", "keyboard": "Enter or Space" }
+        },
+        {
+          "sketchNumber": 99,
+          "type": "file-upload",
+          "label": "Subir rúbrica",
+          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.xlsx" },
+          "states": [
+            { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
+            { "name": "loading", "description": "Upload in progress", "visual_cues": ["spinner", "disabled"], "condition": "File uploading" },
+            { "name": "error", "description": "Wrong format or server error", "visual_cues": ["error toast"], "condition": "Invalid file or upload failure" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "upload-rubrica-file", "payload": { "file": "File" }, "response": "Opens file picker; on select imports rubric; on success reloads #100", "target_elements": [100] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Upload rubric from CSV or Excel file", "aria_live": "polite", "keyboard": "Enter or Space to open file picker" }
+        },
+        {
+          "sketchNumber": 100,
+          "type": "table",
+          "label": "Tabla de rúbrica completa",
+          "props": { "columns": ["item", "excelente", "muy_bien", "bien", "regular", "mal", "edit", "delete"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Full rubric with all items and 5 levels", "visual_cues": ["rows with item names and numeric scores per level"], "condition": "Module selected and rubric data loaded" },
+            { "name": "loading", "description": "Fetching rubric for selected module", "visual_cues": ["skeleton rows"], "condition": "Module just selected, API in progress" },
+            { "name": "empty", "description": "No rubric items for this module yet", "visual_cues": ["empty state message: 'No hay ítems en la rúbrica'"], "condition": "Module selected but no items exist" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "edit-rubrica-item-row", "payload": { "item_id": "number" }, "response": "Populates builder #92 with item data for editing", "target_elements": [92] },
+            { "trigger": "click", "event": "delete-rubrica-item-row", "payload": { "item_id": "number" }, "response": "Confirms and removes item, reloads table", "target_elements": [] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Full rubric table", "aria_live": "polite", "keyboard": "Arrow keys to navigate" },
+          "depends_on": [90]
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-corregir-proyecto",
+      "screen_name": "Corregir Proyecto",
+      "file": "vista_profesor_landing-corregirProyecto.html",
+      "route": "/profesor/corregir",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
+      "data_needs": ["Proyecto", "RubricaItem", "Correccion", "Alumno", "Modulo"],
+      "notes": "Correction screen. Cascade selects #101–#104 load projects for the chosen module; #105 selects the specific project. Boceto shows two separate tables (#110 and #111) representing different rubric items with different level counts — this illustrates that the correction table renders one sub-table per rubric item. Scores #112 and #113 are auto-calculated read-only values.",
+      "components": [
+        {
+          "sketchNumber": 101,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Updates ciclo options in #103", "target_elements": [102, 103] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select year to filter projects for correction", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 102,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Updates ciclo options in #103", "target_elements": [103] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation for correction", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [101]
+        },
+        {
+          "sketchNumber": 103,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for legislation", "visual_cues": ["greyed out"], "condition": "#102 has no value" },
+            { "name": "selected", "description": "Ciclo chosen", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Loads module options in #104", "target_elements": [104] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle for correction", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [101, 102]
+        },
+        {
+          "sketchNumber": 104,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#103 has no value" },
+            { "name": "selected", "description": "Module chosen; loads projects in #105", "visual_cues": ["module name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-proyectos", "payload": { "modulo_id": "number" }, "response": "Loads project options in #105 limited to this module's projects", "target_elements": [105] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select module for correction", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [103]
+        },
+        {
+          "sketchNumber": 105,
+          "type": "select",
+          "label": "Seleccionar proyecto",
+          "props": { "placeholder": "Seleccionar proyecto", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No project selected", "visual_cues": ["placeholder"], "condition": "Initial render or module not chosen yet" },
+            { "name": "disabled", "description": "Waiting for module selection", "visual_cues": ["greyed out"], "condition": "#104 has no value" },
+            { "name": "selected", "description": "Project chosen; loads rubric in #110 and #111", "visual_cues": ["project name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "load-proyecto-rubrica", "payload": { "proyecto_id": "number" }, "response": "Loads project rubric into correction tables #110 and #111; loads student checkboxes #107–#109", "target_elements": [106, 107, 108, 109, 110, 111] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select project to correct", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [104]
+        },
+        {
+          "sketchNumber": 106,
+          "type": "checkbox",
+          "label": "Corregir por grupo",
+          "props": { "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Group correction mode OFF; individual student checkboxes #107–#109 are enabled", "visual_cues": ["unchecked checkbox"], "condition": "Initial render" },
+            { "name": "selected", "description": "Group correction mode ON; individual checkboxes #107–#109 are disabled", "visual_cues": ["checked checkbox"], "condition": "User checks the checkbox" },
+            { "name": "disabled", "description": "No project selected yet", "visual_cues": ["greyed out checkbox"], "condition": "#105 has no value" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "toggle-group-correction", "payload": { "enabled": "boolean" }, "response": "When ON: disables #107, #108, #109. When OFF: re-enables #107, #108, #109 for individual grading", "target_elements": [107, 108, 109] }
+          ],
+          "accessibility": { "role": "checkbox", "aria_label": "Correct all students in group with the same grade", "aria_live": "polite", "keyboard": "Tab to focus, Space to toggle" },
+          "note": "When checked, individual student checkboxes #107–#109 must be set to disabled state."
+        },
+        {
+          "sketchNumber": 107,
+          "type": "checkbox",
+          "label": "Alumno 1",
+          "props": { "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Student 1 not individually selected", "visual_cues": ["unchecked checkbox with student name"], "condition": "Group mode OFF, initial render" },
+            { "name": "selected", "description": "Student 1 selected for individual grading", "visual_cues": ["checked checkbox"], "condition": "User checks" },
+            { "name": "disabled", "description": "Group correction mode active", "visual_cues": ["greyed out", "not interactive"], "condition": "Checkbox #106 is checked" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "toggle-student-selection", "payload": { "alumno_id": "number", "selected": "boolean" }, "response": "Marks student for individual grade application", "target_elements": [] }
+          ],
+          "accessibility": { "role": "checkbox", "aria_label": "Select student 1 for individual correction", "aria_live": "polite", "keyboard": "Tab to focus, Space to toggle" },
+          "depends_on": [106]
+        },
+        {
+          "sketchNumber": 108,
+          "type": "checkbox",
+          "label": "Alumno 2",
+          "props": { "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Student 2 not individually selected", "visual_cues": ["unchecked checkbox with student name"], "condition": "Group mode OFF, initial render" },
+            { "name": "selected", "description": "Student 2 selected", "visual_cues": ["checked"], "condition": "User checks" },
+            { "name": "disabled", "description": "Group correction mode active", "visual_cues": ["greyed out"], "condition": "#106 is checked" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "toggle-student-selection", "payload": { "alumno_id": "number", "selected": "boolean" }, "response": "Marks student for individual grade application", "target_elements": [] }
+          ],
+          "accessibility": { "role": "checkbox", "aria_label": "Select student 2 for individual correction", "aria_live": "polite", "keyboard": "Tab to focus, Space to toggle" },
+          "depends_on": [106]
+        },
+        {
+          "sketchNumber": 109,
+          "type": "checkbox",
+          "label": "Alumno 3",
+          "props": { "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Student 3 not individually selected", "visual_cues": ["unchecked checkbox with student name"], "condition": "Group mode OFF, initial render" },
+            { "name": "selected", "description": "Student 3 selected", "visual_cues": ["checked"], "condition": "User checks" },
+            { "name": "disabled", "description": "Group correction mode active", "visual_cues": ["greyed out"], "condition": "#106 is checked" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "toggle-student-selection", "payload": { "alumno_id": "number", "selected": "boolean" }, "response": "Marks student for individual grade application", "target_elements": [] }
+          ],
+          "accessibility": { "role": "checkbox", "aria_label": "Select student 3 for individual correction", "aria_live": "polite", "keyboard": "Tab to focus, Space to toggle" },
+          "depends_on": [106]
+        },
+        {
+          "sketchNumber": 110,
+          "type": "table",
+          "label": "Tabla de corrección (5 niveles)",
+          "props": { "columns": ["item", "excelente", "muy_bien", "bien", "regular", "mal"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Rubric items with 5 selectable level cells per row", "visual_cues": ["rows with item name and 5 clickable score cells"], "condition": "Project with 5-level rubric selected" },
+            { "name": "loading", "description": "Loading rubric for selected project", "visual_cues": ["skeleton rows"], "condition": "Project just selected, API in progress" },
+            { "name": "empty", "description": "No rubric items available", "visual_cues": ["empty state message"], "condition": "Project has no rubric" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "select-grade-excelente", "payload": { "item_id": "number", "value": "number" }, "response": "Marks Excelente cell as selected for that item; triggers recalculation of #112 and #113", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-muy-bien", "payload": { "item_id": "number", "value": "number" }, "response": "Marks Muy bien cell selected; recalculates scores", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-bien", "payload": { "item_id": "number", "value": "number" }, "response": "Marks Bien cell selected; recalculates scores", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-regular", "payload": { "item_id": "number", "value": "number" }, "response": "Marks Regular cell selected; recalculates scores", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-mal", "payload": { "item_id": "number", "value": "number" }, "response": "Marks Mal cell selected; recalculates scores", "target_elements": [112, 113] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Rubric correction table (5 levels)", "aria_live": "polite", "keyboard": "Tab to navigate cells, Enter to select level" },
+          "depends_on": [105]
+        },
+        {
+          "sketchNumber": 111,
+          "type": "table",
+          "label": "Tabla de corrección (3 niveles)",
+          "props": { "columns": ["item", "excelente", "bien", "mal"], "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "Rubric items with 3 selectable level cells (fewer levels configured for these items)", "visual_cues": ["rows with item name and 3 clickable cells"], "condition": "Project with 3-level rubric items selected" },
+            { "name": "loading", "description": "Loading rubric", "visual_cues": ["skeleton rows"], "condition": "Project just selected" },
+            { "name": "empty", "description": "No 3-level items", "visual_cues": ["empty state message"], "condition": "No items with 3 levels" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "select-grade-excelente", "payload": { "item_id": "number", "value": "number" }, "response": "Marks cell selected; recalculates #112 and #113", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-bien", "payload": { "item_id": "number", "value": "number" }, "response": "Marks cell selected; recalculates #112 and #113", "target_elements": [112, 113] },
+            { "trigger": "click", "event": "select-grade-mal", "payload": { "item_id": "number", "value": "number" }, "response": "Marks cell selected; recalculates #112 and #113", "target_elements": [112, 113] }
+          ],
+          "accessibility": { "role": "table", "aria_label": "Rubric correction table (3 levels)", "aria_live": "polite", "keyboard": "Tab to navigate, Enter to select" },
+          "depends_on": [105],
+          "note": "Boceto shows two separate correction sub-tables (#110, #111) indicating that different rubric items can have different numbers of levels. The correction view renders one sub-table per distinct level configuration."
+        },
+        {
+          "sketchNumber": 112,
+          "type": "paragraph",
+          "label": "Puntuación obtenida en la rúbrica",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Shows raw rubric score (sum of selected level values)", "visual_cues": ["bold numeric value, e.g. '3.75'"], "condition": "At least one level selected in correction tables" },
+            { "name": "empty", "description": "No levels selected yet", "visual_cues": ["'—' or '0'"], "condition": "No cells selected in #110 or #111" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "status", "aria_label": "Raw rubric score obtained", "aria_live": "polite", "keyboard": "Not interactive" },
+          "depends_on": [110, 111]
+        },
+        {
+          "sketchNumber": 113,
+          "type": "paragraph",
+          "label": "Puntuación obtenida sobre 10",
+          "props": { "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Shows score normalised to 10 (raw score / max score × 10)", "visual_cues": ["bold numeric value, e.g. '9,38'"], "condition": "At least one level selected; max score derivable from Excelente column sum" },
+            { "name": "empty", "description": "No levels selected yet", "visual_cues": ["'—' or '0'"], "condition": "No cells selected" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "status", "aria_label": "Grade normalised to 10", "aria_live": "polite", "keyboard": "Not interactive" },
+          "depends_on": [110, 111]
+        }
+      ]
+    },
+    {
+      "screen_id": "screen-ver-notas",
+      "screen_name": "Ver Notas",
+      "file": "vista_profesor-landing-ver_notas.html",
+      "route": "/profesor/notas",
+      "role_guard": ["profesor", "tutor"],
+      "sketch_numbers": [114, 115, 116, 117, 118, 119, 120],
+      "data_needs": ["Correccion", "Proyecto", "Alumno", "Modulo", "Ciclo", "Legislacion"],
+      "notes": "Grade view and PDF print screen. Cascade: #114 (year) → #116 (ciclo) → #117 (módulo) → #118 (proyecto) → filters table #119. #115 (legislación) is also a filter. Print button #120 is disabled until all five selects have a value. Tutor uses this screen for panorámica (all modules).",
+      "components": [
+        {
+          "sketchNumber": 114,
+          "type": "select",
+          "label": "Seleccionar año",
+          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Year chosen; cascade continues", "visual_cues": ["year shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "start_year": "number" }, "response": "Reloads ciclo options in #116 filtered by year; clears #117, #118, #119; disables #120", "target_elements": [116, 117, 118, 119, 120] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select academic year", "aria_live": "off", "keyboard": "Tab to focus" }
+        },
+        {
+          "sketchNumber": 115,
+          "type": "select",
+          "label": "Seleccionar legislación",
+          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No legislation filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-ciclos", "payload": { "legislation_id": "number" }, "response": "Narrows ciclo options in #116; clears #117, #118", "target_elements": [116, 117, 118] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select legislation filter", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [114]
+        },
+        {
+          "sketchNumber": 116,
+          "type": "select",
+          "label": "Seleccionar ciclo",
+          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for year selection", "visual_cues": ["greyed out"], "condition": "#114 has no value" },
+            { "name": "selected", "description": "Ciclo chosen; loads module options in #117", "visual_cues": ["ciclo name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-modulos", "payload": { "ciclo_id": "number" }, "response": "Loads module options in #117 limited to modules assigned to the logged-in teacher; clears #118, #119", "target_elements": [117, 118, 119] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select cycle to view grades", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [114, 115]
+        },
+        {
+          "sketchNumber": 117,
+          "type": "select",
+          "label": "Seleccionar módulo",
+          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#116 has no value" },
+            { "name": "selected", "description": "Module chosen; loads project options in #118", "visual_cues": ["module name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "cascade-load-proyectos", "payload": { "modulo_id": "number" }, "response": "Loads project options in #118; clears #119", "target_elements": [118, 119] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select module to view grades", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [116]
+        },
+        {
+          "sketchNumber": 118,
+          "type": "select",
+          "label": "Seleccionar proyecto",
+          "props": { "placeholder": "Seleccionar proyecto", "is_read_only": false },
+          "states": [
+            { "name": "default", "description": "No project selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
+            { "name": "disabled", "description": "Waiting for module selection", "visual_cues": ["greyed out"], "condition": "#117 has no value" },
+            { "name": "selected", "description": "Project chosen; loads grade data in #119; enables #120", "visual_cues": ["project name shown"], "condition": "User picks option" }
+          ],
+          "interactions": [
+            { "trigger": "change", "event": "load-notas-preview", "payload": { "proyecto_id": "number" }, "response": "Loads grade preview into table #119; enables print button #120", "target_elements": [119, 120] }
+          ],
+          "accessibility": { "role": "combobox", "aria_label": "Select project to view grades", "aria_live": "off", "keyboard": "Tab to focus" },
+          "depends_on": [117]
+        },
+        {
+          "sketchNumber": 119,
+          "type": "table",
+          "label": "Tabla de resultados",
+          "props": { "columns": ["project", "student_name", "item", "grade"], "is_read_only": true },
+          "states": [
+            { "name": "default", "description": "Preview of grades to be printed; one row per student × item combination", "visual_cues": ["rows with project, student name, item and numeric grade"], "condition": "All cascade selects have a value" },
+            { "name": "loading", "description": "Fetching grade data", "visual_cues": ["skeleton rows"], "condition": "Project just selected, API in progress" },
+            { "name": "empty", "description": "No corrections recorded for this project/module combination", "visual_cues": ["empty state message: 'No hay notas registradas'"], "condition": "API returns empty array" }
+          ],
+          "interactions": [],
+          "accessibility": { "role": "table", "aria_label": "Grade results preview", "aria_live": "polite", "keyboard": "Arrow keys to navigate rows" },
+          "depends_on": [114, 115, 116, 117, 118]
+        },
+        {
+          "sketchNumber": 120,
+          "type": "button",
+          "label": "Imprimir",
+          "props": { "variant": "primary", "size": "md", "icon": "download" },
+          "states": [
+            { "name": "default", "description": "Ready to generate PDF when all filters selected", "visual_cues": ["primary button"], "condition": "All five selects #114–#118 have a value" },
+            { "name": "hover", "description": "Cursor over button", "visual_cues": ["darkened background", "cursor pointer"], "condition": "Mouse hovers and button is enabled" },
+            { "name": "disabled", "description": "One or more cascade selects still empty", "visual_cues": ["greyed out", "not interactive"], "condition": "Any of #114, #115, #116, #117, #118 has no value" },
+            { "name": "loading", "description": "PDF generation in progress", "visual_cues": ["spinner", "button disabled"], "condition": "PDF request in flight" }
+          ],
+          "interactions": [
+            { "trigger": "click", "event": "download-notas-pdf", "payload": { "start_year": "number", "legislation_id": "number", "ciclo_id": "number", "modulo_id": "number", "proyecto_id": "number" }, "response": "Generates PDF with grade data from #119 and triggers browser download", "target_elements": [] }
+          ],
+          "accessibility": { "role": "button", "aria_label": "Generate and download grades PDF", "aria_live": "polite", "keyboard": "Tab to focus, Enter or Space to activate" },
+          "depends_on": [114, 115, 116, 117, 118],
+          "note": "Button is disabled until all five filter selects (#114–#118) have a selected value. Corresponds to old domain rule for element #88 (PDF download activation condition)."
+        }
+      ]
+    }
+  ]
+}
