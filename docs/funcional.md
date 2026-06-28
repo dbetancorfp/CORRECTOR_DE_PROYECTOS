@@ -5,17 +5,12 @@ Especificación funcional estructurada: 122 elementos con `behavior`, `businessR
 
 ## Estado
 
-!!! warning "Pendiente de generar"
-    Ejecuta el **Agente 4 — Generador Func. Spec** (`/generate-functional-spec`) para
-    poblar esta especificación.
+!!! success "Generado — 2026-06-28"
+    **Agente 4 — Generador Func. Spec** ejecutado correctamente.
 
-    **Prerrequisitos:**
-
-    1. `/boceto-parser` — genera `boceto-metadata.json` + `boceto-elements.md`
-    2. `/designer-front` — genera `ui-spec.json`
-    3. `/business-analyst` — completa `transcripcion.md`
-    4. `/alignment-validator` — produce `alignment-report.json { valid: true }`
-    5. `/generate-functional-spec` — **este paso**
+    - `functional-spec.json` — 122 elementos · 26 globalRules
+    - Ruta: `corrector/03-generated-artifacts/functional-spec.json`
+    - Validado contra `FunctionalSpecSchema` (Zod) ✅
 
 ## Estructura del artefacto
 
@@ -38,7 +33,7 @@ Una vez generado, `functional-spec.json` tiene esta forma:
     }
   ],
   "globalRules": [
-    "Los identificadores de alumno son siempre anónimos (ej. JJ499)",
+    "El campo alumno.nombre es texto libre — el profesor decide si usa nombre real o código anónimo (ej. JJ499); el sistema no impone formato",
     "Todos los filtros de lista son reactivos — filtran mientras el usuario escribe"
   ]
 }
@@ -66,14 +61,16 @@ Una vez generado, `functional-spec.json` tiene esta forma:
 
 ```ts
 const FunctionalSpecSchema = z.object({
+  appOverview:  z.string(),
   elementSpecs: z.array(z.object({
-    sketchNumber:      z.number().int().min(1).max(122),
-    behavior:          z.string().min(1),
-    businessRules:     z.array(z.string()),
+    sketchNumber:       z.number().int().min(1).max(122),
+    behavior:           z.string().min(1),
+    businessRules:      z.array(z.string()),
+    dataNeeds:          z.array(z.string()),
     acceptanceCriteria: z.array(z.string()),
   })),
   globalRules: z.array(z.string()),
 });
 ```
 
-Definición completa en `lib/schemas/functional-spec.schema.ts`.
+Definición completa en `lib/schemas/functional-spec.schema.js`.

@@ -27,7 +27,7 @@ flowchart TD
     UISPEC["✓ ui-spec.json\n12 pantallas · 122 elementos"]
     TRANS_OUT["✓ transcripcion.md\n✓ boceto-suggestions.md\n122 elementos cubiertos"]
     ALIGN["✅ alignment-report.json\nPASS · valid:true\n(local — no RAG)"]
-    FSPEC["functional-spec.json"]
+    FSPEC["✓ functional-spec.json\n122 elementos · 26 globalRules"]
     RECON["reconciliation.json\n(local — no RAG)"]
     UC["use-cases.md\napi-contracts.md"]
     TESTS["*.test.ts\n(RED ✗)"]
@@ -83,6 +83,7 @@ flowchart TD
 
     style GATE fill:#fee2e2,stroke:#dc2626,color:#991b1b
     style A3 fill:#d1fae5,stroke:#059669
+    style A4 fill:#d1fae5,stroke:#059669
     style SCHEMA fill:#fce7f3,stroke:#9d174d,color:#9d174d
     style ALIGN fill:#f3f4f6,stroke:#9ca3af
     style RECON fill:#f3f4f6,stroke:#9ca3af

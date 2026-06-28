@@ -1,0 +1,1728 @@
+{
+  "feature_id": "corrector-v1",
+  "version": 1,
+  "generated_at": "2026-06-28T00:00:00.000Z",
+  "agent": "generate-functional-spec",
+  "model": "claude-sonnet-4-6",
+  "appOverview": "Corrector de Proyectos is a web application for FP (Formación Profesional, Spain) teachers to manage and grade end-of-cycle student projects via rubric-based scoring. It has three roles: admin (system configuration), profesor (class management and grading), and tutor (same as profesor plus panoramic grade view). The pipeline covers three academic cycles (ASR, DAW, DAM), each composed of modules. Each module has exactly one rubric, and projects belong to modules (not cycles). Grades are computed per module and then weighted by weekly hours for the final student score.",
+  "elementSpecs": [
+    {
+      "sketchNumber": 1,
+      "behavior": "Text input for the Consejería username. Accepts keyboard entry; pressing Enter triggers login submission (#3). Clears and shows error state if authentication fails.",
+      "businessRules": [
+        "Username is the Consejería de Educación system username, not an email address",
+        "Username must be 4–20 alphanumeric characters",
+        "Case-sensitive matching against the stored username"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty field, when form is submitted, then error state is shown",
+        "Given valid username, when Enter is pressed, then login is submitted",
+        "Given auth failure, then error state is displayed on this field"
+      ]
+    },
+    {
+      "sketchNumber": 2,
+      "behavior": "Password input that always masks entered characters. Pressing Enter triggers login submission (#3). Shows error state on authentication failure.",
+      "businessRules": [
+        "Password characters are always masked; no toggle to reveal",
+        "Minimum 8 characters",
+        "Default password for new accounts is '12345678'"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given any input, characters are always displayed as masked",
+        "Given empty field on submit, error state is shown",
+        "Given Enter key press, login submission is triggered"
+      ]
+    },
+    {
+      "sketchNumber": 3,
+      "behavior": "Primary submit button for the login form. Shows loading state during authentication. On success, redirects to /admin or /profesor based on role. On failure, shows error message and increments failed login counter. After 3 consecutive failures, locks the account.",
+      "businessRules": [
+        "On success: role='admin' redirects to /admin, role='profesor'|'tutor' redirects to /profesor",
+        "On failure: shows 'Credenciales incorrectas' on same screen",
+        "Max 3 consecutive failed attempts before account is locked",
+        "If profesor/tutor account locked after 3rd attempt: shows 'Póngase en contacto con el Administrador'",
+        "If admin account locked after 3rd attempt: shows 'Póngase en contacto con el soporte técnico'",
+        "If first login (password = '12345678'): reveals inline password-change fields on same screen; redirects only after successful password change",
+        "If new passwords do not match on first-login change: shows error on same screen without redirecting"
+      ],
+      "dataNeeds": ["teacher.role", "teacher.password_hash", "teacher.account_locked", "teacher.failed_login_attempts", "teacher.must_change_password"],
+      "acceptanceCriteria": [
+        "Given valid credentials for admin, then redirect to /admin",
+        "Given valid credentials for profesor, then redirect to /profesor",
+        "Given invalid credentials, then 'Credenciales incorrectas' is shown",
+        "Given 3rd consecutive failure for a profesor, then account is locked and message shows 'Póngase en contacto con el Administrador'",
+        "Given 3rd consecutive failure for admin, then account is locked and message shows 'Póngase en contacto con el soporte técnico'",
+        "Given must_change_password = true (password is '12345678'), then inline password-change fields appear on login screen",
+        "Given new password fields match on first login, then password is updated and user is redirected to their landing page",
+        "Given new password fields do not match on first login, then error is shown and user stays on login screen",
+        "Button shows loading state while auth request is in flight"
+      ]
+    },
+    {
+      "sketchNumber": 4,
+      "behavior": "Navigation tab that activates the Legislación admin panel at route /admin/legislacion. Highlighted when current route matches.",
+      "businessRules": [
+        "Only accessible by users with role='admin'",
+        "Navigating to this tab shows the legislación form and table"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given admin user, tab is rendered and clickable",
+        "Given tab clicked, route changes to /admin/legislacion",
+        "Given current route is /admin/legislacion, tab shows selected/highlighted state"
+      ]
+    },
+    {
+      "sketchNumber": 5,
+      "behavior": "Text input for legislation abbreviation (siglas), e.g. 'LOMLOE', 'LOE'. Note: boceto placeholder incorrectly reads 'Nombre del ciclo' — this field captures the legislation abbreviation, not a cycle name.",
+      "businessRules": [
+        "Required; must be 2–10 uppercase letters (pattern ^[A-Z]{2,10}$)",
+        "Must be unique across all legislaciones",
+        "Field represents legislation abbreviation, not a cycle name"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error state is shown",
+        "Given lowercase input, error is shown",
+        "Given abbreviation already exists, error 'already exists' is shown on save",
+        "Given valid abbreviation, field accepts it"
+      ]
+    },
+    {
+      "sketchNumber": 6,
+      "behavior": "Numeric input for legislation start year (año de inicio), e.g. 2020. Pressing Enter submits the form.",
+      "businessRules": [
+        "Required; must be a whole number between 1900 and 2099",
+        "Pressing Enter triggers form submission"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error state is shown",
+        "Given value outside 1900–2099, error is shown",
+        "Given valid year and Enter, form is submitted"
+      ]
+    },
+    {
+      "sketchNumber": 7,
+      "behavior": "Guardar button for the legislation creation form. Validates #5 and #6, POSTs to /api/legislaciones, clears the form, and reactively adds the new row to table #10 without page reload.",
+      "businessRules": [
+        "Disabled while form fields are invalid",
+        "On success: form cleared; new legislation row appears in #10 immediately",
+        "New row may be hidden by active filters #8 or #9",
+        "Duplicate abbreviation is rejected with an error message"
+      ],
+      "dataNeeds": ["legislation.abbreviation", "legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given valid form, button is enabled and saves on click",
+        "Given invalid form, button is disabled or shows validation errors",
+        "Given save success, form is cleared and new row appears in #10",
+        "Given duplicate abbreviation, save is rejected with error message",
+        "Button shows loading state while request is in flight"
+      ]
+    },
+    {
+      "sketchNumber": 8,
+      "behavior": "Reactive text filter on the legislation table (#10) by start year. Filters in real time with 300 ms debounce as the user types.",
+      "businessRules": [
+        "Free text; reactive with 300 ms debounce",
+        "Filters #10 rows by year substring match",
+        "Clearing the field restores all rows"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given empty field, all legislation rows are shown",
+        "Given typed year substring, only matching rows shown within 300 ms",
+        "Given cleared field, all rows restored"
+      ]
+    },
+    {
+      "sketchNumber": 9,
+      "behavior": "Reactive text filter on the legislation table (#10) by legislation abbreviation or name. Filters in real time with 300 ms debounce.",
+      "businessRules": [
+        "Free text; reactive with 300 ms debounce",
+        "Case-insensitive substring match on abbreviation",
+        "Clearing the field restores all rows"
+      ],
+      "dataNeeds": ["legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given empty field, all legislation rows are shown",
+        "Given typed text, only matching rows shown within 300 ms",
+        "Given cleared field, all rows restored"
+      ]
+    },
+    {
+      "sketchNumber": 10,
+      "behavior": "Table showing all legislaciones, filtered by #8 and #9. Each row has an edit icon (inline edit) and a delete icon (with confirmation). Inline edit changes the icon to 'Guardar'; saving persists changes and updates the table without reload.",
+      "businessRules": [
+        "Edit: clicking edit icon makes row fields editable; button label changes to 'Guardar'; saving persists to DB and table updates without reload",
+        "Delete: shows confirmation dialog; on confirm removes row; if legislation has dependent modules, deletion is blocked with an error message",
+        "Deleting a legislation with modules is blocked; user must remove modules first",
+        "Table updates automatically after save or delete without page reload"
+      ],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation", "legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given data loaded, rows show abbreviation and start_year",
+        "Given edit icon clicked, row enters edit mode and button shows 'Guardar'",
+        "Given Guardar clicked in edit mode, changes are persisted and table updated",
+        "Given delete icon clicked, confirmation dialog shown",
+        "Given delete confirmed with no dependencies, row is removed",
+        "Given delete attempted with dependent modules, error message shown and row is not removed",
+        "Given no legislaciones exist, empty state message shown"
+      ]
+    },
+    {
+      "sketchNumber": 11,
+      "behavior": "Navigation bar rendered on all admin screens (and annotated on the Ciclos screen). Shows logo, app title, current username and a 'Salir' button. Clicking 'Salir' destroys the session immediately.",
+      "businessRules": [
+        "Clicking 'Salir' immediately destroys the session cookie/token and redirects to /",
+        "No confirmation dialog is shown before logout",
+        "Session is automatically closed after 10 minutes of inactivity",
+        "No confirmation dialog for automatic session expiry either"
+      ],
+      "dataNeeds": ["teacher.username"],
+      "acceptanceCriteria": [
+        "Given 'Salir' clicked, session cookie/token is destroyed and user is redirected to /",
+        "Given 'Salir' clicked, no confirmation dialog is shown",
+        "Given 10 minutes of inactivity, session is closed and user is redirected to /",
+        "Nav bar shows logged-in teacher username"
+      ]
+    },
+    {
+      "sketchNumber": 12,
+      "behavior": "Navigation tab that activates the Ciclos admin panel at route /admin/ciclos. Highlighted when current route matches.",
+      "businessRules": [
+        "Only accessible by users with role='admin'"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given tab clicked, route changes to /admin/ciclos",
+        "Given current route is /admin/ciclos, tab shows selected state"
+      ]
+    },
+    {
+      "sketchNumber": 13,
+      "behavior": "Text input for cycle name, e.g. 'Desarrollo de Aplicaciones Web (DAW)'.",
+      "businessRules": [
+        "Required; min 3, max 100 characters",
+        "Must be unique across all cycles"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given name < 3 chars, error shown",
+        "Given valid unique name, field accepted"
+      ]
+    },
+    {
+      "sketchNumber": 14,
+      "behavior": "Year selector in the cycle creation form. Upon selection, filters available legislaciones in #15 to those with a matching start year. Year is used for navigation only — it is not stored in the cycle entity.",
+      "businessRules": [
+        "Year selected here is a navigation aid only; it is NOT persisted as a cycle field",
+        "Selection triggers reload of legislación options in #15"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, legislación options in #15 are filtered to that year",
+        "Given no year selected on submit, error shown",
+        "Year value is not stored in the cycle entity"
+      ]
+    },
+    {
+      "sketchNumber": 15,
+      "behavior": "Legislation selector in the cycle creation form. Navigation filter only — the selected legislation is NOT stored in the cycle entity. Depends on year selected in #14.",
+      "businessRules": [
+        "Legislation is NOT a field of the cycle entity; it belongs to modules",
+        "This selector is a navigation guide to help the admin locate or contextualise cycles",
+        "Depends on #14; options filtered to legislaciones with matching start_year"
+      ],
+      "dataNeeds": ["legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #14 not selected, this field is disabled or shows all options",
+        "Given #14 selected, options filtered to matching legislaciones",
+        "Given legislation selected here, it is NOT stored in the cycle record on save",
+        "Required for form submission (navigation purpose)"
+      ]
+    },
+    {
+      "sketchNumber": 16,
+      "behavior": "Guardar button for the cycle creation form. Saves only the cycle name to the database. Clears form and reactively updates table #20.",
+      "businessRules": [
+        "Cycle entity stores only: name (and auto-generated id, created_at)",
+        "Legislation selected in #15 is NOT persisted to the cycle",
+        "On success: form cleared; new cycle row appears in #20 immediately",
+        "Duplicate cycle name is rejected"
+      ],
+      "dataNeeds": ["cycle.name"],
+      "acceptanceCriteria": [
+        "Given valid form, saves cycle with name only",
+        "Given save success, form cleared and new row in #20 without reload",
+        "Given duplicate name, error shown",
+        "Given invalid form, button is disabled or shows errors"
+      ]
+    },
+    {
+      "sketchNumber": 17,
+      "behavior": "Reactive text filter on the cycles table (#20) by start year. Filters via associated modules' legislation start year (JOIN). 300 ms debounce.",
+      "businessRules": [
+        "Filtering by year requires a JOIN through modules to legislation.start_year",
+        "Debounce 300 ms"
+      ],
+      "dataNeeds": ["module.legislation_id", "legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year typed, table #20 filters to cycles with modules in that legislation year",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 18,
+      "behavior": "Reactive text filter on the cycles table (#20) by legislation abbreviation. Filters via modules' legislation. 300 ms debounce.",
+      "businessRules": [
+        "Filtering requires JOIN through modules to legislation"
+      ],
+      "dataNeeds": ["module.legislation_id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation text typed, table #20 filters accordingly",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 19,
+      "behavior": "Reactive text filter on the cycles table (#20) by cycle name. Free text, 300 ms debounce.",
+      "businessRules": [
+        "Case-insensitive substring match on cycle name",
+        "Debounce 300 ms"
+      ],
+      "dataNeeds": ["cycle.name"],
+      "acceptanceCriteria": [
+        "Given name typed, table filters by cycle name substring",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 20,
+      "behavior": "Table showing all cycles, filtered by #17, #18, #19. Each row shows name, end_year (calculated), edit and delete icons. Inline edit and delete with confirmation.",
+      "businessRules": [
+        "end_year column = cycle.start_year + 1; not stored, calculated at display time",
+        "Edit: inline; delete: confirmation dialog required",
+        "Cannot delete a cycle that has associated modules; user sees error and must delete modules first",
+        "Table updates without page reload after edit or delete"
+      ],
+      "dataNeeds": ["cycle.id", "cycle.name", "module.cycle_id"],
+      "acceptanceCriteria": [
+        "Given data, table shows cycle name and end_year = start_year + 1",
+        "Given edit clicked, row enters edit mode",
+        "Given delete clicked with no modules, cycle is removed after confirmation",
+        "Given delete clicked with existing modules, deletion is blocked with error message",
+        "Given no cycles, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 21,
+      "behavior": "Read-only column header in the cycles table for the 'Año finalización' column. The value per row is calculated as cycle.start_year + 1.",
+      "businessRules": [
+        "end_year = start_year + 1; derived at runtime, not stored in the database"
+      ],
+      "dataNeeds": ["cycle.start_year"],
+      "acceptanceCriteria": [
+        "Column header 'Año finalización' visible in table #20",
+        "Each row shows start_year + 1 in this column",
+        "Column value is not editable"
+      ]
+    },
+    {
+      "sketchNumber": 22,
+      "behavior": "Navigation tab that activates the Módulos admin panel at /admin/modulos.",
+      "businessRules": [
+        "Only accessible by admin role"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given tab clicked, route is /admin/modulos",
+        "Given current route is /admin/modulos, tab shows selected state"
+      ]
+    },
+    {
+      "sketchNumber": 23,
+      "behavior": "Text input for the module name (nombre del módulo).",
+      "businessRules": [
+        "Required; min 3, max 100 characters"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given valid name, field accepted"
+      ]
+    },
+    {
+      "sketchNumber": 24,
+      "behavior": "Numeric input for module weekly hours (horas semanales). Used in the weighted final grade formula.",
+      "businessRules": [
+        "Required; integer between 1 and 30",
+        "Used in final grade formula: nota_final = sum(nota_módulo × horas) / sum(horas)"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given value < 1 or > 30, error shown",
+        "Given empty on submit, error shown",
+        "Given valid integer, field accepted"
+      ]
+    },
+    {
+      "sketchNumber": 25,
+      "behavior": "Legislation selector for module creation. Legislation IS stored in the module entity (legislation_id FK). Upon selection, updates year options in #26 and ciclo options in #27.",
+      "businessRules": [
+        "Legislation IS a required foreign key on the module entity (legislation_id)",
+        "Selection triggers cascade update of #26 and #27",
+        "Required on submit"
+      ],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation selected, #26 options updated to matching years",
+        "Given no selection on submit, error shown",
+        "legislation_id is stored in the module record"
+      ]
+    },
+    {
+      "sketchNumber": 26,
+      "behavior": "Year selector in module creation form, filtered by legislation selected in #25. Upon selection, narrows ciclo options in #27.",
+      "businessRules": [
+        "Options filtered by #25 selection",
+        "Required on submit"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given #25 selected, options show matching years",
+        "Given year selected, #27 options are updated",
+        "Given no selection on submit, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 27,
+      "behavior": "Ciclo selector in module creation form. Disabled until both #25 and #26 have values. Options filtered to ciclos compatible with the selected legislation.",
+      "businessRules": [
+        "Disabled until #25 and #26 are selected",
+        "Options filtered by the ciclo-module relationship given selected legislation",
+        "Required; ciclo_id stored in module"
+      ],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #25 or #26 not selected, selector is disabled",
+        "Given both parents selected, selector is enabled with filtered options",
+        "Given ciclo selected, it is included in the saved module record",
+        "Given no selection on submit, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 28,
+      "behavior": "Guardar button for the module creation form. Saves module with all 5 fields. Updates table #33.",
+      "businessRules": [
+        "Requires name, weekly_hours, legislation_id, year (navigation), cycle_id",
+        "legislation_id is persisted on the module",
+        "On success: form cleared; new row in #33 without reload",
+        "Disabled while form is invalid"
+      ],
+      "dataNeeds": ["module.name", "module.weekly_hours", "module.legislation_id", "module.cycle_id"],
+      "acceptanceCriteria": [
+        "Given all fields valid, saves module and new row appears in #33",
+        "Given any invalid field, button is disabled",
+        "Given duplicate name+cycle combination, error shown",
+        "Button shows loading state during save"
+      ]
+    },
+    {
+      "sketchNumber": 29,
+      "behavior": "Reactive text filter on the modules table (#33) by start year. Filters via legislation.start_year. 300 ms debounce.",
+      "businessRules": ["Debounce 300 ms; filters via legislation.start_year"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year typed, table #33 filters to matching modules",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 30,
+      "behavior": "Reactive text filter on the modules table (#33) by legislation abbreviation. 300 ms debounce.",
+      "businessRules": ["Debounce 300 ms; substring match on legislation.abbreviation"],
+      "dataNeeds": ["legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation text, table #33 filters to matching modules",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 31,
+      "behavior": "Reactive text filter on the modules table (#33) by cycle name. 300 ms debounce.",
+      "businessRules": ["Debounce 300 ms; case-insensitive substring match on cycle.name"],
+      "dataNeeds": ["cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo text, table #33 filters to matching modules",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 32,
+      "behavior": "Reactive text filter on the modules table (#33) by module name. 300 ms debounce.",
+      "businessRules": ["Debounce 300 ms; case-insensitive substring match on module.name"],
+      "dataNeeds": ["module.name"],
+      "acceptanceCriteria": [
+        "Given module name text, table #33 filters accordingly",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 33,
+      "behavior": "Table showing all modules with columns: name, cycle, start_year, legislation, weekly_hours, edit and delete icons. Filtered by #29–#32. Inline edit and delete with confirmation.",
+      "businessRules": [
+        "Shows 5 module fields plus edit/delete",
+        "Edit: inline; delete: confirmation dialog required",
+        "Cannot delete a module that has associated projects; user must delete projects first",
+        "Table updates without page reload"
+      ],
+      "dataNeeds": ["module.*", "cycle.name", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given data, table shows name, cycle, year, legislation, weekly_hours",
+        "Given edit clicked, row enters inline edit mode",
+        "Given delete with no projects, module removed after confirmation",
+        "Given delete with existing projects, deletion blocked with error",
+        "Given no modules, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 34,
+      "behavior": "Navigation tab that activates the Profesorado admin panel at /admin/profesorado.",
+      "businessRules": ["Only accessible by admin role"],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given tab clicked, route is /admin/profesorado",
+        "Given current route is /admin/profesorado, tab shows selected state"
+      ]
+    },
+    {
+      "sketchNumber": 35,
+      "behavior": "Text input for the teacher's Consejería username (nombre del profesor / nombre de usuario).",
+      "businessRules": [
+        "Required; 4–20 alphanumeric characters",
+        "Must be unique across all teachers",
+        "This is the Consejería de Educación system username, not an email"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given invalid format, error shown",
+        "Given duplicate username, save rejected with error"
+      ]
+    },
+    {
+      "sketchNumber": 36,
+      "behavior": "Password input for the teacher's initial password when created by admin.",
+      "businessRules": [
+        "Required; min 8 characters",
+        "Password is stored hashed; never stored in plaintext",
+        "Default value is '12345678'; teacher must change on first login (must_change_password = true)"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given password < 8 chars, error shown",
+        "Password stored as bcrypt hash, never plain text"
+      ]
+    },
+    {
+      "sketchNumber": 37,
+      "behavior": "Year selector for teacher-module assignment. Upon selection, filters legislación options in #38.",
+      "businessRules": [
+        "Required on submit",
+        "Selection triggers cascade: #38 options filtered by year"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #38 options filtered",
+        "Given no selection on submit, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 38,
+      "behavior": "Legislation selector for teacher-module assignment. Depends on #37. Selection filters ciclo options in #39.",
+      "businessRules": [
+        "Depends on #37",
+        "Options filtered by year in #37",
+        "Selection triggers cascade: #39 options filtered by this legislation"
+      ],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #37 not selected, disabled or shows all",
+        "Given #37 selected, options match that year's legislaciones",
+        "Given legislation selected, #39 options filtered"
+      ]
+    },
+    {
+      "sketchNumber": 39,
+      "behavior": "Ciclo selector for teacher-module assignment. Depends on #37 and #38. Selection filters module options in #40.",
+      "businessRules": [
+        "Disabled until #37 and #38 selected",
+        "Required on submit"
+      ],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given parents not selected, disabled",
+        "Given both parents selected, options are the matching ciclos",
+        "Given ciclo selected, #40 loads that ciclo's modules"
+      ]
+    },
+    {
+      "sketchNumber": 40,
+      "behavior": "Module selector for teacher-module assignment. Depends on #39. Shows only modules belonging to the selected ciclo.",
+      "businessRules": [
+        "Disabled until #39 selected",
+        "Required; the selected module will be linked to the teacher via teacher_module"
+      ],
+      "dataNeeds": ["module.id", "module.name", "module.cycle_id"],
+      "acceptanceCriteria": [
+        "Given #39 not selected, disabled",
+        "Given #39 selected, shows that ciclo's modules",
+        "Given module selected, it is included in the saved teacher record"
+      ]
+    },
+    {
+      "sketchNumber": 41,
+      "behavior": "Guardar button for the teacher creation form. Creates teacher and links them to the selected module. Sets must_change_password=true. Updates table #46.",
+      "businessRules": [
+        "Creates teacher record with username, password_hash, role='profesor', must_change_password=true",
+        "Links teacher to module via teacher_module join table",
+        "On success: form cleared; new row in #46 without reload",
+        "Duplicate username rejected"
+      ],
+      "dataNeeds": ["teacher.*", "teacher_module.teacher_id", "teacher_module.module_id"],
+      "acceptanceCriteria": [
+        "Given all fields valid, teacher created and row appears in #46",
+        "Given duplicate username, error shown",
+        "Given save success, form is cleared",
+        "must_change_password is set to true for new teacher",
+        "Button disabled while form is invalid"
+      ]
+    },
+    {
+      "sketchNumber": 42,
+      "behavior": "Reactive text filter on teachers table (#46) by start year. 300 ms debounce.",
+      "businessRules": ["Filters via teacher_module → module → legislation.start_year"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year typed, table #46 filters to matching teachers",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 43,
+      "behavior": "Reactive text filter on teachers table (#46) by legislation abbreviation. 300 ms debounce.",
+      "businessRules": ["Filters via teacher_module → module → legislation"],
+      "dataNeeds": ["legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation text, table #46 filters accordingly",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 44,
+      "behavior": "Reactive text filter on teachers table (#46) by cycle name. 300 ms debounce.",
+      "businessRules": ["Filters via teacher_module → module → cycle.name"],
+      "dataNeeds": ["cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo text, table #46 filters accordingly",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 45,
+      "behavior": "Reactive text filter on teachers table (#46) by module name. 300 ms debounce.",
+      "businessRules": ["Filters via teacher_module → module.name"],
+      "dataNeeds": ["module.name"],
+      "acceptanceCriteria": [
+        "Given module text, table #46 filters accordingly",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 46,
+      "behavior": "Table showing all teachers with columns: username, password status, year, cycle, module(s), edit and delete. Password column shows '12345678' if teacher has not changed their password, '********' once changed. Admin can unlock blocked accounts.",
+      "businessRules": [
+        "Password column: shows '12345678' when must_change_password=true (first access pending); shows '********' when must_change_password=false",
+        "Admin can reset failed_login_attempts=0 and account_locked=false to unlock a blocked teacher account",
+        "Edit: inline; delete: confirmation dialog",
+        "Cannot delete teacher if they have correction records; error message shown",
+        "Table updates without page reload after edit or delete"
+      ],
+      "dataNeeds": ["teacher.id", "teacher.username", "teacher.must_change_password", "teacher.account_locked", "teacher.failed_login_attempts", "teacher_module.module_id", "module.name"],
+      "acceptanceCriteria": [
+        "Given must_change_password=true, password column shows '12345678'",
+        "Given must_change_password=false, password column shows '********'",
+        "Given admin clicks unlock for a blocked teacher, account_locked reset to false and failed_login_attempts reset to 0",
+        "Given edit clicked, row enters edit mode",
+        "Given delete confirmed with no corrections, teacher removed",
+        "Given delete attempted for teacher with corrections, blocked with error",
+        "Given no teachers, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 47,
+      "behavior": "Button 'Imprimir notas' on the professor landing page. Visible only to users with role='tutor'. Navigates to the panoramic grade print view.",
+      "businessRules": [
+        "ONLY rendered for users with role='tutor'; must not be rendered for role='profesor'",
+        "Navigates to the grade visualisation/print screen with panoramic view of all modules"
+      ],
+      "dataNeeds": ["teacher.role"],
+      "acceptanceCriteria": [
+        "Given role='profesor', button is not rendered on landing page",
+        "Given role='tutor', button is rendered and clickable",
+        "Given tutor clicks button, navigates to grade view screen"
+      ]
+    },
+    {
+      "sketchNumber": 48,
+      "behavior": "Text input for student name or code (nombre del alumno). Accepts any free-text string — can be a real name or an anonymised code like 'JJ499'.",
+      "businessRules": [
+        "Required; min 2, max 100 characters",
+        "Free text — no format enforced; professor may enter real name or anonymous code",
+        "The system does not validate or impose naming format"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given any string including codes like 'JJ499', value accepted",
+        "Given valid name, field accepted"
+      ]
+    },
+    {
+      "sketchNumber": 49,
+      "behavior": "Year selector for student creation. Selection triggers cascade update of legislación options in #50.",
+      "businessRules": [
+        "Required on submit",
+        "Selection cascades to #50"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #50 options updated",
+        "Given no selection on submit, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 50,
+      "behavior": "Legislation selector for student creation. Depends on #49. Selection triggers cascade update of ciclo options in #51.",
+      "businessRules": [
+        "Depends on #49; options filtered by year",
+        "Required on submit"
+      ],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #49 selected, options filtered by year",
+        "Given legislation selected, #51 options updated"
+      ]
+    },
+    {
+      "sketchNumber": 51,
+      "behavior": "Ciclo selector for student creation. Depends on #49 and #50. Selection triggers cascade update of module options in #52.",
+      "businessRules": [
+        "Disabled until #50 selected",
+        "Required on submit"
+      ],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #50 not selected, disabled",
+        "Given #50 selected, shows matching ciclos",
+        "Given ciclo selected, #52 loads that ciclo's modules"
+      ]
+    },
+    {
+      "sketchNumber": 52,
+      "behavior": "Module selector for student creation. Depends on #51. Shows modules in the selected ciclo.",
+      "businessRules": [
+        "Disabled until #51 selected",
+        "Required; student is linked to module via student_module"
+      ],
+      "dataNeeds": ["module.id", "module.name", "module.cycle_id"],
+      "acceptanceCriteria": [
+        "Given #51 not selected, disabled",
+        "Given #51 selected, shows that ciclo's modules",
+        "Given module selected, it is included in saved student record"
+      ]
+    },
+    {
+      "sketchNumber": 53,
+      "behavior": "Nuevo button that saves the new student. Clears the form and reactively adds the student to table #60.",
+      "businessRules": [
+        "Requires all fields: nombre (#48), year (#49), legislation (#50), ciclo (#51), module (#52)",
+        "A student can belong to at most one project per academic year (enforced at DB level via trigger trg_project_student_year)",
+        "On success: form cleared; new row in #60 without reload"
+      ],
+      "dataNeeds": ["student.nombre", "student.id", "student_module.student_id", "student_module.module_id"],
+      "acceptanceCriteria": [
+        "Given all fields valid, student created and row appears in #60",
+        "Given missing fields, error shown",
+        "Given save success, form cleared"
+      ]
+    },
+    {
+      "sketchNumber": 54,
+      "behavior": "File upload button 'Subir lista de alumnos'. Opens file picker; accepts CSV, JSON, or YAML. On success, all students in the file are added to the DB and table #60 is updated.",
+      "businessRules": [
+        "Accepted file formats: .csv, .json, .yaml, .yml",
+        "Required file fields: nombre, año de inicio, legislación, ciclo, módulo",
+        "On success: all students persisted to student + student_module; table #60 updated without reload",
+        "On format error or missing required field: error toast shown; no partial saves"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given .csv/.json/.yaml file with required fields, all students created and #60 updated",
+        "Given wrong file format, error toast shown and no data saved",
+        "Given file with missing required field, error toast shown",
+        "Button shows loading/progress indicator during upload"
+      ]
+    },
+    {
+      "sketchNumber": 55,
+      "behavior": "Reactive text filter on students table (#60) by student name. Free text, 300 ms debounce.",
+      "businessRules": ["Case-insensitive substring match on student.nombre; debounce 300 ms"],
+      "dataNeeds": ["student.nombre"],
+      "acceptanceCriteria": [
+        "Given name text, table #60 filters in real time",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 56,
+      "behavior": "Year selector filter for students table (#60). Filters by academic start year.",
+      "businessRules": ["Selector filter; updates #60 on change"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #60 filters to students from that year",
+        "Given default (no selection), all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 57,
+      "behavior": "Legislation selector filter for students table (#60).",
+      "businessRules": ["Selector filter; updates #60 on change; filters via student_module → module → legislation"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation selected, #60 filters to students in that legislation",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 58,
+      "behavior": "Ciclo selector filter for students table (#60). Depends on #57.",
+      "businessRules": ["Depends on #57; filters students by ciclo"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo selected, #60 filters to students in that ciclo",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 59,
+      "behavior": "Module selector filter for students table (#60). Depends on #58.",
+      "businessRules": ["Depends on #58; filters students by module"],
+      "dataNeeds": ["module.id", "module.name"],
+      "acceptanceCriteria": [
+        "Given module selected, #60 filters to students in that module",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 60,
+      "behavior": "Table showing all students with columns: name, module, cycle, legislation, start_year, edit and delete. Filtered by #55–#59. Inline edit and delete with confirmation.",
+      "businessRules": [
+        "Edit: inline; delete: confirmation dialog",
+        "Cannot delete a student who is assigned to a project; user sees error",
+        "Table updates without page reload"
+      ],
+      "dataNeeds": ["student.id", "student.nombre", "module.name", "cycle.name", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given data, shows all student fields",
+        "Given edit clicked, row enters edit mode",
+        "Given delete confirmed with no project assignment, student removed",
+        "Given delete attempted for student with project assignment, blocked with error",
+        "Given no students, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 61,
+      "behavior": "Text input for project name (nombre del proyecto).",
+      "businessRules": [
+        "Required; min 2, max 100 characters"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given empty on submit, error shown",
+        "Given valid name, field accepted"
+      ]
+    },
+    {
+      "sketchNumber": 62,
+      "behavior": "Year selector for project creation. Selection cascades to #63 and #64.",
+      "businessRules": ["Required on submit; cascade triggers #63, #64"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #63 options updated",
+        "Given no selection on submit, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 63,
+      "behavior": "Legislation selector for project creation. Depends on #62. Selection cascades to #64.",
+      "businessRules": ["Depends on #62; required on submit"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #62 selected, options filtered by year",
+        "Given legislation selected, #64 options updated"
+      ]
+    },
+    {
+      "sketchNumber": 64,
+      "behavior": "Ciclo selector for project creation. Depends on #62 and #63. Selection loads module options in #65.",
+      "businessRules": ["Disabled until #63 selected; required on submit"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #63 not selected, disabled",
+        "Given #63 selected, shows matching ciclos",
+        "Given ciclo selected, #65 loads modules"
+      ]
+    },
+    {
+      "sketchNumber": 65,
+      "behavior": "Module selector for project creation. Depends on #64. Shows modules of selected ciclo.",
+      "businessRules": [
+        "Disabled until #64 selected",
+        "Required; project's module_id is stored in project entity"
+      ],
+      "dataNeeds": ["module.id", "module.name"],
+      "acceptanceCriteria": [
+        "Given #64 not selected, disabled",
+        "Given #64 selected, shows that ciclo's modules",
+        "Given module selected, it is stored in project record"
+      ]
+    },
+    {
+      "sketchNumber": 66,
+      "behavior": "Nuevo button for project creation. Saves project and reactively adds row to table #72.",
+      "businessRules": [
+        "Requires name (#61), year (#62), legislation (#63), ciclo (#64), module (#65)",
+        "Projects belong to a module (not directly to a ciclo)",
+        "Max 3 students per project is enforced at application layer",
+        "On success: form cleared; new row in #72 without reload"
+      ],
+      "dataNeeds": ["project.name", "project.module_id", "project.academic_year"],
+      "acceptanceCriteria": [
+        "Given all fields valid, project created and row appears in #72",
+        "Given missing fields, error shown",
+        "Given save success, form cleared"
+      ]
+    },
+    {
+      "sketchNumber": 67,
+      "behavior": "Reactive text filter on projects table (#72) by project name. Free text, 300 ms debounce.",
+      "businessRules": ["Case-insensitive substring; debounce 300 ms"],
+      "dataNeeds": ["project.name"],
+      "acceptanceCriteria": [
+        "Given name text, #72 filters in real time",
+        "Given empty, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 68,
+      "behavior": "Year selector filter for projects table (#72).",
+      "businessRules": ["Selector filter; updates #72 on change"],
+      "dataNeeds": ["project.academic_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #72 shows matching projects",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 69,
+      "behavior": "Legislation selector filter for projects table (#72). Filters via module → legislation.",
+      "businessRules": ["Selector filter; filters via project → module → legislation"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation selected, #72 filters accordingly",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 70,
+      "behavior": "Ciclo selector filter for projects table (#72). Depends on #69.",
+      "businessRules": ["Depends on #69; filters via project → module → cycle"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo selected, #72 filters accordingly",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 71,
+      "behavior": "Module selector filter for projects table (#72). Depends on #70.",
+      "businessRules": ["Depends on #70; filters by project.module_id"],
+      "dataNeeds": ["module.id", "module.name"],
+      "acceptanceCriteria": [
+        "Given module selected, #72 filters to that module's projects",
+        "Given no selection, all rows shown"
+      ]
+    },
+    {
+      "sketchNumber": 72,
+      "behavior": "Table showing all projects with columns: name, module, cycle, legislation, start_year, edit and delete. Filtered by #67–#71. Inline edit and delete with confirmation.",
+      "businessRules": [
+        "Cannot delete a project that has student assignments; error message shown",
+        "Edit: inline; delete: confirmation dialog",
+        "Table updates without page reload"
+      ],
+      "dataNeeds": ["project.id", "project.name", "project.module_id", "project.academic_year", "module.name", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given data, shows project name, module, cycle, year",
+        "Given edit clicked, row enters edit mode",
+        "Given delete confirmed with no students, project removed",
+        "Given delete attempted for project with students, blocked with error",
+        "Given no projects, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 73,
+      "behavior": "Reactive text filter for the project panel in the assignment screen. Filters list of available projects shown in table #85 by project name. 300 ms debounce.",
+      "businessRules": ["Free text; debounce 300 ms; filters project list in #85"],
+      "dataNeeds": ["project.name"],
+      "acceptanceCriteria": [
+        "Given project name typed, #85 filters to matching projects",
+        "Given empty, all projects shown"
+      ]
+    },
+    {
+      "sketchNumber": 74,
+      "behavior": "Year selector filter for the project panel in the assignment screen. Filters table #85 by academic year.",
+      "businessRules": ["Selector filter; updates #85 on change"],
+      "dataNeeds": ["project.academic_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #85 filters to that year's projects",
+        "Given no selection, all projects shown"
+      ]
+    },
+    {
+      "sketchNumber": 75,
+      "behavior": "Legislation selector filter for the project panel in the assignment screen.",
+      "businessRules": ["Selector; filters #85 via project → module → legislation"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation selected, #85 filters accordingly",
+        "Given no selection, all projects shown"
+      ]
+    },
+    {
+      "sketchNumber": 76,
+      "behavior": "Ciclo selector filter for the project panel in the assignment screen. Depends on #75.",
+      "businessRules": ["Depends on #75; filters #85 by cycle"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo selected, #85 filters accordingly",
+        "Given no selection, all projects shown"
+      ]
+    },
+    {
+      "sketchNumber": 77,
+      "behavior": "Module selector filter for the project panel in the assignment screen. Depends on #76.",
+      "businessRules": ["Depends on #76; filters #85 by module"],
+      "dataNeeds": ["module.id", "module.name"],
+      "acceptanceCriteria": [
+        "Given module selected, #85 shows only that module's projects",
+        "Given no selection, all projects shown"
+      ]
+    },
+    {
+      "sketchNumber": 78,
+      "behavior": "Reactive text filter for the student pool in the assignment screen. Filters available students shown in candidate list panel #84 by student name. 300 ms debounce.",
+      "businessRules": ["Free text; debounce 300 ms; filters student pool in #84"],
+      "dataNeeds": ["student.nombre"],
+      "acceptanceCriteria": [
+        "Given name typed, student pool in #84 filters in real time",
+        "Given empty, all students shown"
+      ]
+    },
+    {
+      "sketchNumber": 79,
+      "behavior": "Year selector filter for the student pool in the assignment screen.",
+      "businessRules": ["Selector; filters student pool in #84 by academic year"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, student pool in #84 filters",
+        "Given no selection, all students shown"
+      ]
+    },
+    {
+      "sketchNumber": 80,
+      "behavior": "Legislation selector filter for the student pool in the assignment screen.",
+      "businessRules": ["Selector; filters student pool in #84 via student → module → legislation"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given legislation selected, student pool filters",
+        "Given no selection, all students shown"
+      ]
+    },
+    {
+      "sketchNumber": 81,
+      "behavior": "Ciclo selector filter for the student pool in the assignment screen. Depends on #80.",
+      "businessRules": ["Depends on #80; filters student pool by cycle"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given ciclo selected, student pool filters",
+        "Given no selection, all students shown"
+      ]
+    },
+    {
+      "sketchNumber": 82,
+      "behavior": "Module selector filter for the student pool in the assignment screen. Depends on #81.",
+      "businessRules": ["Depends on #81; filters student pool by module"],
+      "dataNeeds": ["module.id", "module.name"],
+      "acceptanceCriteria": [
+        "Given module selected, student pool shows only that module's students",
+        "Given no selection, all students shown"
+      ]
+    },
+    {
+      "sketchNumber": 83,
+      "behavior": "Read-only display panel showing the name of the currently selected project. Updated when the user clicks a row in table #85. Empty state shown when no project is selected.",
+      "businessRules": [
+        "Updated reactively when a project row is selected in #85",
+        "Controls whether button #121 is active (needs a selection here)"
+      ],
+      "dataNeeds": ["project.name"],
+      "acceptanceCriteria": [
+        "Given project row clicked in #85, this panel shows selected project name",
+        "Given no project selected, empty or placeholder text shown",
+        "Panel is read-only; not directly interactive"
+      ]
+    },
+    {
+      "sketchNumber": 84,
+      "behavior": "Panel showing students available for assignment to the selected project (or already assigned). Filtered by student pool filters #78–#82. Students are selectable for assignment via button #121.",
+      "businessRules": [
+        "Depends on #83 (project selection)",
+        "Shows students from the filtered pool; allows selecting one or more for assignment",
+        "A student already assigned to another project in the same academic year cannot be reassigned"
+      ],
+      "dataNeeds": ["student.nombre", "project_student.project_id", "project_student.student_id"],
+      "acceptanceCriteria": [
+        "Given project selected (#83), shows available students from filtered pool",
+        "Given no project selected, empty or disabled",
+        "Students already assigned to the project are shown as already assigned",
+        "Students already in another project this year cannot be selected for reassignment"
+      ]
+    },
+    {
+      "sketchNumber": 85,
+      "behavior": "Table showing all project-student assignments. Clicking a row selects that project and updates panels #83 and #84. Filtered by project filters #73–#77. Edit and delete per row.",
+      "businessRules": [
+        "Clicking a row updates #83 (selected project) and #84 (its students)",
+        "Filtered by project filters #73–#77",
+        "Edit and delete with confirmation",
+        "Delete removes the student-project assignment, not the student or project records",
+        "Table updates without page reload after assign, edit, or delete"
+      ],
+      "dataNeeds": ["project_student.*", "project.name", "student.nombre", "module.name"],
+      "acceptanceCriteria": [
+        "Given row clicked, #83 updates with project name and #84 updates with its students",
+        "Given assignment deleted, row removed after confirmation",
+        "Given edit clicked, row enters edit mode",
+        "Table filters by project filters #73–#77",
+        "Given no assignments, empty state shown"
+      ]
+    },
+    {
+      "sketchNumber": 86,
+      "behavior": "Reactive text filter in the rubric screen. Despite boceto label 'Filtrar por proyecto', this filter operates on MODULE name — it reloads the rubric items for the matching module in table #100.",
+      "businessRules": [
+        "CORRECTION: despite boceto label 'filtrar por proyecto', this filter targets module name",
+        "Debounce 300 ms; filters/reloads rubric in #100 for matching module"
+      ],
+      "dataNeeds": ["module.name"],
+      "acceptanceCriteria": [
+        "Given module name text, table #100 reloads rubric items for matching module",
+        "Given empty, all module options available",
+        "Filter label in UI should read 'Filtrar por módulo' — boceto label is incorrect"
+      ]
+    },
+    {
+      "sketchNumber": 87,
+      "behavior": "Year selector in the rubric module-selection cascade. Selection triggers cascade update of #88 and #89.",
+      "businessRules": ["Navigation selector; triggers cascade to #88"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #88 options updated",
+        "Given year selected, #89 is reset"
+      ]
+    },
+    {
+      "sketchNumber": 88,
+      "behavior": "Legislation selector in the rubric module-selection cascade. Depends on #87. Selection cascades to #89.",
+      "businessRules": ["Depends on #87; selection cascades to ciclo in #89"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #87 selected, options match that year's legislaciones",
+        "Given legislation selected, #89 options updated"
+      ]
+    },
+    {
+      "sketchNumber": 89,
+      "behavior": "Ciclo selector in the rubric module-selection cascade. Depends on #87 and #88. Selection loads module options in #90.",
+      "businessRules": ["Disabled until #88 selected; selection loads #90"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #88 not selected, disabled",
+        "Given #88 selected, shows matching ciclos",
+        "Given ciclo selected, #90 loads that ciclo's modules"
+      ]
+    },
+    {
+      "sketchNumber": 90,
+      "behavior": "Module selector in the rubric screen. Depends on #89. On selection, loads rubric items for that module into table #100.",
+      "businessRules": [
+        "Disabled until #89 selected",
+        "Selection triggers load of rubric items for that module in #100"
+      ],
+      "dataNeeds": ["module.id", "module.name", "module.cycle_id"],
+      "acceptanceCriteria": [
+        "Given #89 not selected, disabled",
+        "Given #89 selected, shows that ciclo's modules",
+        "Given module selected, rubric items loaded in #100"
+      ]
+    },
+    {
+      "sketchNumber": 91,
+      "behavior": "Button 'Nuevo nivel' that adds a new level column to the item builder table #92. Disabled when the maximum of 5 levels is reached.",
+      "businessRules": [
+        "Maximum 5 levels per rubric item; button disabled at max",
+        "Each added level gets a name header and an editable score cell",
+        "Minimum levels are shown by default: Excelente, Bien, Mal (3 default levels)"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given fewer than 5 levels, clicking adds a new column to #92",
+        "Given 5 levels already, button is disabled",
+        "New level column is editable"
+      ]
+    },
+    {
+      "sketchNumber": 92,
+      "behavior": "Item builder table in the rubric screen. Editable mini-table for constructing a new rubric item before saving. Contains item name cell (#93) and level score cells (#94, #95, #96 and any additional via #91).",
+      "businessRules": [
+        "One row in this table represents one new rubric item being constructed",
+        "Levels shown by default: Excelente, Bien, Mal (3); additional via #91",
+        "Table is cleared after item is saved via #98",
+        "Mal level value is always 0 and must not be editable"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given builder open, shows item name and level cells",
+        "Given item saved via #98, builder row is cleared",
+        "Mal column always shows 0 and is not editable"
+      ]
+    },
+    {
+      "sketchNumber": 93,
+      "behavior": "Editable cell for the rubric item description (nombre del ítem) in the builder table #92. Click to enter edit mode.",
+      "businessRules": [
+        "Required; cannot be empty when saving",
+        "Free text description of the evaluation criterion"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given cell clicked, enters edit mode with cursor",
+        "Given empty on save attempt via #98, error border shown",
+        "Given valid text, value accepted"
+      ]
+    },
+    {
+      "sketchNumber": 94,
+      "behavior": "Editable numeric cell for the 'Excelente' level score in the builder table #92. Value change triggers max score recalculation.",
+      "businessRules": [
+        "Required; must be ≥ 0",
+        "The Excelente value is the highest level for the item",
+        "Sum of all items' Excelente values must not exceed 10 points for the module",
+        "Changing this value triggers a recalculation of cumulative maximum"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given value entered, max-score recalculation is triggered",
+        "Given negative value, error shown",
+        "Given sum of Excelente values would exceed 10, save via #98 is rejected with error"
+      ]
+    },
+    {
+      "sketchNumber": 95,
+      "behavior": "Editable numeric cell for the 'Bien' level score in the builder table #92.",
+      "businessRules": [
+        "Required; must be ≥ 0",
+        "Should be less than or equal to the Excelente value for this item"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given valid non-negative number, value accepted",
+        "Given negative value, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 96,
+      "behavior": "Cell for the 'Mal' level score in the builder table #92. Always equals 0; not user-editable.",
+      "businessRules": [
+        "Mal level is ALWAYS 0 — this is a domain invariant",
+        "The cell must not allow the user to enter a non-zero value",
+        "System enforces this value; any attempt to set it to non-zero is rejected"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given Mal cell rendered, value displays as 0",
+        "Given user attempts to edit Mal cell to non-zero, value is rejected or reset to 0",
+        "Mal column value is not user-editable"
+      ]
+    },
+    {
+      "sketchNumber": 97,
+      "behavior": "Delete icon button per row in the rubric item builder table #92. Removes the item row from the builder (and from the persisted rubric if editing #100).",
+      "businessRules": [
+        "In builder #92: removes row immediately without confirmation (unsaved item)",
+        "In full rubric table #100: shows confirmation dialog before deleting the persisted item"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given icon clicked in builder #92, row removed immediately without dialog",
+        "Given icon clicked in rubric table #100, confirmation dialog shown before delete"
+      ]
+    },
+    {
+      "sketchNumber": 98,
+      "behavior": "Button 'Añadir item' that saves the item from the builder (#92) to the module's rubric. Validates that the total Excelente sum would not exceed 10 after adding.",
+      "businessRules": [
+        "Requires item name (#93) and all level scores to be filled",
+        "Sum of all items' Excelente values (including this new one) must not exceed 10 for the module",
+        "If sum would exceed 10: shows error; does NOT save",
+        "On success: item persisted; builder (#92) cleared; rubric table (#100) reloaded",
+        "Disabled while builder is incomplete"
+      ],
+      "dataNeeds": ["rubric_item.module_id", "rubric_item.name", "rubric_level.name", "rubric_level.score"],
+      "acceptanceCriteria": [
+        "Given valid item and sum ≤ 10, item saved and #100 reloaded",
+        "Given sum would exceed 10, error shown and save blocked",
+        "Given incomplete builder, button disabled",
+        "Given save success, builder #92 cleared"
+      ]
+    },
+    {
+      "sketchNumber": 99,
+      "behavior": "File upload button 'Subir rúbrica'. Opens file picker; accepts CSV, JSON, or YAML. If a rubric already exists for the selected module, prompts confirmation before replacing.",
+      "businessRules": [
+        "Accepted formats: .csv, .json, .yaml, .yml",
+        "File must define items, levels and their scores",
+        "If module already has a rubric: confirmation dialog shown; on confirm replaces entirely",
+        "Mal level is always set to 0 regardless of file content",
+        "On success: table #100 reloaded"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given .csv/.json/.yaml, file parsed and rubric imported; #100 reloaded",
+        "Given module already has rubric, confirmation dialog shown before replacement",
+        "Given wrong format, error toast shown; existing rubric untouched",
+        "Given Mal column in file has non-zero value, it is overridden to 0"
+      ]
+    },
+    {
+      "sketchNumber": 100,
+      "behavior": "Full rubric table for the module selected in #90. Shows all saved items with all 5 levels (Excelente, Muy bien, Bien, Regular, Mal). Inline edit and delete with confirmation.",
+      "businessRules": [
+        "Loaded when module selected in #90; empty state if no items yet",
+        "All rubric items shown; up to 5 levels per item",
+        "Mal column always shows 0",
+        "Edit: inline; revalidates max sum constraint on save",
+        "Delete: confirmation dialog; removes item and recalculates totals"
+      ],
+      "dataNeeds": ["rubric_item.*", "rubric_level.*"],
+      "acceptanceCriteria": [
+        "Given module selected, rubric items loaded",
+        "Given no items, empty state shown",
+        "Given edit clicked, row enters inline edit mode",
+        "Given edited Excelente causing sum > 10, save blocked with error",
+        "Given delete confirmed, item removed and table reloaded",
+        "Mal column always shows 0 regardless of stored value"
+      ]
+    },
+    {
+      "sketchNumber": 101,
+      "behavior": "Year selector at the start of the correction cascade (#101 → #102 → #103 → #104 → #105). Selection cascades to #102 and #103.",
+      "businessRules": ["Selection resets and reloads #102, #103, #104, #105"],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, #102 and #103 options updated",
+        "Given year changed, downstream selects #103–#105 are reset"
+      ]
+    },
+    {
+      "sketchNumber": 102,
+      "behavior": "Legislation selector in the correction cascade. Depends on #101. Selection cascades to #103.",
+      "businessRules": ["Depends on #101; selection cascades to #103"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #101 selected, options match that year's legislaciones",
+        "Given legislation selected, #103 options updated"
+      ]
+    },
+    {
+      "sketchNumber": 103,
+      "behavior": "Ciclo selector in the correction cascade. Depends on #101 and #102. Selection loads module options in #104.",
+      "businessRules": ["Disabled until #102 selected; selection loads #104"],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #102 not selected, disabled",
+        "Given #102 selected, shows matching ciclos",
+        "Given ciclo selected, #104 loads modules"
+      ]
+    },
+    {
+      "sketchNumber": 104,
+      "behavior": "Module selector in the correction cascade. Depends on #103. Selection loads project options in #105 and validates rubric existence.",
+      "businessRules": [
+        "Disabled until #103 selected",
+        "Selection triggers load of projects for this module in #105",
+        "If selected module has no rubric, correction is blocked: warning shown and #110/#111 not loaded"
+      ],
+      "dataNeeds": ["module.id", "module.name", "rubric_item.module_id"],
+      "acceptanceCriteria": [
+        "Given #103 not selected, disabled",
+        "Given #103 selected, shows that ciclo's modules",
+        "Given module with rubric selected, #105 loads projects",
+        "Given module without rubric, warning shown and #110/#111 blocked"
+      ]
+    },
+    {
+      "sketchNumber": 105,
+      "behavior": "Project selector in the correction screen. Depends on #104. Shows only projects belonging to the selected module. On selection, loads rubric into correction tables #110/#111 and student checkboxes #107–#109. After auto-save, stays on screen awaiting next project selection.",
+      "businessRules": [
+        "Shows only projects belonging to the module selected in #104",
+        "On selection: loads rubric into #110/#111; loads student checkboxes #107–#109",
+        "If existing correction found for a student + this project, it is pre-loaded for editing",
+        "After auto-save, screen stays active and awaits next project selection in this selector"
+      ],
+      "dataNeeds": ["project.id", "project.name", "project.module_id", "correction.proyecto_id", "correction.student_id"],
+      "acceptanceCriteria": [
+        "Given module selected in #104, shows only that module's projects",
+        "Given project selected, #107–#109 populated with that project's students",
+        "Given project selected, rubric loaded into #110/#111",
+        "Given existing correction for this student and project, correction loaded pre-filled",
+        "Given auto-save complete, selector remains and allows selecting next project"
+      ]
+    },
+    {
+      "sketchNumber": 106,
+      "behavior": "Checkbox 'Corregir por grupo'. When checked, applies grade to ALL students in the project. Individual checkboxes #107–#109 are disabled when group mode is ON.",
+      "businessRules": [
+        "When checked (group mode ON): grade is applied to all students in the project simultaneously; individual checkboxes #107–#109 become disabled",
+        "When unchecked (group mode OFF): professor grades each student individually; checkboxes #107–#109 are re-enabled",
+        "Disabled when no project selected (#105)"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given checkbox checked, #107/#108/#109 become disabled",
+        "Given checkbox unchecked, #107/#108/#109 become enabled",
+        "Given no project selected (#105), checkbox is disabled",
+        "Given group mode ON and all items scored, grade is auto-saved for ALL students"
+      ]
+    },
+    {
+      "sketchNumber": 107,
+      "behavior": "Checkbox for individually selecting Student 1 for grading. Disabled when group correction mode (#106) is active. Shows student name as label.",
+      "businessRules": [
+        "Disabled when #106 is checked",
+        "Enabled when #106 is unchecked",
+        "At least one student checkbox must be selected for individual auto-save to trigger"
+      ],
+      "dataNeeds": ["student.nombre", "project_student.project_id"],
+      "acceptanceCriteria": [
+        "Given #106 checked, this checkbox is disabled",
+        "Given #106 unchecked, this checkbox is enabled",
+        "Shows student 1 name as label",
+        "Only visible when project has at least 1 student"
+      ]
+    },
+    {
+      "sketchNumber": 108,
+      "behavior": "Checkbox for individually selecting Student 2 for grading. Only visible when project has ≥ 2 students. Same rules as #107.",
+      "businessRules": [
+        "Disabled when #106 checked; enabled when #106 unchecked",
+        "Only rendered when the selected project has at least 2 students"
+      ],
+      "dataNeeds": ["student.nombre", "project_student.project_id"],
+      "acceptanceCriteria": [
+        "Given project has ≥ 2 students, checkbox is rendered with student 2 name",
+        "Given project has < 2 students, checkbox is not rendered",
+        "Given #106 checked, disabled"
+      ]
+    },
+    {
+      "sketchNumber": 109,
+      "behavior": "Checkbox for individually selecting Student 3 for grading. Only visible when project has 3 students. Same rules as #107 and #108.",
+      "businessRules": [
+        "Disabled when #106 checked; enabled when #106 unchecked",
+        "Only rendered when the selected project has exactly 3 students"
+      ],
+      "dataNeeds": ["student.nombre", "project_student.project_id"],
+      "acceptanceCriteria": [
+        "Given project has 3 students, checkbox is rendered with student 3 name",
+        "Given project has < 3 students, checkbox is not rendered",
+        "Given #106 checked, disabled"
+      ]
+    },
+    {
+      "sketchNumber": 110,
+      "behavior": "Correction table for rubric items with 5 levels. Shows one row per item and one selectable cell per level. Clicking a cell marks that level as selected for the item. #112 and #113 recalculate in real time on each selection. Auto-saves when all items have a level selected.",
+      "businessRules": [
+        "Exactly one level must be selected per item",
+        "Selecting a cell in any row recalculates #112 (raw sum) and #113 (normalised)",
+        "Auto-saves when ALL items across #110 and #111 have a selected level",
+        "If existing correction exists for the selected student+project, it is pre-loaded with previous selections",
+        "Blocked if no rubric for module (see #104)"
+      ],
+      "dataNeeds": ["rubric_item.*", "rubric_level.*", "correction.*"],
+      "acceptanceCriteria": [
+        "Given project selected, rubric items rendered with 5 level cells per row",
+        "Given a cell clicked, it becomes selected and other cells in that row deselect",
+        "Given selection, #112 and #113 update in real time",
+        "Given all items scored, correction is auto-saved to DB",
+        "Given existing correction pre-loaded, cells rendered with previous selections",
+        "Loading state shown while rubric data fetched"
+      ]
+    },
+    {
+      "sketchNumber": 111,
+      "behavior": "Correction table for rubric items with fewer than 5 levels (shown as 3 in boceto). Same behavior as #110 but with fewer level columns. Participates in the same auto-save and real-time score calculation.",
+      "businessRules": [
+        "Same as #110 but for items configured with fewer levels",
+        "Still requires exactly one level selected per item",
+        "Contributes to the same #112/#113 calculation",
+        "Boceto shows two correction sub-tables (#110 and #111) to represent that items can have different level counts; in implementation, one correction table renders dynamically with variable columns"
+      ],
+      "dataNeeds": ["rubric_item.*", "rubric_level.*", "correction.*"],
+      "acceptanceCriteria": [
+        "Given items with 3 levels, 3 level columns rendered",
+        "Given a cell clicked, recalculates #112 and #113",
+        "Participates in auto-save when combined with #110 all items are scored"
+      ]
+    },
+    {
+      "sketchNumber": 112,
+      "behavior": "Read-only display showing the raw rubric score: the sum of the selected level values across all items in #110 and #111. Updates in real time.",
+      "businessRules": [
+        "Formula: sum of selected level score values across all rubric items",
+        "Updated immediately on each level selection change",
+        "Shows 0 or '—' when no levels selected"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given levels selected, shows sum of selected values",
+        "Given no levels selected, shows 0 or '—'",
+        "Updates immediately on each selection change in #110/#111"
+      ]
+    },
+    {
+      "sketchNumber": 113,
+      "behavior": "Read-only display showing the score normalised to 10 points. Formula: (sum of selected values / sum of Excelente values across all items) × 10, rounded to 2 decimal places. Updates in real time.",
+      "businessRules": [
+        "Formula: (puntos_obtenidos / puntos_máximos_rúbrica) × 10",
+        "puntos_máximos_rúbrica = sum of Excelente level values across all rubric items",
+        "Result rounded to 2 decimal places",
+        "Updated in real time with #112",
+        "Shows 0 or '—' when no levels selected"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given selections, shows (raw/max)×10 rounded to 2 decimal places",
+        "Given no selections, shows 0 or '—'",
+        "Updates in real time with every level selection change"
+      ]
+    },
+    {
+      "sketchNumber": 114,
+      "behavior": "Year selector at the start of the grade view cascade (#114 → #115 → #116 → #117 → #118 → #119). On change, resets and reloads downstream selects and clears table #119 and disables print button #120.",
+      "businessRules": [
+        "First selector in the cascade chain",
+        "On change: reloads #115, #116 options; clears #117, #118, #119; disables #120"
+      ],
+      "dataNeeds": ["legislation.start_year"],
+      "acceptanceCriteria": [
+        "Given year selected, downstream selects reset and reload",
+        "Given year changed, #117, #118, #119 cleared and #120 disabled"
+      ]
+    },
+    {
+      "sketchNumber": 115,
+      "behavior": "Legislation selector in the grade view cascade. Depends on #114. Selection narrows ciclo options in #116.",
+      "businessRules": ["Depends on #114; narrows #116 options on selection"],
+      "dataNeeds": ["legislation.id", "legislation.abbreviation"],
+      "acceptanceCriteria": [
+        "Given #114 selected, options filtered by year",
+        "Given legislation selected, #116 options updated"
+      ]
+    },
+    {
+      "sketchNumber": 116,
+      "behavior": "Ciclo selector in the grade view cascade. Depends on #114 and #115. Selection loads module options in #117 and triggers rendering of status badges in #122.",
+      "businessRules": [
+        "Disabled until #114 selected",
+        "On selection: loads module options in #117; triggers status badge rendering in #122",
+        "For profesor: #117 shows only their module; for tutor: all modules in ciclo"
+      ],
+      "dataNeeds": ["cycle.id", "cycle.name"],
+      "acceptanceCriteria": [
+        "Given #114 not selected, disabled",
+        "Given #114 selected, shows matching ciclos",
+        "Given ciclo selected, #117 loads and #122 renders status badges",
+        "Status badges #122 appear for this ciclo's modules after selection"
+      ]
+    },
+    {
+      "sketchNumber": 117,
+      "behavior": "Module selector in the grade view cascade. Depends on #116. For profesor role: shows only the module they teach. For tutor role: shows all modules in the selected ciclo.",
+      "businessRules": [
+        "Disabled until #116 selected",
+        "rol='profesor': options limited to teacher's own module(s) in the selected ciclo (via teacher_module)",
+        "rol='tutor': options include ALL modules of the selected ciclo"
+      ],
+      "dataNeeds": ["module.id", "module.name", "teacher_module.teacher_id"],
+      "acceptanceCriteria": [
+        "Given #116 not selected, disabled",
+        "Given rol='profesor', shows only their module(s)",
+        "Given rol='tutor', shows all modules in the ciclo",
+        "Given module selected, #118 loads projects"
+      ]
+    },
+    {
+      "sketchNumber": 118,
+      "behavior": "Project selector in the grade view cascade. Depends on #117. On selection, loads grade data into table #119 and enables print button #120.",
+      "businessRules": [
+        "Disabled until #117 selected",
+        "On selection: grade data loaded into #119; #120 enabled if all 5 selects have values"
+      ],
+      "dataNeeds": ["project.id", "project.name", "project.module_id"],
+      "acceptanceCriteria": [
+        "Given #117 not selected, disabled",
+        "Given #117 selected, shows that module's projects",
+        "Given project selected, #119 loaded with grade data and #120 enabled"
+      ]
+    },
+    {
+      "sketchNumber": 119,
+      "behavior": "Read-only grade table. For profesor: shows student name, module grade. For tutor: shows all modules + final grade column. Rows sorted alphabetically by project name, then by student name within each project.",
+      "businessRules": [
+        "For rol='profesor': columns = project name, student name, module grade (nota_módulo)",
+        "For rol='tutor': columns = project name, student name, one column per module in ciclo, final grade",
+        "nota_módulo = (puntos_obtenidos / puntos_máximos_rúbrica) × 10, rounded 2 decimals",
+        "nota_final = sum(nota_módulo × horas_módulo) / sum(horas_módulo), rounded 2 decimals, capped at 10",
+        "Rows ordered: alphabetically by project name, then alphabetically by student name within project",
+        "Read-only: no edit or delete actions"
+      ],
+      "dataNeeds": ["correction.*", "student.nombre", "project.name", "module.name", "module.weekly_hours", "rubric_item.*", "rubric_level.*"],
+      "acceptanceCriteria": [
+        "Given all cascade selects filled, grade data shown",
+        "Given rol='profesor', only their module's column shown",
+        "Given rol='tutor', all module columns + final grade shown",
+        "nota_final calculated correctly using weighted hours formula",
+        "Rows sorted by project name then student name",
+        "Given no corrections recorded, empty state shown",
+        "Table is read-only"
+      ]
+    },
+    {
+      "sketchNumber": 120,
+      "behavior": "Imprimir button that generates and downloads a PDF of the grade data shown in table #119. Disabled until all five cascade selects (#114–#118) have a value.",
+      "businessRules": [
+        "Disabled until ALL FIVE selects #114, #115, #116, #117, #118 have a selected value",
+        "On click: generates PDF mirroring the content of #119; triggers browser download",
+        "PDF content follows the same professor/tutor role distinction as #119",
+        "Shows loading state (spinner) during PDF generation"
+      ],
+      "dataNeeds": [],
+      "acceptanceCriteria": [
+        "Given any of #114–#118 has no value, button is disabled",
+        "Given all 5 selects filled, button is enabled",
+        "Given button clicked, PDF generated and browser download triggered",
+        "PDF content matches table #119 content",
+        "Button shows loading/spinner during generation"
+      ]
+    },
+    {
+      "sketchNumber": 121,
+      "behavior": "Button 'Agregar alumnos' in the assignment screen. Assigns the student(s) selected in panel #84 to the project selected in panel #83. Disabled until both a project and at least one student are selected.",
+      "businessRules": [
+        "Active only when BOTH #83 (project) and #84 (at least one student) have a selection",
+        "Disabled when either panel has no selection",
+        "Max 3 students per project; if assignment would exceed 3, blocked with error",
+        "On success: assignment persisted to project_student; table #85 updated immediately without reload",
+        "A student cannot be assigned to more than one project in the same academic year (DB-enforced via trigger)"
+      ],
+      "dataNeeds": ["project_student.project_id", "project_student.student_id"],
+      "acceptanceCriteria": [
+        "Given no project selected in #83, button is disabled",
+        "Given no student selected in #84, button is disabled",
+        "Given both project and student selected, button is enabled",
+        "Given button clicked with valid selection, assignment saved and #85 updated immediately",
+        "Given assignment would exceed 3 students in project, error shown and assignment blocked",
+        "Given student already in another project this year, error shown"
+      ]
+    },
+    {
+      "sketchNumber": 122,
+      "behavior": "Row of status badges in the grade view screen. One badge per module in the selected ciclo (#116). Badge shows module abbreviation with green background if ALL students have a recorded correction for that module; red background if at least one student's correction is missing. Visible to both profesor and tutor.",
+      "businessRules": [
+        "One badge rendered per module in the ciclo selected in #116",
+        "Green background: all students assigned to projects in that module have a correction recorded",
+        "Red background: at least one student's correction for that module is missing",
+        "Visible to both rol='profesor' and rol='tutor'",
+        "Depends on #116 selection; no badges shown until a ciclo is selected",
+        "Badge label = module abbreviation (siglas)"
+      ],
+      "dataNeeds": ["module.id", "module.name", "correction.*", "student.*", "project_student.*"],
+      "acceptanceCriteria": [
+        "Given ciclo selected in #116, one badge per module rendered",
+        "Given all students in a module have corrections, badge is green",
+        "Given any student missing a correction, badge is red",
+        "Given no ciclo selected, no badges rendered",
+        "Both profesor and tutor see the badges",
+        "Badge label shows module abbreviation"
+      ]
+    }
+  ],
+  "globalRules": [
+    "All three user roles (admin, profesor, tutor) authenticate via username + password. Username is the Consejería de Educación system username (not email).",
+    "Default password for new accounts is '12345678'. Any user whose password is '12345678' must change it on first login before accessing the system.",
+    "Maximum 3 consecutive failed login attempts. After the 3rd failure the account is locked. A locked profesor/tutor account is unlocked by the admin; a locked admin account is unlocked by support via direct DB access.",
+    "Session auto-closes after 10 minutes of inactivity. No confirmation dialog is shown for either manual ('Salir') or automatic logout.",
+    "The student identifier (alumno.nombre) is free text. The professor may enter a real name or an anonymous code such as 'JJ499'. The system imposes no format.",
+    "All list filters are reactive: they filter as the user types, with a 300 ms debounce, without page reload.",
+    "All CRUD tables update reactively: new rows appear and deleted rows disappear without page reload.",
+    "Legislation (Legislación) is a field of the Module entity, not of the Cycle entity. The domain hierarchy is: Ciclo → Módulos (each with its own Legislación) → Proyectos → Alumnos.",
+    "A cycle stores only its name. Legislation selectors shown alongside cycle forms are navigation aids only and are not persisted to the cycle record.",
+    "The 'Año finalización' of a cycle is always displayed as start_year + 1; it is derived at render time and not stored.",
+    "A project may have 1, 2 or 3 students. The maximum of 3 is enforced at the application layer.",
+    "A student may belong to at most one project per academic year. This invariant is enforced at the database layer via trigger.",
+    "Each module has exactly one rubric. The rubric is shared across all projects of that module.",
+    "The 'Mal' level of every rubric item is always 0. This is a domain invariant enforced at both the UI and persistence layers.",
+    "The sum of all items' 'Excelente' level values in a rubric must not exceed 10 points. Adding or editing an item that would push the total above 10 is rejected with an error.",
+    "Module grades are normalised to 10: nota_módulo = (puntos_obtenidos / puntos_máximos_rúbrica) × 10, rounded to 2 decimal places.",
+    "The final student grade is a weighted average: nota_final = sum(nota_módulo × horas_semanales) / sum(horas_semanales), rounded to 2 decimal places, capped at 10.",
+    "Correction is auto-saved when the professor has selected exactly one level for every rubric item. There is no explicit 'Guardar' button for corrections.",
+    "If a correction already exists for a student+project combination, the correction screen loads the existing selection for editing.",
+    "After an auto-save, the correction screen stays active so the professor can select another project and continue correcting.",
+    "The 'Imprimir notas' button on the landing page (#47) is rendered only for users with role='tutor'. It must not appear for role='profesor'.",
+    "The PDF print button (#120) is disabled until all five cascade selects (#114–#118) have a value.",
+    "Grade status badges (#122) show green if ALL students in that module have a correction, red if at least one is missing.",
+    "Rubric file upload (#99) replaces the existing rubric entirely after a confirmation dialog. There is no partial update.",
+    "Admin can unlock blocked teacher accounts by resetting failed_login_attempts=0 and account_locked=false in the teacher record.",
+    "Delete operations on entities with dependants are always blocked with an informative error. The user must remove dependants first."
+  ]
+}

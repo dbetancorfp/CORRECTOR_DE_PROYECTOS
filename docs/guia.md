@@ -75,7 +75,7 @@ Cada ítem de la rúbrica tiene cinco niveles de calificación con valor numéri
 
 | Característica | Detalle |
 |---------------|---------|
-| Identificadores de alumno | Códigos anonimizados (ej. `JJ499`, `MnP454`), no nombres reales. |
+| Identificadores de alumno | Texto libre; el profesor decide si usa nombre real o código anónimo (ej. `JJ499`). El sistema no impone formato. |
 | Filtros reactivos | Las listas de alumnos, proyectos y rúbrica filtran en tiempo real mientras el usuario escribe. |
 | Importar alumnos | Acción "Subir lista de alumnos" (#54) — fichero CSV, JSON o YAML con campos `nombre`, `año de inicio`, `legislación`, `ciclo`, `módulo`. Se persisten en la tabla `student` y se enlazan al módulo vía `student_module`. |
 | Importar rúbrica | Acción "Subir rúbrica" — fichero YAML. Si ya existe rúbrica para el módulo, la sustituye completamente (previa confirmación). |

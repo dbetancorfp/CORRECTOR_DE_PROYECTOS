@@ -76,7 +76,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `03-generated-artifacts/alignment-report.json` *(local — no RAG)* |
 
 === "Agente 4 — Generador Func. Spec"
-    **:white_check_mark: Implementado** · `/generate-functional-spec`
+    **:white_check_mark: Implementado** · `/generate-functional-spec` · **:white_check_mark: Ejecutado** — `functional-spec.json` generado · 122 elementos · 26 globalRules
 
     Convierte `transcripcion.md` + `ui-spec.json` en una especificación funcional
     estructurada con `behavior`, `businessRules` y `acceptanceCriteria` por sketchNumber.
@@ -183,7 +183,7 @@ vectorial + filtros estructurados.
 | Schema | Campos principales |
 |--------|------------------|
 | `UISpecSchema` | `screens[].components[]` con `sketchNumber`, `type` (32 valores), `props`, `states[]`, `interactions[]`, `accessibility`, `validation[]`, `depends_on[]` |
-| `FunctionalSpecSchema` | `elementSpecs[]` con `sketchNumber`, `behavior`, `businessRules`, `acceptanceCriteria`; más `globalRules[]` |
+| `FunctionalSpecSchema` | `appOverview`; `elementSpecs[]` con `sketchNumber`, `behavior`, `businessRules`, `dataNeeds`, `acceptanceCriteria`; más `globalRules[]` |
 | `ReconciliationSchema` | `valid`, `boceto_numbers`, `spec_numbers`, `orphaned_sketch_elements`, `orphaned_spec_rules` |
 | `AlignmentReportSchema` | `valid`, `checks[]` con `type`, `status` (`pass` \| `fail`), `issues[]` |
 
@@ -207,7 +207,7 @@ a este proyecto en [Principios SOLID](solid.md).
 | Backend | Bun + Express + TypeScript |
 | Validación de schema | Zod 3.x |
 | Frontend | Web Components nativos + lit-html standalone + Tailwind CSS 3.x + TypeScript |
-| Build frontend | `bun build` — `src/frontend/*.ts` → `dist/frontend/*.js` → `<script type="module">` |
+| Build frontend | `bun build` — `corrector/05-implementation/frontend/src/*.ts` → `corrector/05-implementation/frontend/dist/*.js` → `<script type="module">` |
 | Tests unitarios | `bun test` (API compatible con Jest) |
 | Tests funcionales / e2e | Cypress |
 | Documentación | MkDocs + Material for MkDocs → GitHub Pages |
@@ -347,10 +347,10 @@ bun test                                   # RED ✗
 /implementer
 bun test                                   # GREEN ✅
 
-# ── Agente 8: tests e2e ──────────────────────────────────────────
+# ── Agente 9: Revisor / QA ───────────────────────────────────────
 /reviewer                                  # audita 6+7, re-ejecuta si falla
 
-# ── Agente 8: tests e2e ────────────────────────────
+# ── Agente 8: tests e2e ──────────────────────────────────────────
 /e2e-engineer
 bunx cypress run
 
@@ -400,5 +400,5 @@ CORRECTOR_DE_PROYECTOS/
 ├── .claude/commands/        # Slash command entry points (.md)
 ├── docs/                    # Esta documentación (fuente MkDocs)
 ├── mkdocs.yml               # Configuración MkDocs + Material
-└── .github/workflows/       # CI: ci.yml · e2e.yml · deploy-docs.yml
+└── .github/workflows/       # CI: deploy-docs.yml · sonarcloud.yml
 ```

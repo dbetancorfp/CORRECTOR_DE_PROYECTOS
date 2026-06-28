@@ -157,7 +157,7 @@ Retrieval: hybrid search — vector similarity + structured filters on `phase`, 
 ### Zod schemas
 
 - `UISpecSchema` — `screens[].components[]` with `sketchNumber`, `type`, `props`, `states`, `interactions`
-- `FunctionalSpecSchema` — `elementSpecs[]` with `sketchNumber`, `behavior`, `businessRules`, `acceptanceCriteria`; plus `globalRules[]`
+- `FunctionalSpecSchema` — `appOverview`; `elementSpecs[]` with `sketchNumber`, `behavior`, `businessRules`, `dataNeeds`, `acceptanceCriteria`; plus `globalRules[]`
 - `ReconciliationSchema` — `valid`, `boceto_numbers`, `spec_numbers`, `orphaned_sketch_elements`, `orphaned_spec_rules`
 - `AlignmentReportSchema` — `valid`, `checks[]` each with `type` (`boceto-transcript` | `boceto-schema` | `transcript-schema`), `status` (`pass` | `fail`), `issues[]`
 
@@ -198,7 +198,7 @@ bun test                                                        # GREEN ✅
 bunx cypress run
 
 # ── Agent 9: QA review (optional) ────────────────────────────────
-# /reviewer (not yet defined)
+/reviewer                                                       # audita código, tests e implementación
 
 # ── On-demand ─────────────────────────────────────────────────────
 /migration-generator                                            # when schema.sql changes
@@ -391,4 +391,4 @@ login
 - `alumno.nombre` is free text — the professor decides whether to enter a real name or an
   anonymised code. The system imposes no format.
 - List filters (alumnos, proyectos, rúbrica) must be **reactive** — filter as user types.
-- Bulk import via file upload: alumnos (CSV/Excel), rúbrica.
+- Bulk import via file upload: alumnos (CSV/JSON/YAML), rúbrica (YAML).
