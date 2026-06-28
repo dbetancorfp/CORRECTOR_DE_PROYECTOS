@@ -1,6 +1,6 @@
 # Especificación Funcional
 
-Especificación funcional estructurada: 119 elementos con `behavior`, `businessRules` y
+Especificación funcional estructurada: 122 elementos con `behavior`, `businessRules` y
 `acceptanceCriteria` por sketchNumber, generada por el **Agente 4 — Generador Func. Spec**.
 
 ## Estado
@@ -56,18 +56,18 @@ Una vez generado, `functional-spec.json` tiene esta forma:
 | Profesor — Landing | #47 | 1 |
 | Profesor — Alumnos | #48–#60 | 13 |
 | Profesor — Proyectos | #61–#72 | 12 |
-| Profesor — Asignación | #73–#85 | 13 |
+| Profesor — Asignación | #73–#85 + #121 | 14 |
 | Profesor — Rúbrica | #86–#100 | 15 |
 | Profesor — Corregir | #101–#113 | 13 |
-| Profesor — Ver notas | #114–#120 | 7 |
-| **Total** | **#1–#120** | **119** |
+| Profesor — Ver notas | #114–#120 + #122 | 8 |
+| **Total** | **#1–#122 (incl. #121, #122)** | **122** |
 
 ## Schema Zod
 
 ```ts
 const FunctionalSpecSchema = z.object({
   elementSpecs: z.array(z.object({
-    sketchNumber:      z.number().int().min(1).max(120),
+    sketchNumber:      z.number().int().min(1).max(122),
     behavior:          z.string().min(1),
     businessRules:     z.array(z.string()),
     acceptanceCriteria: z.array(z.string()),

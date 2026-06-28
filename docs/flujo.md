@@ -26,7 +26,7 @@ flowchart TD
     META["boceto-metadata.json\nboceto-elements.md"]
     UISPEC["✓ ui-spec.json\n12 pantallas · 122 elementos"]
     TRANS_OUT["✓ transcripcion.md\n✓ boceto-suggestions.md\n122 elementos cubiertos"]
-    ALIGN["❌ alignment-report.json\nFAIL · 3 errores bloqueantes\n(local — no RAG)"]
+    ALIGN["✅ alignment-report.json\nPASS · valid:true\n(local — no RAG)"]
     FSPEC["functional-spec.json"]
     RECON["reconciliation.json\n(local — no RAG)"]
     UC["use-cases.md\napi-contracts.md"]
@@ -82,7 +82,7 @@ flowchart TD
     E2E --> A9
 
     style GATE fill:#fee2e2,stroke:#dc2626,color:#991b1b
-    style A3 fill:#fef3c7,stroke:#d97706
+    style A3 fill:#d1fae5,stroke:#059669
     style SCHEMA fill:#fce7f3,stroke:#9d174d,color:#9d174d
     style ALIGN fill:#f3f4f6,stroke:#9ca3af
     style RECON fill:#f3f4f6,stroke:#9ca3af

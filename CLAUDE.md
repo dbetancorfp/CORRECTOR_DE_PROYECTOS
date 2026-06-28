@@ -11,7 +11,7 @@ Author: David Betancor, Profesor FP, IES Telesforo Bravo.
 
 | Artifact | Path | Notes |
 |----------|------|-------|
-| Boceto | `corrector/01-boceto/html-source-prototype/` | 90 elements · 11 screens · `data-element-id="N"` (sketchNumber). Registry: `corrector/01-boceto/boceto-elements.md` |
+| Boceto | `corrector/01-boceto/html-source-prototype/` | 122 elements · 12 screens · `data-element-id="N"` (sketchNumber). Registry: `corrector/01-boceto/html-source-prototype/boceto-elements.md` |
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | Client interview transcript — source of business rules |
 | Schema BD | `corrector/05-implementation/backend/schema.sql` | PostgreSQL 16 DDL — source of truth for data model |
 
@@ -223,6 +223,7 @@ bunx cypress run
 | `/doc-reviewer` | — Revisor de Documentación | ✅ |
 | `/migration-generator` | ★ — Migration Generator | ✅ |
 | `/ci-setup` | ★ — CI Setup | ✅ |
+| `/db-schema-designer` | ★ — DB Schema Designer | ✅ |
 | `/commit` | — Commit workflow | ✅ |
 
 ## Repository Structure
@@ -231,8 +232,8 @@ bunx cypress run
 corrector/
   01-boceto/
     boceto-metadata.json               # Agent 0 output — screen index
-    boceto-elements.md                 # Agent 0 output — element registry
-    html-source-prototype/             # Annotated HTML screens (11 screens, 90 elements)
+    html-source-prototype/             # Annotated HTML screens (12 screens, 122 elements)
+      boceto-elements.md               # Agent 0 output — element registry
   02-conversacion-cliente/
     transcripcion.md                   # Agent 2 output — complete interview
     boceto-suggestions.md              # Agent 2 output — proposed boceto changes

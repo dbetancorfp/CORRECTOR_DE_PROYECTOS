@@ -40,7 +40,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | | |
     |--|--|
     | **INPUT** | `01-boceto/html-source-prototype/*.html` |
-    | **OUTPUT** | `01-boceto/boceto-metadata.json` · `boceto-elements.md` |
+    | **OUTPUT** | `01-boceto/boceto-metadata.json` · `01-boceto/html-source-prototype/boceto-elements.md` |
 
 === "Agente 1 ∥ — Diseñador Front"
     **:white_check_mark: Implementado** · `/designer-front` · **:white_check_mark: Ejecutado** — `ui-spec.json` generado · 12 pantallas · 122 elementos
@@ -65,18 +65,10 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `02-conversacion-cliente/transcripcion.md` · `boceto-suggestions.md` |
 
 === "Agente 3 — Validador de Alineación"
-    **:white_check_mark: Implementado** · `/alignment-validator` · **:x: Ejecutado — FAIL** — `valid: false` · 3 errores bloqueantes en schema.sql
+    **:white_check_mark: Implementado** · `/alignment-validator` · **:white_check_mark: Ejecutado — PASS** — `valid: true` · los tres checks superados
 
     Gate 3-way: verifica que boceto ↔ entrevista ↔ schema son consistentes entre sí
     antes de generar ninguna especificación. Si falla, el pipeline se detiene.
-
-    **Errores bloqueantes detectados:**
-
-    1. `teacher.role` CHECK constraint usa `'teacher'`; debe ser `'profesor'`
-    2. `teacher_module` sin `UNIQUE(module_id)` — viola "un profesor por módulo"
-    3. `teacher` sin columna `must_change_password BOOLEAN` — flujo primer acceso imposible
-
-    **Advertencias adicionales:** seed password, `cycle.legislation_id` vs. prosa de transcripción, sin tracking de intentos fallidos.
 
     | | |
     |--|--|
@@ -154,7 +146,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
 
     Audita cumplimiento SOLID completo en tests e implementación. Si detecta violaciones,
     identifica al agente responsable y lo re-ejecuta hasta que el código pase la auditoría.
-    Bloquea el avance al Agente 8 (E2E) mientras haya violaciones pendientes.
+    Bloquea el avance al merge/despliegue mientras haya violaciones pendientes.
 
     | | |
     |--|--|
@@ -373,7 +365,7 @@ CORRECTOR_DE_PROYECTOS/
 ├── corrector/               # Workspace del pipeline — proyecto real (corrector-v1)
 │   ├── 01-boceto/
 │   │   ├── boceto-metadata.json    # Agente 0 output · entrada Agente 1
-│   │   └── html-source-prototype/  # Bocetos HTML anotados (119 elementos, 12 pantallas)
+│   │   └── html-source-prototype/  # Bocetos HTML anotados (122 elementos, 12 pantallas)
 │   │       └── boceto-elements.md  # Agente 0 output — registro descriptivo de elementos
 │   ├── 02-conversacion-cliente/
 │   │   ├── transcripcion.md        # Agente 2 output — entrevista completa
@@ -398,6 +390,7 @@ CORRECTOR_DE_PROYECTOS/
 │   │   ├── ci-setup/              # ci-setup.md
 │   │   ├── doc-reviewer/          # doc-reviewer.md
 │   │   ├── migration-generator/   # migration-generator.md
+│   │   ├── reviewer/              # reviewer.md
 │   │   ├── index.js               # Barrel de exports
 │   │   └── validator.js           # Utilidad compartida
 │   ├── schemas/             # Zod schemas

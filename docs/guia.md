@@ -44,9 +44,10 @@ login (index.html)
 │
 └── Profesor → Landing   vista_profesor-landing.html
     ├── Gestionar → Panel (pestañas)
-    │   ├── Alumnos    vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html
-    │   ├── Proyectos  vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html
-    │   └── Rúbrica    vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html
+    │   ├── Alumnos      vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html
+    │   ├── Proyectos    vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html
+    │   ├── Asignación   vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html
+    │   └── Rúbrica      vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html
     ├── Corregir       vista_profesor_landing-corregirProyecto.html
     ├── Ver notas      vista_profesor-landing-ver_notas.html
     └── Imprimir notas  (Tutor — también puede Ver notas)
@@ -60,7 +61,7 @@ login (index.html)
 | **Ciclo** | nombre (ej. Desarrollo de aplicaciones web) | agrupa Módulos; no lleva Legislación propia |
 | **Módulo** | nombre, siglas (ej. DEW, máx. 10 car. mayúsc.), horas semanales, legislación | pertenece a un Ciclo; tiene una Rúbrica y varios Proyectos |
 | **Profesor** | usuario Consejería (ej. dbetqui), nombre completo, contraseña | puede tener Módulos de distintos Ciclos |
-| **Alumno** | identificador anónimo (ej. JJ499); nombre real en tabla segura separada | pertenece a un Ciclo y Legislación; asignado a un único Proyecto a la vez |
+| **Alumno** | nombre libre (puede ser código anónimo como `JJ499` o nombre real; el sistema no impone formato) | pertenece a un Ciclo; asignado a un único Proyecto por año académico |
 | **Proyecto** | nombre, año académico (año de inicio, ej. 2025) | pertenece a un Módulo; agrupa 1–3 Alumnos |
 | **Rúbrica** | ítems con 5 niveles; suma de "Excelente" = exactamente 10.00; Mal siempre = 0 | pertenece a un Módulo (una rúbrica por módulo, aplica a todos sus proyectos) |
 
@@ -76,6 +77,6 @@ Cada ítem de la rúbrica tiene cinco niveles de calificación con valor numéri
 |---------------|---------|
 | Identificadores de alumno | Códigos anonimizados (ej. `JJ499`, `MnP454`), no nombres reales. |
 | Filtros reactivos | Las listas de alumnos, proyectos y rúbrica filtran en tiempo real mientras el usuario escribe. |
-| Importar alumnos | Acción "Subir lista de alumnos" — fichero YAML con campos `nombre_completo`, `identificador`, `ciclo`, `legislación`. Carga el identificador en la tabla principal y el nombre real en la tabla segura. |
+| Importar alumnos | Acción "Subir lista de alumnos" (#54) — fichero CSV, JSON o YAML con campos `nombre`, `año de inicio`, `legislación`, `ciclo`, `módulo`. Se persisten en la tabla `student` y se enlazan al módulo vía `student_module`. |
 | Importar rúbrica | Acción "Subir rúbrica" — fichero YAML. Si ya existe rúbrica para el módulo, la sustituye completamente (previa confirmación). |
-| Corrección individual / grupal | En la pantalla de corrección (#77) el profesor puede aplicar la nota a todo el grupo o seleccionar alumnos individualmente (#78–#80). |
+| Corrección individual / grupal | En la pantalla de corrección (#106) el profesor puede aplicar la nota a todo el grupo o seleccionar alumnos individualmente (#107–#109). |

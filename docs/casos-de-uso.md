@@ -21,16 +21,17 @@ Una vez generado, `use-cases.md` cubrirá estos 10 flujos:
 
 | ID | Flujo | Elementos del boceto |
 |----|-------|---------------------|
-| UC-01 | Login y autenticación | #1–#5 |
-| UC-02 | Gestión de Legislaciones | #6–#10, #81–#84 |
-| UC-03 | Gestión de Ciclos | #11–#15 |
-| UC-04 | Gestión de Módulos | #16–#22 |
-| UC-05 | Gestión de Profesorado | #23–#29 |
-| UC-06 | Gestión de Alumnos | #31–#41 |
-| UC-07 | Gestión de Proyectos | #42–#51 |
-| UC-08 | Gestión de Rúbrica | #52–#64, #90 |
-| UC-09 | Corrección de Proyecto | #65–#80 |
-| UC-10 | Visualización e impresión de Notas | #30, #85–#89 |
+| UC-01 | Login y autenticación | #1–#3 |
+| UC-02 | Gestión de Legislaciones | #4–#10 |
+| UC-03 | Gestión de Ciclos | #11–#21 |
+| UC-04 | Gestión de Módulos | #22–#33 |
+| UC-05 | Gestión de Profesorado | #34–#46 |
+| UC-06 | Gestión de Alumnos | #48–#60 |
+| UC-07 | Gestión de Proyectos | #61–#72 |
+| UC-07b | Asignación Proyecto-Alumno | #73–#85, #121 |
+| UC-08 | Gestión de Rúbrica | #86–#100 |
+| UC-09 | Corrección de Proyecto | #101–#113 |
+| UC-10 | Visualización e impresión de Notas | #47, #114–#120, #122 |
 
 ## Formato de cada caso de uso
 
