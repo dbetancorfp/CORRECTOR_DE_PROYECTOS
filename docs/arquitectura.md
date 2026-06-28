@@ -98,7 +98,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `03-generated-artifacts/reconciliation.json { valid: true }` *(local — no RAG)* |
 
 === "Agente 5 — Arquitecto de Requisitos"
-    **:white_check_mark: Implementado** · `/requirement-architect`
+    **:white_check_mark: Implementado** · `/requirement-architect` · **:white_check_mark: Ejecutado** — `use-cases.md` generado · 11 UCs · 122 elementos · `api-contracts.md` · 41 endpoints
 
     Con las specs validadas y el schema como entrada, genera los casos de uso y los
     contratos de API REST.

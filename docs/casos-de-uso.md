@@ -5,33 +5,28 @@
 
 ## Estado
 
-!!! warning "Pendiente de generar"
-    Ejecuta el **Agente 5 — Arquitecto de Requisitos** (`/requirement-architect`) para
-    poblar esta sección.
+!!! success "Generado — 2026-06-28"
+    **Agente 5 — Arquitecto de Requisitos** ejecutado correctamente.
 
-    **Prerrequisitos:**
-
-    1. Todos los pasos anteriores completados (Agentes 0–4)
-    2. GATE HUMANO aprobado (`reconciliation.json { valid: true }`)
-    3. `/requirement-architect` — **este paso**
+    - `use-cases.md` — 11 casos de uso (UC-01 a UC-10 + UC-07b) · 122 elementos cubiertos
+    - `api-contracts.md` — 41 endpoints · 12 grupos
+    - Ruta: `corrector/04-use-cases/use-cases.md` · `corrector/05-implementation/backend/api-contracts.md`
 
 ## Índice de casos de uso
 
-Una vez generado, `use-cases.md` cubrirá estos 10 flujos:
-
-| ID | Flujo | Elementos del boceto |
-|----|-------|---------------------|
-| UC-01 | Login y autenticación | #1–#3 |
-| UC-02 | Gestión de Legislaciones | #4–#10 |
-| UC-03 | Gestión de Ciclos | #11–#21 |
-| UC-04 | Gestión de Módulos | #22–#33 |
-| UC-05 | Gestión de Profesorado | #34–#46 |
-| UC-06 | Gestión de Alumnos | #48–#60 |
-| UC-07 | Gestión de Proyectos | #61–#72 |
-| UC-07b | Asignación Proyecto-Alumno | #73–#85, #121 |
-| UC-08 | Gestión de Rúbrica | #86–#100 |
-| UC-09 | Corrección de Proyecto | #101–#113 |
-| UC-10 | Visualización e impresión de Notas | #47, #114–#120, #122 |
+| ID | Flujo | Elementos del boceto | Actor |
+|----|-------|---------------------|-------|
+| UC-01 | Login, logout y gestión de sesión | #1–#3, #11 | Todos |
+| UC-02 | Gestión de Legislaciones | #4–#10 | Admin |
+| UC-03 | Gestión de Ciclos | #12–#21 | Admin |
+| UC-04 | Gestión de Módulos | #22–#33 | Admin |
+| UC-05 | Gestión de Profesorado | #34–#46 | Admin |
+| UC-06 | Gestión de Alumnos | #48–#60 | Profesor |
+| UC-07 | Gestión de Proyectos | #61–#72 | Profesor |
+| UC-07b | Asignación Proyecto-Alumno | #73–#85, #121 | Profesor |
+| UC-08 | Gestión de Rúbrica | #86–#100 | Profesor |
+| UC-09 | Corrección de Proyecto | #101–#113 | Profesor |
+| UC-10 | Visualización e impresión de Notas | #47, #114–#120, #122 | Profesor / Tutor |
 
 ## Formato de cada caso de uso
 

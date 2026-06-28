@@ -92,9 +92,9 @@ estar en ✅ antes de mergear. Dashboard:
 | 1 ∥ | Diseñador Front | ✅ Implementado |
 | 2 ∥ | Analista de Negocio | ✅ Implementado |
 | 3 | Validador de Alineación | ✅ Implementado |
-| 4 | Generador Func. Spec | ✅ Implementado |
-| — | GATE HUMANO | ✅ Implementado |
-| 5 | Arquitecto de Requisitos | ✅ Implementado |
+| 4 | Generador Func. Spec | ✅ Implementado · ✅ Ejecutado |
+| — | GATE HUMANO | ✅ Implementado · ✅ Ejecutado |
+| 5 | Arquitecto de Requisitos | ✅ Implementado · ✅ Ejecutado |
 | 6 | Ingeniero TDD | ✅ Implementado |
 | 7 | Implementador | ✅ Implementado |
 | 8 | Ingeniero E2E | ✅ Implementado |
@@ -108,4 +108,4 @@ Las tres entradas del pipeline están listas:
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | ✅ Lista |
 | Esquema BD | `corrector/05-implementation/backend/schema.sql` · 14 tablas · 2 triggers | ✅ Listo |
 
-El pipeline completo de agentes está implementado y a la espera de ejecutarse sobre el proyecto.
+El pipeline ha sido ejecutado hasta el **Agente 5** inclusive. El siguiente paso es el **Agente 6 — Ingeniero TDD** (`/tdd-engineer`).

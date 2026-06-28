@@ -29,7 +29,7 @@ flowchart TD
     ALIGN["✅ alignment-report.json\nPASS · valid:true\n(local — no RAG)"]
     FSPEC["✓ functional-spec.json\n122 elementos · 26 globalRules"]
     RECON["reconciliation.json\n(local — no RAG)"]
-    UC["use-cases.md\napi-contracts.md"]
+    UC["✓ use-cases.md\n11 UCs · 122 elementos\n✓ api-contracts.md\n41 endpoints"]
     TESTS["*.test.ts\n(RED ✗)"]
     CODE["backend/src/\nfrontend/src/"]
     E2E["cypress/e2e/*.cy.ts"]
@@ -84,6 +84,7 @@ flowchart TD
     style GATE fill:#fee2e2,stroke:#dc2626,color:#991b1b
     style A3 fill:#d1fae5,stroke:#059669
     style A4 fill:#d1fae5,stroke:#059669
+    style A5 fill:#d1fae5,stroke:#059669
     style SCHEMA fill:#fce7f3,stroke:#9d174d,color:#9d174d
     style ALIGN fill:#f3f4f6,stroke:#9ca3af
     style RECON fill:#f3f4f6,stroke:#9ca3af
