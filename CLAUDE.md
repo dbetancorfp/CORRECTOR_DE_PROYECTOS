@@ -345,9 +345,10 @@ customElements.define('corrector-button', CorrectorButton);
 ### Data model
 
 - **Legislación**: name (e.g. LOMLOE), start year
-- **Ciclo**: name, linked to legislación; can have 0 or 1 tutor; requires a tutor to be
-  usable for corrections
-- **Módulo**: name, weekly hours, ciclo
+- **Ciclo**: name only (no legislation FK — legislation is carried by modules, not cycles);
+  can have 0 or 1 tutor; requires a tutor to be usable for corrections
+- **Módulo**: name, weekly hours, ciclo, legislación (direct FK — the module is the entity
+  that belongs to a specific legislation)
 - **Profesor**: username, password_hash, rol (`admin,  profesor,  tutor`), not ENUMs; optionally tutor
   of one ciclo (`tutor_ciclo_id` nullable, UNIQUE); linked to módulos via `profesor_modulo`.
   No direct ciclo→profesor relation — the link is always ciclo→módulo→profesor.

@@ -25,36 +25,33 @@ COMMENT ON TABLE legislation IS 'Educational legal framework (e.g. LOMLOE, LOE)'
 
 
 CREATE TABLE cycle (
+    id          SERIAL       PRIMARY KEY,
+    name        VARCHAR(120) NOT NULL UNIQUE,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE cycle IS 'Vocational training cycle (e.g. DAW, DAM, ASIR); name is globally unique — legislation is carried by modules, not cycles';
+
+
+CREATE TABLE module (
     id              SERIAL       PRIMARY KEY,
     name            VARCHAR(120) NOT NULL,
+    weekly_hours    SMALLINT     NOT NULL CHECK (weekly_hours > 0),
+    cycle_id        INT          NOT NULL REFERENCES cycle(id)
+                                     ON DELETE RESTRICT
+                                     ON UPDATE CASCADE,
     legislation_id  INT          NOT NULL REFERENCES legislation(id)
                                      ON DELETE RESTRICT
                                      ON UPDATE CASCADE,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
 
-    UNIQUE (name, legislation_id)
+    UNIQUE (name, cycle_id, legislation_id)
 );
 
-COMMENT ON TABLE cycle IS 'Vocational training cycle (e.g. DAW, DAM, ASIR); name is unique within a legislation';
+COMMENT ON TABLE module IS 'Vocational module within a cycle and legislation; a module name is unique within the same cycle+legislation pair';
 
-CREATE INDEX idx_cycle_legislation ON cycle(legislation_id);
-
-
-CREATE TABLE module (
-    id            SERIAL       PRIMARY KEY,
-    name          VARCHAR(120) NOT NULL,
-    weekly_hours  SMALLINT     NOT NULL CHECK (weekly_hours > 0),
-    cycle_id      INT          NOT NULL REFERENCES cycle(id)
-                                   ON DELETE RESTRICT
-                                   ON UPDATE CASCADE,
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-
-    UNIQUE (name, cycle_id)
-);
-
-COMMENT ON TABLE module IS 'Vocational module within a cycle; name is unique within a cycle';
-
-CREATE INDEX idx_module_cycle ON module(cycle_id);
+CREATE INDEX idx_module_cycle        ON module(cycle_id);
+CREATE INDEX idx_module_legislation  ON module(legislation_id);
 
 
 -- =============================================================================
@@ -124,7 +121,7 @@ CREATE TABLE teacher_module (
     UNIQUE (module_id)  -- one teacher per module
 );
 
-COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers; UNIQUE(module_id) enforces one teacher per module; no academic year — temporal context via module → cycle → legislation';
+COMMENT ON TABLE teacher_module IS 'Current module assignments for teachers; UNIQUE(module_id) enforces one teacher per module; no academic year — temporal context via module.legislation_id';
 
 CREATE INDEX idx_teacher_module_module ON teacher_module(module_id);
 
