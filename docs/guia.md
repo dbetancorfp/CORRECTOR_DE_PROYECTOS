@@ -59,11 +59,11 @@ login (index.html)
 |---------|----------------------|------------|
 | **Legislación** | abreviatura (ej. LOMLOE), año inicio, año fin | — |
 | **Ciclo** | nombre (ej. Desarrollo de aplicaciones web) | agrupa Módulos; no lleva Legislación propia |
-| **Módulo** | nombre, siglas (ej. DEW, máx. 10 car. mayúsc.), horas semanales, legislación | pertenece a un Ciclo; tiene una Rúbrica y varios Proyectos |
+| **Módulo** | nombre, horas semanales, legislación | pertenece a un Ciclo; tiene una Rúbrica y varios Proyectos |
 | **Profesor** | usuario Consejería (ej. dbetqui), nombre completo, contraseña | puede tener Módulos de distintos Ciclos |
 | **Alumno** | nombre libre (puede ser código anónimo como `JJ499` o nombre real; el sistema no impone formato) | pertenece a un Ciclo; asignado a un único Proyecto por año académico |
 | **Proyecto** | nombre, año académico (año de inicio, ej. 2025) | pertenece a un Módulo; agrupa 1–3 Alumnos |
-| **Rúbrica** | ítems con 5 niveles; suma de "Excelente" = exactamente 10.00; Mal siempre = 0 | pertenece a un Módulo (una rúbrica por módulo, aplica a todos sus proyectos) |
+| **Rúbrica** | ítems con 5 niveles; suma de "Excelente" ≤ 10.00; Mal siempre = 0 | pertenece a un Módulo (una rúbrica por módulo, aplica a todos sus proyectos) |
 
 ## Niveles de la rúbrica
 
@@ -78,5 +78,5 @@ Cada ítem de la rúbrica tiene cinco niveles de calificación con valor numéri
 | Identificadores de alumno | Texto libre; el profesor decide si usa nombre real o código anónimo (ej. `JJ499`). El sistema no impone formato. |
 | Filtros reactivos | Las listas de alumnos, proyectos y rúbrica filtran en tiempo real mientras el usuario escribe. |
 | Importar alumnos | Acción "Subir lista de alumnos" (#54) — fichero CSV, JSON o YAML con campos `nombre`, `año de inicio`, `legislación`, `ciclo`, `módulo`. Se persisten en la tabla `student` y se enlazan al módulo vía `student_module`. |
-| Importar rúbrica | Acción "Subir rúbrica" — fichero YAML. Si ya existe rúbrica para el módulo, la sustituye completamente (previa confirmación). |
+| Importar rúbrica | Acción "Subir rúbrica" — fichero CSV, JSON o YAML. Si ya existe rúbrica para el módulo, la sustituye completamente (previa confirmación). |
 | Corrección individual / grupal | En la pantalla de corrección (#106) el profesor puede aplicar la nota a todo el grupo o seleccionar alumnos individualmente (#107–#109). |

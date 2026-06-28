@@ -162,5 +162,5 @@ en cada push. Si el Quality Gate falla por cobertura, el Agente 9 te re-ejecutar
 
 ### Paso 7 — Actualizar documentación y verificar consistencia
 
-1. En `docs/flujo.html`: actualiza los nodos de test a `done`.
+1. En `docs/flujo.md`: actualiza el estilo del nodo A6 a verde (`style A6 fill:#d1fae5,stroke:#059669`).
 2. Ejecuta `/doc-reviewer` para verificar consistencia.

@@ -7,7 +7,7 @@
     "test": "bun test",
     "start": "bun run corrector/05-implementation/backend/src/index.ts",
     "build": "bun build corrector/05-implementation/frontend/src/index.ts --outdir corrector/05-implementation/frontend/dist --target browser",
-    "agent:designer-front": "node cli/index.js run-agent designer-front --feature-id corrector-v1"
+    "agent:designer-front": "bun cli/index.js run-agent designer-front --feature-id corrector-v1"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

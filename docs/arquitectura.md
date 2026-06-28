@@ -109,7 +109,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `04-use-cases/use-cases.md` · `backend/api-contracts.md` · phase: `use-case` |
 
 === "Agente 6 — Ingeniero TDD"
-    **:white_check_mark: Implementado** · `/tdd-engineer`
+    **:white_check_mark: Implementado** · `/tdd-engineer` · **:white_check_mark: Ejecutado** — 13 ficheros de test generados · ~280 it() blocks (RED ✗)
 
     Deriva tests unitarios en rojo de los `acceptanceCriteria`. Cada `describe()` referencia
     un sketchNumber. Los tests deben fallar antes de que exista implementación.
