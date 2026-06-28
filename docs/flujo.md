@@ -85,6 +85,7 @@ flowchart TD
     style A3 fill:#d1fae5,stroke:#059669
     style A4 fill:#d1fae5,stroke:#059669
     style A5 fill:#d1fae5,stroke:#059669
+    style A6 fill:#d1fae5,stroke:#059669
     style SCHEMA fill:#fce7f3,stroke:#9d174d,color:#9d174d
     style ALIGN fill:#f3f4f6,stroke:#9ca3af
     style RECON fill:#f3f4f6,stroke:#9ca3af
