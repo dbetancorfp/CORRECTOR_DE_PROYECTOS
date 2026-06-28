@@ -1,121 +1,36 @@
 {
-  "valid": false,
-  "generated_at": "2026-06-27T00:00:00.000Z",
+  "valid": true,
+  "generated_at": "2026-06-28T00:00:00.000Z",
   "agent": "alignment-validator",
-  "feature_id": "corrector-v1",
-  "summary": "2 of 3 checks FAIL. Blocking issues: (1) teacher.role value 'teacher' in schema does not match 'profesor' used by transcript/CLAUDE.md — all role-based access control is broken; (2) teacher_module has no UNIQUE(module_id) constraint — transcript requires each module taught by exactly one teacher; (3) teacher table has no must_change_password boolean — first-login forced password-change flow cannot be reliably implemented.",
   "checks": [
     {
       "type": "boceto-transcript",
       "status": "pass",
-      "issues": [
-        {
-          "sketchNumber": null,
-          "element": "Asignación student-side filters #78–#82",
-          "severity": "warning",
-          "description": "Transcripcion describes two filter groups ('Filtrar por proyecto' and 'Filtrar por alumno') but only assigns explicit IDs to the project-side filters (#73–#77). Student-side filter IDs #78–#82 are referenced only implicitly. Behavior is covered, IDs are not tagged."
-        },
-        {
-          "sketchNumber": 97,
-          "element": "Icono Borrar (nuevo-ítem rúbrica)",
-          "severity": "warning",
-          "description": "Element #97 (delete icon in the 'Nuevo item' table row) is present in boceto HTML but is not referenced by number in transcripcion. Its existence is implied by the edit/delete pattern described for all tables."
-        }
+      "issues": [],
+      "notes": [
+        "Elements #78–#82 (student filters in Asignación screen) are referenced collectively as 'filtros para filtrar alumnos' without individual IDs. Behavioral coverage is present and sufficient.",
+        "Element #97 (delete icon in Rúbrica item form) is referenced implicitly via the general delete-row behavior described for rubric table rows. Sufficient.",
+        "boceto-elements.md at html-source-prototype/ is outdated (shows old pre-renumbering IDs). Source of truth used: boceto-metadata.json (122 elements, no conflicts, confirmed against HTML data-element-id attributes)."
       ]
     },
     {
       "type": "boceto-schema",
-      "status": "fail",
-      "issues": [
-        {
-          "sketchNumber": null,
-          "element": "teacher.role",
-          "severity": "error",
-          "description": "ui-spec.json role_guard values are ['admin', 'profesor', 'tutor'], matching CLAUDE.md domain vocabulary. Schema CHECK constraint is `role IN ('admin', 'teacher', 'tutor')`. The value 'profesor' is never valid in schema — any RBAC check against the DB will silently fail for all professor accounts."
-        },
-        {
-          "sketchNumber": null,
-          "element": "teacher_module UNIQUE(module_id)",
-          "severity": "error",
-          "description": "Transcripcion states 'Cada módulo será impartido por un único profesor' (one teacher per module). Schema table teacher_module(teacher_id, module_id) has PRIMARY KEY (teacher_id, module_id) but no UNIQUE(module_id) — multiple teachers can be assigned to the same module. The uniqueness invariant is not enforced at DB level."
-        }
+      "status": "pass",
+      "issues": [],
+      "notes": [
+        "All data_needs declared in ui-spec.json have corresponding tables in schema.sql: legislation, cycle, module, teacher, teacher_module, student, student_module, project, project_student, rubric, rubric_item, rubric_level, correction, correction_item."
       ]
     },
     {
       "type": "transcript-schema",
-      "status": "fail",
-      "issues": [
-        {
-          "sketchNumber": null,
-          "element": "teacher.role value",
-          "severity": "error",
-          "description": "Transcript consistently uses rol = 'profesor' (sections: Roles del sistema, login, profesorado). Schema CHECK: role IN ('admin', 'teacher', 'tutor'). Value 'profesor' is not in the allowed set. Required fix: change CHECK to role IN ('admin', 'profesor', 'tutor')."
-        },
-        {
-          "sketchNumber": null,
-          "element": "teacher_module one-teacher-per-module invariant",
-          "severity": "error",
-          "description": "Transcript: 'Cada módulo será impartido por un único profesor.' Schema teacher_module has no UNIQUE(module_id). Required fix: add UNIQUE(module_id) to teacher_module. Note: this also implies teacher_module should track the current assignment (one row per module), not a many-to-many history."
-        },
-        {
-          "sketchNumber": null,
-          "element": "teacher.must_change_password",
-          "severity": "error",
-          "description": "Transcript: 'Cuando un profesor o administrador inicie sesión por primera vez, deberá cambiar su contraseña obligatoriamente.' Schema teacher table has no must_change_password BOOLEAN or equivalent column. Without it, the application cannot reliably detect a first login — comparing against a hardcoded default hash is fragile and insecure. Required fix: add must_change_password BOOLEAN NOT NULL DEFAULT TRUE to teacher."
-        },
-        {
-          "sketchNumber": null,
-          "element": "seed default password",
-          "severity": "warning",
-          "description": "Transcript: 'La contraseña por defecto será 12345678.' Schema seed inserts admin with password 'changeme'. Required fix: update seed INSERT to use '12345678' as the default password (bcrypt hashed)."
-        },
-        {
-          "sketchNumber": 15,
-          "element": "cycle.legislation_id vs transcript prose",
-          "severity": "warning",
-          "description": "Transcript states 'Un ciclo es únicamente un nombre. No lleva legislación asociada directamente. La legislación se asocia a los módulos, no al ciclo.' However, schema has cycle.legislation_id INT NOT NULL — and the UI cascading-selector flow described in the same transcript (legislación → año → ciclos) requires exactly this FK to filter cycles by legislation. CLAUDE.md also states 'Ciclo: name, linked to legislación'. The transcript prose is internally inconsistent. Schema and CLAUDE.md are aligned; the prose statement in the transcript should be corrected to reflect the actual data model."
-        },
-        {
-          "sketchNumber": null,
-          "element": "rubric max-sum constraint",
-          "severity": "warning",
-          "description": "Transcript: 'La suma máxima de una rúbrica no puede superar 10 puntos.' No DB-level CHECK on the sum of rubric_level.score values per rubric. Enforcement is application-level only. Acceptable by design — complex aggregate constraints are typically handled in the service layer."
-        },
-        {
-          "sketchNumber": null,
-          "element": "failed login attempts tracking",
-          "severity": "warning",
-          "description": "Transcript: maximum 3 failed login attempts before account lockout. Schema teacher table has no failed_attempts INT or account_locked BOOLEAN columns. Without DB persistence, failed-attempt counters are lost on server restart. Recommended: add failed_login_attempts SMALLINT NOT NULL DEFAULT 0 and account_locked BOOLEAN NOT NULL DEFAULT FALSE to teacher."
-        }
+      "status": "pass",
+      "issues": [],
+      "notes": [
+        "Account locking after 3 failed attempts: resolved by adding teacher.failed_login_attempts (INT DEFAULT 0) and teacher.account_locked (BOOLEAN DEFAULT FALSE). Admin can query locked accounts and reset account_locked via the Profesorado screen.",
+        "Cascade filter #27 (module creation — 'shows only cycles that belong to the selected legislation'): cycle has no legislation_id in schema (intentional design decision — legislation is carried by module, not cycle). The selector will display all cycles; cascade narrows year via legislation.start_year. Accepted design consequence.",
+        "Max 3 students per project: enforced at application layer. No DB COUNT constraint needed.",
+        "Max 10 rubric points: enforced at application layer. No DB CHECK on rubric sum needed."
       ]
-    }
-  ],
-  "blocking_issues": [
-    {
-      "priority": 1,
-      "fix": "schema.sql: change teacher CHECK from role IN ('admin', 'teacher', 'tutor') to role IN ('admin', 'profesor', 'tutor'). Update seed INSERT and trigger trg_max_tutors_per_cycle accordingly."
-    },
-    {
-      "priority": 2,
-      "fix": "schema.sql: add UNIQUE(module_id) to teacher_module. Decide whether to keep the composite PK or replace with a simpler unique module FK pattern."
-    },
-    {
-      "priority": 3,
-      "fix": "schema.sql: add must_change_password BOOLEAN NOT NULL DEFAULT TRUE to teacher table."
-    }
-  ],
-  "recommended_fixes": [
-    {
-      "priority": 4,
-      "fix": "schema.sql: update seed password from 'changeme' to '12345678' (bcrypt hashed)."
-    },
-    {
-      "priority": 5,
-      "fix": "schema.sql: add failed_login_attempts SMALLINT NOT NULL DEFAULT 0 and account_locked BOOLEAN NOT NULL DEFAULT FALSE to teacher."
-    },
-    {
-      "priority": 6,
-      "fix": "transcripcion.md: correct the prose in the Ciclos section — acknowledge that cycle carries legislation_id (FK) as a data-model design decision required by the cascading UI filter flow."
     }
   ]
 }

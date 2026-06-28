@@ -59,16 +59,18 @@ CREATE INDEX idx_module_legislation  ON module(legislation_id);
 -- =============================================================================
 
 CREATE TABLE teacher (
-    id                   SERIAL      PRIMARY KEY,
-    username             VARCHAR(60) NOT NULL UNIQUE,
-    password_hash        TEXT        NOT NULL,
-    role                 VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'profesor', 'tutor')),
-    must_change_password BOOLEAN     NOT NULL DEFAULT TRUE,
-    tutor_cycle_id       INT         UNIQUE
-                                     REFERENCES cycle(id)
-                                         ON DELETE SET NULL
-                                         ON UPDATE CASCADE,
-    created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    id                     SERIAL      PRIMARY KEY,
+    username               VARCHAR(60) NOT NULL UNIQUE,
+    password_hash          TEXT        NOT NULL,
+    role                   VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'profesor', 'tutor')),
+    must_change_password   BOOLEAN     NOT NULL DEFAULT TRUE,
+    failed_login_attempts  INT         NOT NULL DEFAULT 0 CHECK (failed_login_attempts >= 0),
+    account_locked         BOOLEAN     NOT NULL DEFAULT FALSE,
+    tutor_cycle_id         INT         UNIQUE
+                                       REFERENCES cycle(id)
+                                           ON DELETE SET NULL
+                                           ON UPDATE CASCADE,
+    created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- role='tutor'  ↔  tutor_cycle_id IS NOT NULL
     -- role='admin'  →  tutor_cycle_id IS NULL (covered by the biconditional)
@@ -76,11 +78,13 @@ CREATE TABLE teacher (
         CHECK ( (role = 'tutor') = (tutor_cycle_id IS NOT NULL) )
 );
 
-COMMENT ON TABLE  teacher                      IS 'System users: admin, profesor or tutor';
-COMMENT ON COLUMN teacher.password_hash        IS 'bcrypt hash — never store plaintext';
-COMMENT ON COLUMN teacher.role                 IS 'Values: admin, profesor, tutor — enforced by CHECK, no ENUM';
-COMMENT ON COLUMN teacher.must_change_password IS 'TRUE until the user completes the mandatory first-login password change';
-COMMENT ON COLUMN teacher.tutor_cycle_id       IS 'NULL for admin and profesor; required for tutor';
+COMMENT ON TABLE  teacher                         IS 'System users: admin, profesor or tutor';
+COMMENT ON COLUMN teacher.password_hash           IS 'bcrypt hash — never store plaintext';
+COMMENT ON COLUMN teacher.role                    IS 'Values: admin, profesor, tutor — enforced by CHECK, no ENUM';
+COMMENT ON COLUMN teacher.must_change_password    IS 'TRUE until the user completes the mandatory first-login password change';
+COMMENT ON COLUMN teacher.failed_login_attempts   IS 'Consecutive failed login attempts; reset to 0 on successful login';
+COMMENT ON COLUMN teacher.account_locked          IS 'TRUE after 3 consecutive failed attempts; unlocked by admin (profesor) or support team (admin)';
+COMMENT ON COLUMN teacher.tutor_cycle_id          IS 'NULL for admin and profesor; required for tutor';
 
 CREATE INDEX idx_teacher_tutor_cycle ON teacher(tutor_cycle_id) WHERE tutor_cycle_id IS NOT NULL;
 
