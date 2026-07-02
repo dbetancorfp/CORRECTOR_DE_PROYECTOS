@@ -2,7 +2,6 @@ import { Router } from 'express';
 import type { CycleRepository } from '../repositories/cycle.repository';
 import { CycleService } from '../services/cycle.service';
 import { requireAdmin } from '../middleware/auth';
-import { mapError } from './error';
 
 export function createCyclesRouter(repo: CycleRepository): Router {
   const router = Router();
@@ -17,35 +16,20 @@ export function createCyclesRouter(repo: CycleRepository): Router {
   });
 
   router.post('/', requireAdmin, async (req, res) => {
-    try {
-      const { name } = req.body as { name?: string };
-      const result = await service.create(name ?? '');
-      res.status(201).json(result);
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    const { name } = req.body as { name?: string };
+    const result = await service.create(name ?? '');
+    res.status(201).json(result);
   });
 
   router.put('/:id', requireAdmin, async (req, res) => {
-    try {
-      const { name } = req.body as { name?: string };
-      const result = await service.update(Number(req.params.id), name ?? '');
-      res.json(result);
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    const { name } = req.body as { name?: string };
+    const result = await service.update(Number(req.params.id), name ?? '');
+    res.json(result);
   });
 
   router.delete('/:id', requireAdmin, async (req, res) => {
-    try {
-      await service.delete(Number(req.params.id));
-      res.status(204).send();
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    await service.delete(Number(req.params.id));
+    res.status(204).send();
   });
 
   return router;

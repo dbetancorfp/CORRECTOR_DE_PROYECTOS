@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import type { Express } from 'express';
+import type { Express, Request, Response, NextFunction } from 'express';
+import { mapError } from './routes/error';
 import type { Store } from './repositories/in-memory/store';
 import { InMemoryTeacherRepository } from './repositories/in-memory/in-memory-teacher.repository';
 import { InMemorySessionRepository } from './repositories/in-memory/in-memory-session.repository';
@@ -68,6 +69,12 @@ export function createApp(store: Store): Express {
   app.use('/api/corrections', createCorrectionsRouter(correctionRepo, rubricRepo, moduleRepo));
   app.use('/api', createGradesRouter(gradeService));
   app.use('/api', createRubricRouter(rubricRepo));
+
+  // Global error handler — Express 5 forwards async throws here automatically
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const { status, body } = mapError(err);
+    res.status(status).json(body);
+  });
 
   return app;
 }

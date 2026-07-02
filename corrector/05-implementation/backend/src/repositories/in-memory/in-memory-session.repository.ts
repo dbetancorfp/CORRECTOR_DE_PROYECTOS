@@ -5,7 +5,7 @@ export class InMemorySessionRepository implements SessionRepository {
   constructor(private readonly store: Store) {}
 
   async create(teacherId: number): Promise<string> {
-    const token = `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const token = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000);
     this.store.sessions.set(token, { teacherId, expiresAt });
     return token;
