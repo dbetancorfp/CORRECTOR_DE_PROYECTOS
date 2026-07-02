@@ -49,7 +49,7 @@ frontend completamente trazable y testado.
 
     ---
 
-    10 flujos funcionales (UC-01 a UC-10) derivados del functional-spec.
+    11 flujos funcionales (UC-01 a UC-10 + UC-07b) derivados del functional-spec.
 
     [:octicons-arrow-right-24: Ver casos de uso](casos-de-uso.md)
 
@@ -98,7 +98,7 @@ estar en ✅ antes de mergear. Dashboard:
 | 6 | Ingeniero TDD | ✅ Implementado · ✅ Ejecutado |
 | 7 | Implementador | ✅ Implementado · ✅ Ejecutado |
 | 8 | Ingeniero E2E | ✅ Implementado · ✅ Ejecutado |
-| 9 | Revisor / QA | ✅ Implementado |
+| 9 | Revisor / QA | ✅ Implementado · ✅ Ejecutado |
 
 Las tres entradas del pipeline están listas:
 
@@ -108,4 +108,4 @@ Las tres entradas del pipeline están listas:
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | ✅ Lista |
 | Esquema BD | `corrector/05-implementation/backend/schema.sql` · 14 tablas · 2 triggers | ✅ Listo |
 
-El pipeline ha sido ejecutado hasta el **Agente 8** inclusive. El siguiente paso es el **Agente 9 — Revisor / QA** (`/reviewer`).
+El pipeline ha sido ejecutado hasta el **Agente 9** inclusive. El pipeline está completo.

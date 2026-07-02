@@ -78,7 +78,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 5 | Arquitecto de Requisitos | Genera casos de uso y contratos API a partir de las specs y el schema validados | `functional-spec.json` + `ui-spec.json` + `reconciliation.json` + `schema.sql` + `boceto-metadata.json` | `use-cases.md` + `api-contracts.md` |
 | 6 | Ingeniero TDD | Genera tests unitarios en rojo a partir de los criterios de aceptación | `functional-spec.json` + `use-cases.md` + `alignment-report.json` + `api-contracts.md` + `schema.sql` | `*.test.ts` (failing) |
 | 7 | Implementador | Escribe el código mínimo para que los tests pasen | Tests en rojo + `use-cases.md` + `api-contracts.md` + `schema.sql` + `ui-spec.json` + `functional-spec.json` | Backend TS + Web Components TS |
-| 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `05-implementation/cypress/e2e/*.cy.ts` |
+| 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `corrector/05-implementation/frontend/cypress/e2e/*.cy.ts` |
 | 9 | Revisor / QA | Audita SOLID en tests e implementación; rechaza y re-ejecuta agentes hasta que cumplan | Implementación completa + tests unitarios + tests e2e + `docs/solid.md` | `review-report.md` · PASS/FAIL + bucle de corrección |
 | ★ | Migration Generator *(on demand)* | Genera el SQL de migración cuando `schema.sql` cambia entre iteraciones | `schema.sql` actual + versión anterior (git) + `migrations/` | `migrations/YYYYMMDD_NNN_*.sql` |
 | ★ | CI Setup *(on demand)* | Genera y mantiene los workflows de GitHub Actions (CI + E2E) | `CLAUDE.md` + `package.json` + `.github/workflows/` | `.github/workflows/ci.yml` + `e2e.yml` |
@@ -255,8 +255,8 @@ corrector/
       src/                             # Agent 7 output — Web Components TypeScript
       dist/                            # bun build output (browser-ready JS)
       tests/                           # Agent 6 output — component unit tests
-    cypress/
-      e2e/                             # Agent 8 output — Cypress e2e tests
+      cypress/
+        e2e/                           # Agent 8 output — Cypress e2e tests
 
 lib/agents/        # One subfolder per agent: role definition (.md) + implementation (.js)
                    #   e.g. lib/agents/designer-front/designer-front.{md,js}

@@ -1,6 +1,6 @@
 # Casos de Uso
 
-10 flujos funcionales (UC-01 a UC-10) derivados del functional-spec, generados por el
+11 flujos funcionales (UC-01 a UC-10 + UC-07b) derivados del functional-spec, generados por el
 **Agente 5 — Arquitecto de Requisitos**.
 
 ## Estado
