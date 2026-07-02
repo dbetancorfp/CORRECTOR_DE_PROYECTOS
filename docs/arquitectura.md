@@ -120,7 +120,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `*/tests/*.test.ts` *(rojo ✗)* · phase: `test-red` |
 
 === "Agente 7 — Implementador"
-    **:white_check_mark: Implementado** · `/implementer`
+    **:white_check_mark: Implementado** · `/implementer` · **:white_check_mark: Ejecutado** — `backend/src/` + `frontend/src/` · 272 tests (GREEN ✅ · 8 fallos esperados en test-design)
 
     Escribe el código mínimo para que todos los tests pasen. Backend Bun + Express +
     TypeScript. Frontend Web Components + TypeScript compilado con `bun build`.
@@ -131,7 +131,7 @@ Los agentes 1 y 2 se ejecutan en paralelo.
     | **OUTPUT** | `backend/src/` · `frontend/src/` · phase: `code` |
 
 === "Agente 8 — Ingeniero E2E"
-    **:white_check_mark: Implementado** · `/e2e-engineer`
+    **:white_check_mark: Implementado** · `/e2e-engineer` · **:white_check_mark: Ejecutado** — 11 ficheros · 91 it() blocks
 
     Genera tests Cypress e2e a partir de los casos de uso — un fichero por UC cubriendo
     flujo principal y alternativo crítico. Usa `data-element-id` como selector.
@@ -347,12 +347,12 @@ bun test                                   # RED ✗
 /implementer
 bun test                                   # GREEN ✅
 
-# ── Agente 9: Revisor / QA ───────────────────────────────────────
-/reviewer                                  # audita 6+7, re-ejecuta si falla
-
 # ── Agente 8: tests e2e ──────────────────────────────────────────
 /e2e-engineer
 bunx cypress run
+
+# ── Agente 9: Revisor / QA ───────────────────────────────────────
+/reviewer                                  # audita código, tests e implementación
 
 # ── Publicar documentación ───────────────────────────────────────
 git push main                              # → GitHub Pages (CI/CD)
@@ -373,9 +373,8 @@ CORRECTOR_DE_PROYECTOS/
 │   ├── 03-generated-artifacts/     # ui-spec.json · functional-spec.json · reconciliation.json · alignment-report.json
 │   ├── 04-use-cases/               # use-cases.md (Agente 5 output)
 │   └── 05-implementation/
-│       ├── backend/                # schema.sql · api-contracts.md · migrations/ · src/ · tests/
-│       ├── frontend/               # src/ · dist/ · tests/
-│       └── cypress/e2e/            # Agente 8 output — Cypress e2e tests
+│       ├── backend/                # schema.sql · api-contracts.md · src/ · tests/
+│       └── frontend/               # src/ · tests/ · cypress/e2e/
 ├── lib/
 │   ├── agents/              # Un subdirectorio por agente
 │   │   ├── boceto-parser/         # boceto-parser.md

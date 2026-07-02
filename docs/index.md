@@ -96,8 +96,8 @@ estar en ✅ antes de mergear. Dashboard:
 | — | GATE HUMANO | ✅ Implementado · ✅ Ejecutado |
 | 5 | Arquitecto de Requisitos | ✅ Implementado · ✅ Ejecutado |
 | 6 | Ingeniero TDD | ✅ Implementado · ✅ Ejecutado |
-| 7 | Implementador | ✅ Implementado |
-| 8 | Ingeniero E2E | ✅ Implementado |
+| 7 | Implementador | ✅ Implementado · ✅ Ejecutado |
+| 8 | Ingeniero E2E | ✅ Implementado · ✅ Ejecutado |
 | 9 | Revisor / QA | ✅ Implementado |
 
 Las tres entradas del pipeline están listas:
@@ -108,4 +108,4 @@ Las tres entradas del pipeline están listas:
 | Entrevista cliente | `corrector/02-conversacion-cliente/transcripcion.md` | ✅ Lista |
 | Esquema BD | `corrector/05-implementation/backend/schema.sql` · 14 tablas · 2 triggers | ✅ Listo |
 
-El pipeline ha sido ejecutado hasta el **Agente 6** inclusive. El siguiente paso es el **Agente 7 — Implementador** (`/implementer`).
+El pipeline ha sido ejecutado hasta el **Agente 8** inclusive. El siguiente paso es el **Agente 9 — Revisor / QA** (`/reviewer`).

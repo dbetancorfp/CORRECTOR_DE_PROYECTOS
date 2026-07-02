@@ -165,7 +165,7 @@ flowchart TD
 
 | Artefacto | Ruta | RAG |
 |-----------|------|-----|
-| `cypress/e2e/*.cy.ts` | `corrector/05-implementation/` | ✅ phase: `e2e` |
+| `cypress/e2e/*.cy.ts` | `corrector/05-implementation/frontend/` | ✅ phase: `e2e` |
 
 ## Roles de los agentes del pipeline
 

@@ -25,8 +25,7 @@ Referencia funcional: roles, flujo de pantallas y datos del dominio.
     ---
 
     Mismo perfil que Profesor, con acceso adicional a **Imprimir panorámica**
-    (todas las notas del ciclo). No puede gestionar alumnos/proyectos
-    directamente.
+    (todas las notas del ciclo).
 
 </div>
 
