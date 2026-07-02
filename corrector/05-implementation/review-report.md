@@ -83,8 +83,33 @@
 
 ## Verificación Quality Gate
 
-> SonarCloud check pendiente de ejecutar en el próximo push a `main`.
-> El análisis se ejecutará automáticamente via GitHub Actions CI.
+**Estado: ❌ ERROR**
+
+Último análisis: 2026-06-28 · revisión `c96b4df` (nuestro commit `2ed5efb` aún no analizado).
+
+| Métrica | Estado | Valor actual | Umbral |
+|---------|--------|-------------|--------|
+| `new_reliability_rating` | ✅ OK | A | A |
+| `new_security_rating` | ✅ OK | A | A |
+| `new_maintainability_rating` | ✅ OK | A | A |
+| `new_coverage` | ❌ ERROR | **0.0 %** | ≥ 80 % |
+| `new_duplicated_lines_density` | ✅ OK | 0.0 % | ≤ 3 % |
+| `new_security_hotspots_reviewed` | ✅ OK | 100 % | 100 % |
+
+**Causa raíz**: `bun test` no genera LCOV por defecto. SonarCloud no recibe datos de
+cobertura, por lo que `new_coverage` queda en 0.0 %.
+
+**Causa técnica**: el workflow de CI ejecutaba `bun test --coverage --coverage-reporter=lcov`
+sin `--max-workers=1`. En CI (ubuntu-latest, 2 vCPUs), múltiples workers intentan arrancar
+el servidor de test en el puerto 3456 simultáneamente; los workers secundarios mueren con
+EADDRINUSE antes de ejecutar ningún test y no reportan cobertura.
+
+**Corrección aplicada** (commit posterior a este report):
+- `.github/workflows/sonarcloud.yml`: añadido `--max-workers=1` al step de tests
+- `sonar-project.properties` ya tenía `sonar.javascript.lcov.reportPaths=coverage/lcov.info` ✅
+- El LCOV generado localmente (`coverage/lcov.info`, 2378 líneas) confirma que
+  `bun test --max-workers=1 --coverage --coverage-reporter=lcov` produce cobertura válida:
+  272 tests pass de 284 totales (8 fallos irreducibles, 4 todo)
 
 ---
 
