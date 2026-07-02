@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryTeacherRepository } from '../repositories/in-memory/in-memory-teacher.repository';
-import { InMemorySessionRepository } from '../repositories/in-memory/in-memory-session.repository';
+import type { TeacherRepository } from '../repositories/teacher.repository';
+import type { SessionRepository } from '../repositories/session.repository';
 import { AuthService } from '../services/auth.service';
 import { mapError } from './error';
 
-export function createAuthRouter(store: Store): Router {
+export function createAuthRouter(
+  teacherRepo: TeacherRepository,
+  sessionRepo: SessionRepository,
+): Router {
   const router = Router();
-  const teacherRepo = new InMemoryTeacherRepository(store);
-  const sessionRepo = new InMemorySessionRepository(store);
   const service = new AuthService(teacherRepo, sessionRepo);
 
   router.post('/login', async (req, res) => {
@@ -42,12 +42,12 @@ export function createAuthRouter(store: Store): Router {
       .json({ ok: true });
   });
 
-  router.get('/me', (req, res) => {
+  router.get('/me', async (req, res) => {
     if (!req.user) {
       res.status(401).json({ error: 'Not authenticated' });
       return;
     }
-    const teacher = store.teachers.find((t) => t.id === req.user!.id);
+    const teacher = await teacherRepo.findById(req.user.id);
     res.json({
       id: req.user.id,
       username: req.user.username,

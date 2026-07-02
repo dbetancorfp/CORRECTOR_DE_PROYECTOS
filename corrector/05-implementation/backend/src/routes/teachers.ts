@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryTeacherRepository } from '../repositories/in-memory/in-memory-teacher.repository';
+import type { TeacherRepository } from '../repositories/teacher.repository';
 import { TeacherService } from '../services/teacher.service';
 import { requireAdmin } from '../middleware/auth';
 import { mapError } from './error';
 
-export function createTeachersRouter(store: Store): Router {
+export function createTeachersRouter(repo: TeacherRepository): Router {
   const router = Router();
-  const repo = new InMemoryTeacherRepository(store);
   const service = new TeacherService(repo);
 
   router.get('/', async (req, res) => {

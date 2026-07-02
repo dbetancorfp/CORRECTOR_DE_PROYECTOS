@@ -31,4 +31,5 @@ export interface ModuleRepository {
   update(id: number, data: Partial<CreateModuleData>): Promise<Module>;
   delete(id: number): Promise<void>;
   hasProjects(id: number): Promise<boolean>;
+  isTeacherAssigned(teacherId: number, moduleId: number): Promise<boolean>;
 }

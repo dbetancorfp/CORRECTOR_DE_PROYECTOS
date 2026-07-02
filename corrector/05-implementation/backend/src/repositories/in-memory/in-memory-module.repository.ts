@@ -87,4 +87,10 @@ export class InMemoryModuleRepository implements ModuleRepository {
   async hasProjects(id: number): Promise<boolean> {
     return this.store.projects.some((p) => p.moduleId === id);
   }
+
+  async isTeacherAssigned(teacherId: number, moduleId: number): Promise<boolean> {
+    return this.store.moduleTeachers.some(
+      (mt) => mt.teacherId === teacherId && mt.moduleId === moduleId,
+    );
+  }
 }

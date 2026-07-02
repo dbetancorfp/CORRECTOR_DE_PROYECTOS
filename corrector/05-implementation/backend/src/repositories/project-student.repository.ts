@@ -22,6 +22,7 @@ export interface ProjectStudentRepository {
   findAll(): Promise<ProjectStudentAssignment[]>;
   countStudentsInProject(projectId: number): Promise<number>;
   isStudentInProjectThisYear(studentId: number, projectId: number): Promise<boolean>;
+  isAssigned(projectId: number, studentId: number): Promise<boolean>;
   assign(projectId: number, studentIds: number[]): Promise<AssignResult>;
   unassign(projectId: number, studentId: number): Promise<void>;
 }

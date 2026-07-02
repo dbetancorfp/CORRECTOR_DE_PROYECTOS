@@ -1,15 +1,17 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryCorrectionRepository } from '../repositories/in-memory/in-memory-correction.repository';
-import { InMemoryRubricRepository } from '../repositories/in-memory/in-memory-rubric.repository';
+import type { CorrectionRepository } from '../repositories/correction.repository';
+import type { RubricRepository } from '../repositories/rubric.repository';
+import type { ModuleRepository } from '../repositories/module.repository';
 import { CorrectionService } from '../services/correction.service';
 import { ScoreCalculator } from '../services/score-calculator';
 import { mapError } from './error';
 
-export function createCorrectionsRouter(store: Store): Router {
+export function createCorrectionsRouter(
+  corrRepo: CorrectionRepository,
+  rubricRepo: RubricRepository,
+  moduleRepo: ModuleRepository,
+): Router {
   const router = Router();
-  const corrRepo = new InMemoryCorrectionRepository(store);
-  const rubricRepo = new InMemoryRubricRepository(store);
   const calculator = new ScoreCalculator();
   const service = new CorrectionService(corrRepo, rubricRepo, calculator);
 
@@ -36,9 +38,7 @@ export function createCorrectionsRouter(store: Store): Router {
 
     const user = req.user;
     if (user && user.role !== 'admin') {
-      const assigned = store.moduleTeachers.some(
-        (mt) => mt.teacherId === user.id && mt.moduleId === moduleId,
-      );
+      const assigned = await moduleRepo.isTeacherAssigned(user.id, moduleId ?? 0);
       if (!assigned) {
         res.status(403).json({ error: 'Not assigned to this module' });
         return;

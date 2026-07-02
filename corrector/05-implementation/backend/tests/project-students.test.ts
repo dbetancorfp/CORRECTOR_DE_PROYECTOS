@@ -23,6 +23,7 @@ function makeRepo(overrides: Partial<ProjectStudentRepository> = {}): ProjectStu
     findAll: async () => [baseAssignment],
     countStudentsInProject: async () => 1,
     isStudentInProjectThisYear: async () => false,
+    isAssigned: async () => true,
     assign: async () => ({ projectId: 1, assigned: [1], totalStudents: 1 }),
     unassign: async () => {},
     ...overrides,

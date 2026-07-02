@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryRubricRepository } from '../repositories/in-memory/in-memory-rubric.repository';
+import type { RubricRepository } from '../repositories/rubric.repository';
 import { RubricService } from '../services/rubric.service';
 import { mapError } from './error';
 
-export function createRubricRouter(store: Store): Router {
+export function createRubricRouter(repo: RubricRepository): Router {
   const router = Router();
-  const repo = new InMemoryRubricRepository(store);
   const service = new RubricService(repo);
 
   router.get('/modules/:id/rubric', async (req, res) => {

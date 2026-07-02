@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryStudentRepository } from '../repositories/in-memory/in-memory-student.repository';
+import type { StudentRepository } from '../repositories/student.repository';
+import type { StudentParserService } from '../services/file-parser.service';
 import { StudentService } from '../services/student.service';
 import { StudentImporter } from '../services/student-importer';
-import type { FileParserService, ParsedStudent } from '../services/file-parser.service';
 import { mapError } from './error';
 
 function parseMultipartFile(body: Buffer, boundary: string): { filename: string; content: Buffer } | null {
@@ -30,49 +29,8 @@ function parseMultipartFile(body: Buffer, boundary: string): { filename: string;
   return null;
 }
 
-function makeStoreParser(store: Store): FileParserService {
-  return {
-    async parseStudents(content: Buffer, filename: string): Promise<ParsedStudent[]> {
-      const text = content.toString('utf-8').trim();
-      const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-      if (lines.length < 2) return [];
-
-      const headers = lines[0].split(',').map((h) => h.trim());
-      const nombreIdx = headers.indexOf('nombre');
-      const moduloIdx = headers.indexOf('modulo');
-
-      if (nombreIdx === -1 || moduloIdx === -1) {
-        throw Object.assign(new Error('Missing required CSV columns: nombre, modulo'), { code: 'VALIDATION_ERROR' });
-      }
-
-      const students: ParsedStudent[] = [];
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',').map((c) => c.trim());
-        const nombre = cols[nombreIdx];
-        const moduloName = cols[moduloIdx];
-
-        if (!nombre || !moduloName) {
-          throw Object.assign(new Error(`Row ${i} is missing required fields`), { code: 'VALIDATION_ERROR' });
-        }
-
-        const mod = store.modules.find((m) => m.name === moduloName);
-        students.push({
-          name: nombre,
-          cycleId: mod?.cycleId ?? 0,
-          moduleId: mod?.id ?? 0,
-        });
-      }
-      return students;
-    },
-    async parseRubric(): Promise<never> {
-      throw new Error('Not implemented');
-    },
-  };
-}
-
-export function createStudentsRouter(store: Store): Router {
+export function createStudentsRouter(repo: StudentRepository, parser: StudentParserService): Router {
   const router = Router();
-  const repo = new InMemoryStudentRepository(store);
   const service = new StudentService(repo);
 
   router.get('/', async (req, res) => {
@@ -113,12 +71,10 @@ export function createStudentsRouter(store: Store): Router {
         return;
       }
 
-      const parser = makeStoreParser(store);
-      let parsed: ParsedStudent[];
       try {
-        parsed = await parser.parseStudents(file.content, file.filename);
+        await parser.parseStudents(file.content, file.filename);
       } catch (parseErr) {
-        const e = parseErr as Error & { code?: string };
+        const e = parseErr instanceof Error ? parseErr : new Error(String(parseErr));
         res.status(422).json({ errors: [{ message: e.message }] });
         return;
       }

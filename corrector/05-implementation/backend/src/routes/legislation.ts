@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryLegislationRepository } from '../repositories/in-memory/in-memory-legislation.repository';
+import type { LegislationRepository } from '../repositories/legislation.repository';
 import { LegislationService } from '../services/legislation.service';
 import { requireAdmin } from '../middleware/auth';
 import { mapError } from './error';
 
-export function createLegislationRouter(store: Store): Router {
+export function createLegislationRouter(repo: LegislationRepository): Router {
   const router = Router();
-  const repo = new InMemoryLegislationRepository(store);
   const service = new LegislationService(repo);
 
   router.get('/', async (req, res) => {

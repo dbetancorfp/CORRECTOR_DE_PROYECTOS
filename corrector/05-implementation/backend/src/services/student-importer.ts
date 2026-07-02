@@ -1,5 +1,5 @@
 import type { StudentRepository } from '../repositories/student.repository';
-import type { FileParserService } from './file-parser.service';
+import type { StudentParserService } from './file-parser.service';
 
 const SUPPORTED_FORMATS = ['csv', 'json', 'yaml', 'yml'];
 
@@ -12,7 +12,7 @@ class AppError extends Error {
 export class StudentImporter {
   constructor(
     private readonly repo: StudentRepository,
-    private readonly parser: FileParserService,
+    private readonly parser: StudentParserService,
   ) {}
 
   async importFromFile(content: Buffer, filename: string): Promise<{ created: number }> {

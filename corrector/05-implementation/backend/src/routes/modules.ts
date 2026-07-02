@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryModuleRepository } from '../repositories/in-memory/in-memory-module.repository';
+import type { ModuleRepository } from '../repositories/module.repository';
 import { ModuleService } from '../services/module.service';
 import { requireAdmin } from '../middleware/auth';
 import { mapError } from './error';
 
-export function createModulesRouter(store: Store): Router {
+export function createModulesRouter(repo: ModuleRepository): Router {
   const router = Router();
-  const repo = new InMemoryModuleRepository(store);
   const service = new ModuleService(repo);
 
   router.get('/', async (req, res) => {

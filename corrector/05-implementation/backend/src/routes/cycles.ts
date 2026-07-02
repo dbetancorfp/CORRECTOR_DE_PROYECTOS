@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryCycleRepository } from '../repositories/in-memory/in-memory-cycle.repository';
+import type { CycleRepository } from '../repositories/cycle.repository';
 import { CycleService } from '../services/cycle.service';
 import { requireAdmin } from '../middleware/auth';
 import { mapError } from './error';
 
-export function createCyclesRouter(store: Store): Router {
+export function createCyclesRouter(repo: CycleRepository): Router {
   const router = Router();
-  const repo = new InMemoryCycleRepository(store);
   const service = new CycleService(repo);
 
   router.get('/', async (req, res) => {
@@ -31,14 +29,8 @@ export function createCyclesRouter(store: Store): Router {
 
   router.put('/:id', requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
       const { name } = req.body as { name?: string };
-      const duplicate = await repo.findByName(name ?? '');
-      if (duplicate && duplicate.id !== id) {
-        res.status(409).json({ error: 'Cycle with this name already exists', code: 'DUPLICATE' });
-        return;
-      }
-      const result = await service.update(id, name ?? '');
+      const result = await service.update(Number(req.params.id), name ?? '');
       res.json(result);
     } catch (err) {
       const { status, body } = mapError(err);

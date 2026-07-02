@@ -34,6 +34,10 @@ export class CycleService {
     if (!existing) {
       throw new AppError(`Cycle ${id} not found`, 'NOT_FOUND');
     }
+    const duplicate = await this.repo.findByName(name);
+    if (duplicate && duplicate.id !== id) {
+      throw new AppError(`Cycle '${name}' already exists`, 'DUPLICATE');
+    }
     return this.repo.update(id, name);
   }
 

@@ -66,6 +66,12 @@ export class InMemoryProjectStudentRepository implements ProjectStudentRepositor
     return { projectId, assigned: added, totalStudents: total };
   }
 
+  async isAssigned(projectId: number, studentId: number): Promise<boolean> {
+    return this.store.projectStudents.some(
+      (ps) => ps.projectId === projectId && ps.studentId === studentId,
+    );
+  }
+
   async unassign(projectId: number, studentId: number): Promise<void> {
     this.store.projectStudents = this.store.projectStudents.filter(
       (ps) => !(ps.projectId === projectId && ps.studentId === studentId),

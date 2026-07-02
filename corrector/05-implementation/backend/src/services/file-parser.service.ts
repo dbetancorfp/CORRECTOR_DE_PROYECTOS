@@ -20,7 +20,10 @@ export interface ParsedRubric {
   items: ParsedRubricItem[];
 }
 
-export interface FileParserService {
+export interface StudentParserService {
   parseStudents(content: Buffer, filename: string): Promise<ParsedStudent[]>;
+}
+
+export interface RubricParserService {
   parseRubric(content: Buffer, filename: string): Promise<ParsedRubric>;
 }

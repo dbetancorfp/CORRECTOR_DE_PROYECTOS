@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import type { Store } from '../repositories/in-memory/store';
-import { InMemoryProjectRepository } from '../repositories/in-memory/in-memory-project.repository';
-import { InMemoryProjectStudentRepository } from '../repositories/in-memory/in-memory-project-student.repository';
+import type { ProjectRepository } from '../repositories/project.repository';
+import type { ProjectStudentRepository } from '../repositories/project-student.repository';
 import { ProjectService } from '../services/project.service';
 import { ProjectStudentService } from '../services/project-student.service';
 import { mapError } from './error';
 
-export function createProjectsRouter(store: Store): Router {
+export function createProjectsRouter(
+  repo: ProjectRepository,
+  psRepo: ProjectStudentRepository,
+): Router {
   const router = Router();
-  const repo = new InMemoryProjectRepository(store);
-  const psRepo = new InMemoryProjectStudentRepository(store);
   const service = new ProjectService(repo);
   const psService = new ProjectStudentService(psRepo);
 
@@ -72,17 +72,13 @@ export function createProjectsRouter(store: Store): Router {
   });
 
   router.delete('/:pId/students/:sId', async (req, res) => {
-    const projectId = Number(req.params.pId);
-    const studentId = Number(req.params.sId);
-    const exists = store.projectStudents.some(
-      (ps) => ps.projectId === projectId && ps.studentId === studentId,
-    );
-    if (!exists) {
-      res.status(404).json({ error: 'Assignment not found' });
-      return;
+    try {
+      await psService.unassign(Number(req.params.pId), Number(req.params.sId));
+      res.status(204).send();
+    } catch (err) {
+      const { status, body } = mapError(err);
+      res.status(status).json(body);
     }
-    await psService.unassign(projectId, studentId);
-    res.status(204).send();
   });
 
   return router;

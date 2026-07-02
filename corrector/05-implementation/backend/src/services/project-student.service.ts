@@ -43,6 +43,10 @@ export class ProjectStudentService {
   }
 
   async unassign(projectId: number, studentId: number): Promise<void> {
+    const exists = await this.repo.isAssigned(projectId, studentId);
+    if (!exists) {
+      throw new AppError('Assignment not found', 'NOT_FOUND');
+    }
     await this.repo.unassign(projectId, studentId);
   }
 }

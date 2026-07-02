@@ -22,13 +22,17 @@ const baseTeacher = {
 
 function makeTeacherRepo(overrides: Partial<TeacherRepository> = {}): TeacherRepository {
   return {
+    findAll: async () => [],
     findByUsername: async () => baseTeacher,
-    save: async () => baseTeacher,
+    findById: async () => baseTeacher,
+    save: async () => ({ ...baseTeacher, passwordStatus: 'default' as const, modules: [] }),
+    update: async () => ({ ...baseTeacher, passwordStatus: 'default' as const, modules: [] }),
+    delete: async () => {},
+    hasCorrections: async () => false,
     updateFailedAttempts: async () => {},
     resetFailedAttempts: async () => {},
     lockAccount: async () => {},
     updatePassword: async () => {},
-    findById: async () => baseTeacher,
     ...overrides,
   };
 }

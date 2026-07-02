@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test';
 import { StudentService } from '../src/services/student.service';
 import { StudentImporter } from '../src/services/student-importer';
 import type { StudentRepository } from '../src/repositories/student.repository';
-import type { FileParserService } from '../src/services/file-parser.service';
+import type { StudentParserService } from '../src/services/file-parser.service';
 
 const BASE_URL = 'http://localhost:3456';
 
@@ -31,7 +31,7 @@ function makeRepo(overrides: Partial<StudentRepository> = {}): StudentRepository
   };
 }
 
-function makeParser(overrides: Partial<FileParserService> = {}): FileParserService {
+function makeParser(overrides: Partial<StudentParserService> = {}): StudentParserService {
   return {
     parseStudents: async () => [
       { name: 'JJ499', cycleId: 1, moduleId: 1 },

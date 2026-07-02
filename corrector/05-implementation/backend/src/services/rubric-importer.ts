@@ -1,5 +1,5 @@
 import type { RubricRepository } from '../repositories/rubric.repository';
-import type { FileParserService } from './file-parser.service';
+import type { RubricParserService } from './file-parser.service';
 
 const SUPPORTED_FORMATS = ['yaml', 'yml', 'json'];
 
@@ -12,7 +12,7 @@ class AppError extends Error {
 export class RubricImporter {
   constructor(
     private readonly repo: RubricRepository,
-    private readonly parser: FileParserService,
+    private readonly parser: RubricParserService,
   ) {}
 
   async importFromFile(
