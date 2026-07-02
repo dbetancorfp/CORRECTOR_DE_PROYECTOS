@@ -7,7 +7,7 @@ import { CorrectionService } from '../src/services/correction.service';
 import type { CorrectionRepository } from '../src/repositories/correction.repository';
 import type { RubricRepository } from '../src/repositories/rubric.repository';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── ScoreCalculator: pure domain logic — no external dependencies ─────────────
 

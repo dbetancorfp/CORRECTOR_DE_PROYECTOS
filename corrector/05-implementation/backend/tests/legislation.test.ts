@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test';
 import { LegislationService } from '../src/services/legislation.service';
 import type { LegislationRepository } from '../src/repositories/legislation.repository';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 

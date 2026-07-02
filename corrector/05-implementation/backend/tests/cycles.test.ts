@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test';
 import { CycleService } from '../src/services/cycle.service';
 import type { CycleRepository } from '../src/repositories/cycle.repository';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 

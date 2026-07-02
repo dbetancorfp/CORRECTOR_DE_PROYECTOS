@@ -4,14 +4,18 @@
   "type": "module",
   "scripts": {
     "type-check": "tsc --noEmit",
-    "test": "bun test",
+    "test": "bun test --max-workers=1",
     "start": "bun run corrector/05-implementation/backend/src/index.ts",
     "build": "bun build corrector/05-implementation/frontend/src/index.ts --outdir corrector/05-implementation/frontend/dist --target browser",
     "agent:designer-front": "bun cli/index.js run-agent designer-front --feature-id corrector-v1"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
+    "express": "^5.2.1",
     "zod": "^3.23.8"
   }
 }

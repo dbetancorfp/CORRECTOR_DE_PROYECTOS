@@ -7,7 +7,7 @@ import { RubricImporter } from '../src/services/rubric-importer';
 import type { RubricRepository } from '../src/repositories/rubric.repository';
 import type { FileParserService } from '../src/services/file-parser.service';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 

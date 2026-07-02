@@ -1,0 +1,2 @@
+[test]
+preload = ["./corrector/05-implementation/backend/tests/setup.ts"]

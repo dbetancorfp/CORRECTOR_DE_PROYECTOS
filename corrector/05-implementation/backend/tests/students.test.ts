@@ -7,7 +7,7 @@ import { StudentImporter } from '../src/services/student-importer';
 import type { StudentRepository } from '../src/repositories/student.repository';
 import type { FileParserService } from '../src/services/file-parser.service';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 

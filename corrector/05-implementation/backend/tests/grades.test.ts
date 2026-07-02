@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'bun:test';
 import { GradeCalculator } from '../src/services/grade-calculator';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── GradeCalculator: pure domain logic — no external dependencies ─────────────
 

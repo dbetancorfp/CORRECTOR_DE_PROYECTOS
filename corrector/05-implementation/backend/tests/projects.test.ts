@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test';
 import { ProjectService } from '../src/services/project.service';
 import type { ProjectRepository } from '../src/repositories/project.repository';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 

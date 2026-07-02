@@ -6,14 +6,14 @@ import { AuthService } from '../src/services/auth.service';
 import type { TeacherRepository } from '../src/repositories/teacher.repository';
 import type { SessionRepository } from '../src/repositories/session.repository';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3456';
 
 // ── Domain doubles ────────────────────────────────────────────────────────────
 
 const baseTeacher = {
   id: 1,
   username: 'dbetqui',
-  passwordHash: '$2b$10$abcdefghijklmnopqrstuvuSomeFakeHash',
+  passwordHash: '$2b$10$TRixixD6bss1z.scYABrvue1UoaAqIr1UcWUwe.pP7ucUYLwaLhku', // bcrypt hash of 'correctpass'
   role: 'profesor' as const,
   accountLocked: false,
   failedLoginAttempts: 0,
@@ -87,7 +87,7 @@ describe('Element #3 — AuthService: successful login', () => {
       findByUsername: async () => ({ ...baseTeacher, mustChangePassword: true }),
     });
     const service = new AuthService(repo, makeSessionRepo());
-    const result = await service.login('dbetqui', '12345678');
+    const result = await service.login('dbetqui', 'correctpass');
     expect(result.mustChangePassword).toBe(true);
   });
 
