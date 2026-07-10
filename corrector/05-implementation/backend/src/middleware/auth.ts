@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { Store } from '../repositories/in-memory/store';
+import type { TeacherRepository } from '../repositories/teacher.repository';
+import type { SessionRepository } from '../repositories/session.repository';
 
 export interface AuthUser {
   id: number;
@@ -15,22 +16,22 @@ declare global {
   }
 }
 
-export function resolveUser(store: Store) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+export function resolveUser(teacherRepo: TeacherRepository, sessionRepo: SessionRepository) {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const sessionId = req.cookies?.session_id as string | undefined;
 
     if (!sessionId) {
-      req.user = { id: 0, username: 'system', role: 'admin' };
+      req.user = undefined;
       return next();
     }
 
-    const session = store.sessions.get(sessionId);
+    const session = await sessionRepo.find(sessionId);
     if (!session || session.expiresAt < new Date()) {
       req.user = undefined;
       return next();
     }
 
-    const teacher = store.teachers.find((t) => t.id === session.teacherId);
+    const teacher = await teacherRepo.findById(session.teacherId);
     if (!teacher) {
       req.user = undefined;
       return next();

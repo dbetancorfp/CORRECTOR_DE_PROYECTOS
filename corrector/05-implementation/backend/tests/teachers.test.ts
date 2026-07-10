@@ -183,8 +183,10 @@ describe('Element #41 — POST /api/teachers', () => {
   it('returns 201 with must_change_password implicit in passwordStatus=default', async () => {
     const res = await fetch(`${BASE_URL}/api/teachers`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'testprof', password: '12345678', moduleId: 1 }),
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      // moduleId 3 has no teacher assigned yet — module 1 already has one in the fixture
+      // (teacher_module.module_id is UNIQUE, one teacher per module).
+      body: JSON.stringify({ username: 'testprof', password: '12345678', moduleId: 3 }),
     });
     expect(res.status).toBe(201);
     const body = await res.json() as Record<string, unknown>;
@@ -194,7 +196,7 @@ describe('Element #41 — POST /api/teachers', () => {
   it('returns 400 when password is shorter than 8 characters', async () => {
     const res = await fetch(`${BASE_URL}/api/teachers`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ username: 'testprof', password: 'short', moduleId: 1 }),
     });
     expect(res.status).toBe(400);
@@ -203,7 +205,7 @@ describe('Element #41 — POST /api/teachers', () => {
   it('returns 409 when username already exists', async () => {
     const opts = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ username: 'duplicateuser', password: '12345678', moduleId: 1 }),
     };
     await fetch(`${BASE_URL}/api/teachers`, opts);
@@ -245,7 +247,10 @@ describe('Elements #42–#45 — GET /api/teachers', () => {
 
 describe('Element #46 — POST /api/teachers/:id/unlock', () => {
   it('returns 200 with accountLocked=false and failedLoginAttempts=0', async () => {
-    const res = await fetch(`${BASE_URL}/api/teachers/1/unlock`, { method: 'POST' });
+    const res = await fetch(`${BASE_URL}/api/teachers/1/unlock`, {
+      method: 'POST',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(200);
     const body = await res.json() as Record<string, unknown>;
     expect(body.accountLocked).toBe(false);
@@ -253,19 +258,28 @@ describe('Element #46 — POST /api/teachers/:id/unlock', () => {
   });
 
   it('returns 404 when teacher does not exist', async () => {
-    const res = await fetch(`${BASE_URL}/api/teachers/99999/unlock`, { method: 'POST' });
+    const res = await fetch(`${BASE_URL}/api/teachers/99999/unlock`, {
+      method: 'POST',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(404);
   });
 });
 
 describe('Element #46 — DELETE /api/teachers/:id', () => {
   it('returns 204 when teacher has no corrections', async () => {
-    const res = await fetch(`${BASE_URL}/api/teachers/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/teachers/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when teacher has correction records', async () => {
-    const res = await fetch(`${BASE_URL}/api/teachers/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/teachers/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(409);
   });
 });

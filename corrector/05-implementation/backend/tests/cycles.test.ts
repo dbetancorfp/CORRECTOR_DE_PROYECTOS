@@ -142,7 +142,7 @@ describe('Element #16 — POST /api/cycles', () => {
   it('returns 201 with new cycle (name only)', async () => {
     const res = await fetch(`${BASE_URL}/api/cycles`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'Desarrollo de Aplicaciones Web' }),
     });
     expect(res.status).toBe(201);
@@ -155,7 +155,7 @@ describe('Element #16 — POST /api/cycles', () => {
   it('returns 400 when name is shorter than 3 characters', async () => {
     const res = await fetch(`${BASE_URL}/api/cycles`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'AB' }),
     });
     expect(res.status).toBe(400);
@@ -164,7 +164,7 @@ describe('Element #16 — POST /api/cycles', () => {
   it('returns 409 when name already exists', async () => {
     const opts = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'DAW' }),
     };
     await fetch(`${BASE_URL}/api/cycles`, opts);
@@ -200,7 +200,7 @@ describe('Element #20 — PUT /api/cycles/:id', () => {
   it('returns 200 with updated cycle', async () => {
     const res = await fetch(`${BASE_URL}/api/cycles/1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'DAM' }),
     });
     expect(res.status).toBe(200);
@@ -209,7 +209,7 @@ describe('Element #20 — PUT /api/cycles/:id', () => {
   it('returns 409 when name already exists', async () => {
     const res = await fetch(`${BASE_URL}/api/cycles/1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'ExistingCycle' }),
     });
     expect(res.status).toBe(409);
@@ -218,12 +218,18 @@ describe('Element #20 — PUT /api/cycles/:id', () => {
 
 describe('Element #20 — DELETE /api/cycles/:id', () => {
   it('returns 204 when cycle has no modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/cycles/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/cycles/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when cycle has associated modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/cycles/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/cycles/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(409);
   });
 });

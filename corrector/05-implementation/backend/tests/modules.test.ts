@@ -144,7 +144,7 @@ describe('Element #28 — POST /api/modules', () => {
   it('returns 201 with new module containing all 4 required fields', async () => {
     const res = await fetch(`${BASE_URL}/api/modules`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'DEW', weeklyHours: 7, cycleId: 1, legislationId: 1 }),
     });
     expect(res.status).toBe(201);
@@ -158,7 +158,7 @@ describe('Element #28 — POST /api/modules', () => {
   it('returns 400 when weeklyHours is out of range', async () => {
     const res = await fetch(`${BASE_URL}/api/modules`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'DEW', weeklyHours: 0, cycleId: 1, legislationId: 1 }),
     });
     expect(res.status).toBe(400);
@@ -167,7 +167,7 @@ describe('Element #28 — POST /api/modules', () => {
   it('returns 409 when name+cycleId+legislationId combination already exists', async () => {
     const opts = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'DEW', weeklyHours: 7, cycleId: 1, legislationId: 1 }),
     };
     await fetch(`${BASE_URL}/api/modules`, opts);
@@ -216,12 +216,18 @@ describe('Elements #29–#32 — GET /api/modules', () => {
 
 describe('Element #33 — DELETE /api/modules/:id', () => {
   it('returns 204 when module has no projects', async () => {
-    const res = await fetch(`${BASE_URL}/api/modules/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/modules/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when module has associated projects', async () => {
-    const res = await fetch(`${BASE_URL}/api/modules/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/modules/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(409);
   });
 });

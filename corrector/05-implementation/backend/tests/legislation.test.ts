@@ -178,7 +178,7 @@ describe('Element #7 — POST /api/legislation', () => {
   it('returns 201 with new legislation for valid input', async () => {
     const res = await fetch(`${BASE_URL}/api/legislation`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'LOE', startYear: 2006 }),
     });
     expect(res.status).toBe(201);
@@ -191,7 +191,7 @@ describe('Element #7 — POST /api/legislation', () => {
   it('returns 400 when name is lowercase', async () => {
     const res = await fetch(`${BASE_URL}/api/legislation`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'lomloe', startYear: 2020 }),
     });
     expect(res.status).toBe(400);
@@ -200,7 +200,7 @@ describe('Element #7 — POST /api/legislation', () => {
   it('returns 400 when startYear is out of range', async () => {
     const res = await fetch(`${BASE_URL}/api/legislation`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'LOE', startYear: 1800 }),
     });
     expect(res.status).toBe(400);
@@ -218,7 +218,7 @@ describe('Element #7 — POST /api/legislation', () => {
   it('returns 409 when name already exists', async () => {
     const opts = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'LOMLOE', startYear: 2020 }),
     };
     await fetch(`${BASE_URL}/api/legislation`, opts);
@@ -254,7 +254,7 @@ describe('Element #10 — PUT /api/legislation/:id', () => {
   it('returns 200 with updated legislation', async () => {
     const res = await fetch(`${BASE_URL}/api/legislation/1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'LOGSE', startYear: 1990 }),
     });
     expect(res.status).toBe(200);
@@ -265,7 +265,7 @@ describe('Element #10 — PUT /api/legislation/:id', () => {
   it('returns 404 when legislation does not exist', async () => {
     const res = await fetch(`${BASE_URL}/api/legislation/99999`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
       body: JSON.stringify({ name: 'LOE' }),
     });
     expect(res.status).toBe(404);
@@ -274,12 +274,18 @@ describe('Element #10 — PUT /api/legislation/:id', () => {
 
 describe('Element #10 — DELETE /api/legislation/:id', () => {
   it('returns 204 when legislation has no dependent modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/legislation/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/legislation/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when legislation has dependent modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/legislation/1`, { method: 'DELETE' });
+    const res = await fetch(`${BASE_URL}/api/legislation/1`, {
+      method: 'DELETE',
+      headers: { 'Cookie': 'session_id=admin-session' },
+    });
     expect(res.status).toBe(409);
   });
 });

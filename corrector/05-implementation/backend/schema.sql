@@ -174,13 +174,18 @@ CREATE TABLE project (
     name          VARCHAR(120) NOT NULL,
     academic_year CHAR(9)      NOT NULL
                                CHECK (academic_year ~ '^\d{4}-\d{4}$'),
+    module_id     INT          NOT NULL REFERENCES module(id)
+                                   ON DELETE RESTRICT
+                                   ON UPDATE CASCADE,
     created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE  project               IS 'End-of-cycle student project; cycle inferred through its members';
 COMMENT ON COLUMN project.academic_year IS 'Format YYYY-YYYY e.g. 2024-2025';
+COMMENT ON COLUMN project.module_id     IS 'Module this project is graded against';
 
 CREATE INDEX idx_project_academic_year ON project(academic_year);
+CREATE INDEX idx_project_module        ON project(module_id);
 
 
 CREATE TABLE project_student (

@@ -109,6 +109,7 @@ describe('Elements #110 #111 — CorrectionService: upsert correction', () => {
       projectId: 1,
       moduleId: 1,
       rubricId: 1,
+      teacherId: 1,
       academicYear: '2024-2025',
       items: [
         { rubricItemId: 1, rubricLevelId: 1 }, // Excelente 5.0
@@ -127,6 +128,7 @@ describe('Elements #110 #111 — CorrectionService: upsert correction', () => {
       projectId: 1,
       moduleId: 1,
       rubricId: 1,
+      teacherId: 1,
       academicYear: '2024-2025',
       items: [
         { rubricItemId: 1, rubricLevelId: 1 }, // only 1 of 2 items
@@ -142,6 +144,7 @@ describe('Elements #110 #111 — CorrectionService: upsert correction', () => {
       projectId: 1,
       moduleId: 1,
       rubricId: 1,
+      teacherId: 1,
       academicYear: '2024-2025',
       items: [
         { rubricItemId: 1, rubricLevelId: 4 }, // level 4 belongs to item 2, not item 1
@@ -179,6 +182,7 @@ describe('Elements #110 #111 — CorrectionService: upsert correction', () => {
       projectId: 1,
       moduleId: 1,
       rubricId: 1,
+      teacherId: 1,
       academicYear: '2024-2025',
       items: [
         { rubricItemId: 1, rubricLevelId: 1 },
@@ -200,6 +204,7 @@ describe('Element #104 — CorrectionService: blocks correction when module has 
       projectId: 1,
       moduleId: 99,
       rubricId: 1,
+      teacherId: 1,
       academicYear: '2024-2025',
       items: [],
     })).rejects.toMatchObject({ code: 'NO_RUBRIC' });
@@ -226,7 +231,7 @@ describe('Elements #110 #111 — POST /api/corrections', () => {
   it('returns 200 or 201 with correction and calculated finalScore', async () => {
     const res = await fetch(`${BASE_URL}/api/corrections`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=profesor-session' },
       body: JSON.stringify({
         studentId: 1,
         projectId: 1,
@@ -249,7 +254,7 @@ describe('Elements #110 #111 — POST /api/corrections', () => {
   it('returns 400 when not all rubric items are covered', async () => {
     const res = await fetch(`${BASE_URL}/api/corrections`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=profesor-session' },
       body: JSON.stringify({
         studentId: 1,
         projectId: 1,

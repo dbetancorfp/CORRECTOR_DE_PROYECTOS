@@ -4,6 +4,7 @@ import type { RubricRepository } from '../repositories/rubric.repository';
 import type { ModuleRepository } from '../repositories/module.repository';
 import { CorrectionService } from '../services/correction.service';
 import { ScoreCalculator } from '../services/score-calculator';
+import { requireAuth } from '../middleware/auth';
 import { mapError } from './error';
 
 export function createCorrectionsRouter(
@@ -26,7 +27,7 @@ export function createCorrectionsRouter(
     res.json(result);
   });
 
-  router.post('/', async (req, res) => {
+  router.post('/', requireAuth, async (req, res) => {
     const { studentId, projectId, moduleId, rubricId, academicYear, items } = req.body as {
       studentId?: number;
       projectId?: number;
@@ -36,8 +37,8 @@ export function createCorrectionsRouter(
       items?: Array<{ rubricItemId: number; rubricLevelId: number }>;
     };
 
-    const user = req.user;
-    if (user && user.role !== 'admin') {
+    const user = req.user!;
+    if (user.role !== 'admin') {
       const assigned = await moduleRepo.isTeacherAssigned(user.id, moduleId ?? 0);
       if (!assigned) {
         res.status(403).json({ error: 'Not assigned to this module' });
@@ -51,6 +52,7 @@ export function createCorrectionsRouter(
         projectId: projectId ?? 0,
         moduleId: moduleId ?? 0,
         rubricId: rubricId ?? 0,
+        teacherId: user.id,
         academicYear: academicYear ?? '',
         items: items ?? [],
       });

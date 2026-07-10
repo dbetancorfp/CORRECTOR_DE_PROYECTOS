@@ -8,6 +8,7 @@ export interface UpsertCorrectionData {
   projectId: number;
   moduleId: number;
   rubricId: number;
+  teacherId: number;
   academicYear: string;
   items: CorrectionItem[];
   finalScore?: number;

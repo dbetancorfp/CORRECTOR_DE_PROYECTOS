@@ -257,7 +257,8 @@ describe('Element #98 — POST /api/modules/:id/rubric/items', () => {
       body: JSON.stringify({
         academicYear: '2024-2025',
         description: 'Documentación',
-        displayOrder: 2,
+        // rubric 1 already has items at display_order 1 and 2 (UNIQUE per rubric).
+        displayOrder: 3,
         levels: [
           { name: 'Excelente', score: 2.0, displayOrder: 1 },
           { name: 'Bien',      score: 1.0, displayOrder: 2 },
