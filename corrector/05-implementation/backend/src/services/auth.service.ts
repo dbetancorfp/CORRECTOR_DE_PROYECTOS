@@ -39,7 +39,7 @@ export class AuthService {
     }
 
     if (teacher.accountLocked) {
-      throw new AppError('Account is locked', 'ACCOUNT_LOCKED');
+      throw new AppError('Account is locked', 'ACCOUNT_LOCKED', teacher.role);
     }
 
     let passwordValid = false;
@@ -55,9 +55,13 @@ export class AuthService {
 
       if (newCount >= 3) {
         await this.teacherRepo.lockAccount(teacher.id);
+        throw new AppError('Account is locked', 'ACCOUNT_LOCKED', teacher.role);
       }
 
-      throw new AppError('Invalid credentials', 'INVALID_CREDENTIALS', teacher.role);
+      // No role attached here: this response is reachable by anyone who merely
+      // knows a valid username, and leaking role before the account is locked
+      // would let an attacker fingerprint accounts by role via wrong passwords.
+      throw new AppError('Invalid credentials', 'INVALID_CREDENTIALS');
     }
 
     await this.teacherRepo.resetFailedAttempts(teacher.id);

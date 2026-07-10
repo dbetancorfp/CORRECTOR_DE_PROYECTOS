@@ -1,3 +1,5 @@
 .env
 site/
 node_modules/
+corrector/05-implementation/frontend/dist/
+coverage/

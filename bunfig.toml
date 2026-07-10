@@ -1,2 +1,5 @@
 [test]
-preload = ["./corrector/05-implementation/backend/tests/setup.ts"]
+preload = [
+  "./corrector/05-implementation/frontend/tests/dom-setup.ts",
+  "./corrector/05-implementation/backend/tests/setup.ts",
+]

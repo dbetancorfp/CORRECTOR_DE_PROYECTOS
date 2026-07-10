@@ -29,7 +29,10 @@ export function mapError(err: unknown): { status: number; body: Record<string, u
   if (err instanceof Error) {
     const code = (err as Error & { code?: string }).code ?? '';
     const status = STATUS_MAP[code] ?? 500;
-    return { status, body: { error: err.message, code } };
+    const role = (err as Error & { role?: string }).role;
+    const body: Record<string, unknown> = { error: err.message, code };
+    if (role !== undefined) body.role = role;
+    return { status, body };
   }
   return { status: 500, body: { error: 'Internal server error' } };
 }

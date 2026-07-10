@@ -241,18 +241,46 @@ describe('Element #3 — POST /api/auth/login', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 423 when account is locked', async () => {
+  it('returns 423 with role on the 3rd consecutive failure (the one that locks it)', async () => {
     const opts = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: 'lockedteacher', password: 'wrong' }),
     };
-    // Force 3 failures to lock the account
+    const first = await fetch(`${BASE_URL}/api/auth/login`, opts);
+    expect(first.status).toBe(401);
+    const second = await fetch(`${BASE_URL}/api/auth/login`, opts);
+    expect(second.status).toBe(401);
+    const third = await fetch(`${BASE_URL}/api/auth/login`, opts);
+    expect(third.status).toBe(423);
+    const body = await third.json() as { role: string };
+    expect(body.role).toBe('profesor');
+  });
+
+  it('returns 423 with role on subsequent attempts against an already-locked account', async () => {
+    const opts = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'lockedteacher', password: 'wrong' }),
+    };
     await fetch(`${BASE_URL}/api/auth/login`, opts);
     await fetch(`${BASE_URL}/api/auth/login`, opts);
     await fetch(`${BASE_URL}/api/auth/login`, opts);
     const res = await fetch(`${BASE_URL}/api/auth/login`, opts);
     expect(res.status).toBe(423);
+    const body = await res.json() as { role: string };
+    expect(body.role).toBe('profesor');
+  });
+
+  it('does not include role on an ordinary invalid-credentials response', async () => {
+    const res = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'noone', password: 'wrongpass' }),
+    });
+    expect(res.status).toBe(401);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.role).toBeUndefined();
   });
 });
 

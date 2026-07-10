@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import type { Express, Request, Response, NextFunction } from 'express';
@@ -146,6 +147,12 @@ export function createApp(deps: AppDeps): Express {
   app.use('/api/corrections', createCorrectionsRouter(correctionRepo, rubricRepo, moduleRepo));
   app.use('/api', createGradesRouter(gradeService));
   app.use('/api', createRubricRouter(rubricRepo));
+
+  // ── Frontend static assets ──────────────────────────────────────────────────
+  // Only the Login screen exists so far — /admin and /profesor have no page yet.
+  const frontendDir = join(import.meta.dir, '..', '..', 'frontend');
+  app.use('/dist', express.static(join(frontendDir, 'dist')));
+  app.get('/', (_req, res) => res.sendFile(join(frontendDir, 'index.html')));
 
   // Global error handler — Express 5 forwards async throws here automatically
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
