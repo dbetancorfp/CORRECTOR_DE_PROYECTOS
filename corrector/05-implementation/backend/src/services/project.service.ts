@@ -29,6 +29,20 @@ export class ProjectService {
     return this.repo.create(data);
   }
 
+  async update(id: number, data: Partial<CreateProjectData>): Promise<Project> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new AppError(`Project ${id} not found`, 'NOT_FOUND');
+    }
+    if (data.name !== undefined && data.name.length < 2) {
+      throw new AppError('Name must be at least 2 characters', 'VALIDATION_ERROR');
+    }
+    if (data.academicYear !== undefined && !ACADEMIC_YEAR_RE.test(data.academicYear)) {
+      throw new AppError('Academic year must be in format YYYY-YYYY', 'VALIDATION_ERROR');
+    }
+    return this.repo.update(id, data);
+  }
+
   async delete(id: number): Promise<void> {
     const hasStudents = await this.repo.hasStudents(id);
     if (hasStudents) {

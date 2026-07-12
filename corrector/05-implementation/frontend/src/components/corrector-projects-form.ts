@@ -1,36 +1,36 @@
 import { html, render } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
-import { HttpStudentService } from '../services/student.service';
-import type { StudentService } from '../services/student.service';
+import { HttpProjectService } from '../services/project.service';
+import type { ProjectService } from '../services/project.service';
 import { HttpLegislationService } from '../services/legislation.service';
 import type { Legislation, LegislationService } from '../services/legislation.service';
 import { HttpCycleService } from '../services/cycle.service';
 import type { Cycle, CycleService } from '../services/cycle.service';
 import { HttpModuleService } from '../services/module.service';
 import type { Module, ModuleService } from '../services/module.service';
-import { StudentController } from '../controllers/student-controller';
-import type { StudentRow } from '../controllers/student-controller';
+import { ProjectController } from '../controllers/project-controller';
+import type { ProjectRow } from '../controllers/project-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
 
 const FILTER_DEBOUNCE_MS = 300;
 
-// corrector-students-form
-// sketchNumbers: 48 (nombre), 49 (año — navegación), 50 (legislación —
-// navegación), 51 (ciclo — FK real student.cycle_id), 52 (módulo — FK real
-// vía student_module), 53 (Nuevo), 54 (Subir lista), 55 (filtro nombre), 56
-// (filtro año), 57 (filtro legislación), 58 (filtro ciclo), 59 (filtro
-// módulo), 60 (tabla)
-export class CorrectorStudentsForm extends HTMLElement {
-  studentService?: StudentService;
+// corrector-projects-form
+// sketchNumbers: 61 (nombre), 62 (año — navegación, convertido a
+// academic_year en la creación), 63 (legislación — navegación), 64 (ciclo —
+// navegación, project no tiene cycle_id propio), 65 (módulo — FK real
+// project.module_id), 66 (Nuevo), 67 (filtro nombre), 68 (filtro año), 69
+// (filtro legislación), 70 (filtro ciclo), 71 (filtro módulo), 72 (tabla)
+export class CorrectorProjectsForm extends HTMLElement {
+  projectService?: ProjectService;
   legislationService?: LegislationService;
   cycleService?: CycleService;
   moduleService?: ModuleService;
 
-  private _controller!: StudentController;
+  private _controller!: ProjectController;
   private _disposables: Array<() => void> = [];
 
-  private _rows: StudentRow[] = [];
+  private _rows: ProjectRow[] = [];
 
   private _name = '';
   private _selectedYear = '';
@@ -62,13 +62,11 @@ export class CorrectorStudentsForm extends HTMLElement {
   private _editErrorMessage = '';
 
   private _rowErrorMessage = '';
-  private _uploadLoading = false;
-  private _uploadErrorMessage = '';
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
-    this._controller = new StudentController(
-      this.studentService ?? new HttpStudentService(),
+    this._controller = new ProjectController(
+      this.projectService ?? new HttpProjectService(),
       this.legislationService ?? new HttpLegislationService(),
       this.cycleService ?? new HttpCycleService(),
       this.moduleService ?? new HttpModuleService(),
@@ -215,31 +213,6 @@ export class CorrectorStudentsForm extends HTMLElement {
     this._render();
   }
 
-  private _handleUploadChange = (e: Event): void => {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    void this._submitUpload(file);
-  };
-
-  private async _submitUpload(file: File): Promise<void> {
-    this._uploadLoading = true;
-    this._uploadErrorMessage = '';
-    this._render();
-
-    const state = await this._controller.upload(file);
-    this._uploadLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = await this._controller.list();
-      this._render();
-      return;
-    }
-
-    this._uploadErrorMessage = state.message;
-    this._render();
-  }
-
   private _handleNameFilterInput = (e: Event): void => {
     this._nameFilter = (e.target as HTMLInputElement).value;
     this._scheduleFilter();
@@ -279,7 +252,7 @@ export class CorrectorStudentsForm extends HTMLElement {
     this._render();
   }
 
-  private _startEdit = (row: StudentRow): void => {
+  private _startEdit = (row: ProjectRow): void => {
     this._editingId = row.id;
     this._editName = row.name;
     this._editErrorMessage = '';
@@ -312,12 +285,12 @@ export class CorrectorStudentsForm extends HTMLElement {
     this._render();
   }
 
-  private _handleDeleteClick = (row: StudentRow): void => {
+  private _handleDeleteClick = (row: ProjectRow): void => {
     void this._handleDelete(row);
   };
 
-  private async _handleDelete(row: StudentRow): Promise<void> {
-    const confirmed = window.confirm(`¿Eliminar al alumno ${row.name}?`);
+  private async _handleDelete(row: ProjectRow): Promise<void> {
+    const confirmed = window.confirm(`¿Eliminar el proyecto ${row.name}?`);
     if (!confirmed) return;
 
     this._rowErrorMessage = '';
@@ -351,22 +324,22 @@ export class CorrectorStudentsForm extends HTMLElement {
 
   private _template(): TemplateResult {
     return html`
-      ${renderGestionNav('alumnos', this._handleLogoutClick, this._handleNavigateClick)}
+      ${renderGestionNav('proyectos', this._handleLogoutClick, this._handleNavigateClick)}
 
       <div role="alert">${this._formErrorMessage}</div>
       <form>
         <fieldset>
-          <legend>Nuevo alumno:</legend>
+          <legend>Nuevo proyecto:</legend>
           <input
-            data-element-id="48"
+            data-element-id="61"
             type="text"
-            placeholder="Nombre del alumno"
+            placeholder="Nombre del proyecto"
             .value=${this._name}
             aria-invalid=${this._nameError ? 'true' : 'false'}
             @input=${this._handleNameInput}
           />
           <select
-            data-element-id="49"
+            data-element-id="62"
             aria-invalid=${this._yearError ? 'true' : 'false'}
             @change=${this._handleYearChange}
           >
@@ -374,7 +347,7 @@ export class CorrectorStudentsForm extends HTMLElement {
             ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
           </select>
           <select
-            data-element-id="50"
+            data-element-id="63"
             ?disabled=${this._selectedYear === ''}
             aria-invalid=${this._legislationError ? 'true' : 'false'}
             @change=${this._handleLegislationChange}
@@ -383,7 +356,7 @@ export class CorrectorStudentsForm extends HTMLElement {
             ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
           </select>
           <select
-            data-element-id="51"
+            data-element-id="64"
             ?disabled=${this._selectedYear === '' || this._selectedLegislation === ''}
             aria-invalid=${this._cycleError ? 'true' : 'false'}
             @change=${this._handleCycleChange}
@@ -392,7 +365,7 @@ export class CorrectorStudentsForm extends HTMLElement {
             ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
           </select>
           <select
-            data-element-id="52"
+            data-element-id="65"
             ?disabled=${this._selectedCycle === ''}
             aria-invalid=${this._moduleError ? 'true' : 'false'}
             @change=${this._handleModuleChange}
@@ -400,56 +373,46 @@ export class CorrectorStudentsForm extends HTMLElement {
             <option value="">Seleccionar módulo</option>
             ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
           </select>
-          <div>
-            <button
-              data-element-id="53"
-              type="button"
-              ?disabled=${this._formLoading}
-              @click=${this._handleSubmitClick}
-            >
-              Nuevo
-            </button>
-            <input
-              data-element-id="54"
-              type="file"
-              accept=".csv,.json,.yaml,.yml"
-              ?disabled=${this._uploadLoading}
-              @change=${this._handleUploadChange}
-            />
-          </div>
+          <button
+            data-element-id="66"
+            type="button"
+            ?disabled=${this._formLoading}
+            @click=${this._handleSubmitClick}
+          >
+            Nuevo
+          </button>
         </fieldset>
       </form>
-      <div role="alert">${this._uploadErrorMessage}</div>
 
       <fieldset>
         <legend>Filtrar por:</legend>
         <input
-          data-element-id="55"
+          data-element-id="67"
           type="text"
-          placeholder="Filtrar por nombre"
+          placeholder="Filtrar por proyecto"
           .value=${this._nameFilter}
           @input=${this._handleNameFilterInput}
         />
-        <select data-element-id="56" @change=${this._handleYearFilterChange}>
+        <select data-element-id="68" @change=${this._handleYearFilterChange}>
           <option value="">Seleccionar año</option>
           ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._yearFilter}>${year}</option>`)}
         </select>
-        <select data-element-id="57" @change=${this._handleLegislationFilterChange}>
+        <select data-element-id="69" @change=${this._handleLegislationFilterChange}>
           <option value="">Seleccionar legislación</option>
           ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._legislationFilter}>${leg.name}</option>`)}
         </select>
-        <select data-element-id="58" ?disabled=${this._legislationFilter === ''} @change=${this._handleCycleFilterChange}>
+        <select data-element-id="70" ?disabled=${this._legislationFilter === ''} @change=${this._handleCycleFilterChange}>
           <option value="">Seleccionar ciclo</option>
           ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._cycleFilter}>${cycle.name}</option>`)}
         </select>
-        <select data-element-id="59" ?disabled=${this._cycleFilter === ''} @change=${this._handleModuleFilterChange}>
+        <select data-element-id="71" ?disabled=${this._cycleFilter === ''} @change=${this._handleModuleFilterChange}>
           <option value="">Seleccionar módulo</option>
           ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._moduleFilter}>${mod.name}</option>`)}
         </select>
       </fieldset>
 
       <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="60">
+      <table data-element-id="72">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -465,15 +428,15 @@ export class CorrectorStudentsForm extends HTMLElement {
           ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
         </tbody>
       </table>
-      ${this._rows.length === 0 ? html`<p>No hay alumnos registrados</p>` : ''}
+      ${this._rows.length === 0 ? html`<p>No hay proyectos registrados</p>` : ''}
     `;
   }
 
-  private _rowTemplate(row: StudentRow): TemplateResult {
+  private _rowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
         <td>${row.name}</td>
-        <td>${row.modules.map((m) => m.name).join(', ')}</td>
+        <td>${row.moduleName}</td>
         <td>${row.cycleName}</td>
         <td>${row.legislationName ?? ''}</td>
         <td>${row.startYear ?? ''}</td>
@@ -483,11 +446,11 @@ export class CorrectorStudentsForm extends HTMLElement {
     `;
   }
 
-  private _editRowTemplate(row: StudentRow): TemplateResult {
+  private _editRowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
         <td><input type="text" .value=${this._editName} @input=${this._handleEditNameInput} /></td>
-        <td>${row.modules.map((m) => m.name).join(', ')}</td>
+        <td>${row.moduleName}</td>
         <td>${row.cycleName}</td>
         <td>${row.legislationName ?? ''}</td>
         <td>${row.startYear ?? ''}</td>
@@ -499,4 +462,4 @@ export class CorrectorStudentsForm extends HTMLElement {
     `;
   }
 }
-customElements.define('corrector-students-form', CorrectorStudentsForm);
+customElements.define('corrector-projects-form', CorrectorProjectsForm);

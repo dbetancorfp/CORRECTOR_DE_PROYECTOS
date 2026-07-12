@@ -41,6 +41,21 @@ export function createProjectsRouter(
     }
   });
 
+  router.put('/:id', async (req, res) => {
+    try {
+      const { name, academicYear, moduleId } = req.body as {
+        name?: string;
+        academicYear?: string;
+        moduleId?: number;
+      };
+      const result = await service.update(Number(req.params.id), { name, academicYear, moduleId });
+      res.status(200).json(result);
+    } catch (err) {
+      const { status, body } = mapError(err);
+      res.status(status).json(body);
+    }
+  });
+
   router.delete('/:id', async (req, res) => {
     try {
       await service.delete(Number(req.params.id));

@@ -156,11 +156,20 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html — Profesor · Tab Proyectos
 
-> Numeración pendiente de corregir (rango real: #61–72) — se revisará al implementar esta pantalla.
-
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 47 | Tabla de proyectos | tabla | Lista proyectos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
+| 61 | Campo nombre (formulario alta) | input texto | Nombre del proyecto a crear |
+| 62 | Selector año inicio (formulario alta) | select | Año de inicio del curso académico — ayuda de navegación; se convierte a `academic_year` (YYYY-YYYY) al guardar |
+| 63 | Selector legislación (formulario alta) | select | Legislación aplicable, filtrada por #62 |
+| 64 | Selector ciclo (formulario alta) | select | Ciclo formativo, filtrado por #63 — ayuda de navegación; `project` no tiene `cycle_id` propio (se infiere vía alumnos asignados) |
+| 65 | Selector módulo (formulario alta) | select | Módulo del ciclo, filtrado por #64 — se persiste como `project.module_id` |
+| 66 | Botón Nuevo | botón | Persiste el nuevo proyecto con los datos del formulario #61–#65 |
+| 67 | Filtro por nombre | input texto | Filtro reactivo (debounce 300 ms) sobre el listado #72 |
+| 68 | Filtro por año (listado) | select | Acota el listado #72 por año de inicio (derivado de `academic_year`) |
+| 69 | Filtro por legislación (listado) | select | Acota el listado #72 por legislación |
+| 70 | Filtro por ciclo (listado) | select | Acota el listado #72 por ciclo formativo, filtrado por #69 |
+| 71 | Filtro por módulo (listado) | select | Acota el listado #72 por módulo, filtrado por #70 |
+| 72 | Tabla de proyectos | tabla | Lista proyectos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
 
 ---
 

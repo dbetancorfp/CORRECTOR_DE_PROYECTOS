@@ -140,6 +140,37 @@ describe('Element #66 — POST /api/projects', () => {
   });
 });
 
+describe('Element #72 — PUT /api/projects/:id', () => {
+  it('returns 200 with the updated project', async () => {
+    // Creates its own project rather than mutating the shared seed projects
+    // (1-2) — other tests in this file resolve them by id/name.
+    const created = await fetch(`${BASE_URL}/api/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Editable', academicYear: '2024-2025', moduleId: 1 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/projects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Editado' }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.name).toBe('Editado');
+  });
+
+  it('returns 404 when the project does not exist', async () => {
+    const res = await fetch(`${BASE_URL}/api/projects/99999`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Cualquiera' }),
+    });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('Elements #67–#71 — GET /api/projects', () => {
   it('returns 200 with array of projects', async () => {
     const res = await fetch(`${BASE_URL}/api/projects`);

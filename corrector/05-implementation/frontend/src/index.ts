@@ -5,6 +5,7 @@ import './components/corrector-modules-form';
 import './components/corrector-teachers-form';
 import './components/corrector-profesor-landing';
 import './components/corrector-students-form';
+import './components/corrector-projects-form';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
@@ -54,6 +55,7 @@ const routes: Route[] = [
   { path: '/admin/profesorado', render: renderGuardedScreen('corrector-teachers-form', ['admin']) },
   { path: '/profesor', render: renderGuardedScreen('corrector-profesor-landing', ['profesor', 'tutor']) },
   { path: '/profesor/gestionar/alumnos', render: renderGuardedScreen('corrector-students-form', ['profesor', 'tutor']) },
+  { path: '/profesor/gestionar/proyectos', render: renderGuardedScreen('corrector-projects-form', ['profesor', 'tutor']) },
 ];
 
 const outlet = document.getElementById('app');
@@ -73,6 +75,11 @@ document.addEventListener('corrector:admin-nav-selected', (e) => {
 });
 
 document.addEventListener('corrector:profesor-landing-navigate', (e) => {
+  const { to } = (e as CustomEvent<{ to: string }>).detail;
+  router.navigate(to);
+});
+
+document.addEventListener('corrector:gestion-nav-selected', (e) => {
   const { to } = (e as CustomEvent<{ to: string }>).detail;
   router.navigate(to);
 });
