@@ -10,7 +10,10 @@ describe('UC-07: Gestión de Proyectos', () => {
     cy.get('[data-element-id="2"]').type('correctpass');
     cy.get('[data-element-id="3"]').click();
     cy.url().should('include', '/profesor');
-    cy.contains(/Gestionar|proyectos/i).click();
+    // "Gestionar" lands on the Alumnos tab first; Proyectos is a second click.
+    cy.get('[data-action="navigate-gestionar"]').click();
+    cy.get('[data-action="tab-proyectos"]').click();
+    cy.url().should('include', '/profesor/gestionar/proyectos');
     cy.get('[data-element-id="72"]').should('be.visible');
   });
 
@@ -59,7 +62,7 @@ describe('UC-07: Gestión de Proyectos', () => {
     // Project 1 has students assigned in setup
     cy.request('POST', '/api/projects/1/students', { studentIds: [1] });
     cy.reload();
-    cy.contains(/Gestionar|proyectos/i).click();
+    cy.get('[data-element-id="72"]').should('be.visible');
     cy.get('[data-element-id="72"]').contains('tr', 'Test Project')
       .find('[data-action="delete"]').click();
     cy.contains(/alumnos|asignados/i).should('be.visible');
@@ -69,7 +72,8 @@ describe('UC-07: Gestión de Proyectos', () => {
 
   it('filters the projects table in real time by name (#67)', () => {
     cy.get('[data-element-id="67"]').type('Test');
-    cy.get('[data-element-id="72"]').find('tr').each(($row) => {
+    cy.wait(400);
+    cy.get('[data-element-id="72"]').find('tbody tr').each(($row) => {
       cy.wrap($row).invoke('text').then((text) => {
         expect(text.toLowerCase()).to.include('test');
       });
@@ -80,14 +84,18 @@ describe('UC-07: Gestión de Proyectos', () => {
 
   it('shows error when project name is empty on submit', () => {
     cy.get('[data-element-id="66"]').click();
-    cy.contains(/nombre|requerido/i).should('be.visible');
+    // Validation errors only mark aria-invalid, no visible toast text (same
+    // pattern as the rest of the project's forms).
+    cy.get('[data-element-id="61"]').should('have.attr', 'aria-invalid', 'true');
   });
 
   // ── Tabla vacía ──────────────────────────────────────────────────────────────
 
   it('shows empty state when no projects match the filter', () => {
     cy.get('[data-element-id="67"]').type('xxxxxnonexistent');
-    cy.get('[data-element-id="72"]').contains(/sin proyectos|vacío|no hay/i)
-      .should('be.visible');
+    cy.wait(400);
+    // The empty-state message renders as a sibling <p> after the table, not
+    // inside it (see corrector-projects-form.ts's template).
+    cy.contains(/no hay proyectos/i).should('be.visible');
   });
 });
