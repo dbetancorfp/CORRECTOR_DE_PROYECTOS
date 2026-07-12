@@ -6,19 +6,17 @@
 describe('UC-06: Gestión de Alumnos', () => {
   beforeEach(() => {
     cy.visit('/');
-    cy.get('[data-element-id="1"]').type('profesor1');
-    cy.get('[data-element-id="2"]').type('12345678');
+    // dbetqui (tutor) is the only seeded non-admin account with
+    // must_change_password=false — profesor1 requires a password change on
+    // first login, and re-logging in with its original password across
+    // multiple tests in this file would fail from the second test onward
+    // (the password only changes once). See uc-01-login.cy.ts.
+    cy.get('[data-element-id="1"]').type('dbetqui');
+    cy.get('[data-element-id="2"]').type('correctpass');
     cy.get('[data-element-id="3"]').click();
-    // Handle first-login password change if needed
-    cy.url().then((url) => {
-      if (!url.includes('/profesor')) {
-        cy.get('input[type="password"]').eq(1).type('NewPassword1!');
-        cy.get('input[type="password"]').eq(2).type('NewPassword1!');
-        cy.get('[data-element-id="3"]').click();
-      }
-    });
     cy.url().should('include', '/profesor');
-    cy.contains(/Gestionar|alumnos/i).click();
+    cy.get('[data-action="navigate-gestionar"]').click();
+    cy.url().should('include', '/profesor/gestionar/alumnos');
     cy.get('[data-element-id="60"]').should('be.visible');
   });
 
@@ -54,7 +52,9 @@ describe('UC-06: Gestión de Alumnos', () => {
     cy.get('[data-element-id="54"]').then(($el) => {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      $el[0].dispatchEvent(new Event('change', { bubbles: true }));
+      const input = $el[0] as HTMLInputElement;
+      input.files = dataTransfer.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     });
     cy.get('[data-element-id="60"]').contains('AA001').should('be.visible');
     cy.get('[data-element-id="60"]').contains('BB002').should('be.visible');
@@ -67,9 +67,14 @@ describe('UC-06: Gestión de Alumnos', () => {
     cy.get('[data-element-id="54"]').then(($el) => {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      $el[0].dispatchEvent(new Event('change', { bubbles: true }));
+      const input = $el[0] as HTMLInputElement;
+      input.files = dataTransfer.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     });
-    cy.contains(/error|formato/i).should('be.visible');
+    // The backend's actual message ("Missing required CSV columns: ...", see
+    // csv-student-parser.service.ts) never says "error" or "formato" — match
+    // what's really rendered instead of an invented toast string.
+    cy.contains(/missing required/i).should('be.visible');
     cy.get('[data-element-id="60"]').contains('XX999').should('not.exist');
   });
 
@@ -89,7 +94,8 @@ describe('UC-06: Gestión de Alumnos', () => {
 
   it('filters students table in real time when typing in the name filter (#55)', () => {
     cy.get('[data-element-id="55"]').type('JJ');
-    cy.get('[data-element-id="60"]').find('tr').each(($row) => {
+    cy.wait(400);
+    cy.get('[data-element-id="60"]').find('tbody tr').each(($row) => {
       cy.wrap($row).invoke('text').then((text) => {
         expect(text.toLowerCase()).to.include('jj');
       });
