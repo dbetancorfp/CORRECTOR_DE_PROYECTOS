@@ -217,7 +217,7 @@ export class CorrectorRubricForm extends HTMLElement {
     this._render();
 
     const state = this._editingItemId === null
-      ? await this._controller.addItem(moduleId, academicYear, this._builderDescription, this._builderLevels)
+      ? await this._controller.addItem(moduleId, academicYear, this._builderDescription, this._builderLevels, this._items.length)
       : await this._controller.updateItem(this._editingItemId, this._builderDescription, this._builderLevels);
     this._builderLoading = false;
 

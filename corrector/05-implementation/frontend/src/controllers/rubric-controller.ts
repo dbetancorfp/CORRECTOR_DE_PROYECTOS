@@ -96,7 +96,7 @@ export class RubricController {
     return items.filter((item) => item.description.toLowerCase().includes(q));
   }
 
-  async addItem(moduleId: number, academicYear: string, description: string, levels: BuilderLevel[]): Promise<SaveState> {
+  async addItem(moduleId: number, academicYear: string, description: string, levels: BuilderLevel[], existingItemCount: number): Promise<SaveState> {
     if (description.trim() === '') {
       return { status: 'validation-error', message: 'El nombre del ítem es obligatorio' };
     }
@@ -109,7 +109,9 @@ export class RubricController {
     const result = await this.rubricService.addItem(moduleId, {
       academicYear,
       description: description.trim(),
-      displayOrder: 1,
+      // rubric_item has UNIQUE(rubric_id, display_order) — hardcoding 1
+      // here would collide with any item already in the rubric.
+      displayOrder: existingItemCount + 1,
       levels: toLevelInputs(levels),
     });
     if (result.ok) return { status: 'success', item: result.item };
