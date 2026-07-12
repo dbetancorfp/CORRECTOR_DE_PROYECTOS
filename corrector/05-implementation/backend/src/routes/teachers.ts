@@ -30,6 +30,12 @@ export function createTeachersRouter(repo: TeacherRepository): Router {
     res.status(201).json(result);
   });
 
+  router.put('/:id', requireAdmin, async (req, res) => {
+    const { username } = req.body as { username?: string };
+    const result = await service.update(Number(req.params.id), { username });
+    res.json(result);
+  });
+
   router.post('/:id/unlock', requireAdmin, async (req, res) => {
     const result = await service.unlock(Number(req.params.id));
     res.json(result);

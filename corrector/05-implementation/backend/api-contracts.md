@@ -426,9 +426,11 @@ Cuando `teacherId` se proporciona (solo admin o el propio profesor), filtra a lo
 
 #### Request
 
-- **Body**: `{ username: string, password: string, moduleId: number, role?: "profesor" | "tutor" }`
+- **Body**: `{ username: string, password: string, moduleId: number }`
 
-`role` por defecto es `"profesor"`. Si `role = "tutor"`, se requiere adicionalmente `tutorCycleId: number`.
+`role` es siempre `"profesor"` — esta pantalla no permite crear `admin` ni
+`tutor` (sin selector de rol en el boceto ni criterio de aceptación que lo
+requiera; `must_change_password` se fija a `true` automáticamente).
 
 #### Response 201
 
@@ -461,7 +463,11 @@ Cuando `teacherId` se proporciona (solo admin o el propio profesor), filtra a lo
 #### Request
 
 - **Params**: `{ id: number }`
-- **Body**: `{ username?: string, moduleId?: number }`
+- **Body**: `{ username?: string }`
+
+Solo `username` es editable inline — el repositorio no reasigna `moduleId` en
+`update()`; reasignar el módulo de un profesor no tiene criterio de aceptación
+en `functional-spec.json` #46 y no está implementado.
 
 #### Response 200
 
@@ -475,7 +481,6 @@ Cuando `teacherId` se proporciona (solo admin o el propio profesor), filtra a lo
 |--------|-----------|
 | 404 | No existe |
 | 409 | username duplicado |
-| 409 | Módulo ya asignado a otro profesor |
 
 ---
 
@@ -517,6 +522,11 @@ Cuando `teacherId` se proporciona (solo admin o el propio profesor), filtra a lo
 ---
 
 ### POST /api/teachers/:id/reset-password
+
+**⚠️ No implementado** — ni la ruta ni un método de servicio existen. Ningún
+criterio de aceptación de `functional-spec.json` #46 lo requiere (solo pide
+desbloqueo de cuenta, ya cubierto por `POST /:id/unlock`). Documentado aquí
+como posible ampliación futura, fuera de alcance de la pantalla actual.
 
 **Descripción**: Restablece la contraseña del profesor a '12345678' y activa must_change_password  
 **Roles permitidos**: admin  

@@ -84,13 +84,29 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 23 | Tab Profesorado | botón | Activa la vista de gestión de profesorado (estado seleccionado) |
-| 24 | Botón Nuevo | botón | Abre el formulario para crear un nuevo profesor |
-| 25 | Tabla de profesorado | tabla | Lista todos los profesores con nombre, contraseña, ciclo y módulos asignados |
-| 26 | Columna Ciclo | cabecera columna | Ciclo asignado al profesor |
-| 27 | Columna Módulos | cabecera columna | Lista de módulos (siglas) asignados al profesor |
-| 28 | Columna Editar | cabecera columna | Columna de acciones de edición por fila |
-| 29 | Columna Borrar | cabecera columna | Columna de acciones de borrado por fila |
+| 34 | Tab Profesorado | botón (tab) | Cambia la vista de Gestión al tab de Profesorado |
+| 35 | Campo Nombre de usuario | input texto | Usuario Consejería del profesor (4–20 caracteres, único) |
+| 36 | Campo Contraseña | input password | Contraseña inicial (mín. 8 caracteres); se guarda hasheada, nunca en claro |
+| 37 | Selector año (navegación) | select | Filtra las opciones de #38; NO se persiste |
+| 38 | Selector legislación (navegación) | select | Filtrado por #37; filtra las opciones de #39; NO se persiste |
+| 39 | Selector ciclo (navegación) | select | Deshabilitado hasta que #37 y #38 tienen valor; filtra las opciones de #40; NO se persiste |
+| 40 | Selector módulo | select | Deshabilitado hasta que #39 tiene valor; único campo realmente asignado (`teacher_module`) |
+| 41 | Botón Guardar | botón submit | Crea el profesor (`role='profesor'`, `must_change_password=true`) y lo enlaza a #40 |
+| 42 | Filtro por año | input texto (reactivo) | Filtra la tabla #46 vía `teacher_module` → `module` → `legislation.start_year`, debounce 300 ms |
+| 43 | Filtro por legislación | input texto (reactivo) | Filtra la tabla #46 vía `teacher_module` → `module` → `legislation`, debounce 300 ms |
+| 44 | Filtro por ciclo | input texto (reactivo) | Filtra la tabla #46 vía `teacher_module` → `module` → `cycle.name`, debounce 300 ms |
+| 45 | Filtro por módulo | input texto (reactivo) | Filtra la tabla #46 vía `teacher_module` → `module.name`, debounce 300 ms |
+| 46 | Tabla de profesorado | tabla | Usuario, contraseña (`12345678` si `must_change_password`, si no `********`), año, ciclo, módulos, editar, borrar; filtrada por #42–#45; incluye acción de desbloqueo cuando la cuenta está bloqueada |
+
+> **Nota**: `api-contracts.md` documentaba `role`/`tutorCycleId` en el body de
+> `POST /api/teachers` y `moduleId` en `PUT /api/teachers/:id` — ninguno de los
+> dos existe en `TeacherService` (crea siempre `role='profesor'`, sin selector
+> en el boceto ni criterio de aceptación en `functional-spec.json` #41; el
+> `update()` del repositorio solo toca `username`). Corregido en
+> `api-contracts.md` para reflejar el contrato real. También documentaba
+> `POST /api/teachers/:id/reset-password`, que tampoco existe (ni ruta ni
+> método de servicio) — sin criterio de aceptación que lo requiera en esta
+> pantalla (#46 solo pide desbloqueo), se deja fuera de alcance.
 
 ---
 

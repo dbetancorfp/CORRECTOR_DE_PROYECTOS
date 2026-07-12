@@ -24,7 +24,7 @@ const TAB_ELEMENT_IDS: Record<AdminTab, number | null> = {
   legislacion: 4,
   ciclos: 12,
   modulos: 22,
-  profesorado: null,
+  profesorado: 34,
 };
 
 export const ADMIN_TAB_PATHS: Record<AdminTab, string> = {

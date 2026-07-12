@@ -245,6 +245,45 @@ describe('Elements #42–#45 — GET /api/teachers', () => {
   });
 });
 
+describe('Element #46 — PUT /api/teachers/:id', () => {
+  it('returns 200 with the updated username', async () => {
+    // Creates its own module + teacher rather than reusing the shared seed
+    // fixture (modules 1-3, teachers 1-2) — teacher_module.module_id is
+    // UNIQUE and other test files assign teachers by username.
+    const module = await fetch(`${BASE_URL}/api/modules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo profesorado scratch', weeklyHours: 5, cycleId: 1, legislationId: 2 }),
+    });
+    const { id: moduleId } = await module.json() as { id: number };
+
+    const created = await fetch(`${BASE_URL}/api/teachers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ username: 'scratchteacher', password: '12345678', moduleId }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/teachers/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ username: 'scratchrenamed' }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.username).toBe('scratchrenamed');
+  });
+
+  it('returns 404 when the teacher does not exist', async () => {
+    const res = await fetch(`${BASE_URL}/api/teachers/99999`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ username: 'cualquiera' }),
+    });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('Element #46 — POST /api/teachers/:id/unlock', () => {
   it('returns 200 with accountLocked=false and failedLoginAttempts=0', async () => {
     const res = await fetch(`${BASE_URL}/api/teachers/1/unlock`, {

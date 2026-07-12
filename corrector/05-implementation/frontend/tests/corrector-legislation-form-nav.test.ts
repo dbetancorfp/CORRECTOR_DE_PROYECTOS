@@ -45,7 +45,7 @@ describe('corrector-legislation-form: shared nav chrome', () => {
     el.remove();
   });
 
-  it('renders the 4-tab bar with Legislación active, Ciclos/Módulos clickable, Profesorado disabled', async () => {
+  it('renders the 4-tab bar with Legislación active and every other tab clickable', async () => {
     const el = mount(makeService());
     await flush();
 
@@ -58,10 +58,12 @@ describe('corrector-legislation-form: shared nav chrome', () => {
 
     const ciclosTab = Array.from(tabs).find((tab) => tab.textContent?.trim() === 'Ciclos') as HTMLButtonElement;
     const modulosTab = Array.from(tabs).find((tab) => tab.textContent?.trim() === 'Módulos') as HTMLButtonElement;
+    const profesoradoTab = Array.from(tabs).find((tab) => tab.textContent?.trim() === 'Profesorado') as HTMLButtonElement;
     expect(ciclosTab.disabled).toBe(false);
     expect(modulosTab.disabled).toBe(false);
+    expect(profesoradoTab.disabled).toBe(false);
     const disabledTabs = Array.from(tabs).filter((tab) => (tab as HTMLButtonElement).disabled);
-    expect(disabledTabs.length).toBe(1);
+    expect(disabledTabs.length).toBe(0);
     el.remove();
   });
 

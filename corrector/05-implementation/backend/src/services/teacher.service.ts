@@ -42,6 +42,23 @@ export class TeacherService {
     return this.repo.save(data);
   }
 
+  async update(id: number, data: { username?: string }): Promise<TeacherListItem> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new AppError(`Teacher ${id} not found`, 'NOT_FOUND');
+    }
+    if (data.username !== undefined) {
+      if (data.username.length < 4 || data.username.length > 20) {
+        throw new AppError('Username must be between 4 and 20 characters', 'VALIDATION_ERROR');
+      }
+      const duplicate = await this.repo.findByUsername(data.username);
+      if (duplicate && duplicate.id !== id) {
+        throw new AppError(`Username '${data.username}' already exists`, 'DUPLICATE');
+      }
+    }
+    return this.repo.update(id, data);
+  }
+
   async unlock(id: number): Promise<{ id: number; accountLocked: boolean; failedLoginAttempts: number }> {
     const teacher = await this.repo.findById(id);
     if (!teacher) {
