@@ -303,16 +303,15 @@
     },
     {
       "sketchNumber": 20,
-      "behavior": "Table showing all cycles, filtered by #17, #18, #19. Each row shows name, end_year (calculated), edit and delete icons. Inline edit and delete with confirmation.",
+      "behavior": "Table showing all cycles, filtered by #17, #18, #19. Each row shows name, edit and delete icons. Inline edit and delete with confirmation.",
       "businessRules": [
-        "end_year column = cycle.start_year + 1; not stored, calculated at display time",
         "Edit: inline; delete: confirmation dialog required",
         "Cannot delete a cycle that has associated modules; user sees error and must delete modules first",
         "Table updates without page reload after edit or delete"
       ],
       "dataNeeds": ["cycle.id", "cycle.name", "module.cycle_id"],
       "acceptanceCriteria": [
-        "Given data, table shows cycle name and end_year = start_year + 1",
+        "Given data, table shows cycle name",
         "Given edit clicked, row enters edit mode",
         "Given delete clicked with no modules, cycle is removed after confirmation",
         "Given delete clicked with existing modules, deletion is blocked with error message",
@@ -321,15 +320,13 @@
     },
     {
       "sketchNumber": 21,
-      "behavior": "Read-only column header in the cycles table for the 'Año finalización' column. The value per row is calculated as cycle.start_year + 1.",
+      "behavior": "Column header 'Año finalización' from the boceto mockup. NOT implemented: cycle has no start_year field (schema.sql: cycle is only id/name/created_at) — legislation belongs to modules, not cycles, so a single end year per cycle is not well-defined. Explicit user decision 2026-07-12: column omitted from the real table.",
       "businessRules": [
-        "end_year = start_year + 1; derived at runtime, not stored in the database"
+        "Column intentionally omitted from the implementation — see behavior note"
       ],
-      "dataNeeds": ["cycle.start_year"],
+      "dataNeeds": [],
       "acceptanceCriteria": [
-        "Column header 'Año finalización' visible in table #20",
-        "Each row shows start_year + 1 in this column",
-        "Column value is not editable"
+        "N/A — column not rendered by corrector-cycles-form"
       ]
     },
     {

@@ -45,7 +45,7 @@ describe('corrector-legislation-form: shared nav chrome', () => {
     el.remove();
   });
 
-  it('renders the 4-tab bar with only Legislación active and clickable', async () => {
+  it('renders the 4-tab bar with Legislación active, Ciclos clickable, Módulos/Profesorado disabled', async () => {
     const el = mount(makeService());
     await flush();
 
@@ -56,9 +56,30 @@ describe('corrector-legislation-form: shared nav chrome', () => {
     expect(legislacionTab.getAttribute('aria-selected')).toBe('true');
     expect(legislacionTab.disabled).toBe(false);
 
-    const otherTabs = Array.from(tabs).filter((tab) => tab !== legislacionTab) as HTMLButtonElement[];
-    expect(otherTabs.length).toBe(3);
-    otherTabs.forEach((tab) => expect(tab.disabled).toBe(true));
+    const tabLabels = Array.from(tabs).map((tab) => tab.textContent?.trim());
+    const ciclosTab = Array.from(tabs).find((tab) => tab.textContent?.trim() === 'Ciclos') as HTMLButtonElement;
+    expect(ciclosTab.disabled).toBe(false);
+    expect(tabLabels).toContain('Módulos');
+    expect(tabLabels).toContain('Profesorado');
+    const disabledTabs = Array.from(tabs).filter((tab) => (tab as HTMLButtonElement).disabled);
+    expect(disabledTabs.length).toBe(2);
+    el.remove();
+  });
+
+  it('dispatches corrector:admin-nav-selected with /admin/ciclos when the Ciclos tab is clicked', async () => {
+    const el = mount(makeService());
+    await flush();
+
+    let navigateDetail: { to: string } | null = null;
+    document.addEventListener('corrector:admin-nav-selected', (e) => {
+      navigateDetail = (e as CustomEvent<{ to: string }>).detail;
+    });
+
+    const tabs = el.shadowRoot!.querySelectorAll('[role="tab"]');
+    const ciclosTab = Array.from(tabs).find((tab) => tab.textContent?.trim() === 'Ciclos') as HTMLButtonElement;
+    ciclosTab.click();
+
+    expect(navigateDetail).toEqual({ to: '/admin/ciclos' });
     el.remove();
   });
 });

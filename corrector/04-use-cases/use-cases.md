@@ -124,13 +124,19 @@
 
 **Actor principal**: Admin  
 **Precondiciones**: Autenticado como admin; al menos una legislación existente  
-**Elementos del boceto**: #12 (tab Ciclos), #13 (nombre ciclo), #14 (selector año), #15 (selector legislación), #16 (Guardar), #17 (filtro año), #18 (filtro legislación), #19 (filtro nombre), #20 (tabla ciclos), #21 (columna Año finalización)  
+**Elementos del boceto**: #12 (tab Ciclos), #13 (nombre ciclo), #14 (selector año), #15 (selector legislación), #16 (Guardar), #17 (filtro año), #18 (filtro legislación), #19 (filtro nombre), #20 (tabla ciclos), #21 (columna Año finalización — no implementada, ver nota)  
 **Fase RAG**: use-case
+
+> **Nota #21**: el boceto mockea una columna "Año finalización" = `start_year + 1`,
+> pero `cycle` no tiene `start_year` (`schema.sql`: solo `id, name, created_at`) —
+> la legislación vive en los módulos, no en el ciclo, así que un "año de
+> finalización" único por ciclo no está bien definido. Decisión explícita del
+> usuario (2026-07-12): columna omitida de la implementación real.
 
 ### Flujo principal
 
 1. El admin pulsa el tab Ciclos (#12); la ruta cambia a `/admin/ciclos`.
-2. La tabla #20 carga todos los ciclos. La columna #21 muestra `start_year + 1` calculado.
+2. La tabla #20 carga todos los ciclos (nombre únicamente).
 3. El admin introduce el nombre del ciclo en #13.
 4. Selecciona un año en #14 (para filtrar la legislación, sin persistir en el ciclo) y una legislación en #15 (también solo navegación).
 5. Pulsa Guardar (#16).
@@ -148,7 +154,6 @@
 
 - Ciclo persiste con `id` y `name` únicamente.
 - La legislación seleccionada en #14/#15 NO se almacena en el ciclo.
-- Columna 'Año finalización' siempre muestra `start_year + 1` (dato derivado, no almacenado).
 
 ### Criterios de aceptación
 
@@ -156,7 +161,6 @@
 - [ ] Dado nombre duplicado, operación rechazada con error
 - [ ] Dado #14 seleccionado, opciones de #15 filtradas al año correspondiente
 - [ ] Dado legislación seleccionada en #15, valor NO persiste en el registro de ciclo
-- [ ] Dado ciclo en #20, columna Año finalización muestra start_year + 1
 - [ ] Dado borrar ciclo con módulos, eliminación bloqueada con mensaje
 - [ ] Dado filtros #17–#19, tabla #20 filtra en tiempo real (≤ 300 ms)
 

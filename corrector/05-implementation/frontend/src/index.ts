@@ -1,5 +1,6 @@
 import './components/corrector-login-form';
 import './components/corrector-legislation-form';
+import './components/corrector-cycles-form';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
@@ -14,15 +15,17 @@ function renderLogin(outlet: HTMLElement): void {
   mount(outlet, 'corrector-login-form');
 }
 
-function renderAdminLegislacion(outlet: HTMLElement): void {
-  void (async () => {
-    const result = await authService.me();
-    if (!result.ok || result.role !== 'admin') {
-      router.navigate('/');
-      return;
-    }
-    mount(outlet, 'corrector-legislation-form');
-  })();
+function renderAdminScreen(tagName: string): (outlet: HTMLElement) => void {
+  return (outlet) => {
+    void (async () => {
+      const result = await authService.me();
+      if (!result.ok || result.role !== 'admin') {
+        router.navigate('/');
+        return;
+      }
+      mount(outlet, tagName);
+    })();
+  };
 }
 
 function renderNotImplemented(outlet: HTMLElement): void {
@@ -31,8 +34,9 @@ function renderNotImplemented(outlet: HTMLElement): void {
 
 const routes: Route[] = [
   { path: '/', render: renderLogin },
-  { path: '/admin', render: renderAdminLegislacion },
-  { path: '/admin/legislacion', render: renderAdminLegislacion },
+  { path: '/admin', render: renderAdminScreen('corrector-legislation-form') },
+  { path: '/admin/legislacion', render: renderAdminScreen('corrector-legislation-form') },
+  { path: '/admin/ciclos', render: renderAdminScreen('corrector-cycles-form') },
 ];
 
 const outlet = document.getElementById('app');
@@ -44,6 +48,11 @@ router.start();
 document.addEventListener('corrector:login-succeeded', (e) => {
   const { redirectTo } = (e as CustomEvent<{ redirectTo: string }>).detail;
   router.navigate(redirectTo);
+});
+
+document.addEventListener('corrector:admin-nav-selected', (e) => {
+  const { to } = (e as CustomEvent<{ to: string }>).detail;
+  router.navigate(to);
 });
 
 document.addEventListener('corrector:logout', () => {

@@ -3,6 +3,8 @@ import type { TemplateResult } from 'lit-html';
 import { HttpLegislationService } from '../services/legislation.service';
 import type { Legislation, LegislationService } from '../services/legislation.service';
 import { LegislationController } from '../controllers/legislation-controller';
+import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
+import type { AdminTab } from './admin-nav';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -171,6 +173,14 @@ export class CorrectorLegislationForm extends HTMLElement {
     this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
   };
 
+  private _handleNavigateClick = (tab: AdminTab): void => {
+    this.dispatchEvent(new CustomEvent('corrector:admin-nav-selected', {
+      bubbles: true,
+      composed: true,
+      detail: { to: ADMIN_TAB_PATHS[tab] },
+    }));
+  };
+
   private async _handleDelete(row: Legislation): Promise<void> {
     const confirmed = window.confirm(`¿Eliminar la legislación ${row.name}?`);
     if (!confirmed) return;
@@ -196,17 +206,7 @@ export class CorrectorLegislationForm extends HTMLElement {
     const visibleRows = this._controller.filterRows(this._rows, this._yearFilter, this._nameFilter);
 
     return html`
-      <nav>
-        <span>Corrector de proyectos</span>
-        <button data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
-      </nav>
-
-      <div class="tabs">
-        <button data-element-id="4" role="tab" aria-selected="true">Legislación</button>
-        <button role="tab" aria-selected="false" disabled>Ciclos</button>
-        <button role="tab" aria-selected="false" disabled>Módulos</button>
-        <button role="tab" aria-selected="false" disabled>Profesorado</button>
-      </div>
+      ${renderAdminNav('legislacion', this._handleLogoutClick, this._handleNavigateClick)}
 
       <div role="alert">${this._formErrorMessage}</div>
       <form>

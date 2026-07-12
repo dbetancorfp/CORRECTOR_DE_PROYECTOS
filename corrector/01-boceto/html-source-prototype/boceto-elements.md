@@ -33,11 +33,23 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 11 | Tab Ciclos | botón | Activa la vista de gestión de ciclos (estado seleccionado) |
-| 12 | Botón Nuevo | botón | Abre el formulario para crear un nuevo ciclo |
-| 13 | Tabla de ciclos | tabla | Lista todos los ciclos existentes con opciones de editar y borrar |
-| 14 | Icono Editar (ciclo) | celda | Acción para editar el ciclo de esa fila |
-| 15 | Icono Borrar (ciclo) | celda | Acción para eliminar el ciclo de esa fila |
+| 11 | Nav (⚠️ ver conflicto abajo) | nav | Etiquetado en el HTML sobre el `<nav>` completo, no sobre un botón concreto |
+| 12 | Tab Ciclos | botón (tab) | Cambia la vista de Gestión al tab de Ciclos |
+| 13 | Campo Nombre del ciclo | input texto | Nombre del ciclo a crear (único, 3–100 caracteres) |
+| 14 | Selector año (navegación) | select | Filtra las opciones de #15 por año; NO se persiste en el ciclo |
+| 15 | Selector legislación (navegación) | select | Filtrado por #14; NO se persiste en el ciclo — la legislación vive en los módulos, no en el ciclo |
+| 16 | Botón Guardar | botón submit | Persiste únicamente el nombre del ciclo (campo #13) |
+| 17 | Filtro por año de inicio | input texto (reactivo) | Filtra la tabla #20 vía JOIN módulos→legislación, debounce 300 ms |
+| 18 | Filtro por legislación | input texto (reactivo) | Filtra la tabla #20 vía JOIN módulos→legislación, debounce 300 ms |
+| 19 | Filtro por nombre de ciclo | input texto (reactivo) | Filtra la tabla #20 por nombre, debounce 300 ms |
+| 20 | Tabla de ciclos | tabla | Lista todos los ciclos (nombre) con iconos de editar y borrar por fila; filtrada por #17, #18, #19 |
+| 21 | Columna "Año finalización" (⚠️ no implementada) | cabecera columna | El boceto la mockea como `start_year + 1`, pero `cycle` no tiene `start_year` (schema.sql: solo `id, name, created_at`) — decisión explícita del usuario 2026-07-12: columna omitida en la implementación real |
+
+> **⚠️ CONFLICTO #11**: coincide con el ya documentado en `use-cases.md` (UC-01, botón
+> Salir) y con `uc-01-login.cy.ts` (`data-element-id="11"` esperado como logout). El
+> HTML real lo pone en el `<nav>`, no en un botón. Decisión del usuario (sesión
+> Legislación, 2026-07-12): sidestep temporal usando `data-action="logout"` en la
+> implementación en vez de depender de `#11`. Sin resolver a nivel de sketchNumbers.
 
 ---
 
