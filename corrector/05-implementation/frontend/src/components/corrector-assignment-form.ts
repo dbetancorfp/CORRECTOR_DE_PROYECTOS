@@ -476,7 +476,7 @@ export class CorrectorAssignmentForm extends HTMLElement {
           `)}
           ${this._candidates.map((s) => html`
             <label>
-              <input type="checkbox" .checked=${this._selectedCandidateIds.has(s.id)} @change=${(e: Event) => this._handleCandidateToggle(s.id, e)} />
+              <input type="checkbox" data-student=${s.id} .checked=${this._selectedCandidateIds.has(s.id)} @change=${(e: Event) => this._handleCandidateToggle(s.id, e)} />
               ${s.name}
             </label>
           `)}
