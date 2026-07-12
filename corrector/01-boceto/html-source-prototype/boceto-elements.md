@@ -57,13 +57,26 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 16 | Tab Módulos | botón | Activa la vista de gestión de módulos (estado seleccionado) |
-| 17 | Botón Nuevo | botón | Abre el formulario para crear un nuevo módulo |
-| 18 | Tabla de módulos | tabla | Lista todos los módulos con nombre, siglas, legislación, horas y ciclo |
-| 19 | Columna Legislación | cabecera columna | Indica la legislación a la que pertenece el módulo |
-| 20 | Columna Ciclo | cabecera columna | Indica el ciclo al que pertenece el módulo |
-| 21 | Columna Editar | cabecera columna | Columna de acciones de edición por fila |
-| 22 | Columna Borrar | cabecera columna | Columna de acciones de borrado por fila |
+| 22 | Tab Módulos | botón (tab) | Cambia la vista de Gestión al tab de Módulos |
+| 23 | Campo Nombre del módulo | input texto | Nombre del módulo a crear (3–100 caracteres) |
+| 24 | Campo Horas semanales | input texto | Horas semanales del módulo (entero 1–30); usado en la fórmula de nota final |
+| 25 | Selector legislación | select | Legislación del módulo (FK real, `legislation_id`); al elegir, actualiza #26 |
+| 26 | Selector año | select | Año de la legislación elegida en #25 (no se persiste por separado — ver nota) |
+| 27 | Selector ciclo | select | Ciclo del módulo (FK real, `cycle_id`); deshabilitado hasta que #25 y #26 tienen valor; opciones filtradas a ciclos que ya tienen algún módulo bajo la legislación elegida (`GET /api/cycles?legislationId=`) |
+| 28 | Botón Guardar | botón submit | Persiste name, weekly_hours, legislation_id (#25) y cycle_id (#27) — #26 no se envía |
+| 29 | Filtro por año | input texto (reactivo) | Filtra la tabla #33 por año de la legislación del módulo, debounce 300 ms |
+| 30 | Filtro por legislación | input texto (reactivo) | Filtra la tabla #33 por abreviatura de legislación, debounce 300 ms |
+| 31 | Filtro por ciclo | input texto (reactivo) | Filtra la tabla #33 por nombre de ciclo, debounce 300 ms |
+| 32 | Filtro por nombre de módulo | input texto (reactivo) | Filtra la tabla #33 por nombre de módulo, debounce 300 ms |
+| 33 | Tabla de módulos | tabla | Nombre, ciclo, año, legislación, horas semanales, editar y borrar; filtrada por #29–#32 |
+
+> **Limitación conocida y aceptada #27**: al filtrar a "ciclos que ya tienen un
+> módulo bajo la legislación elegida", no es posible crear desde esta pantalla el
+> primer módulo de una combinación ciclo+legislación totalmente nueva (un ciclo sin
+> ningún módulo previo no aparecerá en #27 para ninguna legislación). Decisión
+> explícita del usuario (2026-07-12): implementar el filtro tal cual lo especifica
+> `functional-spec.json`/`use-cases.md` (UC-04) y aceptar esta limitación en vez de
+> relajarla.
 
 ---
 

@@ -33,6 +33,17 @@ export function createModulesRouter(repo: ModuleRepository): Router {
     res.status(201).json(result);
   });
 
+  router.put('/:id', requireAdmin, async (req, res) => {
+    const { name, weeklyHours, cycleId, legislationId } = req.body as {
+      name?: string;
+      weeklyHours?: number;
+      cycleId?: number;
+      legislationId?: number;
+    };
+    const result = await service.update(Number(req.params.id), { name, weeklyHours, cycleId, legislationId });
+    res.json(result);
+  });
+
   router.delete('/:id', requireAdmin, async (req, res) => {
     await service.delete(Number(req.params.id));
     res.status(204).send();

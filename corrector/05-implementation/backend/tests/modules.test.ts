@@ -176,6 +176,38 @@ describe('Element #28 — POST /api/modules', () => {
   });
 });
 
+describe('Element #33 — PUT /api/modules/:id', () => {
+  it('returns 200 with the updated module', async () => {
+    // Creates its own module rather than mutating the shared seed module 1
+    // ("DEW") — students.test.ts's CSV upload resolves a module by that name.
+    const created = await fetch(`${BASE_URL}/api/modules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo editable', weeklyHours: 5, cycleId: 1, legislationId: 1 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/modules/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo editado', weeklyHours: 9 }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.name).toBe('Módulo editado');
+    expect(body.weeklyHours).toBe(9);
+  });
+
+  it('returns 404 when the module does not exist', async () => {
+    const res = await fetch(`${BASE_URL}/api/modules/99999`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Cualquiera' }),
+    });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('Elements #29–#32 — GET /api/modules', () => {
   it('returns 200 with array of modules including cycleName and legislationName', async () => {
     const res = await fetch(`${BASE_URL}/api/modules`);

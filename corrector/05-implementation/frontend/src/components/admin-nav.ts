@@ -23,7 +23,7 @@ const TAB_LABELS: Record<AdminTab, string> = {
 const TAB_ELEMENT_IDS: Record<AdminTab, number | null> = {
   legislacion: 4,
   ciclos: 12,
-  modulos: null,
+  modulos: 22,
   profesorado: null,
 };
 

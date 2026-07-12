@@ -41,6 +41,20 @@ export class ModuleService {
     return this.repo.create(data);
   }
 
+  async update(id: number, data: Partial<CreateModuleData>): Promise<Module> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new AppError(`Module ${id} not found`, 'NOT_FOUND');
+    }
+    if (
+      data.weeklyHours !== undefined &&
+      (!Number.isInteger(data.weeklyHours) || data.weeklyHours < 1 || data.weeklyHours > 30)
+    ) {
+      throw new AppError('Weekly hours must be an integer between 1 and 30', 'VALIDATION_ERROR');
+    }
+    return this.repo.update(id, data);
+  }
+
   async delete(id: number): Promise<void> {
     const hasProjects = await this.repo.hasProjects(id);
     if (hasProjects) {

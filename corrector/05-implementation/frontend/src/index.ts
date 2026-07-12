@@ -1,6 +1,7 @@
 import './components/corrector-login-form';
 import './components/corrector-legislation-form';
 import './components/corrector-cycles-form';
+import './components/corrector-modules-form';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
@@ -37,6 +38,7 @@ const routes: Route[] = [
   { path: '/admin', render: renderAdminScreen('corrector-legislation-form') },
   { path: '/admin/legislacion', render: renderAdminScreen('corrector-legislation-form') },
   { path: '/admin/ciclos', render: renderAdminScreen('corrector-cycles-form') },
+  { path: '/admin/modulos', render: renderAdminScreen('corrector-modules-form') },
 ];
 
 const outlet = document.getElementById('app');
