@@ -230,14 +230,26 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## vista_profesor-landing-ver_notas.html — Ver Notas (nuevo boceto)
 
+> Corregido 2026-07-12. La numeración anterior (#85–89, #122) era parcialmente
+> inventada — mismo patrón que el resto de pantallas de Profesor (#122 era el
+> único ID ya correcto). Misma pantalla para profesor y tutor
+> (`route: /profesor/notas` en `ui-spec.json`) — el rol determina qué módulos
+> aparecen en #117 y qué columnas tiene #119, no una pantalla separada de
+> "panorámica". La tabla de vista previa del boceto muestra columnas a nivel
+> de ítem (Proyecto/Alumno/Item/Nota), pero `functional-spec.json` especifica
+> columnas agregadas por módulo: profesor ve Proyecto/Alumno/Nota; tutor ve
+> Proyecto/Alumno/una columna por módulo del ciclo/Nota final.
+
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 85 | Filtro año académico | select | Selector de año de inicio del curso; filtra los ciclos disponibles en #86 |
-| 86 | Filtro ciclo | select | Selector de ciclo, enlazado a #85; filtra los módulos disponibles en #87 |
-| 87 | Filtro módulo | select | Selector de módulo asignado al profesor, enlazado a #86 |
-| 88 | Botón Descarga PDF | botón | Genera y descarga el PDF con los datos filtrados por #85, #86 y #87 |
-| 89 | Tabla de resultados | tabla | Vista previa del PDF: columnas Proyecto, Nombre alumno, Niveles evaluados, Nota final |
-| 122 | Labels estado por módulo | párrafo | Grupo de badges por módulo: fondo verde si todos los alumnos tienen corrección, rojo si falta al menos uno; aparece entre los filtros y la tabla #119 |
+| 114 | Selector año | select | Ayuda de navegación; determina el `academic_year` usado en las consultas |
+| 115 | Selector legislación | select | Filtrado por #114 |
+| 116 | Selector ciclo | select | Filtrado por #115; dispara los badges de #122 |
+| 117 | Selector módulo | select | Filtrado por #116; para profesor solo su(s) propio(s) módulo(s), para tutor todos los del ciclo |
+| 118 | Selector proyecto | select | Filtrado por #117; acota la tabla #119 y es el 5º campo requerido para habilitar #120 |
+| 119 | Tabla de resultados | tabla | Columnas según rol (ver nota arriba); solo lectura |
+| 120 | Botón Imprimir | botón | Descarga el PDF de #119; deshabilitado hasta que #114–#118 tengan valor |
+| 122 | Labels estado por módulo | párrafo | Un badge por módulo del ciclo seleccionado en #116: verde si todos los alumnos asignados tienen corrección, rojo si falta al menos uno |
 
 ---
 

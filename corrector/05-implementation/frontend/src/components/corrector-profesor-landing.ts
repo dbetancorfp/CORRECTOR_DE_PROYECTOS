@@ -8,13 +8,11 @@ import { ProfesorLandingController } from '../controllers/profesor-landing-contr
 //
 // Gestionar/Corregir/Visualizar notas have no data-element-id in the boceto
 // (see ui-spec.json screen-profesor-landing notes: "navigation elements not
-// requiring individual spec"). Visualizar notas stays a disabled placeholder
-// because its target screen (/profesor/notas) doesn't exist yet — same
-// precedent as admin-nav's disabled tabs before Ciclos/Módulos/Profesorado
-// were implemented. Gestionar and Corregir are enabled now that their target
-// screens exist. #47 does carry an explicit acceptance criterion (UC-10)
-// requiring it to navigate on click, so it stays enabled even though its own
-// target screen isn't built yet either.
+// requiring individual spec"). All three are now enabled — every target
+// screen exists. Visualizar notas and #47 (Imprimir notas, tutor only) both
+// point at /profesor/notas: it's the same screen for both roles, per
+// screen-ver-notas's own route/notes in ui-spec.json (role determines
+// which columns/modules render, not which route is used).
 export class CorrectorProfesorLanding extends HTMLElement {
   authService?: AuthService;
 
@@ -65,6 +63,13 @@ export class CorrectorProfesorLanding extends HTMLElement {
     }));
   };
 
+  private _handleVerNotasClick = (): void => {
+    this.dispatchEvent(new CustomEvent('corrector:profesor-landing-navigate', {
+      bubbles: true, composed: true,
+      detail: { to: '/profesor/notas' },
+    }));
+  };
+
   private _template() {
     return html`
       <nav>
@@ -75,7 +80,7 @@ export class CorrectorProfesorLanding extends HTMLElement {
       <section class="landing-actions">
         <button type="button" data-action="navigate-gestionar" @click=${this._handleGestionarClick}>Gestionar</button>
         <button type="button" data-action="navigate-corregir" @click=${this._handleCorregirClick}>Corregir</button>
-        <button type="button" data-action="navigate-notas" disabled>Visualizar notas</button>
+        <button type="button" data-action="navigate-notas" @click=${this._handleVerNotasClick}>Visualizar notas</button>
         ${this._role === 'tutor'
           ? html`<button type="button" data-element-id="47" @click=${this._handlePrintNotesClick}>Imprimir notas</button>`
           : ''}

@@ -10,7 +10,7 @@ function makeAuthService(overrides: Partial<AuthService> = {}): AuthService {
     login: async () => ({ ok: true, role: 'profesor', mustChangePassword: false }),
     changePassword: async () => ({ ok: true }),
     logout: async () => ({ ok: true }),
-    me: async () => ({ ok: true, role: 'profesor' }),
+    me: async () => ({ ok: true, id: 1, role: 'profesor' }),
     ...overrides,
   };
 }
@@ -28,7 +28,7 @@ async function flush(): Promise<void> {
 
 describe('Element #47 — corrector-profesor-landing: Imprimir notas button', () => {
   it('is not rendered for role=profesor', async () => {
-    const el = mount(makeAuthService({ me: async () => ({ ok: true, role: 'profesor' }) }));
+    const el = mount(makeAuthService({ me: async () => ({ ok: true, id: 1, role: 'profesor' }) }));
     await flush();
 
     const button = el.shadowRoot!.querySelector('[data-element-id="47"]');
@@ -37,7 +37,7 @@ describe('Element #47 — corrector-profesor-landing: Imprimir notas button', ()
   });
 
   it('is rendered and clickable for role=tutor', async () => {
-    const el = mount(makeAuthService({ me: async () => ({ ok: true, role: 'tutor' }) }));
+    const el = mount(makeAuthService({ me: async () => ({ ok: true, id: 1, role: 'tutor' }) }));
     await flush();
 
     const button = el.shadowRoot!.querySelector('[data-element-id="47"]') as HTMLButtonElement;
@@ -48,7 +48,7 @@ describe('Element #47 — corrector-profesor-landing: Imprimir notas button', ()
   });
 
   it('navigates to the panoramic grade print view when clicked by a tutor', async () => {
-    const el = mount(makeAuthService({ me: async () => ({ ok: true, role: 'tutor' }) }));
+    const el = mount(makeAuthService({ me: async () => ({ ok: true, id: 1, role: 'tutor' }) }));
     await flush();
 
     let navigatedTo: string | null = null;

@@ -10,7 +10,7 @@ function makeAuthService(overrides: Partial<AuthService> = {}): AuthService {
     login: async () => ({ ok: true, role: 'admin', mustChangePassword: false }),
     changePassword: async () => ({ ok: true }),
     logout: async () => ({ ok: true }),
-    me: async () => ({ ok: true, role: 'admin' }),
+    me: async () => ({ ok: true, id: 1, role: 'admin' }),
     ...overrides,
   };
 }

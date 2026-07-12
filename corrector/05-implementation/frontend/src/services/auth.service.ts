@@ -25,6 +25,7 @@ export interface LogoutApiResult {
 
 export interface MeSuccess {
   ok: true;
+  id: number;
   role: TeacherRole;
 }
 
@@ -76,7 +77,7 @@ export class HttpAuthService implements AuthService {
   async me(): Promise<MeResult> {
     const res = await fetch('/api/auth/me');
     if (!res.ok) return { ok: false, status: res.status };
-    const body = await res.json() as { role: TeacherRole };
-    return { ok: true, role: body.role };
+    const body = await res.json() as { id: number; role: TeacherRole };
+    return { ok: true, id: body.id, role: body.role };
   }
 }
