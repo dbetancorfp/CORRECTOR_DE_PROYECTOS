@@ -1,7 +1,7 @@
 import type { RubricRepository } from '../repositories/rubric.repository';
 import type { RubricParserService } from './file-parser.service';
 
-const SUPPORTED_FORMATS = ['yaml', 'yml', 'json'];
+const SUPPORTED_FORMATS = ['csv', 'yaml', 'yml', 'json'];
 
 class AppError extends Error {
   constructor(message: string, public readonly code?: string) {

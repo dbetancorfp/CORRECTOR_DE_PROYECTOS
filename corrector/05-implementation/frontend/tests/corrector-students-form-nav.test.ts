@@ -85,7 +85,7 @@ describe('corrector-students-form: nav chrome', () => {
     el.remove();
   });
 
-  it('renders the Alumnos tab as active and Rúbrica as disabled', async () => {
+  it('renders the Alumnos tab as active and all other tabs as enabled', async () => {
     const el = mount(makeStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
@@ -93,7 +93,7 @@ describe('corrector-students-form: nav chrome', () => {
     expect(alumnos.getAttribute('aria-selected')).toBe('true');
 
     const rubrica = el.shadowRoot!.querySelector('[data-action="tab-rubrica"]') as HTMLButtonElement;
-    expect(rubrica.disabled).toBe(true);
+    expect(rubrica.disabled).toBe(false);
     el.remove();
   });
 

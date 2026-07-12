@@ -4,30 +4,7 @@ import type { StudentParserService } from '../services/file-parser.service';
 import { StudentService } from '../services/student.service';
 import { StudentImporter } from '../services/student-importer';
 import { mapError } from './error';
-
-function parseMultipartFile(body: Buffer, boundary: string): { filename: string; content: Buffer } | null {
-  const sep = Buffer.from(`--${boundary}`);
-  let start = 0;
-  const parts: Buffer[] = [];
-  let idx: number;
-  while ((idx = body.indexOf(sep, start)) !== -1) {
-    parts.push(body.slice(start, idx));
-    start = idx + sep.length;
-  }
-  parts.push(body.slice(start));
-
-  for (const part of parts) {
-    const eoh = part.indexOf('\r\n\r\n');
-    if (eoh === -1) continue;
-    const header = part.slice(0, eoh).toString();
-    const fileContent = part.slice(eoh + 4, part.length - 2);
-    const filenameMatch = /filename="([^"]+)"/.exec(header);
-    if (filenameMatch) {
-      return { filename: filenameMatch[1], content: fileContent };
-    }
-  }
-  return null;
-}
+import { parseMultipart, extractBoundary, readRequestBody } from './multipart';
 
 export function createStudentsRouter(repo: StudentRepository, parser: StudentParserService): Router {
   const router = Router();
@@ -43,23 +20,14 @@ export function createStudentsRouter(repo: StudentRepository, parser: StudentPar
 
   router.post('/upload', async (req, res) => {
     try {
-      const contentType = req.headers['content-type'] ?? '';
-      const boundaryMatch = /boundary=(.+)/.exec(contentType);
-      if (!boundaryMatch) {
+      const boundary = extractBoundary(req.headers['content-type']);
+      if (!boundary) {
         res.status(400).json({ error: 'Expected multipart/form-data' });
         return;
       }
-      const boundary = boundaryMatch[1].trim();
 
-      const chunks: Buffer[] = [];
-      await new Promise<void>((resolve, reject) => {
-        req.on('data', (chunk: Buffer) => chunks.push(chunk));
-        req.on('end', resolve);
-        req.on('error', reject);
-      });
-      const body = Buffer.concat(chunks);
-
-      const file = parseMultipartFile(body, boundary);
+      const body = await readRequestBody(req);
+      const { file } = parseMultipart(body, boundary);
       if (!file) {
         res.status(400).json({ error: 'No file found in request' });
         return;

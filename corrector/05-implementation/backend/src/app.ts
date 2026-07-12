@@ -37,6 +37,7 @@ import { createCorrectionsRouter } from './routes/corrections';
 import { createGradesRouter } from './routes/grades';
 import { createRubricRouter } from './routes/rubric';
 import { CsvStudentParserService } from './services/csv-student-parser.service';
+import { RubricFileParserService } from './services/rubric-parser.service';
 import { GradeService } from './services/grade.service';
 import { GradeCalculator } from './services/grade-calculator';
 import type { TeacherRepository } from './repositories/teacher.repository';
@@ -122,6 +123,7 @@ export function createApp(deps: AppDeps): Express {
   const sessionRepo = new InMemorySessionRepository(sessionsMapFor(deps));
 
   const studentParser = new CsvStudentParserService(moduleRepo);
+  const rubricParser = new RubricFileParserService();
   const gradeService = new GradeService(
     correctionRepo,
     moduleRepo,
@@ -146,7 +148,7 @@ export function createApp(deps: AppDeps): Express {
   app.use('/api/projects', createProjectsRouter(projectRepo, psRepo));
   app.use('/api/corrections', createCorrectionsRouter(correctionRepo, rubricRepo, moduleRepo));
   app.use('/api', createGradesRouter(gradeService));
-  app.use('/api', createRubricRouter(rubricRepo));
+  app.use('/api', createRubricRouter(rubricRepo, rubricParser));
 
   // ── Frontend static assets ──────────────────────────────────────────────────
   const frontendDir = join(import.meta.dir, '..', '..', 'frontend');

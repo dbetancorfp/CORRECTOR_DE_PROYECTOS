@@ -1,19 +1,20 @@
 // Nav/logout/tab-bar chrome — not tied to a single boceto sketchNumber.
 
 import { describe, it, expect } from 'bun:test';
-import type { ProjectService } from '../src/services/project.service';
+import type { RubricService } from '../src/services/rubric.service';
 import type { LegislationService } from '../src/services/legislation.service';
 import type { CycleService } from '../src/services/cycle.service';
 import type { ModuleService } from '../src/services/module.service';
-import '../src/components/corrector-projects-form';
-import type { CorrectorProjectsForm } from '../src/components/corrector-projects-form';
+import '../src/components/corrector-rubric-form';
+import type { CorrectorRubricForm } from '../src/components/corrector-rubric-form';
 
-function makeProjectService(overrides: Partial<ProjectService> = {}): ProjectService {
+function makeRubricService(overrides: Partial<RubricService> = {}): RubricService {
   return {
-    list: async () => ({ ok: true, items: [] }),
-    create: async (data) => ({ ok: true, item: { id: 1, name: data.name, academicYear: data.academicYear, moduleId: data.moduleId, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 } }),
-    update: async (id, data) => ({ ok: true, item: { id, name: data.name ?? '', academicYear: '2020-2021', moduleId: 1, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 } }),
-    delete: async () => ({ ok: true }),
+    getForModule: async () => ({ ok: true, item: { id: 1, moduleId: 1, academicYear: '2020-2021', frozen: false, items: [] } }),
+    addItem: async () => ({ ok: false, status: 500, code: '' }),
+    updateItem: async () => ({ ok: false, status: 500, code: '' }),
+    deleteItem: async () => ({ ok: true }),
+    upload: async () => ({ ok: true }),
     ...overrides,
   };
 }
@@ -49,13 +50,13 @@ function makeModuleService(overrides: Partial<ModuleService> = {}): ModuleServic
 }
 
 function mount(
-  projectService: ProjectService,
+  rubricService: RubricService,
   legislationService: LegislationService,
   cycleService: CycleService,
   moduleService: ModuleService,
-): CorrectorProjectsForm {
-  const el = document.createElement('corrector-projects-form') as CorrectorProjectsForm;
-  el.projectService = projectService;
+): CorrectorRubricForm {
+  const el = document.createElement('corrector-rubric-form') as CorrectorRubricForm;
+  el.rubricService = rubricService;
   el.legislationService = legislationService;
   el.cycleService = cycleService;
   el.moduleService = moduleService;
@@ -67,9 +68,9 @@ async function flush(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-describe('corrector-projects-form: nav chrome', () => {
+describe('corrector-rubric-form: nav chrome', () => {
   it('dispatches corrector:logout when Salir is clicked', async () => {
-    const el = mount(makeProjectService(), makeLegislationService(), makeCycleService(), makeModuleService());
+    const el = mount(makeRubricService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
     let logoutFired = false;
@@ -82,14 +83,14 @@ describe('corrector-projects-form: nav chrome', () => {
     el.remove();
   });
 
-  it('renders the Proyectos tab as active and all other tabs as enabled', async () => {
-    const el = mount(makeProjectService(), makeLegislationService(), makeCycleService(), makeModuleService());
+  it('renders the Rúbrica tab as active and all other tabs as enabled', async () => {
+    const el = mount(makeRubricService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
-    const proyectos = el.shadowRoot!.querySelector('[data-action="tab-proyectos"]') as HTMLButtonElement;
-    expect(proyectos.getAttribute('aria-selected')).toBe('true');
+    const rubrica = el.shadowRoot!.querySelector('[data-action="tab-rubrica"]') as HTMLButtonElement;
+    expect(rubrica.getAttribute('aria-selected')).toBe('true');
 
-    for (const action of ['tab-alumnos', 'tab-asignacion', 'tab-rubrica']) {
+    for (const action of ['tab-alumnos', 'tab-proyectos', 'tab-asignacion']) {
       const tab = el.shadowRoot!.querySelector(`[data-action="${action}"]`) as HTMLButtonElement;
       expect(tab.disabled).toBe(false);
     }
@@ -97,7 +98,7 @@ describe('corrector-projects-form: nav chrome', () => {
   });
 
   it('navigates to /profesor/gestionar/alumnos when the Alumnos tab is clicked', async () => {
-    const el = mount(makeProjectService(), makeLegislationService(), makeCycleService(), makeModuleService());
+    const el = mount(makeRubricService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
     let navigatedTo: string | null = null;

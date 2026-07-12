@@ -318,6 +318,99 @@ describe('Element #98 — POST /api/modules/:id/rubric/items', () => {
   });
 });
 
+describe('Element #92/#100 — PUT /api/rubric/items/:id', () => {
+  it('returns 200 with the updated item', async () => {
+    // Creates its own item rather than mutating the shared seed items
+    // (1-2, already referenced by an existing correction) — rubric 1 has
+    // items at display_order 1 and 2 (UNIQUE per rubric).
+    const created = await fetch(`${BASE_URL}/api/modules/1/rubric/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        academicYear: '2024-2025',
+        description: 'Editable',
+        displayOrder: 4,
+        levels: [
+          { name: 'Excelente', score: 1.0, displayOrder: 1 },
+          { name: 'Mal',       score: 0.0, displayOrder: 2 },
+        ],
+      }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/rubric/items/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: 'Editado' }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.description).toBe('Editado');
+  });
+
+  it('returns 409 when the update would exceed the Excelente sum of 10', async () => {
+    const created = await fetch(`${BASE_URL}/api/modules/1/rubric/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        academicYear: '2024-2025',
+        description: 'Editable 2',
+        displayOrder: 5,
+        levels: [
+          { name: 'Excelente', score: 1.0, displayOrder: 1 },
+          { name: 'Mal',       score: 0.0, displayOrder: 2 },
+        ],
+      }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/rubric/items/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ levels: [{ name: 'Excelente', score: 99.0, displayOrder: 1 }] }),
+    });
+    expect(res.status).toBe(409);
+  });
+});
+
+describe('Element #99 — POST /api/modules/:id/rubric/upload', () => {
+  it('returns 200 and replaces the rubric when confirm=true', async () => {
+    const csv = 'item,excelente,bien,mal\nItem subido,2,1,0\n';
+    const formData = new FormData();
+    formData.append('file', new Blob([csv], { type: 'text/csv' }), 'rubrica.csv');
+    formData.append('academicYear', '2025-2026');
+    formData.append('confirm', 'true');
+    const res = await fetch(`${BASE_URL}/api/modules/1/rubric/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 400 for an unsupported file format', async () => {
+    const formData = new FormData();
+    formData.append('file', new Blob(['data'], { type: 'application/vnd.ms-excel' }), 'rubrica.xlsx');
+    formData.append('academicYear', '2025-2026');
+    const res = await fetch(`${BASE_URL}/api/modules/1/rubric/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 409 when a rubric already exists and confirm is not set', async () => {
+    const csv = 'item,excelente,bien,mal\nItem subido,2,1,0\n';
+    const formData = new FormData();
+    formData.append('file', new Blob([csv], { type: 'text/csv' }), 'rubrica.csv');
+    formData.append('academicYear', '2024-2025');
+    const res = await fetch(`${BASE_URL}/api/modules/1/rubric/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    expect(res.status).toBe(409);
+  });
+});
+
 describe('Element #97 — DELETE /api/rubric/items/:id', () => {
   it('returns 204 when item is deleted', async () => {
     const res = await fetch(`${BASE_URL}/api/rubric/items/1`, { method: 'DELETE' });

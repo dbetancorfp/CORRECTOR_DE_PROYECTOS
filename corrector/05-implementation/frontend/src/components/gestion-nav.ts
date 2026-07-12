@@ -29,7 +29,7 @@ const TAB_IMPLEMENTED: Record<GestionTab, boolean> = {
   alumnos: true,
   proyectos: true,
   asignacion: true,
-  rubrica: false,
+  rubrica: true,
 };
 
 const TAB_ORDER: GestionTab[] = ['alumnos', 'proyectos', 'asignacion', 'rubrica'];

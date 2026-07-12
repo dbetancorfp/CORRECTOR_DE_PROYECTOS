@@ -202,24 +202,29 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html — Profesor · Tab Rúbrica
 
-> Numeración pendiente de corregir (rango real: #86–100) — se revisará al implementar esta pantalla.
+> Corregido 2026-07-12. La numeración anterior (#52–64, #90) era inventada —
+> ninguno de esos IDs aparece en el HTML real. También se eliminó "#64
+> Puntuación máxima": ese elemento no existe en el boceto (ni en
+> `ui-spec.json`/`functional-spec.json`); el límite de 10 puntos en Excelente
+> se comunica solo como error al guardar, no como un contador visible.
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 52 | Tab Rúbrica | botón | Activa la vista de gestión de rúbrica (estado seleccionado) |
-| 53 | Filtro por proyecto | input texto | Filtro reactivo: muestra la rúbrica del proyecto buscado |
-| 54 | Filtro por año | input texto | Filtro reactivo: reduce resultados por año académico |
-| 55 | Botón Nuevo | botón | Añade un nuevo ítem a la rúbrica del proyecto activo |
-| 56 | Tabla de rúbrica | tabla | Grid de ítems × niveles de calificación (Excelente, Muy bien, Bien, Regular, Mal) |
-| 57 | Celda Nombre del ítem | celda editable | Descripción del criterio de evaluación |
-| 58 | Celda Excelente | celda editable | Valor numérico para la calificación Excelente |
-| 59 | Celda Muy bien | celda editable | Valor numérico para la calificación Muy bien |
-| 60 | Celda Bien | celda editable | Valor numérico para la calificación Bien |
-| 61 | Celda Regular | celda editable | Valor numérico para la calificación Regular |
-| 62 | Celda Mal | celda editable | Valor numérico para la calificación Mal |
-| 63 | Botón Subir rúbrica | botón | Importa una rúbrica completa desde fichero |
-| 64 | Puntuación máxima | párrafo | Muestra la suma total máxima posible de la rúbrica (calculada automáticamente) |
-| 90 | Icono Borrar (ítem rúbrica) | celda | Elimina la fila del ítem de la rúbrica |
+| 86 | Filtro por nombre de módulo | input texto | Filtro reactivo (debounce 300 ms); acota las opciones de #90, pese a que el placeholder del boceto dice "Filtrar por proyecto" |
+| 87 | Selector año inicio | select | Ayuda de navegación; determina el `academic_year` de la rúbrica (`año-año+1`) |
+| 88 | Selector legislación | select | Filtrado por #87 |
+| 89 | Selector ciclo | select | Filtrado por #88 |
+| 90 | Selector módulo | select | Filtrado por #89; al seleccionar carga la rúbrica de ese módulo en #100 |
+| 91 | Botón Nuevo nivel | botón | Añade la siguiente columna de nivel al builder #92 (orden canónico: Excelente, Muy bien, Bien, Regular, Mal); deshabilitado al llegar a 5 |
+| 92 | Tabla builder (nuevo ítem) | tabla editable | Fila única para construir un ítem antes de guardarlo; se vacía tras #98 |
+| 93 | Celda nombre del ítem | celda editable | Descripción del criterio, dentro de #92 |
+| 94 | Celda Excelente | celda editable | Valor numérico, dentro de #92 |
+| 95 | Celda Bien | celda editable | Valor numérico, dentro de #92; no debe superar el valor de Excelente |
+| 96 | Celda Mal | celda de solo lectura | Siempre 0 — invariante de dominio, no editable |
+| 97 | Icono Borrar (builder) | botón | Vacía la fila del builder #92 sin confirmación (ítem aún no guardado) |
+| 98 | Botón Añadir item | botón | Guarda el ítem del builder en la rúbrica del módulo seleccionado; valida que la suma de Excelente no supere 10 |
+| 99 | Botón Subir rúbrica | input file | Importa una rúbrica completa desde CSV/JSON/YAML; pide confirmación si el módulo ya tiene rúbrica |
+| 100 | Tabla de rúbrica completa | tabla | Todos los ítems guardados del módulo seleccionado, con Editar/Borrar; muestra las 5 columnas de nivel aunque un ítem solo tenga 3 |
 
 ---
 

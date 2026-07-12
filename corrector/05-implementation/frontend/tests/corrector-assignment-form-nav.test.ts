@@ -108,7 +108,7 @@ describe('corrector-assignment-form: nav chrome', () => {
     el.remove();
   });
 
-  it('renders the Asignación tab as active and Rúbrica as disabled', async () => {
+  it('renders the Asignación tab as active and Rúbrica as enabled', async () => {
     const el = mount(makeProjectService(), makeStudentService(), makeProjectStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
@@ -116,7 +116,7 @@ describe('corrector-assignment-form: nav chrome', () => {
     expect(asignacion.getAttribute('aria-selected')).toBe('true');
 
     const rubrica = el.shadowRoot!.querySelector('[data-action="tab-rubrica"]') as HTMLButtonElement;
-    expect(rubrica.disabled).toBe(true);
+    expect(rubrica.disabled).toBe(false);
     el.remove();
   });
 
