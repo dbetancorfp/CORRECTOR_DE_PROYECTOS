@@ -4,6 +4,7 @@ import './components/corrector-cycles-form';
 import './components/corrector-modules-form';
 import './components/corrector-teachers-form';
 import './components/corrector-profesor-landing';
+import './components/corrector-students-form';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
@@ -52,6 +53,7 @@ const routes: Route[] = [
   { path: '/admin/modulos', render: renderGuardedScreen('corrector-modules-form', ['admin']) },
   { path: '/admin/profesorado', render: renderGuardedScreen('corrector-teachers-form', ['admin']) },
   { path: '/profesor', render: renderGuardedScreen('corrector-profesor-landing', ['profesor', 'tutor']) },
+  { path: '/profesor/gestionar/alumnos', render: renderGuardedScreen('corrector-students-form', ['profesor', 'tutor']) },
 ];
 
 const outlet = document.getElementById('app');

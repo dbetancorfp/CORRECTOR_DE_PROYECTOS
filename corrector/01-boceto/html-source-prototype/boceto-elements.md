@@ -120,42 +120,43 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## Elementos compartidos — Tabs Gestión (Alumnos · Proyectos · Asignación)
 
-Los IDs 46–57 aparecen en los tres tabs de Gestión del profesor representando los mismos
-controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) varía por tab.
-
-> ⚠️ **CONFLICTO DE IDs**: Los IDs 52–58 también aparecen en el tab Rúbrica (elementos distintos).
-> Es necesario renumerar antes de avanzar en el pipeline.
-
-| # | Elemento | Tipo | Descripción |
-|---|----------|------|-------------|
-| 46 | Campo nombre (formulario alta) | input texto | Nombre del alumno o proyecto a crear |
-| 47 | Selector año inicio (formulario alta) | select | Año de inicio del curso académico |
-| 48 | Selector legislación (formulario alta) | select | Legislación aplicable (LOE, LOMLOE…) |
-| 49 | Selector ciclo (formulario alta) | select | Ciclo formativo, filtrado por legislación |
-| 50 | Selector módulo (formulario alta) | select | Módulo del ciclo, filtrado por ciclo |
-| 51 | Botón Nuevo | botón | Persiste el nuevo alumno o proyecto con los datos del formulario |
-| 52 | Botón Subir lista | botón | Importación masiva desde fichero (CSV / Excel) — sólo en tab Alumnos |
-| 53 | Filtro por nombre/proyecto | input texto | Filtro reactivo sobre el listado |
-| 54 | Filtro por año (listado) | select | Acota el listado por año de inicio del curso |
-| 55 | Filtro por legislación (listado) | select | Acota el listado por legislación |
-| 56 | Filtro por ciclo (listado) | select | Acota el listado por ciclo formativo |
-| 57 | Filtro por módulo (listado) | select | Acota el listado por módulo |
+> ⚠️ **Corregido 2026-07-12**: esta sección describía IDs 46–57 como
+> reutilizados literalmente entre los tres tabs de Gestión, y el
+> "CONFLICTO DE IDs" con Rúbrica. Ninguna de las dos afirmaciones es cierta:
+> `grep -o 'data-element-id="[0-9]*"'` sobre cada HTML real confirma que cada
+> tab tiene su propio rango contiguo sin solapes: Alumnos #48–60, Proyectos
+> #61–72, Asignación #73–85+#121, Rúbrica #86–100. `ui-spec.json` /
+> `functional-spec.json` / `use-cases.md` (UC-06 a UC-09) ya usaban la
+> numeración real y estaban de acuerdo entre sí — solo este fichero
+> arrastraba el esquema erróneo de "elementos compartidos". Sección de
+> Alumnos corregida abajo; Proyectos/Asignación/Rúbrica pendientes de la
+> misma pasada cuando se implementen esas pantallas.
 
 ---
 
 ## vista_profesor_landing-gestionar_tab_Alumnos_seleccionado.html — Profesor · Tab Alumnos
 
-> Usa los elementos compartidos 46–57. Elementos propios:
-
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 58 | Tabla de alumnos | tabla | Lista alumnos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
+| 48 | Campo nombre (formulario alta) | input texto | Nombre o código del alumno a crear — texto libre, sin formato impuesto |
+| 49 | Selector año inicio (formulario alta) | select | Año de inicio del curso académico — ayuda de navegación, no se persiste directamente |
+| 50 | Selector legislación (formulario alta) | select | Legislación aplicable, filtrada por #49 |
+| 51 | Selector ciclo (formulario alta) | select | Ciclo formativo, filtrado por #50 — se persiste como `student.cycle_id` |
+| 52 | Selector módulo (formulario alta) | select | Módulo del ciclo, filtrado por #51 — se persiste vía `student_module` |
+| 53 | Botón Nuevo | botón | Persiste el nuevo alumno con los datos del formulario #48–#52 |
+| 54 | Botón Subir lista de alumnos | botón | Importación masiva desde fichero CSV/JSON/YAML |
+| 55 | Filtro por nombre | input texto | Filtro reactivo (debounce 300 ms) sobre el listado #60 |
+| 56 | Filtro por año (listado) | select | Acota el listado #60 por año de inicio del curso |
+| 57 | Filtro por legislación (listado) | select | Acota el listado #60 por legislación |
+| 58 | Filtro por ciclo (listado) | select | Acota el listado #60 por ciclo formativo, filtrado por #57 |
+| 59 | Filtro por módulo (listado) | select | Acota el listado #60 por módulo, filtrado por #58 |
+| 60 | Tabla de alumnos | tabla | Lista alumnos con columnas: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
 
 ---
 
 ## vista_profesor_landing-gestionar_tab_Proyectos_seleccionado.html — Profesor · Tab Proyectos
 
-> Usa los elementos compartidos 46–57. Elementos propios:
+> Numeración pendiente de corregir (rango real: #61–72) — se revisará al implementar esta pantalla.
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
@@ -165,7 +166,7 @@ controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) v
 
 ## vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html — Profesor · Tab Asignación Proyecto-Alumno
 
-> Usa los elementos de filtro compartidos 53–57. Elementos propios:
+> Numeración pendiente de corregir (rango real: #73–85, más #121) — se revisará al implementar esta pantalla.
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
@@ -175,6 +176,8 @@ controles de formulario y filtro. El contexto semántico (alumno vs. proyecto) v
 ---
 
 ## vista_profesor_landing-gestionar_tab_Rubrica_seleccionado.html — Profesor · Tab Rúbrica
+
+> Numeración pendiente de corregir (rango real: #86–100) — se revisará al implementar esta pantalla.
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|

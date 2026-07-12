@@ -214,6 +214,38 @@ describe('Element #54 — POST /api/students/upload', () => {
   });
 });
 
+describe('Element #60 — PUT /api/students/:id', () => {
+  it('returns 200 with the updated student', async () => {
+    // Creates its own student rather than mutating the shared seed students
+    // (1-5) — other tests in this file and project-students.test.ts resolve
+    // them by id.
+    const created = await fetch(`${BASE_URL}/api/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Editable', cycleId: 1, moduleId: 1 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/students/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Editado' }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.name).toBe('Editado');
+  });
+
+  it('returns 404 when the student does not exist', async () => {
+    const res = await fetch(`${BASE_URL}/api/students/99999`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Cualquiera' }),
+    });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('Elements #55–#59 — GET /api/students', () => {
   it('returns 200 with array of students', async () => {
     const res = await fetch(`${BASE_URL}/api/students`);

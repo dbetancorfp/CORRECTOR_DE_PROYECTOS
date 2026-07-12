@@ -111,6 +111,21 @@ export function createStudentsRouter(repo: StudentRepository, parser: StudentPar
     }
   });
 
+  router.put('/:id', async (req, res) => {
+    try {
+      const { name, cycleId, moduleId } = req.body as {
+        name?: string;
+        cycleId?: number;
+        moduleId?: number;
+      };
+      const result = await service.update(Number(req.params.id), { name, cycleId, moduleId });
+      res.status(200).json(result);
+    } catch (err) {
+      const { status, body } = mapError(err);
+      res.status(status).json(body);
+    }
+  });
+
   router.delete('/:id', async (req, res) => {
     try {
       await service.delete(Number(req.params.id));

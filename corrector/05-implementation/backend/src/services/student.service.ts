@@ -27,6 +27,17 @@ export class StudentService {
     return this.repo.create(data);
   }
 
+  async update(id: number, data: Partial<CreateStudentData>): Promise<Student> {
+    const existing = await this.repo.findById(id);
+    if (!existing) {
+      throw new AppError(`Student ${id} not found`, 'NOT_FOUND');
+    }
+    if (data.name !== undefined && data.name.length < 2) {
+      throw new AppError('Name must be at least 2 characters', 'VALIDATION_ERROR');
+    }
+    return this.repo.update(id, data);
+  }
+
   async delete(id: number): Promise<void> {
     const assigned = await this.repo.isAssignedToProject(id);
     if (assigned) {

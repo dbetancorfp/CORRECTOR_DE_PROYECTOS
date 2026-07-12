@@ -1,7 +1,8 @@
 // Nav/logout/action chrome — not tied to a single boceto sketchNumber.
 // Gestionar/Corregir/Visualizar notas have no data-element-id in the boceto
-// (see ui-spec.json screen-profesor-landing notes) and are disabled here
-// because their target screens don't exist yet.
+// (see ui-spec.json screen-profesor-landing notes). Gestionar is enabled now
+// that /profesor/gestionar/alumnos exists; Corregir/Visualizar notas stay
+// disabled because their target screens still don't exist.
 
 import { describe, it, expect } from 'bun:test';
 import type { AuthService } from '../src/services/auth.service';
@@ -44,15 +45,32 @@ describe('corrector-profesor-landing: nav chrome', () => {
     el.remove();
   });
 
-  it('renders Gestionar, Corregir and Visualizar notas as disabled placeholders', async () => {
+  it('renders Corregir and Visualizar notas as disabled placeholders', async () => {
     const el = mount(makeAuthService());
     await flush();
 
-    for (const action of ['navigate-gestionar', 'navigate-corregir', 'navigate-notas']) {
+    for (const action of ['navigate-corregir', 'navigate-notas']) {
       const button = el.shadowRoot!.querySelector(`[data-action="${action}"]`) as HTMLButtonElement;
       expect(button).not.toBeNull();
       expect(button.disabled).toBe(true);
     }
+    el.remove();
+  });
+
+  it('navigates to /profesor/gestionar/alumnos when Gestionar is clicked', async () => {
+    const el = mount(makeAuthService());
+    await flush();
+
+    let navigatedTo: string | null = null;
+    el.addEventListener('corrector:profesor-landing-navigate', (e) => {
+      navigatedTo = (e as CustomEvent<{ to: string }>).detail.to;
+    });
+
+    const button = el.shadowRoot!.querySelector('[data-action="navigate-gestionar"]') as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+    button.click();
+
+    expect(navigatedTo).toBe('/profesor/gestionar/alumnos');
     el.remove();
   });
 });
