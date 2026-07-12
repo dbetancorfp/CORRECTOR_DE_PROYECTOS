@@ -114,7 +114,7 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 45 | Botón Imprimir notas | botón | Visible exclusivamente para el rol Tutor; accede a la impresión de notas |
+| 47 | Botón Imprimir notas | botón | Visible exclusivamente para el rol Tutor; accede a la impresión de notas |
 
 ---
 

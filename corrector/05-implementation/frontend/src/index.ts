@@ -3,9 +3,11 @@ import './components/corrector-legislation-form';
 import './components/corrector-cycles-form';
 import './components/corrector-modules-form';
 import './components/corrector-teachers-form';
+import './components/corrector-profesor-landing';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
+import type { TeacherRole } from './services/auth.service';
 
 const authService = new HttpAuthService();
 
@@ -17,11 +19,11 @@ function renderLogin(outlet: HTMLElement): void {
   mount(outlet, 'corrector-login-form');
 }
 
-function renderAdminScreen(tagName: string): (outlet: HTMLElement) => void {
+function renderGuardedScreen(tagName: string, allowedRoles: TeacherRole[]): (outlet: HTMLElement) => void {
   return (outlet) => {
     void (async () => {
       const result = await authService.me();
-      if (!result.ok || result.role !== 'admin') {
+      if (!result.ok || !allowedRoles.includes(result.role)) {
         router.navigate('/');
         return;
       }
@@ -45,10 +47,11 @@ const routes: Route[] = [
   // landing on the bare /admin path would show the Legislación tab as active
   // while the address bar disagreed.
   { path: '/admin', render: renderAdminRoot },
-  { path: '/admin/legislacion', render: renderAdminScreen('corrector-legislation-form') },
-  { path: '/admin/ciclos', render: renderAdminScreen('corrector-cycles-form') },
-  { path: '/admin/modulos', render: renderAdminScreen('corrector-modules-form') },
-  { path: '/admin/profesorado', render: renderAdminScreen('corrector-teachers-form') },
+  { path: '/admin/legislacion', render: renderGuardedScreen('corrector-legislation-form', ['admin']) },
+  { path: '/admin/ciclos', render: renderGuardedScreen('corrector-cycles-form', ['admin']) },
+  { path: '/admin/modulos', render: renderGuardedScreen('corrector-modules-form', ['admin']) },
+  { path: '/admin/profesorado', render: renderGuardedScreen('corrector-teachers-form', ['admin']) },
+  { path: '/profesor', render: renderGuardedScreen('corrector-profesor-landing', ['profesor', 'tutor']) },
 ];
 
 const outlet = document.getElementById('app');
@@ -63,6 +66,11 @@ document.addEventListener('corrector:login-succeeded', (e) => {
 });
 
 document.addEventListener('corrector:admin-nav-selected', (e) => {
+  const { to } = (e as CustomEvent<{ to: string }>).detail;
+  router.navigate(to);
+});
+
+document.addEventListener('corrector:profesor-landing-navigate', (e) => {
   const { to } = (e as CustomEvent<{ to: string }>).detail;
   router.navigate(to);
 });
