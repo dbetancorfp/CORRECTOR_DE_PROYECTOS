@@ -17,8 +17,12 @@ describe('UC-01: Login, logout y gestión de sesión', () => {
   });
 
   it('allows profesor to log in and reach the profesor panel', () => {
-    cy.get('[data-element-id="1"]').type('profesor1');
-    cy.get('[data-element-id="2"]').type('12345678');
+    // dbetqui (tutor) is the only seeded non-admin account with
+    // must_change_password=false — profesor1/dbetotro/otroprofe all require
+    // a password change on first login (see the dedicated test for that
+    // flow below), so they'd never reach /profesor directly.
+    cy.get('[data-element-id="1"]').type('dbetqui');
+    cy.get('[data-element-id="2"]').type('correctpass');
     cy.get('[data-element-id="3"]').click();
     cy.url().should('include', '/profesor');
   });
@@ -34,7 +38,9 @@ describe('UC-01: Login, logout y gestión de sesión', () => {
     cy.get('[data-element-id="2"]').type('Admin1234!');
     cy.get('[data-element-id="3"]').click();
     cy.url().should('include', '/admin');
-    cy.get('[data-element-id="11"]').click();
+    // #11 is a known, deliberately-deferred sketchNumber conflict (see
+    // boceto-elements.md) — the real Salir button uses data-action="logout".
+    cy.get('[data-action="logout"]').click();
     cy.url().should('eq', Cypress.config('baseUrl') + '/');
   });
 
@@ -51,8 +57,10 @@ describe('UC-01: Login, logout y gestión de sesión', () => {
   // ── Flujo A2: cuenta bloqueada (profesor/tutor) ──────────────────────────────
 
   it('shows admin-contact message after 3rd failed login for profesor', () => {
+    // otroprofe: a real seeded profesor not used successfully by any other
+    // test in this file, so locking it here can't break a later test.
     const tryLogin = () => {
-      cy.get('[data-element-id="1"]').clear().type('lockedcandidate');
+      cy.get('[data-element-id="1"]').clear().type('otroprofe');
       cy.get('[data-element-id="2"]').clear().type('wrongpassword');
       cy.get('[data-element-id="3"]').click();
     };

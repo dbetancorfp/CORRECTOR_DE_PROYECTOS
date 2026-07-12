@@ -34,9 +34,17 @@ function renderNotImplemented(outlet: HTMLElement): void {
   outlet.replaceChildren(document.createTextNode('Pantalla en construcción'));
 }
 
+function renderAdminRoot(outlet: HTMLElement): void {
+  router.navigate('/admin/legislacion');
+}
+
 const routes: Route[] = [
   { path: '/', render: renderLogin },
-  { path: '/admin', render: renderAdminScreen('corrector-legislation-form') },
+  // Canonicalizes to /admin/legislacion rather than mounting it directly at
+  // /admin — the tab bar (admin-nav.ts) always reflects the real URL, so
+  // landing on the bare /admin path would show the Legislación tab as active
+  // while the address bar disagreed.
+  { path: '/admin', render: renderAdminRoot },
   { path: '/admin/legislacion', render: renderAdminScreen('corrector-legislation-form') },
   { path: '/admin/ciclos', render: renderAdminScreen('corrector-cycles-form') },
   { path: '/admin/modulos', render: renderAdminScreen('corrector-modules-form') },

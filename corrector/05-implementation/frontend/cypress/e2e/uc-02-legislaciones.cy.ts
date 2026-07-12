@@ -31,7 +31,7 @@ describe('UC-02: Gestión de Legislaciones', () => {
   });
 
   it('loads and displays all existing legislations in table #10', () => {
-    cy.get('[data-element-id="10"]').find('tr').should('have.length.gte', 1);
+    cy.get('[data-element-id="10"]').find('tbody tr').should('have.length.gte', 1);
   });
 
   // ── Flujo A1: siglas duplicadas ──────────────────────────────────────────────
@@ -46,31 +46,34 @@ describe('UC-02: Gestión de Legislaciones', () => {
   // ── Flujo A2: validación de formulario ──────────────────────────────────────
 
   it('shows error when siglas field is empty on submit', () => {
-    cy.get('[data-element-id="6"]').type('2020');
-    cy.get('[data-element-id="7"]').click();
-    cy.get('[data-element-id="5"]').should('have.attr', 'aria-invalid', 'true')
-      .or('be.visible');
-    cy.get('[data-element-id="10"]').find('tr').its('length').then((before) => {
-      cy.get('[data-element-id="10"]').find('tr').should('have.length', before);
+    cy.get('[data-element-id="10"]').find('tbody tr').its('length').then((before) => {
+      cy.get('[data-element-id="6"]').type('2020');
+      cy.get('[data-element-id="7"]').click();
+      cy.get('[data-element-id="5"]').should('have.attr', 'aria-invalid', 'true');
+      cy.get('[data-element-id="10"]').find('tbody tr').should('have.length', before);
     });
   });
 
   it('shows validation error when siglas contains lowercase letters', () => {
+    // No prose error message is rendered for basic field validation anywhere
+    // in this pipeline — matches the empty-siglas test just above.
     cy.get('[data-element-id="5"]').type('lomloe');
     cy.get('[data-element-id="6"]').type('2020');
     cy.get('[data-element-id="7"]').click();
-    cy.contains(/mayúsculas|uppercase|patrón/i).should('be.visible');
+    cy.get('[data-element-id="5"]').should('have.attr', 'aria-invalid', 'true');
   });
 
   // ── Flujo A3: edición inline ─────────────────────────────────────────────────
 
   it('edits a legislation row inline and persists the change without page reload', () => {
+    // Locate the row being edited via the save button, not by text content —
+    // once in edit mode the name is an <input value>, which .contains()
+    // (a text-content match) can no longer see.
     cy.get('[data-element-id="10"]').contains('LOMLOE')
       .parents('tr').find('[data-action="edit"]').click();
-    cy.get('[data-element-id="10"]').contains('tr', 'LOMLOE')
+    cy.get('[data-element-id="10"]').find('[data-action="save"]').closest('tr')
       .find('input').first().clear().type('LOMLOE');
-    cy.get('[data-element-id="10"]').contains('tr', 'LOMLOE')
-      .find('[data-action="save"]').click();
+    cy.get('[data-element-id="10"]').find('[data-action="save"]').click();
     cy.get('[data-element-id="10"]').contains('LOMLOE').should('be.visible');
   });
 
@@ -94,14 +97,16 @@ describe('UC-02: Gestión de Legislaciones', () => {
 
   it('filters the table in real time when typing in the year filter (#8)', () => {
     cy.get('[data-element-id="8"]').type('2020');
-    cy.get('[data-element-id="10"]').find('tr').each(($row) => {
+    cy.wait(400); // 300ms debounce
+    cy.get('[data-element-id="10"]').find('tbody tr').each(($row) => {
       cy.wrap($row).should('contain', '2020');
     });
   });
 
   it('filters the table in real time when typing in the siglas filter (#9)', () => {
     cy.get('[data-element-id="9"]').type('loe');
-    cy.get('[data-element-id="10"]').find('tr').each(($row) => {
+    cy.wait(400); // 300ms debounce
+    cy.get('[data-element-id="10"]').find('tbody tr').each(($row) => {
       cy.wrap($row).invoke('text').then((text) => {
         expect(text.toLowerCase()).to.include('loe');
       });

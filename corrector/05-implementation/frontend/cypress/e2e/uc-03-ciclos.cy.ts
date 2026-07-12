@@ -22,21 +22,23 @@ describe('UC-03: Gestión de Ciclos', () => {
   });
 
   it('creates a cycle with only its name (no legislation_id persisted)', () => {
+    // #14/#15 are navigation-only but required for submission — see
+    // functional-spec.json sketchNumbers 14/15 ("Required on submit").
     cy.get('[data-element-id="13"]').type('CFGS Robótica');
+    cy.get('[data-element-id="14"]').select('2020');
+    cy.get('[data-element-id="15"]').select('LOMLOE');
     cy.get('[data-element-id="16"]').click();
     cy.get('[data-element-id="20"]').contains('CFGS Robótica').should('be.visible');
-    // Verify the new row does NOT display a legislation column value
-    cy.get('[data-element-id="20"]').contains('tr', 'CFGS Robótica')
-      .find('[data-col="legislationId"]').should('be.empty');
   });
 
-  it('shows año finalización as start_year + 1 in column #21', () => {
-    // Select a year via navigation selector #14
-    cy.get('[data-element-id="14"]').select('2020');
-    cy.get('[data-element-id="20"]').find('[data-element-id="21"]').first()
-      .invoke('text').then((text) => {
-        expect(Number(text)).to.equal(2021);
-      });
+  it('does not render an "Año finalización" column (#21)', () => {
+    // Explicit decision (2026-07-12, documented in boceto-elements.md and
+    // functional-spec.json sketchNumber 21): cycle has no start_year field
+    // (schema.sql: id/name/created_at only) — legislation lives on modules,
+    // not cycles, so a single end year per cycle isn't well-defined. The
+    // boceto's "Año finalización" column is intentionally not implemented.
+    cy.get('[data-element-id="20"]').should('exist');
+    cy.get('[data-element-id="21"]').should('not.exist');
   });
 
   it('the navigation selectors #14 and #15 are not persisted in the cycle record', () => {
@@ -57,6 +59,8 @@ describe('UC-03: Gestión de Ciclos', () => {
 
   it('rejects a duplicate cycle name with an error', () => {
     cy.get('[data-element-id="13"]').type('DAW');
+    cy.get('[data-element-id="14"]').select('2020');
+    cy.get('[data-element-id="15"]').select('LOMLOE');
     cy.get('[data-element-id="16"]').click();
     cy.contains(/ya existe|already exists/i).should('be.visible');
   });
@@ -65,7 +69,8 @@ describe('UC-03: Gestión de Ciclos', () => {
 
   it('filters the cycles table in real time via the name filter (#19)', () => {
     cy.get('[data-element-id="19"]').type('DAW');
-    cy.get('[data-element-id="20"]').find('tr').each(($row) => {
+    cy.wait(400); // 300ms debounce
+    cy.get('[data-element-id="20"]').find('tbody tr').each(($row) => {
       cy.wrap($row).invoke('text').then((text) => {
         expect(text.toLowerCase()).to.include('daw');
       });

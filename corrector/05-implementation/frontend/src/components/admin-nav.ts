@@ -17,9 +17,14 @@ const TAB_LABELS: Record<AdminTab, string> = {
   profesorado: 'Profesorado',
 };
 
-// sketchNumber of each tab's own "active tab" button, per screen (only set
-// for screens that exist). null = screen not implemented yet, tab renders
-// disabled with no data-element-id.
+// sketchNumber of each tab button. The boceto only tags a tab's id on that
+// tab's own screen (e.g. #12 "Ciclos" only appears in
+// vista_admin-tab_ciclos_seleccionado.html) — but since admin-nav.ts is our
+// own shared infrastructure, not a literal per-screen reproduction, every
+// tab carries its id everywhere it renders so it stays reachable regardless
+// of which screen is currently active (needed for Cypress cross-screen
+// navigation — a tab you can't yet click still needs to be findable to
+// assert it's disabled). null = screen not implemented yet.
 const TAB_ELEMENT_IDS: Record<AdminTab, number | null> = {
   legislacion: 4,
   ciclos: 12,
@@ -49,13 +54,14 @@ export function renderAdminNav(
     <div class="tabs">
       ${TAB_ORDER.map((tab) => {
         const elementId = TAB_ELEMENT_IDS[tab];
+        const idAttr = elementId === null ? undefined : elementId;
         if (tab === activeTab) {
-          return html`<button data-element-id=${elementId ?? ''} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
+          return html`<button data-element-id=${idAttr ?? ''} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
         }
         if (elementId === null) {
           return html`<button role="tab" aria-selected="false" disabled>${TAB_LABELS[tab]}</button>`;
         }
-        return html`<button role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
+        return html`<button data-element-id=${idAttr ?? ''} role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
       })}
     </div>
   `;

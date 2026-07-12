@@ -66,7 +66,8 @@ describe('UC-04: Gestión de Módulos', () => {
 
   it('filters the modules table in real time by name (#32)', () => {
     cy.get('[data-element-id="32"]').type('DEW');
-    cy.get('[data-element-id="33"]').find('tr').each(($row) => {
+    cy.wait(400); // 300ms debounce
+    cy.get('[data-element-id="33"]').find('tbody tr').each(($row) => {
       cy.wrap($row).invoke('text').then((text) => {
         expect(text.toLowerCase()).to.include('dew');
       });

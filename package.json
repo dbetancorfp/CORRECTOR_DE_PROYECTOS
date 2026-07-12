@@ -8,6 +8,12 @@
     "start": "bun run corrector/05-implementation/backend/src/index.ts",
     "build": "bun build corrector/05-implementation/frontend/src/index.ts --outdir corrector/05-implementation/frontend/dist --target browser",
     "db:setup": "bun run corrector/05-implementation/backend/scripts/setup-db.ts",
+    "db:seed:e2e": "bun run corrector/05-implementation/backend/scripts/seed-e2e.ts",
+    "start:e2e": "PORT=7777 DATA_BACKEND=postgres bun run corrector/05-implementation/backend/src/index.ts",
+    "cypress:open": "cypress open --config-file corrector/05-implementation/frontend/cypress.config.ts",
+    "cypress:run": "cypress run --config-file corrector/05-implementation/frontend/cypress.config.ts",
+    "pree2e": "bun run build && bun run db:seed:e2e",
+    "e2e": "start-server-and-test start:e2e http://localhost:7777 cypress:run",
     "agent:designer-front": "bun cli/index.js run-agent designer-front --feature-id corrector-v1"
   },
   "dependencies": {
@@ -23,6 +29,8 @@
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.10.6",
     "bun-types": "^1.3.14",
+    "cypress": "^15.18.1",
+    "start-server-and-test": "^3.0.11",
     "typescript": "^6.0.3"
   }
 }
