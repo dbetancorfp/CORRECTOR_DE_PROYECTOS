@@ -1,14 +1,24 @@
-// Nav/logout/tab-bar chrome — not tied to a single boceto sketchNumber
-// (ui-spec.json screen-profesor-alumnos notes: tab buttons are not
-// annotated in the boceto).
+// Nav/logout/tab-bar chrome — not tied to a single boceto sketchNumber.
 
 import { describe, it, expect } from 'bun:test';
+import type { ProjectService } from '../src/services/project.service';
 import type { StudentService } from '../src/services/student.service';
+import type { ProjectStudentService } from '../src/services/project-student.service';
 import type { LegislationService } from '../src/services/legislation.service';
 import type { CycleService } from '../src/services/cycle.service';
 import type { ModuleService } from '../src/services/module.service';
-import '../src/components/corrector-students-form';
-import type { CorrectorStudentsForm } from '../src/components/corrector-students-form';
+import '../src/components/corrector-assignment-form';
+import type { CorrectorAssignmentForm } from '../src/components/corrector-assignment-form';
+
+function makeProjectService(overrides: Partial<ProjectService> = {}): ProjectService {
+  return {
+    list: async () => ({ ok: true, items: [] }),
+    create: async (data) => ({ ok: true, item: { id: 1, name: data.name, academicYear: data.academicYear, moduleId: data.moduleId, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 } }),
+    update: async (id, data) => ({ ok: true, item: { id, name: data.name ?? '', academicYear: '2020-2021', moduleId: 1, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 } }),
+    delete: async () => ({ ok: true }),
+    ...overrides,
+  };
+}
 
 function makeStudentService(overrides: Partial<StudentService> = {}): StudentService {
   return {
@@ -17,6 +27,15 @@ function makeStudentService(overrides: Partial<StudentService> = {}): StudentSer
     update: async (id, data) => ({ ok: true, item: { id, name: data.name ?? '', cycleId: 1, cycleName: 'DAW', modules: [] } }),
     delete: async () => ({ ok: true }),
     upload: async () => ({ ok: true, created: 0 }),
+    ...overrides,
+  };
+}
+
+function makeProjectStudentService(overrides: Partial<ProjectStudentService> = {}): ProjectStudentService {
+  return {
+    listForProject: async () => ({ ok: true, items: [] }),
+    assign: async () => ({ ok: true, projectId: 1, assigned: [], totalStudents: 0 }),
+    unassign: async () => ({ ok: true }),
     ...overrides,
   };
 }
@@ -52,13 +71,17 @@ function makeModuleService(overrides: Partial<ModuleService> = {}): ModuleServic
 }
 
 function mount(
+  projectService: ProjectService,
   studentService: StudentService,
+  projectStudentService: ProjectStudentService,
   legislationService: LegislationService,
   cycleService: CycleService,
   moduleService: ModuleService,
-): CorrectorStudentsForm {
-  const el = document.createElement('corrector-students-form') as CorrectorStudentsForm;
+): CorrectorAssignmentForm {
+  const el = document.createElement('corrector-assignment-form') as CorrectorAssignmentForm;
+  el.projectService = projectService;
   el.studentService = studentService;
+  el.projectStudentService = projectStudentService;
   el.legislationService = legislationService;
   el.cycleService = cycleService;
   el.moduleService = moduleService;
@@ -70,9 +93,9 @@ async function flush(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-describe('corrector-students-form: nav chrome', () => {
+describe('corrector-assignment-form: nav chrome', () => {
   it('dispatches corrector:logout when Salir is clicked', async () => {
-    const el = mount(makeStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
+    const el = mount(makeProjectService(), makeStudentService(), makeProjectStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
     let logoutFired = false;
@@ -85,12 +108,12 @@ describe('corrector-students-form: nav chrome', () => {
     el.remove();
   });
 
-  it('renders the Alumnos tab as active and Rúbrica as disabled', async () => {
-    const el = mount(makeStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
+  it('renders the Asignación tab as active and Rúbrica as disabled', async () => {
+    const el = mount(makeProjectService(), makeStudentService(), makeProjectStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
-    const alumnos = el.shadowRoot!.querySelector('[data-action="tab-alumnos"]') as HTMLButtonElement;
-    expect(alumnos.getAttribute('aria-selected')).toBe('true');
+    const asignacion = el.shadowRoot!.querySelector('[data-action="tab-asignacion"]') as HTMLButtonElement;
+    expect(asignacion.getAttribute('aria-selected')).toBe('true');
 
     const rubrica = el.shadowRoot!.querySelector('[data-action="tab-rubrica"]') as HTMLButtonElement;
     expect(rubrica.disabled).toBe(true);
@@ -98,7 +121,7 @@ describe('corrector-students-form: nav chrome', () => {
   });
 
   it('navigates to /profesor/gestionar/proyectos when the Proyectos tab is clicked', async () => {
-    const el = mount(makeStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
+    const el = mount(makeProjectService(), makeStudentService(), makeProjectStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
     let navigatedTo: string | null = null;
@@ -107,7 +130,6 @@ describe('corrector-students-form: nav chrome', () => {
     });
 
     const proyectos = el.shadowRoot!.querySelector('[data-action="tab-proyectos"]') as HTMLButtonElement;
-    expect(proyectos.disabled).toBe(false);
     proyectos.click();
 
     expect(navigatedTo).toBe('/profesor/gestionar/proyectos');

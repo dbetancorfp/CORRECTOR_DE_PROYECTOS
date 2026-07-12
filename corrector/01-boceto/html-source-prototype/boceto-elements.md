@@ -175,12 +175,28 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## vista_profesor_landing-gestionar_tab_AsignacionesPytoAlumn_seleccionado.html — Profesor · Tab Asignación Proyecto-Alumno
 
-> Numeración pendiente de corregir (rango real: #73–85, más #121) — se revisará al implementar esta pantalla.
+> **Decisión de usuario 2026-07-12**: los botones Editar/Borrar de la fila en
+> #85 operan sobre el proyecto (igual que en #72, Proyectos) — Editar
+> renombra, Borrar elimina el proyecto (bloqueado si tiene alumnos
+> asignados). La desasignación de un alumno concreto se hace con un botón
+> "Quitar" junto a su nombre dentro del panel #84, no borrando la fila de #85.
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 47 | Tabla de asignaciones | tabla | Lista proyectos con alumnos asignados: Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar |
-| 121 | Botón Agregar alumnos | botón | Confirma la asignación del alumno seleccionado en #84 al proyecto seleccionado en #83; activo solo cuando ambos paneles tienen selección |
+| 73 | Filtro por proyecto (nombre) | input texto | Filtro reactivo (debounce 300 ms) sobre la tabla #85 |
+| 74 | Filtro por año (proyecto) | select | Acota #85 por año de inicio |
+| 75 | Filtro por legislación (proyecto) | select | Acota #85 por legislación |
+| 76 | Filtro por ciclo (proyecto) | select | Acota #85 por ciclo, filtrado por #75 |
+| 77 | Filtro por módulo (proyecto) | select | Acota #85 por módulo, filtrado por #76 |
+| 78 | Filtro por nombre (alumno) | input texto | Filtro reactivo (debounce 300 ms) sobre el pool de candidatos de #84 |
+| 79 | Filtro por año (alumno) | select | Acota el pool de #84 por año de inicio |
+| 80 | Filtro por legislación (alumno) | select | Acota el pool de #84 por legislación |
+| 81 | Filtro por ciclo (alumno) | select | Acota el pool de #84 por ciclo, filtrado por #80 |
+| 82 | Filtro por módulo (alumno) | select | Acota el pool de #84 por módulo, filtrado por #81 |
+| 83 | Panel Proyecto seleccionado | texto de solo lectura | Nombre del proyecto seleccionado al hacer clic en una fila de #85; vacío si no hay selección |
+| 84 | Panel Alumnos | fieldset | Lista de alumnos ya asignados al proyecto seleccionado (con botón "Quitar") + candidatos del pool filtrado (con checkbox de selección) |
+| 85 | Tabla de proyectos | tabla | Mismas columnas y acciones que #72 (Nombre, Módulo, Ciclo, Legislación, Año inicio, Editar, Borrar); clic en fila selecciona el proyecto para #83/#84 |
+| 121 | Botón Agregar alumnos | botón | Asigna los candidatos marcados en #84 al proyecto seleccionado en #83; activo solo cuando ambos paneles tienen selección; máx. 3 alumnos por proyecto |
 
 ---
 

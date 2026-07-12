@@ -82,20 +82,20 @@ describe('corrector-projects-form: nav chrome', () => {
     el.remove();
   });
 
-  it('renders the Proyectos tab as active, Alumnos as enabled and Asignación/Rúbrica as disabled', async () => {
+  it('renders the Proyectos tab as active, Alumnos/Asignación as enabled and Rúbrica as disabled', async () => {
     const el = mount(makeProjectService(), makeLegislationService(), makeCycleService(), makeModuleService());
     await flush();
 
     const proyectos = el.shadowRoot!.querySelector('[data-action="tab-proyectos"]') as HTMLButtonElement;
     expect(proyectos.getAttribute('aria-selected')).toBe('true');
 
-    const alumnos = el.shadowRoot!.querySelector('[data-action="tab-alumnos"]') as HTMLButtonElement;
-    expect(alumnos.disabled).toBe(false);
-
-    for (const action of ['tab-asignacion', 'tab-rubrica']) {
+    for (const action of ['tab-alumnos', 'tab-asignacion']) {
       const tab = el.shadowRoot!.querySelector(`[data-action="${action}"]`) as HTMLButtonElement;
-      expect(tab.disabled).toBe(true);
+      expect(tab.disabled).toBe(false);
     }
+
+    const rubrica = el.shadowRoot!.querySelector('[data-action="tab-rubrica"]') as HTMLButtonElement;
+    expect(rubrica.disabled).toBe(true);
     el.remove();
   });
 

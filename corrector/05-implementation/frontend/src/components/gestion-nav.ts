@@ -28,7 +28,7 @@ export const GESTION_TAB_PATHS: Record<GestionTab, string> = {
 const TAB_IMPLEMENTED: Record<GestionTab, boolean> = {
   alumnos: true,
   proyectos: true,
-  asignacion: false,
+  asignacion: true,
   rubrica: false,
 };
 
