@@ -367,6 +367,8 @@ export class CorrectorCorrectionForm extends HTMLElement {
               const selected = this._selections.get(item.id) === level.id;
               return html`
                 <td
+                  data-level=${name}
+                  aria-selected=${selected ? 'true' : 'false'}
                   style=${selected ? 'background-color: lightgray; cursor: pointer;' : 'cursor: pointer;'}
                   @click=${() => this._handleCellClick(item.id, level.id)}
                 >
