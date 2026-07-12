@@ -45,15 +45,30 @@ describe('corrector-profesor-landing: nav chrome', () => {
     el.remove();
   });
 
-  it('renders Corregir and Visualizar notas as disabled placeholders', async () => {
+  it('renders Visualizar notas as a disabled placeholder', async () => {
     const el = mount(makeAuthService());
     await flush();
 
-    for (const action of ['navigate-corregir', 'navigate-notas']) {
-      const button = el.shadowRoot!.querySelector(`[data-action="${action}"]`) as HTMLButtonElement;
-      expect(button).not.toBeNull();
-      expect(button.disabled).toBe(true);
-    }
+    const button = el.shadowRoot!.querySelector('[data-action="navigate-notas"]') as HTMLButtonElement;
+    expect(button).not.toBeNull();
+    expect(button.disabled).toBe(true);
+    el.remove();
+  });
+
+  it('navigates to /profesor/corregir when Corregir is clicked', async () => {
+    const el = mount(makeAuthService());
+    await flush();
+
+    let navigatedTo: string | null = null;
+    el.addEventListener('corrector:profesor-landing-navigate', (e) => {
+      navigatedTo = (e as CustomEvent<{ to: string }>).detail.to;
+    });
+
+    const button = el.shadowRoot!.querySelector('[data-action="navigate-corregir"]') as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+    button.click();
+
+    expect(navigatedTo).toBe('/profesor/corregir');
     el.remove();
   });
 

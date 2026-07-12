@@ -243,21 +243,26 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 ## vista_profesor_landing-corregirProyecto.html — Corregir Proyecto
 
+> Corregido 2026-07-12. La numeración anterior (#65–80) era inventada — mismo
+> patrón de desfase que en el resto de pantallas de Profesor. `ui-spec.json`/
+> `functional-spec.json`/`use-cases.md` (UC-09) ya usaban la numeración real.
+> El boceto muestra dos tablas de corrección (#110 de 5 niveles y #111 de 3)
+> para ilustrar que los ítems pueden tener distinto número de niveles, pero
+> `functional-spec.json` indica explícitamente que la implementación real usa
+> **una sola tabla con columnas dinámicas** (#110) — #111 no se renderiza
+> como tabla separada.
+
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 65 | Filtro por año | input texto | Filtro reactivo: acota los proyectos por año académico |
-| 66 | Filtro por ciclo | input texto | Filtro reactivo: acota los proyectos por ciclo |
-| 67 | Filtro por módulo | input texto | Filtro reactivo: acota los proyectos por módulo |
-| 68 | Desplegable proyecto | desplegable | Selecciona el proyecto concreto a corregir |
-| 69 | Tabla de corrección | tabla | Muestra la rúbrica del proyecto seleccionado para puntuar cada ítem |
-| 70 | Celda Nombre del ítem | celda | Nombre del criterio de evaluación (solo lectura en corrección) |
-| 71 | Celda Excelente | celda seleccionable | Selecciona la calificación Excelente para ese ítem |
-| 72 | Celda Muy bien | celda seleccionable | Selecciona la calificación Muy bien para ese ítem |
-| 73 | Celda Bien | celda seleccionable | Selecciona la calificación Bien para ese ítem |
-| 74 | Celda Regular | celda seleccionable | Selecciona la calificación Regular para ese ítem |
-| 75 | Celda Mal | celda seleccionable | Selecciona la calificación Mal para ese ítem |
-| 76 | Puntuación obtenida | párrafo | Muestra la nota final calculada sumando los ítems seleccionados |
-| 77 | Checkbox Corregir por grupo | checkbox | Activa el modo corrección grupal (la nota se aplica a todos los alumnos del grupo) |
-| 78 | Checkbox Alumno 1 | checkbox | Selecciona individualmente al alumno 1 para corrección diferenciada |
-| 79 | Checkbox Alumno 2 | checkbox | Selecciona individualmente al alumno 2 para corrección diferenciada |
-| 80 | Checkbox Alumno 3 | checkbox | Selecciona individualmente al alumno 3 para corrección diferenciada |
+| 101 | Selector año | select | Ayuda de navegación para acotar los proyectos mostrados en #105 |
+| 102 | Selector legislación | select | Filtrado por #101 |
+| 103 | Selector ciclo | select | Filtrado por #102 |
+| 104 | Selector módulo | select | Filtrado por #103; si el módulo no tiene rúbrica, corrección bloqueada |
+| 105 | Selector proyecto | select | Filtrado por #104; al seleccionar carga la rúbrica y los alumnos asignados |
+| 106 | Checkbox Corregir por grupo | checkbox | Aplica la nota a todos los alumnos del proyecto; deshabilita #107–#109 |
+| 107 | Checkbox Alumno 1 | checkbox | Selección individual para corrección diferenciada |
+| 108 | Checkbox Alumno 2 | checkbox | Solo se renderiza si el proyecto tiene ≥ 2 alumnos |
+| 109 | Checkbox Alumno 3 | checkbox | Solo se renderiza si el proyecto tiene 3 alumnos |
+| 110 | Tabla de corrección | tabla | Un ítem por fila, columnas dinámicas según los niveles de cada ítem; clic en celda selecciona el nivel |
+| 112 | Puntuación obtenida en la rúbrica | párrafo de solo lectura | Suma de los valores de nivel seleccionados; se recalcula en tiempo real |
+| 113 | Puntuación obtenida sobre 10 | párrafo de solo lectura | `(puntuación obtenida / suma de Excelente) × 10`, redondeado a 2 decimales |

@@ -8,6 +8,7 @@ import './components/corrector-students-form';
 import './components/corrector-projects-form';
 import './components/corrector-assignment-form';
 import './components/corrector-rubric-form';
+import './components/corrector-correction-form';
 import { Router } from './router';
 import type { Route } from './router';
 import { HttpAuthService } from './services/auth.service';
@@ -60,6 +61,7 @@ const routes: Route[] = [
   { path: '/profesor/gestionar/proyectos', render: renderGuardedScreen('corrector-projects-form', ['profesor', 'tutor']) },
   { path: '/profesor/gestionar/asignacion', render: renderGuardedScreen('corrector-assignment-form', ['profesor', 'tutor']) },
   { path: '/profesor/gestionar/rubrica', render: renderGuardedScreen('corrector-rubric-form', ['profesor', 'tutor']) },
+  { path: '/profesor/corregir', render: renderGuardedScreen('corrector-correction-form', ['profesor', 'tutor']) },
 ];
 
 const outlet = document.getElementById('app');

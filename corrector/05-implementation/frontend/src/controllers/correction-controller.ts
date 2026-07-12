@@ -1,0 +1,116 @@
+import type { CorrectionService, CorrectionItemInput, CorrectionResult } from '../services/correction.service';
+import type { ProjectService, Project } from '../services/project.service';
+import type { ProjectStudentService, AssignedStudent } from '../services/project-student.service';
+import type { RubricService, RubricItem } from '../services/rubric.service';
+import type { Legislation, LegislationService } from '../services/legislation.service';
+import type { Cycle, CycleService } from '../services/cycle.service';
+import type { Module, ModuleService } from '../services/module.service';
+
+export type SaveState =
+  | { status: 'success' }
+  | { status: 'blocked'; message: string }
+  | { status: 'error'; message: string };
+
+export class CorrectionController {
+  constructor(
+    private readonly correctionService: CorrectionService,
+    private readonly projectService: ProjectService,
+    private readonly projectStudentService: ProjectStudentService,
+    private readonly rubricService: RubricService,
+    private readonly legislationService: LegislationService,
+    private readonly cycleService: CycleService,
+    private readonly moduleService: ModuleService,
+  ) {}
+
+  async loadYearOptions(): Promise<number[]> {
+    const result = await this.legislationService.list();
+    if (!result.ok) return [];
+    return Array.from(new Set(result.items.map((l) => l.startYear))).sort((a, b) => a - b);
+  }
+
+  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
+    if (year === null) return [];
+    const result = await this.legislationService.list();
+    if (!result.ok) return [];
+    return result.items.filter((l) => l.startYear === year);
+  }
+
+  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
+    if (legislationId === null) return [];
+    const result = await this.cycleService.list({ legislationId });
+    return result.ok ? result.items : [];
+  }
+
+  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
+    if (cycleId === null) return [];
+    const result = await this.moduleService.list();
+    if (!result.ok) return [];
+    return result.items.filter((m) => m.cycleId === cycleId);
+  }
+
+  async loadProjects(moduleId: number | null): Promise<Project[]> {
+    if (moduleId === null) return [];
+    const result = await this.projectService.list({ moduleId });
+    return result.ok ? result.items : [];
+  }
+
+  async loadAssignedStudents(projectId: number): Promise<AssignedStudent[]> {
+    const result = await this.projectStudentService.listForProject(projectId);
+    return result.ok ? result.items : [];
+  }
+
+  async loadRubric(moduleId: number, academicYear: string): Promise<{ rubricId: number; items: RubricItem[] } | null> {
+    const result = await this.rubricService.getForModule(moduleId, academicYear);
+    if (!result.ok) return null;
+    return { rubricId: result.item.id, items: result.item.items };
+  }
+
+  async loadExistingCorrection(studentId: number, projectId: number): Promise<CorrectionResult | null> {
+    const result = await this.correctionService.findExisting(studentId, projectId);
+    return result.ok ? result.item : null;
+  }
+
+  rawScore(selections: Map<number, number>, items: RubricItem[]): number {
+    let sum = 0;
+    for (const item of items) {
+      const levelId = selections.get(item.id);
+      const level = item.levels.find((l) => l.id === levelId);
+      if (level) sum += level.score;
+    }
+    return sum;
+  }
+
+  maxScore(items: RubricItem[]): number {
+    return items.reduce((sum, item) => sum + Math.max(0, ...item.levels.map((l) => l.score)), 0);
+  }
+
+  normalisedScore(raw: number, max: number): number {
+    if (max === 0) return 0;
+    return Math.round((raw / max) * 10 * 100) / 100;
+  }
+
+  async saveForStudents(
+    studentIds: number[],
+    projectId: number,
+    moduleId: number,
+    rubricId: number,
+    academicYear: string,
+    selections: Map<number, number>,
+  ): Promise<SaveState> {
+    const items: CorrectionItemInput[] = Array.from(selections.entries())
+      .map(([rubricItemId, rubricLevelId]) => ({ rubricItemId, rubricLevelId }));
+
+    for (const studentId of studentIds) {
+      const result = await this.correctionService.upsert({
+        studentId, projectId, moduleId, rubricId, academicYear, items,
+      });
+      if (!result.ok) {
+        if (result.code === 'NO_RUBRIC' || result.code === 'INCOMPLETE_SELECTION') {
+          return { status: 'blocked', message: 'Faltan ítems por calificar' };
+        }
+        return { status: 'error', message: 'No se pudo guardar la corrección' };
+      }
+    }
+    return { status: 'success' };
+  }
+}
