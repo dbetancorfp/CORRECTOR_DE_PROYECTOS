@@ -19,17 +19,13 @@ Usar durante la entrevista de cliente para referenciar elementos concretos por n
 
 | # | Elemento | Tipo | Descripción |
 |---|----------|------|-------------|
-| 4 | Logo | imagen | Logo de la aplicación en la barra de navegación |
-| 5 | Barra de navegación | nav | Header superior con logo, título, nombre de usuario y botón Salir |
-| 6 | Grupo de tabs de Gestión | contenedor | Tabs que permiten cambiar entre Legislación, Ciclos, Módulos y Profesorado |
-| 7 | Campo Siglas legislación | input texto | Abreviatura de la legislación (ej. LOMLOE) |
-| 8 | Campo año de inicio | input texto | Año de entrada en vigor de la legislación |
-| 9 | Campo año de finalización | input texto | Año en que deja de estar vigente la legislación |
-| 10 | Botón Guardar | botón submit | Persiste la nueva legislación introducida en los campos 7, 8 y 9 |
-| 81 | Botón Nuevo | botón | Abre el formulario para crear una nueva legislación (campos 7, 8 y 9) |
-| 82 | Tabla de legislaciones | tabla | Lista todas las legislaciones existentes con siglas, año inicio, año fin y acciones |
-| 83 | Icono Editar (legislación) | celda | Acción para editar la legislación de esa fila |
-| 84 | Icono Borrar (legislación) | celda | Acción para eliminar la legislación de esa fila |
+| 4 | Tab Legislación | botón (tab) | Cambia la vista de Gestión al tab de Legislación |
+| 5 | Campo Nombre/Siglas legislación | input texto | Nombre o abreviatura de la legislación (ej. LOMLOE) |
+| 6 | Campo año de inicio | input texto | Año de entrada en vigor de la legislación |
+| 7 | Botón Guardar | botón submit | Persiste la nueva legislación introducida en los campos 5 y 6 |
+| 8 | Filtro por año de inicio | input texto (reactivo) | Filtra la tabla #10 por año de inicio, con debounce de 300 ms |
+| 9 | Filtro por siglas/nombre | input texto (reactivo) | Filtra la tabla #10 por siglas o nombre, con debounce de 300 ms |
+| 10 | Tabla de legislaciones | tabla | Lista todas las legislaciones existentes (año inicio, nombre) con iconos de editar y borrar por fila; filtrada por #8 y #9 |
 
 ---
 
