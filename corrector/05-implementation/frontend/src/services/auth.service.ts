@@ -19,9 +19,27 @@ export interface ChangePasswordApiResult {
   ok: boolean;
 }
 
+export interface LogoutApiResult {
+  ok: boolean;
+}
+
+export interface MeSuccess {
+  ok: true;
+  role: TeacherRole;
+}
+
+export interface MeFailure {
+  ok: false;
+  status: number;
+}
+
+export type MeResult = MeSuccess | MeFailure;
+
 export interface AuthService {
   login(username: string, password: string): Promise<LoginApiResult>;
   changePassword(newPassword: string, confirmPassword: string): Promise<ChangePasswordApiResult>;
+  logout(): Promise<LogoutApiResult>;
+  me(): Promise<MeResult>;
 }
 
 export class HttpAuthService implements AuthService {
@@ -48,5 +66,17 @@ export class HttpAuthService implements AuthService {
       body: JSON.stringify({ newPassword, confirmPassword }),
     });
     return { ok: res.ok };
+  }
+
+  async logout(): Promise<LogoutApiResult> {
+    const res = await fetch('/api/auth/logout', { method: 'POST' });
+    return { ok: res.ok };
+  }
+
+  async me(): Promise<MeResult> {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) return { ok: false, status: res.status };
+    const body = await res.json() as { role: TeacherRole };
+    return { ok: true, role: body.role };
   }
 }

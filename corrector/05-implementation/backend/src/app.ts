@@ -149,10 +149,12 @@ export function createApp(deps: AppDeps): Express {
   app.use('/api', createRubricRouter(rubricRepo));
 
   // ── Frontend static assets ──────────────────────────────────────────────────
-  // Only the Login screen exists so far — /admin and /profesor have no page yet.
   const frontendDir = join(import.meta.dir, '..', '..', 'frontend');
   app.use('/dist', express.static(join(frontendDir, 'dist')));
-  app.get('/', (_req, res) => res.sendFile(join(frontendDir, 'index.html')));
+  // SPA fallback: the client-side router (frontend/src/router.ts) owns every
+  // non-API path (/, /admin/legislacion, ...) — serve the same shell for all
+  // of them so a direct navigation or a page refresh on a client route works.
+  app.get(/^\/(?!api|dist).*/, (_req, res) => res.sendFile(join(frontendDir, 'index.html')));
 
   // Global error handler — Express 5 forwards async throws here automatically
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {

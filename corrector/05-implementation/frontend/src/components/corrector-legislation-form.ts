@@ -167,6 +167,10 @@ export class CorrectorLegislationForm extends HTMLElement {
     void this._handleDelete(row);
   };
 
+  private _handleLogoutClick = (): void => {
+    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
+  };
+
   private async _handleDelete(row: Legislation): Promise<void> {
     const confirmed = window.confirm(`¿Eliminar la legislación ${row.name}?`);
     if (!confirmed) return;
@@ -192,7 +196,17 @@ export class CorrectorLegislationForm extends HTMLElement {
     const visibleRows = this._controller.filterRows(this._rows, this._yearFilter, this._nameFilter);
 
     return html`
-      <button data-element-id="4" role="tab" aria-selected="true">Legislación</button>
+      <nav>
+        <span>Corrector de proyectos</span>
+        <button data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
+      </nav>
+
+      <div class="tabs">
+        <button data-element-id="4" role="tab" aria-selected="true">Legislación</button>
+        <button role="tab" aria-selected="false" disabled>Ciclos</button>
+        <button role="tab" aria-selected="false" disabled>Módulos</button>
+        <button role="tab" aria-selected="false" disabled>Profesorado</button>
+      </div>
 
       <div role="alert">${this._formErrorMessage}</div>
       <form>

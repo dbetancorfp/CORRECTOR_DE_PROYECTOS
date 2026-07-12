@@ -12,5 +12,8 @@ import { GlobalRegistrator } from '@happy-dom/global-registrator';
 // restored right after registration so both suites can share this one
 // global preload.
 const { fetch, Request, Response, Headers, FormData, Blob, File } = globalThis;
-GlobalRegistrator.register();
+// A concrete `url` is required so router.ts can exercise history.pushState()/
+// location.pathname — happy-dom's default (about:blank) has no path to push
+// relative URLs against.
+GlobalRegistrator.register({ url: 'http://localhost/' });
 Object.assign(globalThis, { fetch, Request, Response, Headers, FormData, Blob, File });
