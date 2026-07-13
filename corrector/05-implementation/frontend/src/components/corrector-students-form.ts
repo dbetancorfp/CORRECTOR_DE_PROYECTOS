@@ -12,6 +12,7 @@ import { StudentController } from '../controllers/student-controller';
 import type { StudentRow } from '../controllers/student-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
+import { renderOptionSelect } from './option-select';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -365,41 +366,26 @@ export class CorrectorStudentsForm extends HTMLElement {
             aria-invalid=${this._nameError ? 'true' : 'false'}
             @input=${this._handleNameInput}
           />
-          <select
-            data-element-id="49"
-            aria-invalid=${this._yearError ? 'true' : 'false'}
-            @change=${this._handleYearChange}
-          >
-            <option value="">Seleccionar año</option>
-            ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-          </select>
-          <select
-            data-element-id="50"
-            ?disabled=${this._selectedYear === ''}
-            aria-invalid=${this._legislationError ? 'true' : 'false'}
-            @change=${this._handleLegislationChange}
-          >
-            <option value="">Seleccionar legislación</option>
-            ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-          </select>
-          <select
-            data-element-id="51"
-            ?disabled=${this._selectedYear === '' || this._selectedLegislation === ''}
-            aria-invalid=${this._cycleError ? 'true' : 'false'}
-            @change=${this._handleCycleChange}
-          >
-            <option value="">Seleccionar ciclo</option>
-            ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
-          </select>
-          <select
-            data-element-id="52"
-            ?disabled=${this._selectedCycle === ''}
-            aria-invalid=${this._moduleError ? 'true' : 'false'}
-            @change=${this._handleModuleChange}
-          >
-            <option value="">Seleccionar módulo</option>
-            ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
-          </select>
+          ${renderOptionSelect({
+            sketchNumber: 49, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
+            invalid: this._yearError, onChange: this._handleYearChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 50, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+            disabled: this._selectedYear === '', invalid: this._legislationError, onChange: this._handleLegislationChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 51, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+            selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+            disabled: this._selectedYear === '' || this._selectedLegislation === '', invalid: this._cycleError, onChange: this._handleCycleChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 52, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+            selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
+            disabled: this._selectedCycle === '', invalid: this._moduleError, onChange: this._handleModuleChange,
+          })}
           <div>
             <button
               data-element-id="53"
@@ -430,22 +416,24 @@ export class CorrectorStudentsForm extends HTMLElement {
           .value=${this._nameFilter}
           @input=${this._handleNameFilterInput}
         />
-        <select data-element-id="56" @change=${this._handleYearFilterChange}>
-          <option value="">Seleccionar año</option>
-          ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._yearFilter}>${year}</option>`)}
-        </select>
-        <select data-element-id="57" @change=${this._handleLegislationFilterChange}>
-          <option value="">Seleccionar legislación</option>
-          ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._legislationFilter}>${leg.name}</option>`)}
-        </select>
-        <select data-element-id="58" ?disabled=${this._legislationFilter === ''} @change=${this._handleCycleFilterChange}>
-          <option value="">Seleccionar ciclo</option>
-          ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._cycleFilter}>${cycle.name}</option>`)}
-        </select>
-        <select data-element-id="59" ?disabled=${this._cycleFilter === ''} @change=${this._handleModuleFilterChange}>
-          <option value="">Seleccionar módulo</option>
-          ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._moduleFilter}>${mod.name}</option>`)}
-        </select>
+        ${renderOptionSelect({
+          sketchNumber: 56, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+          selectedValue: this._yearFilter, placeholder: 'Seleccionar año', onChange: this._handleYearFilterChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 57, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+          selectedValue: this._legislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleLegislationFilterChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 58, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+          selectedValue: this._cycleFilter, placeholder: 'Seleccionar ciclo',
+          disabled: this._legislationFilter === '', onChange: this._handleCycleFilterChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 59, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+          selectedValue: this._moduleFilter, placeholder: 'Seleccionar módulo',
+          disabled: this._cycleFilter === '', onChange: this._handleModuleFilterChange,
+        })}
       </fieldset>
 
       <div role="alert">${this._rowErrorMessage}</div>

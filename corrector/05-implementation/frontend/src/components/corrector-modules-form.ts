@@ -10,6 +10,7 @@ import { ModuleController } from '../controllers/module-controller';
 import type { ModuleRow } from '../controllers/module-controller';
 import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
+import { renderOptionSelect } from './option-select';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -317,32 +318,21 @@ export class CorrectorModulesForm extends HTMLElement {
             aria-invalid=${this._weeklyHoursError ? 'true' : 'false'}
             @input=${this._handleWeeklyHoursInput}
           />
-          <select
-            data-element-id="25"
-            aria-invalid=${this._legislationError ? 'true' : 'false'}
-            @change=${this._handleLegislationChange}
-          >
-            <option value="">Seleccionar legislación</option>
-            ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-          </select>
-          <select
-            data-element-id="26"
-            ?disabled=${this._selectedLegislation === ''}
-            aria-invalid=${this._yearError ? 'true' : 'false'}
-            @change=${this._handleYearChange}
-          >
-            <option value="">Seleccionar año</option>
-            ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-          </select>
-          <select
-            data-element-id="27"
-            ?disabled=${this._selectedLegislation === '' || this._selectedYear === ''}
-            aria-invalid=${this._cycleError ? 'true' : 'false'}
-            @change=${this._handleCycleChange}
-          >
-            <option value="">Seleccionar ciclo</option>
-            ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
-          </select>
+          ${renderOptionSelect({
+            sketchNumber: 25, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+            invalid: this._legislationError, onChange: this._handleLegislationChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 26, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
+            disabled: this._selectedLegislation === '', invalid: this._yearError, onChange: this._handleYearChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 27, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+            selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+            disabled: this._selectedLegislation === '' || this._selectedYear === '', invalid: this._cycleError, onChange: this._handleCycleChange,
+          })}
           <button
             data-element-id="28"
             type="button"

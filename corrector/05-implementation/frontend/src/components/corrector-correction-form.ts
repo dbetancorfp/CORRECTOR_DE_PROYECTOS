@@ -15,6 +15,7 @@ import type { Cycle, CycleService } from '../services/cycle.service';
 import { HttpModuleService } from '../services/module.service';
 import type { Module, ModuleService } from '../services/module.service';
 import { CorrectionController } from '../controllers/correction-controller';
+import { renderOptionSelect } from './option-select';
 
 const LEVEL_ORDER = ['Excelente', 'Muy bien', 'Bien', 'Regular', 'Mal'];
 
@@ -293,26 +294,30 @@ export class CorrectorCorrectionForm extends HTMLElement {
 
       <fieldset>
         <legend>Filtrar por módulo:</legend>
-        <select data-element-id="101" @change=${this._handleYearChange}>
-          <option value="">Seleccionar año</option>
-          ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-        </select>
-        <select data-element-id="102" ?disabled=${this._selectedYear === ''} @change=${this._handleLegislationChange}>
-          <option value="">Seleccionar legislación</option>
-          ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-        </select>
-        <select data-element-id="103" ?disabled=${this._selectedLegislation === ''} @change=${this._handleCycleChange}>
-          <option value="">Seleccionar ciclo</option>
-          ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
-        </select>
-        <select data-element-id="104" ?disabled=${this._selectedCycle === ''} @change=${this._handleModuleChange}>
-          <option value="">Seleccionar módulo</option>
-          ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
-        </select>
-        <select data-element-id="105" ?disabled=${this._selectedModule === ''} @change=${this._handleProjectChange}>
-          <option value="">Seleccionar proyecto</option>
-          ${this._projects.map((p) => html`<option value=${p.id} ?selected=${String(p.id) === this._selectedProjectId}>${p.name}</option>`)}
-        </select>
+        ${renderOptionSelect({
+          sketchNumber: 101, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+          selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 102, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+          selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+          disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 103, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+          selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+          disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 104, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+          selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
+          disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 105, options: this._projects, getId: (p) => p.id, getLabel: (p) => p.name,
+          selectedValue: this._selectedProjectId, placeholder: 'Seleccionar proyecto',
+          disabled: this._selectedModule === '', onChange: this._handleProjectChange,
+        })}
       </fieldset>
 
       <div role="alert">${this._noRubricWarning ? 'Este módulo no tiene rúbrica definida. No se puede corregir.' : ''}</div>

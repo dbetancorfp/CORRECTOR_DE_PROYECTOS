@@ -19,6 +19,7 @@ import type { StudentRow } from '../controllers/student-controller';
 import { AssignmentController } from '../controllers/assignment-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
+import { renderOptionSelect } from './option-select';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -417,43 +418,47 @@ export class CorrectorAssignmentForm extends HTMLElement {
         <fieldset>
           <legend>Filtrar por proyecto:</legend>
           <input data-element-id="73" type="text" placeholder="Filtrar por proyecto" .value=${this._projectNameFilter} @input=${this._handleProjectNameFilterInput} />
-          <select data-element-id="74" @change=${this._handleProjectYearFilterChange}>
-            <option value="">Seleccionar año</option>
-            ${this._projectYearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._projectYearFilter}>${year}</option>`)}
-          </select>
-          <select data-element-id="75" @change=${this._handleProjectLegislationFilterChange}>
-            <option value="">Seleccionar legislación</option>
-            ${this._projectLegislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._projectLegislationFilter}>${leg.name}</option>`)}
-          </select>
-          <select data-element-id="76" ?disabled=${this._projectLegislationFilter === ''} @change=${this._handleProjectCycleFilterChange}>
-            <option value="">Seleccionar ciclo</option>
-            ${this._projectCycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._projectCycleFilter}>${cycle.name}</option>`)}
-          </select>
-          <select data-element-id="77" ?disabled=${this._projectCycleFilter === ''} @change=${this._handleProjectModuleFilterChange}>
-            <option value="">Seleccionar módulo</option>
-            ${this._projectModuleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._projectModuleFilter}>${mod.name}</option>`)}
-          </select>
+          ${renderOptionSelect({
+            sketchNumber: 74, options: this._projectYearOptions, getId: (y) => y, getLabel: (y) => String(y),
+            selectedValue: this._projectYearFilter, placeholder: 'Seleccionar año', onChange: this._handleProjectYearFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 75, options: this._projectLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+            selectedValue: this._projectLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleProjectLegislationFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 76, options: this._projectCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+            selectedValue: this._projectCycleFilter, placeholder: 'Seleccionar ciclo',
+            disabled: this._projectLegislationFilter === '', onChange: this._handleProjectCycleFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 77, options: this._projectModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+            selectedValue: this._projectModuleFilter, placeholder: 'Seleccionar módulo',
+            disabled: this._projectCycleFilter === '', onChange: this._handleProjectModuleFilterChange,
+          })}
         </fieldset>
 
         <fieldset>
           <legend>Filtrar por alumno:</legend>
           <input data-element-id="78" type="text" placeholder="Filtrar por nombre" .value=${this._studentNameFilter} @input=${this._handleStudentNameFilterInput} />
-          <select data-element-id="79" @change=${this._handleStudentYearFilterChange}>
-            <option value="">Seleccionar año</option>
-            ${this._studentYearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._studentYearFilter}>${year}</option>`)}
-          </select>
-          <select data-element-id="80" @change=${this._handleStudentLegislationFilterChange}>
-            <option value="">Seleccionar legislación</option>
-            ${this._studentLegislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._studentLegislationFilter}>${leg.name}</option>`)}
-          </select>
-          <select data-element-id="81" ?disabled=${this._studentLegislationFilter === ''} @change=${this._handleStudentCycleFilterChange}>
-            <option value="">Seleccionar ciclo</option>
-            ${this._studentCycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._studentCycleFilter}>${cycle.name}</option>`)}
-          </select>
-          <select data-element-id="82" ?disabled=${this._studentCycleFilter === ''} @change=${this._handleStudentModuleFilterChange}>
-            <option value="">Seleccionar módulo</option>
-            ${this._studentModuleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._studentModuleFilter}>${mod.name}</option>`)}
-          </select>
+          ${renderOptionSelect({
+            sketchNumber: 79, options: this._studentYearOptions, getId: (y) => y, getLabel: (y) => String(y),
+            selectedValue: this._studentYearFilter, placeholder: 'Seleccionar año', onChange: this._handleStudentYearFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 80, options: this._studentLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+            selectedValue: this._studentLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleStudentLegislationFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 81, options: this._studentCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+            selectedValue: this._studentCycleFilter, placeholder: 'Seleccionar ciclo',
+            disabled: this._studentLegislationFilter === '', onChange: this._handleStudentCycleFilterChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 82, options: this._studentModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+            selectedValue: this._studentModuleFilter, placeholder: 'Seleccionar módulo',
+            disabled: this._studentCycleFilter === '', onChange: this._handleStudentModuleFilterChange,
+          })}
         </fieldset>
       </div>
 

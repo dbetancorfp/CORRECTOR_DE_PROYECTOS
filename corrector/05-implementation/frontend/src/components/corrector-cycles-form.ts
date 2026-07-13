@@ -8,6 +8,7 @@ import type { LegislationService } from '../services/legislation.service';
 import { CycleController } from '../controllers/cycle-controller';
 import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
+import { renderOptionSelect } from './option-select';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -254,23 +255,16 @@ export class CorrectorCyclesForm extends HTMLElement {
             aria-invalid=${this._nameError ? 'true' : 'false'}
             @input=${this._handleNameInput}
           />
-          <select
-            data-element-id="14"
-            aria-invalid=${this._yearError ? 'true' : 'false'}
-            @change=${this._handleYearChange}
-          >
-            <option value="">Seleccionar año</option>
-            ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-          </select>
-          <select
-            data-element-id="15"
-            ?disabled=${this._selectedYear === ''}
-            aria-invalid=${this._legislationError ? 'true' : 'false'}
-            @change=${this._handleLegislationChange}
-          >
-            <option value="">Seleccionar legislación</option>
-            ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-          </select>
+          ${renderOptionSelect({
+            sketchNumber: 14, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
+            invalid: this._yearError, onChange: this._handleYearChange,
+          })}
+          ${renderOptionSelect({
+            sketchNumber: 15, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+            disabled: this._selectedYear === '', invalid: this._legislationError, onChange: this._handleLegislationChange,
+          })}
           <button
             data-element-id="16"
             type="button"

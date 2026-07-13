@@ -12,6 +12,7 @@ import { RubricController, DEFAULT_LEVEL_NAMES, MAX_LEVEL_COUNT, nextBuilderLeve
 import type { BuilderLevel } from '../controllers/rubric-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
+import { renderOptionSelect } from './option-select';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -343,22 +344,25 @@ export class CorrectorRubricForm extends HTMLElement {
       <fieldset>
         <legend>Filtrar por módulo:</legend>
         <input data-element-id="86" type="text" placeholder="Filtrar por proyecto" .value=${this._moduleFilter} @input=${this._handleModuleFilterInput} />
-        <select data-element-id="87" @change=${this._handleYearChange}>
-          <option value="">Seleccionar año</option>
-          ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-        </select>
-        <select data-element-id="88" ?disabled=${this._selectedYear === ''} @change=${this._handleLegislationChange}>
-          <option value="">Seleccionar legislación</option>
-          ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-        </select>
-        <select data-element-id="89" ?disabled=${this._selectedLegislation === ''} @change=${this._handleCycleChange}>
-          <option value="">Seleccionar ciclo</option>
-          ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
-        </select>
-        <select data-element-id="90" ?disabled=${this._selectedCycle === ''} @change=${this._handleModuleChange}>
-          <option value="">Seleccionar módulo</option>
-          ${this._visibleModuleOptions().map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
-        </select>
+        ${renderOptionSelect({
+          sketchNumber: 87, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+          selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 88, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+          selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+          disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 89, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+          selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+          disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
+        })}
+        ${renderOptionSelect({
+          sketchNumber: 90, options: this._visibleModuleOptions(), getId: (m) => m.id, getLabel: (m) => m.name,
+          selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
+          disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
+        })}
       </fieldset>
 
       <fieldset>
