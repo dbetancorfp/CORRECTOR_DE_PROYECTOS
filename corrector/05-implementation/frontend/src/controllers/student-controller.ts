@@ -2,6 +2,7 @@ import type { Student, StudentService } from '../services/student.service';
 import type { Legislation, LegislationService } from '../services/legislation.service';
 import type { Cycle, CycleService } from '../services/cycle.service';
 import type { Module, ModuleService } from '../services/module.service';
+import * as cascade from './academic-cascade';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
@@ -50,35 +51,23 @@ export class StudentController {
   }
 
   async loadLegislations(): Promise<Legislation[]> {
-    const result = await this.legislationService.list();
-    return result.ok ? result.items : [];
+    return cascade.loadLegislations(this.legislationService);
   }
 
   async loadYearOptions(): Promise<number[]> {
-    const legislations = await this.loadLegislations();
-    return Array.from(new Set(legislations.map((l) => l.startYear))).sort((a, b) => a - b);
+    return cascade.loadYearOptions(this.legislationService);
   }
 
   async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    if (year === null) return [];
-    const legislations = await this.loadLegislations();
-    return legislations.filter((l) => l.startYear === year);
+    return cascade.loadLegislationOptions(this.legislationService, year);
   }
 
-  // Filtered to cycles that already have a module under the chosen
-  // legislation — same accepted bootstrap limitation as Módulos #27 /
-  // Profesorado #39.
   async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    if (legislationId === null) return [];
-    const result = await this.cycleService.list({ legislationId });
-    return result.ok ? result.items : [];
+    return cascade.loadCycleOptions(this.cycleService, legislationId);
   }
 
   async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    if (cycleId === null) return [];
-    const result = await this.moduleService.list();
-    if (!result.ok) return [];
-    return result.items.filter((m) => m.cycleId === cycleId);
+    return cascade.loadModuleOptions(this.moduleService, cycleId);
   }
 
   async create(

@@ -5,6 +5,7 @@ import type { RubricService, RubricItem } from '../services/rubric.service';
 import type { Legislation, LegislationService } from '../services/legislation.service';
 import type { Cycle, CycleService } from '../services/cycle.service';
 import type { Module, ModuleService } from '../services/module.service';
+import * as cascade from './academic-cascade';
 
 export type SaveState =
   | { status: 'success' }
@@ -23,29 +24,19 @@ export class CorrectionController {
   ) {}
 
   async loadYearOptions(): Promise<number[]> {
-    const result = await this.legislationService.list();
-    if (!result.ok) return [];
-    return Array.from(new Set(result.items.map((l) => l.startYear))).sort((a, b) => a - b);
+    return cascade.loadYearOptions(this.legislationService);
   }
 
   async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    if (year === null) return [];
-    const result = await this.legislationService.list();
-    if (!result.ok) return [];
-    return result.items.filter((l) => l.startYear === year);
+    return cascade.loadLegislationOptions(this.legislationService, year);
   }
 
   async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    if (legislationId === null) return [];
-    const result = await this.cycleService.list({ legislationId });
-    return result.ok ? result.items : [];
+    return cascade.loadCycleOptions(this.cycleService, legislationId);
   }
 
   async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    if (cycleId === null) return [];
-    const result = await this.moduleService.list();
-    if (!result.ok) return [];
-    return result.items.filter((m) => m.cycleId === cycleId);
+    return cascade.loadModuleOptions(this.moduleService, cycleId);
   }
 
   async loadProjects(moduleId: number | null): Promise<Project[]> {
