@@ -13,6 +13,7 @@ import type { BuilderLevel } from '../controllers/rubric-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
 import { renderOptionSelect } from './option-select';
+import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -250,19 +251,13 @@ export class CorrectorRubricForm extends HTMLElement {
   };
 
   private async _deleteRow(item: RubricItem): Promise<void> {
-    const confirmed = window.confirm(`¿Eliminar el ítem "${item.description}"?`);
-    if (!confirmed) return;
-
     this._rowErrorMessage = '';
-    const state = await this._controller.deleteItem(item.id);
-
-    if (state.status === 'success') {
-      this._items = this._items.filter((i) => i.id !== item.id);
-      this._render();
-      return;
-    }
-
-    this._rowErrorMessage = state.message;
+    await runDeleteRowFlow(
+      `¿Eliminar el ítem "${item.description}"?`,
+      () => this._controller.deleteItem(item.id),
+      () => { this._items = this._items.filter((i) => i.id !== item.id); },
+      (message) => { this._rowErrorMessage = message; },
+    );
     this._render();
   }
 

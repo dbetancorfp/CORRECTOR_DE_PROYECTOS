@@ -5,6 +5,7 @@ import type { Legislation, LegislationService } from '../services/legislation.se
 import { LegislationController } from '../controllers/legislation-controller';
 import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
+import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -182,19 +183,13 @@ export class CorrectorLegislationForm extends HTMLElement {
   };
 
   private async _handleDelete(row: Legislation): Promise<void> {
-    const confirmed = window.confirm(`¿Eliminar la legislación ${row.name}?`);
-    if (!confirmed) return;
-
     this._rowErrorMessage = '';
-    const state = await this._controller.delete(row.id);
-
-    if (state.status === 'success') {
-      this._rows = this._rows.filter((r) => r.id !== row.id);
-      this._render();
-      return;
-    }
-
-    this._rowErrorMessage = state.message;
+    await runDeleteRowFlow(
+      `¿Eliminar la legislación ${row.name}?`,
+      () => this._controller.delete(row.id),
+      () => { this._rows = this._rows.filter((r) => r.id !== row.id); },
+      (message) => { this._rowErrorMessage = message; },
+    );
     this._render();
   }
 

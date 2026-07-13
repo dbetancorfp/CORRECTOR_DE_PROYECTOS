@@ -9,6 +9,7 @@ import { CycleController } from '../controllers/cycle-controller';
 import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
 import { renderOptionSelect } from './option-select';
+import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -207,19 +208,13 @@ export class CorrectorCyclesForm extends HTMLElement {
   };
 
   private async _handleDelete(row: Cycle): Promise<void> {
-    const confirmed = window.confirm(`¿Eliminar el ciclo ${row.name}?`);
-    if (!confirmed) return;
-
     this._rowErrorMessage = '';
-    const state = await this._controller.delete(row.id);
-
-    if (state.status === 'success') {
-      this._rows = this._rows.filter((r) => r.id !== row.id);
-      this._render();
-      return;
-    }
-
-    this._rowErrorMessage = state.message;
+    await runDeleteRowFlow(
+      `¿Eliminar el ciclo ${row.name}?`,
+      () => this._controller.delete(row.id),
+      () => { this._rows = this._rows.filter((r) => r.id !== row.id); },
+      (message) => { this._rowErrorMessage = message; },
+    );
     this._render();
   }
 

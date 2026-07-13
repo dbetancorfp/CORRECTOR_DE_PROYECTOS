@@ -20,6 +20,7 @@ import { AssignmentController } from '../controllers/assignment-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
 import { renderOptionSelect } from './option-select';
+import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -369,25 +370,21 @@ export class CorrectorAssignmentForm extends HTMLElement {
   };
 
   private async _handleDelete(row: ProjectRow): Promise<void> {
-    const confirmed = window.confirm(`¿Eliminar el proyecto ${row.name}?`);
-    if (!confirmed) return;
-
     this._rowErrorMessage = '';
-    const state = await this._projectController.delete(row.id);
-
-    if (state.status === 'success') {
-      this._rows = this._rows.filter((r) => r.id !== row.id);
-      if (row.id === this._selectedProjectId) {
-        this._selectedProjectId = null;
-        this._selectedProjectName = null;
-        this._assignedStudents = [];
-        this._candidates = [];
-      }
-      this._render();
-      return;
-    }
-
-    this._rowErrorMessage = state.message;
+    await runDeleteRowFlow(
+      `¿Eliminar el proyecto ${row.name}?`,
+      () => this._projectController.delete(row.id),
+      () => {
+        this._rows = this._rows.filter((r) => r.id !== row.id);
+        if (row.id === this._selectedProjectId) {
+          this._selectedProjectId = null;
+          this._selectedProjectName = null;
+          this._assignedStudents = [];
+          this._candidates = [];
+        }
+      },
+      (message) => { this._rowErrorMessage = message; },
+    );
     this._render();
   }
 
