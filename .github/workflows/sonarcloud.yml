@@ -48,7 +48,6 @@ jobs:
 
       - name: Run tests with LCOV coverage
         run: bun test --max-workers=1 --coverage --coverage-reporter=lcov
-        continue-on-error: true
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
