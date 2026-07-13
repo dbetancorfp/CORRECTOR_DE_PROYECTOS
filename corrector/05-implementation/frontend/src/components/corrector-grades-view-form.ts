@@ -266,7 +266,7 @@ export class CorrectorGradesViewForm extends HTMLElement {
 
       <div data-element-id="122">
         ${this._statusBadges.map((b) => html`
-          <span style=${b.status === 'complete' ? 'background:green;color:white;' : 'background:red;color:white;'}>
+          <span data-status=${b.status} style=${b.status === 'complete' ? 'background:green;color:white;' : 'background:red;color:white;'}>
             ${moduleAbbreviation(b.moduleName)}
           </span>
         `)}
@@ -287,7 +287,7 @@ export class CorrectorGradesViewForm extends HTMLElement {
       return html`
         <table style="border: 1px solid black;" data-element-id="119">
           <tr><th>Proyecto</th><th>Nombre alumno</th><th>Nota</th></tr>
-          ${data.rows.map((r) => html`<tr><td>${r.projectName}</td><td>${r.studentName}</td><td>${r.moduleScore}</td></tr>`)}
+          ${data.rows.map((r) => html`<tr><td>${r.projectName}</td><td data-col="studentName">${r.studentName}</td><td>${r.moduleScore}</td></tr>`)}
         </table>
       `;
     }
@@ -301,7 +301,7 @@ export class CorrectorGradesViewForm extends HTMLElement {
         </tr>
         ${data.rows.map((r) => html`
           <tr>
-            <td>${r.projectName}</td><td>${r.studentName}</td>
+            <td>${r.projectName}</td><td data-col="studentName">${r.studentName}</td>
             ${data.modules.map((m) => html`<td>${r.moduleScores[String(m.id)] ?? ''}</td>`)}
             <td>${r.finalScore}</td>
           </tr>

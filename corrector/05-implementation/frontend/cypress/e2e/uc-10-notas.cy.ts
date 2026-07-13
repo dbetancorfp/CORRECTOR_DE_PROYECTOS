@@ -7,6 +7,71 @@ describe('UC-10: Visualización e impresión de Notas', () => {
   // ── Flujo principal — rol tutor ──────────────────────────────────────────────
 
   describe('as tutor', () => {
+    // Module BD (id 3) starts with no rubric or projects in the fixture.
+    // DEW (id 1) already has a rubric, but it's pinned to academic_year
+    // 2024-2025, which is unreachable through the #114 cascade (year
+    // options come from legislation.start_year — only 2020 for LOMLOE is
+    // available in the DAW cycle). Building an isolated scenario on BD
+    // avoids depending on DEW/ANA fixture data that uc-06/07/07b/08/09
+    // mutate over the course of the suite. POST /api/corrections requires
+    // either an admin session or a teacher assigned to the module —
+    // dbetqui (tutor) and profesor1 (assigned only to DEW) have neither
+    // for BD, so the correction itself is submitted as admin.
+    //
+    // Built once here (not per-test): POST /modules/:id/rubric/items always
+    // inserts a NEW item, so calling it from multiple tests would require
+    // ever more rubric-item selections in every correction that follows.
+    // "Proyecto BD Completo" gets 2 corrected students (JJ499, MnP454) —
+    // feeds both the green-badge test and the row-sorting test (which needs
+    // real, multi-row table data, not just an enabled/disabled check).
+    // "Proyecto BD Incompleto" gets 1 uncorrected student — feeds the
+    // red-badge test (BD's total now exceeds its corrected count).
+    before(() => {
+      cy.request('POST', '/api/modules/3/rubric/items', {
+        academicYear: '2020-2021',
+        description: 'Item UC10',
+        displayOrder: 1,
+        levels: [
+          { name: 'Excelente', score: 1, displayOrder: 1 },
+          { name: 'Mal', score: 0, displayOrder: 2 },
+        ],
+      }).then((itemResp) => {
+        const rubricId = itemResp.body.rubricId as number;
+        const rubricItemId = itemResp.body.id as number;
+        const levels = itemResp.body.levels as Array<{ id: number; name: string }>;
+        const rubricLevelId = levels.find((l) => l.name === 'Excelente')!.id;
+
+        cy.request('POST', '/api/projects', { name: 'Proyecto BD Completo', academicYear: '2020-2021', moduleId: 3 })
+          .then((projResp) => {
+            const projectId = projResp.body.id as number;
+            cy.request('POST', `/api/projects/${projectId}/students`, { studentIds: [1, 2] });
+            cy.request('POST', '/api/auth/login', { username: 'admin', password: 'Admin1234!' });
+            for (const studentId of [1, 2]) {
+              cy.request('POST', '/api/corrections', {
+                studentId,
+                projectId,
+                moduleId: 3,
+                rubricId,
+                academicYear: '2020-2021',
+                items: [{ rubricItemId, rubricLevelId }],
+              });
+            }
+          });
+      });
+
+      // The incomplete scenario goes on DEW (module 1) instead of BD — a
+      // module's badge status combines ALL its projects, so an uncorrected
+      // project on BD would flip "Proyecto BD Completo" incomplete too.
+      // DEW has zero fixture projects for any academic year, so this new
+      // project is its only one and no rubric is needed (badge status only
+      // looks at project_student + correction, not the rubric).
+      cy.request('POST', '/api/projects', { name: 'Proyecto DEW Incompleto', academicYear: '2020-2021', moduleId: 1 })
+        .then((projResp) => {
+          const projectId = projResp.body.id as number;
+          cy.request('POST', `/api/projects/${projectId}/students`, { studentIds: [3] });
+        });
+    });
+
     beforeEach(() => {
       cy.visit('/');
       cy.get('[data-element-id="1"]').type('dbetqui');
@@ -28,30 +93,11 @@ describe('UC-10: Visualización e impresión de Notas', () => {
     });
 
     it('shows green badge when all students in a module have a correction', () => {
-      // Set up a complete correction via API
-      cy.request({
-        method: 'POST',
-        url: '/api/projects/1/students',
-        body: { studentIds: [1] },
-        failOnStatusCode: false,
-      });
-      cy.request('POST', '/api/corrections', {
-        studentId: 1,
-        projectId: 1,
-        moduleId: 1,
-        rubricId: 1,
-        academicYear: '2024-2025',
-        items: [
-          { rubricItemId: 1, rubricLevelId: 1 },
-          { rubricItemId: 2, rubricLevelId: 4 },
-        ],
-      });
-
       cy.contains(/Visualizar|Notas/i).click();
       cy.get('[data-element-id="114"]').select('2020');
       cy.get('[data-element-id="115"]').select('LOMLOE');
       cy.get('[data-element-id="116"]').select('DAW');
-      cy.get('[data-element-id="122"]').filter('[data-status="complete"]')
+      cy.get('[data-element-id="122"]').find('[data-status="complete"]')
         .should('have.length.gte', 1);
     });
 
@@ -60,7 +106,7 @@ describe('UC-10: Visualización e impresión de Notas', () => {
       cy.get('[data-element-id="114"]').select('2020');
       cy.get('[data-element-id="115"]').select('LOMLOE');
       cy.get('[data-element-id="116"]').select('DAW');
-      cy.get('[data-element-id="122"]').filter('[data-status="incomplete"]')
+      cy.get('[data-element-id="122"]').find('[data-status="incomplete"]')
         .should('have.length.gte', 1);
     });
 
@@ -79,7 +125,7 @@ describe('UC-10: Visualización e impresión de Notas', () => {
       cy.get('[data-element-id="114"]').select('2020');
       cy.get('[data-element-id="115"]').select('LOMLOE');
       cy.get('[data-element-id="116"]').select('DAW');
-      cy.get('[data-element-id="117"]').select('DEW');
+      cy.get('[data-element-id="117"]').select('ANA');
       cy.get('[data-element-id="118"]').select('Test Project');
 
       cy.get('[data-element-id="119"]').should('be.visible');
@@ -91,7 +137,7 @@ describe('UC-10: Visualización e impresión de Notas', () => {
       cy.get('[data-element-id="114"]').select('2020');
       cy.get('[data-element-id="115"]').select('LOMLOE');
       cy.get('[data-element-id="116"]').select('DAW');
-      cy.get('[data-element-id="117"]').select('DEW');
+      cy.get('[data-element-id="117"]').select('ANA');
       cy.get('[data-element-id="118"]').select('Test Project');
 
       // Intercept the PDF request to check headers without relying on the file download
@@ -101,12 +147,16 @@ describe('UC-10: Visualización e impresión de Notas', () => {
     });
 
     it('sorts rows in table #119 alphabetically by project then student name', () => {
+      // Uses BD's "Proyecto BD Completo" (seeded in the before() above with
+      // 2 corrected students) — ANA's "Test Project" never has a correction
+      // in this suite (no rubric ever exists for ANA), so it always renders
+      // 0 rows and can't exercise the sort itself.
       cy.contains(/Visualizar|Notas/i).click();
       cy.get('[data-element-id="114"]').select('2020');
       cy.get('[data-element-id="115"]').select('LOMLOE');
       cy.get('[data-element-id="116"]').select('DAW');
-      cy.get('[data-element-id="117"]').select('DEW');
-      cy.get('[data-element-id="118"]').select('Test Project');
+      cy.get('[data-element-id="117"]').select('BD');
+      cy.get('[data-element-id="118"]').select('Proyecto BD Completo');
 
       cy.get('[data-element-id="119"]').find('tr [data-col="studentName"]')
         .then(($cells) => {
@@ -137,15 +187,26 @@ describe('UC-10: Visualización e impresión de Notas', () => {
   // ── Flujo alternativo — rol profesor ────────────────────────────────────────
 
   describe('as profesor', () => {
+    // profesor1 requires a password change on first login. uc-09-correccion.cy.ts
+    // runs alphabetically before this spec and already completes that change —
+    // so depending on run order/isolation, the password here may still be the
+    // default OR already 'NewPassword1!'. Branch on the actual login response
+    // (mustChangePassword / non-2xx for stale credentials) rather than polling
+    // the DOM — a plain cy.get('body').then() check races the app's async
+    // re-render and can see stale markup (e.g. the disabled field mid-submit).
     beforeEach(() => {
       cy.visit('/');
+      cy.intercept('POST', '/api/auth/login').as('login');
       cy.get('[data-element-id="1"]').type('profesor1');
       cy.get('[data-element-id="2"]').type('12345678');
       cy.get('[data-element-id="3"]').click();
-      cy.url().then((url) => {
-        if (!url.includes('/profesor')) {
+      cy.wait('@login').then((interception) => {
+        if (interception.response?.statusCode === 200 && interception.response.body.mustChangePassword) {
           cy.get('input[type="password"]').eq(1).type('NewPassword1!');
           cy.get('input[type="password"]').eq(2).type('NewPassword1!');
+          cy.get('[data-element-id="3"]').click();
+        } else if (interception.response?.statusCode !== 200) {
+          cy.get('[data-element-id="2"]').clear().type('NewPassword1!');
           cy.get('[data-element-id="3"]').click();
         }
       });
