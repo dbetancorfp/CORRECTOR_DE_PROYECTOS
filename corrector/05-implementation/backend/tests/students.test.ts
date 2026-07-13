@@ -27,6 +27,7 @@ function makeRepo(overrides: Partial<StudentRepository> = {}): StudentRepository
     update: async () => baseStudent,
     delete: async () => {},
     isAssignedToProject: async () => false,
+    hasCorrections: async () => false,
     ...overrides,
   };
 }
@@ -271,12 +272,43 @@ describe('Elements #55–#59 — GET /api/students', () => {
 
 describe('Element #60 — DELETE /api/students/:id', () => {
   it('returns 204 when student has no project assignment', async () => {
-    const res = await fetch(`${BASE_URL}/api/students/1`, { method: 'DELETE' });
+    // Student 1 isn't a clean pick — corrections.test.ts creates real
+    // correction records for studentId: 1, which now correctly blocks
+    // deletion (StudentService.delete() checks hasCorrections() too).
+    // Create a fresh, fully unattached student to isolate this path.
+    const created = await fetch(`${BASE_URL}/api/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Alumno sin asignar', cycleId: 1, moduleId: 1 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/students/${id}`, { method: 'DELETE' });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when student is assigned to a project', async () => {
-    const res = await fetch(`${BASE_URL}/api/students/1`, { method: 'DELETE' });
+    // Student 1 was just deleted by the test above — create a fresh
+    // student and assign it to a fresh project for real.
+    const student = await fetch(`${BASE_URL}/api/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Alumno asignado', cycleId: 1, moduleId: 1 }),
+    });
+    const { id: studentId } = await student.json() as { id: number };
+    const project = await fetch(`${BASE_URL}/api/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Proyecto para alumno asignado', academicYear: '2024-2025', moduleId: 2 }),
+    });
+    const { id: projectId } = await project.json() as { id: number };
+    await fetch(`${BASE_URL}/api/projects/${projectId}/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentIds: [studentId] }),
+    });
+
+    const res = await fetch(`${BASE_URL}/api/students/${studentId}`, { method: 'DELETE' });
     expect(res.status).toBe(409);
   });
 });

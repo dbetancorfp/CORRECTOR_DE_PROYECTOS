@@ -77,6 +77,13 @@ export class PgRubricRepository implements RubricRepository {
     }
   }
 
+  async hasCorrectionItems(itemId: number): Promise<boolean> {
+    const rows = await this.sql<{ exists: boolean }[]>`
+      SELECT EXISTS(SELECT 1 FROM correction_item WHERE rubric_item_id = ${itemId}) AS "exists"
+    `;
+    return rows[0]?.exists ?? false;
+  }
+
   async isFrozen(_id: number, _academicYear?: string): Promise<boolean> {
     // schema.sql has no `frozen` column on rubric — no code path ever sets it.
     return false;

@@ -111,4 +111,11 @@ export class PgStudentRepository implements StudentRepository {
     `;
     return rows[0]?.exists ?? false;
   }
+
+  async hasCorrections(id: number): Promise<boolean> {
+    const rows = await this.sql<{ exists: boolean }[]>`
+      SELECT EXISTS(SELECT 1 FROM correction WHERE student_id = ${id}) AS "exists"
+    `;
+    return rows[0]?.exists ?? false;
+  }
 }

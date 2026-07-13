@@ -218,7 +218,9 @@ describe('Element #20 — PUT /api/cycles/:id', () => {
 
 describe('Element #20 — DELETE /api/cycles/:id', () => {
   it('returns 204 when cycle has no modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/cycles/1`, {
+    // Cycle 1 (DAW) always has fixture modules (DEW/ANA/BD) — cycle 2
+    // (ASIR) is the one with zero modules in the seed.
+    const res = await fetch(`${BASE_URL}/api/cycles/2`, {
       method: 'DELETE',
       headers: { 'Cookie': 'session_id=admin-session' },
     });

@@ -68,4 +68,8 @@ export class InMemoryStudentRepository implements StudentRepository {
   async isAssignedToProject(id: number): Promise<boolean> {
     return this.store.projectStudents.some((ps) => ps.studentId === id);
   }
+
+  async hasCorrections(id: number): Promise<boolean> {
+    return this.store.corrections.some((c) => c.studentId === id);
+  }
 }

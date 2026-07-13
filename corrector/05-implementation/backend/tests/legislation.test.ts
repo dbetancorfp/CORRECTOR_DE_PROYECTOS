@@ -282,7 +282,10 @@ describe('Element #10 — DELETE /api/legislation/:id', () => {
   });
 
   it('returns 409 when legislation has dependent modules', async () => {
-    const res = await fetch(`${BASE_URL}/api/legislation/1`, {
+    // Legislation 1 (LOGSE) was just deleted by the test above (it has no
+    // modules) — legislation 2 (LOMLOE) is the one with real dependents
+    // (DEW/ANA/BD all reference it).
+    const res = await fetch(`${BASE_URL}/api/legislation/2`, {
       method: 'DELETE',
       headers: { 'Cookie': 'session_id=admin-session' },
     });

@@ -25,4 +25,5 @@ export interface StudentRepository {
   update(id: number, data: Partial<CreateStudentData>): Promise<Student>;
   delete(id: number): Promise<void>;
   isAssignedToProject(id: number): Promise<boolean>;
+  hasCorrections(id: number): Promise<boolean>;
 }

@@ -69,6 +69,11 @@ export class RubricService {
       throw new AppError('Cannot modify a frozen rubric', 'RUBRIC_FROZEN');
     }
 
+    const hasCorrectionItems = await this.repo.hasCorrectionItems(itemId);
+    if (hasCorrectionItems) {
+      throw new AppError('Cannot delete a rubric item with existing correction records', 'HAS_DEPENDANTS');
+    }
+
     await this.repo.deleteItem(itemId);
   }
 }

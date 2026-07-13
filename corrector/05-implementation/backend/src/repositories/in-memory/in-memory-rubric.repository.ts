@@ -70,6 +70,10 @@ export class InMemoryRubricRepository implements RubricRepository {
     if (idx >= 0) this.store.rubricItems.splice(idx, 1);
   }
 
+  async hasCorrectionItems(itemId: number): Promise<boolean> {
+    return this.store.corrections.some((c) => c.items.some((i) => i.rubricItemId === itemId));
+  }
+
   async isFrozen(id: number, academicYear?: string): Promise<boolean> {
     if (academicYear !== undefined) {
       return this.store.rubrics.some(

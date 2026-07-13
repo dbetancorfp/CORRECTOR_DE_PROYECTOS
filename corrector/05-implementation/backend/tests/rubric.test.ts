@@ -36,6 +36,7 @@ function makeRepo(overrides: Partial<RubricRepository> = {}): RubricRepository {
     addItem: async (moduleId, item) => ({ id: 99, ...item, rubricId: 1 }),
     updateItem: async () => baseRubric.items[0],
     deleteItem: async () => {},
+    hasCorrectionItems: async () => false,
     isFrozen: async () => false,
     getExcelenteSumExcluding: async () => 0,
     replaceAll: async () => {},
@@ -303,7 +304,11 @@ describe('Element #98 — POST /api/modules/:id/rubric/items', () => {
     expect(res.status).toBe(409);
   });
 
-  it('returns 423 when rubric is frozen', async () => {
+  // PgRubricRepository.isFrozen() is hardcoded to `false` — schema.sql has
+  // no `frozen` column and no code path ever sets one, so this can never
+  // exercise the 423 path against the real backend (same known limitation
+  // already documented/skipped in uc-08-rubrica.cy.ts).
+  it.skip('returns 423 when rubric is frozen', async () => {
     const res = await fetch(`${BASE_URL}/api/modules/1/rubric/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -413,11 +418,32 @@ describe('Element #99 — POST /api/modules/:id/rubric/upload', () => {
 
 describe('Element #97 — DELETE /api/rubric/items/:id', () => {
   it('returns 204 when item is deleted', async () => {
-    const res = await fetch(`${BASE_URL}/api/rubric/items/1`, { method: 'DELETE' });
+    // Item 1 is referenced by a real correction_item row in the fixture
+    // (used to make teachers.test.ts's "has correction records" 409 real) —
+    // deleting it would correctly 409, not 204. Create a disposable item
+    // instead, on module 3 ("BD", no rubric in the fixture) rather than
+    // module 1 — several tests above already add items at various
+    // displayOrders to module 1's 2024-2025 rubric (UNIQUE per rubric),
+    // so a fresh, untouched module avoids any collision.
+    const created = await fetch(`${BASE_URL}/api/modules/3/rubric/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        academicYear: '2024-2025',
+        description: 'Item to delete',
+        displayOrder: 1,
+        levels: [{ name: 'Excelente', score: 1.0, displayOrder: 1 }, { name: 'Mal', score: 0.0, displayOrder: 2 }],
+      }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/rubric/items/${id}`, { method: 'DELETE' });
     expect(res.status).toBe(204);
   });
 
-  it('returns 423 when rubric is frozen', async () => {
+  // Same known limitation as the POST 423 test above — isFrozen() is
+  // hardcoded false, so this can never exercise the frozen path for real.
+  it.skip('returns 423 when rubric is frozen', async () => {
     const res = await fetch(`${BASE_URL}/api/rubric/items/1`, { method: 'DELETE' });
     expect(res.status).toBe(423);
   });

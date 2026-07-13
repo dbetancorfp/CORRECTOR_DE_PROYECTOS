@@ -43,6 +43,10 @@ export class StudentService {
     if (assigned) {
       throw new AppError('Cannot delete student assigned to a project', 'HAS_DEPENDANTS');
     }
+    const hasCorrections = await this.repo.hasCorrections(id);
+    if (hasCorrections) {
+      throw new AppError('Cannot delete student with existing correction records', 'HAS_DEPENDANTS');
+    }
     await this.repo.delete(id);
   }
 }

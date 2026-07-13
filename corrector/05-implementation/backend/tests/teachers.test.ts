@@ -307,7 +307,25 @@ describe('Element #46 — POST /api/teachers/:id/unlock', () => {
 
 describe('Element #46 — DELETE /api/teachers/:id', () => {
   it('returns 204 when teacher has no corrections', async () => {
-    const res = await fetch(`${BASE_URL}/api/teachers/1`, {
+    // Teacher 1 ("admin") deliberately HAS a correction in the shared
+    // fixture (student 2 / module 1 / teacher 1) — that's what makes the
+    // "has correction records" test below real. Create a disposable
+    // teacher (and its own module, so as not to depend on module 3 still
+    // being unassigned by the time this runs) instead of reusing it here.
+    const module = await fetch(`${BASE_URL}/api/modules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo profesor sin correcciones', weeklyHours: 5, cycleId: 1, legislationId: 2 }),
+    });
+    const { id: moduleId } = await module.json() as { id: number };
+    const teacher = await fetch(`${BASE_URL}/api/teachers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ username: 'profesorsinnota', password: '12345678', moduleId }),
+    });
+    const { id: teacherId } = await teacher.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/teachers/${teacherId}`, {
       method: 'DELETE',
       headers: { 'Cookie': 'session_id=admin-session' },
     });

@@ -28,6 +28,9 @@ function makeRepo(overrides: Partial<ModuleRepository> = {}): ModuleRepository {
     update: async () => baseModule,
     delete: async () => {},
     hasProjects: async () => false,
+    hasRubric: async () => false,
+    hasCorrections: async () => false,
+    isTeacherAssigned: async () => false,
     ...overrides,
   };
 }
@@ -142,33 +145,39 @@ describe('Element #33 — ModuleService: delete', () => {
 
 describe('Element #28 — POST /api/modules', () => {
   it('returns 201 with new module containing all 4 required fields', async () => {
+    // name 'DEW Nuevo' (not the fixture's own 'DEW') + legislationId: 2
+    // (LOMLOE) — using the fixture's exact ('DEW', cycleId:1, legislationId:2)
+    // tuple would 409 as a duplicate of module 1; legislationId: 1 (LOGSE)
+    // avoided too since legislation.test.ts's own DELETE test (alphabetically
+    // earlier) removes it for real, which would 500 on the FK instead.
     const res = await fetch(`${BASE_URL}/api/modules`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
-      body: JSON.stringify({ name: 'DEW', weeklyHours: 7, cycleId: 1, legislationId: 1 }),
+      body: JSON.stringify({ name: 'DEW Nuevo', weeklyHours: 7, cycleId: 1, legislationId: 2 }),
     });
     expect(res.status).toBe(201);
     const body = await res.json() as Record<string, unknown>;
-    expect(body.name).toBe('DEW');
+    expect(body.name).toBe('DEW Nuevo');
     expect(body.weeklyHours).toBe(7);
     expect(body.cycleId).toBe(1);
-    expect(body.legislationId).toBe(1);
+    expect(body.legislationId).toBe(2);
   });
 
   it('returns 400 when weeklyHours is out of range', async () => {
     const res = await fetch(`${BASE_URL}/api/modules`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
-      body: JSON.stringify({ name: 'DEW', weeklyHours: 0, cycleId: 1, legislationId: 1 }),
+      body: JSON.stringify({ name: 'DEW', weeklyHours: 0, cycleId: 1, legislationId: 2 }),
     });
     expect(res.status).toBe(400);
   });
 
   it('returns 409 when name+cycleId+legislationId combination already exists', async () => {
+    // Same-name collision, not with the fixture — creates it twice itself.
     const opts = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
-      body: JSON.stringify({ name: 'DEW', weeklyHours: 7, cycleId: 1, legislationId: 1 }),
+      body: JSON.stringify({ name: 'DEW Duplicado', weeklyHours: 7, cycleId: 1, legislationId: 2 }),
     };
     await fetch(`${BASE_URL}/api/modules`, opts);
     const res = await fetch(`${BASE_URL}/api/modules`, opts);
@@ -180,10 +189,12 @@ describe('Element #33 — PUT /api/modules/:id', () => {
   it('returns 200 with the updated module', async () => {
     // Creates its own module rather than mutating the shared seed module 1
     // ("DEW") — students.test.ts's CSV upload resolves a module by that name.
+    // legislationId: 2 (LOMLOE) — legislation 1 (LOGSE) is deleted for real
+    // by legislation.test.ts, which runs alphabetically before this file.
     const created = await fetch(`${BASE_URL}/api/modules`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
-      body: JSON.stringify({ name: 'Módulo editable', weeklyHours: 5, cycleId: 1, legislationId: 1 }),
+      body: JSON.stringify({ name: 'Módulo editable', weeklyHours: 5, cycleId: 1, legislationId: 2 }),
     });
     const { id } = await created.json() as { id: number };
 
@@ -248,7 +259,18 @@ describe('Elements #29–#32 — GET /api/modules', () => {
 
 describe('Element #33 — DELETE /api/modules/:id', () => {
   it('returns 204 when module has no projects', async () => {
-    const res = await fetch(`${BASE_URL}/api/modules/1`, {
+    // Module 1 ("DEW") isn't a clean pick here — the shared fixture ties it
+    // to a rubric + a correction (blocking dependents in their own right),
+    // which would confuse a test specifically about the "no projects" path.
+    // Creating a fresh, fully unattached module isolates that path.
+    const created = await fetch(`${BASE_URL}/api/modules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo sin proyectos', weeklyHours: 5, cycleId: 1, legislationId: 2 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/modules/${id}`, {
       method: 'DELETE',
       headers: { 'Cookie': 'session_id=admin-session' },
     });
@@ -256,7 +278,19 @@ describe('Element #33 — DELETE /api/modules/:id', () => {
   });
 
   it('returns 409 when module has associated projects', async () => {
-    const res = await fetch(`${BASE_URL}/api/modules/1`, {
+    const created = await fetch(`${BASE_URL}/api/modules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Módulo con proyecto', weeklyHours: 5, cycleId: 1, legislationId: 2 }),
+    });
+    const { id: moduleId } = await created.json() as { id: number };
+    await fetch(`${BASE_URL}/api/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' },
+      body: JSON.stringify({ name: 'Proyecto bloqueante', academicYear: '2024-2025', moduleId }),
+    });
+
+    const res = await fetch(`${BASE_URL}/api/modules/${moduleId}`, {
       method: 'DELETE',
       headers: { 'Cookie': 'session_id=admin-session' },
     });

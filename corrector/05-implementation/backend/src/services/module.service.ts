@@ -60,6 +60,14 @@ export class ModuleService {
     if (hasProjects) {
       throw new AppError('Cannot delete module with associated projects', 'HAS_DEPENDANTS');
     }
+    const hasRubric = await this.repo.hasRubric(id);
+    if (hasRubric) {
+      throw new AppError('Cannot delete module with an associated rubric', 'HAS_DEPENDANTS');
+    }
+    const hasCorrections = await this.repo.hasCorrections(id);
+    if (hasCorrections) {
+      throw new AppError('Cannot delete module with associated corrections', 'HAS_DEPENDANTS');
+    }
     await this.repo.delete(id);
   }
 }

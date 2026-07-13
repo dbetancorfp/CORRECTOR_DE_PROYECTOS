@@ -201,12 +201,46 @@ describe('Elements #67–#71 — GET /api/projects', () => {
 
 describe('Element #72 — DELETE /api/projects/:id', () => {
   it('returns 204 when project has no assigned students', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/1`, { method: 'DELETE' });
+    // Project 1 isn't a clean pick — project-students.test.ts's own "max 3
+    // students" test assigns students 2 and 3 to it and never unassigns
+    // them (only student 1 gets unassigned there). Create a fresh project
+    // to isolate the "no assigned students" path for real.
+    const created = await fetch(`${BASE_URL}/api/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Proyecto sin alumnos', academicYear: '2024-2025', moduleId: 2 }),
+    });
+    const { id } = await created.json() as { id: number };
+
+    const res = await fetch(`${BASE_URL}/api/projects/${id}`, { method: 'DELETE' });
     expect(res.status).toBe(204);
   });
 
   it('returns 409 when project has students assigned', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/1`, { method: 'DELETE' });
+    // Project 1 was just deleted by the test above (no fixture project
+    // starts with an assigned student) — create a fresh project AND a
+    // fresh student (not student 1 — students.test.ts, which runs later
+    // alphabetically, assumes student 1 starts with no assignment) and
+    // assign them for real.
+    const student = await fetch(`${BASE_URL}/api/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Alumno para proyecto', cycleId: 1, moduleId: 1 }),
+    });
+    const { id: studentId } = await student.json() as { id: number };
+    const created = await fetch(`${BASE_URL}/api/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Proyecto con alumno', academicYear: '2024-2025', moduleId: 2 }),
+    });
+    const { id } = await created.json() as { id: number };
+    await fetch(`${BASE_URL}/api/projects/${id}/students`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentIds: [studentId] }),
+    });
+
+    const res = await fetch(`${BASE_URL}/api/projects/${id}`, { method: 'DELETE' });
     expect(res.status).toBe(409);
   });
 });

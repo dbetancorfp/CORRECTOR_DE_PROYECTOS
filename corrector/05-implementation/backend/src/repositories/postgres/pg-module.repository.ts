@@ -131,6 +131,20 @@ export class PgModuleRepository implements ModuleRepository {
     return rows[0]?.exists ?? false;
   }
 
+  async hasRubric(id: number): Promise<boolean> {
+    const rows = await this.sql<{ exists: boolean }[]>`
+      SELECT EXISTS(SELECT 1 FROM rubric WHERE module_id = ${id}) AS "exists"
+    `;
+    return rows[0]?.exists ?? false;
+  }
+
+  async hasCorrections(id: number): Promise<boolean> {
+    const rows = await this.sql<{ exists: boolean }[]>`
+      SELECT EXISTS(SELECT 1 FROM correction WHERE module_id = ${id}) AS "exists"
+    `;
+    return rows[0]?.exists ?? false;
+  }
+
   async isTeacherAssigned(teacherId: number, moduleId: number): Promise<boolean> {
     const rows = await this.sql<{ exists: boolean }[]>`
       SELECT EXISTS(
