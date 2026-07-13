@@ -13,6 +13,7 @@ import type { ProjectRow } from '../controllers/project-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
 import { renderOptionSelect } from './option-select';
+import { FormCascadeEngine } from '../controllers/form-cascade-engine';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -29,24 +30,13 @@ export class CorrectorProjectsForm extends HTMLElement {
   moduleService?: ModuleService;
 
   private _controller!: ProjectController;
+  private _cascade!: FormCascadeEngine;
   private _disposables: Array<() => void> = [];
 
   private _rows: ProjectRow[] = [];
 
   private _name = '';
-  private _selectedYear = '';
-  private _selectedLegislation = '';
-  private _selectedCycle = '';
-  private _selectedModule = '';
-  private _yearOptions: number[] = [];
-  private _legislationOptions: Legislation[] = [];
-  private _cycleOptions: Cycle[] = [];
-  private _moduleOptions: Module[] = [];
   private _nameError = false;
-  private _yearError = false;
-  private _legislationError = false;
-  private _cycleError = false;
-  private _moduleError = false;
   private _formLoading = false;
   private _formErrorMessage = '';
 
@@ -66,11 +56,19 @@ export class CorrectorProjectsForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    const legislationService = this.legislationService ?? new HttpLegislationService();
+    const cycleService = this.cycleService ?? new HttpCycleService();
+    const moduleService = this.moduleService ?? new HttpModuleService();
     this._controller = new ProjectController(
       this.projectService ?? new HttpProjectService(),
-      this.legislationService ?? new HttpLegislationService(),
-      this.cycleService ?? new HttpCycleService(),
-      this.moduleService ?? new HttpModuleService(),
+      legislationService,
+      cycleService,
+      moduleService,
+    );
+    this._cascade = new FormCascadeEngine(
+      legislationService, cycleService, moduleService,
+      { year: 62, legislation: 63, cycle: 64, module: 65 },
+      () => this._render(),
     );
     this._render();
     void this._loadInitial();
@@ -85,75 +83,17 @@ export class CorrectorProjectsForm extends HTMLElement {
   }
 
   private async _loadInitial(): Promise<void> {
-    const [rows, yearOptions] = await Promise.all([
+    const [rows] = await Promise.all([
       this._controller.list(),
-      this._controller.loadYearOptions(),
+      this._cascade.loadYearOptions(),
     ]);
     this._rows = rows;
-    this._yearOptions = yearOptions;
     this._render();
   }
 
   private _handleNameInput = (e: Event): void => {
     this._name = (e.target as HTMLInputElement).value;
     this._nameError = false;
-    this._render();
-  };
-
-  private _handleYearChange = (e: Event): void => {
-    this._selectedYear = (e.target as HTMLSelectElement).value;
-    this._selectedLegislation = '';
-    this._selectedCycle = '';
-    this._selectedModule = '';
-    this._legislationOptions = [];
-    this._cycleOptions = [];
-    this._moduleOptions = [];
-    this._yearError = false;
-    this._render();
-    void this._loadLegislationOptions();
-  };
-
-  private async _loadLegislationOptions(): Promise<void> {
-    const year = this._selectedYear === '' ? null : Number(this._selectedYear);
-    this._legislationOptions = await this._controller.loadLegislationOptions(year);
-    this._render();
-  }
-
-  private _handleLegislationChange = (e: Event): void => {
-    this._selectedLegislation = (e.target as HTMLSelectElement).value;
-    this._selectedCycle = '';
-    this._selectedModule = '';
-    this._cycleOptions = [];
-    this._moduleOptions = [];
-    this._legislationError = false;
-    this._render();
-    void this._loadCycleOptions();
-  };
-
-  private async _loadCycleOptions(): Promise<void> {
-    const legislationId = this._selectedLegislation === '' ? null : Number(this._selectedLegislation);
-    this._cycleOptions = await this._controller.loadCycleOptions(legislationId);
-    this._render();
-  }
-
-  private _handleCycleChange = (e: Event): void => {
-    this._selectedCycle = (e.target as HTMLSelectElement).value;
-    this._selectedModule = '';
-    this._moduleOptions = [];
-    this._cycleError = false;
-    this._render();
-    void this._loadModuleOptions();
-  };
-
-  private async _loadModuleOptions(): Promise<void> {
-    const cycleId = this._selectedCycle === '' ? null : Number(this._selectedCycle);
-    this._moduleOptions = await this._controller.loadModuleOptions(cycleId);
-    this._render();
-  }
-
-  private _handleModuleChange = (e: Event): void => {
-    this._selectedModule = (e.target as HTMLSelectElement).value;
-    this._moduleError = false;
     this._render();
   };
 
@@ -168,44 +108,36 @@ export class CorrectorProjectsForm extends HTMLElement {
 
     const state = await this._controller.create(
       this._name.trim(),
-      this._selectedYear,
-      this._selectedLegislation,
-      this._selectedCycle,
-      this._selectedModule,
+      this._cascade.selectedYear,
+      this._cascade.selectedLegislation,
+      this._cascade.selectedCycle,
+      this._cascade.selectedModule,
     );
     this._formLoading = false;
 
     if (state.status === 'success') {
-      const selectedModuleObj = this._moduleOptions.find((m) => String(m.id) === this._selectedModule);
-      const startYear = this._selectedYear === '' ? null : Number(this._selectedYear);
+      const selectedModuleObj = this._cascade.moduleOptions.find((m) => String(m.id) === this._cascade.selectedModule);
+      const startYear = this._cascade.selectedYear === '' ? null : Number(this._cascade.selectedYear);
       this._rows = [...this._rows, {
         ...state.item,
         legislationName: selectedModuleObj?.legislationName ?? null,
         startYear,
       }];
       this._name = '';
-      this._selectedYear = '';
-      this._selectedLegislation = '';
-      this._selectedCycle = '';
-      this._selectedModule = '';
-      this._legislationOptions = [];
-      this._cycleOptions = [];
-      this._moduleOptions = [];
       this._nameError = false;
-      this._yearError = false;
-      this._legislationError = false;
-      this._cycleError = false;
-      this._moduleError = false;
+      this._cascade.reset();
       this._render();
       return;
     }
 
     if (state.status === 'validation-error') {
       this._nameError = state.errors.name;
-      this._yearError = state.errors.year;
-      this._legislationError = state.errors.legislation;
-      this._cycleError = state.errors.cycle;
-      this._moduleError = state.errors.module;
+      this._cascade.errors = {
+        year: state.errors.year,
+        legislation: state.errors.legislation,
+        cycle: state.errors.cycle,
+        module: state.errors.module,
+      };
       this._render();
       return;
     }
@@ -339,26 +271,7 @@ export class CorrectorProjectsForm extends HTMLElement {
             aria-invalid=${this._nameError ? 'true' : 'false'}
             @input=${this._handleNameInput}
           />
-          ${renderOptionSelect({
-            sketchNumber: 62, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
-            invalid: this._yearError, onChange: this._handleYearChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 63, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
-            disabled: this._selectedYear === '', invalid: this._legislationError, onChange: this._handleLegislationChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 64, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-            selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
-            disabled: this._selectedYear === '' || this._selectedLegislation === '', invalid: this._cycleError, onChange: this._handleCycleChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 65, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-            selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
-            disabled: this._selectedCycle === '', invalid: this._moduleError, onChange: this._handleModuleChange,
-          })}
+          ${this._cascade.render()}
           <button
             data-element-id="66"
             type="button"
@@ -380,20 +293,20 @@ export class CorrectorProjectsForm extends HTMLElement {
           @input=${this._handleNameFilterInput}
         />
         ${renderOptionSelect({
-          sketchNumber: 68, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+          sketchNumber: 68, options: this._cascade.yearOptions, getId: (y) => y, getLabel: (y) => String(y),
           selectedValue: this._yearFilter, placeholder: 'Seleccionar año', onChange: this._handleYearFilterChange,
         })}
         ${renderOptionSelect({
-          sketchNumber: 69, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+          sketchNumber: 69, options: this._cascade.legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
           selectedValue: this._legislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleLegislationFilterChange,
         })}
         ${renderOptionSelect({
-          sketchNumber: 70, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+          sketchNumber: 70, options: this._cascade.cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
           selectedValue: this._cycleFilter, placeholder: 'Seleccionar ciclo',
           disabled: this._legislationFilter === '', onChange: this._handleCycleFilterChange,
         })}
         ${renderOptionSelect({
-          sketchNumber: 71, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+          sketchNumber: 71, options: this._cascade.moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
           selectedValue: this._moduleFilter, placeholder: 'Seleccionar módulo',
           disabled: this._cycleFilter === '', onChange: this._handleModuleFilterChange,
         })}
