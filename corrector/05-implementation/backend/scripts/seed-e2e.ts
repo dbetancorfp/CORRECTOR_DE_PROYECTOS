@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { createPgClient } from '../src/db/pg-client';
+import { createPgClient, redactDatabaseUrl } from '../src/db/pg-client';
 import { applySchema } from '../src/db/schema-bootstrap';
 import { seedFixture } from './seed-fixture';
 
@@ -16,4 +16,4 @@ await applySchema(sql, { reset: true });
 await seedFixture(sql);
 await sql.end();
 
-console.log(`Fixture seeded to ${databaseUrl} — ready for Cypress (no pre-seeded sessions; log in through the UI).`);
+console.log(`Fixture seeded to ${redactDatabaseUrl(databaseUrl)} — ready for Cypress (no pre-seeded sessions; log in through the UI).`);

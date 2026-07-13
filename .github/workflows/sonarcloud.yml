@@ -19,7 +19,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: corrector
-          POSTGRES_PASSWORD: corrector_ci_pw
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD }}
           POSTGRES_DB: corrector_test
         ports:
           - 5432:5432
@@ -30,7 +30,7 @@ jobs:
           --health-retries 10
 
     env:
-      DATABASE_URL: postgres://corrector:corrector_ci_pw@localhost:5432/corrector_test
+      DATABASE_URL: postgres://corrector:${{ secrets.CI_POSTGRES_PASSWORD }}@localhost:5432/corrector_test
 
     steps:
       - name: Checkout repository

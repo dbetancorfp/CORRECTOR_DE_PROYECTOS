@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { createPgClient } from '../src/db/pg-client';
+import { createPgClient, redactDatabaseUrl } from '../src/db/pg-client';
 import { applySchema } from '../src/db/schema-bootstrap';
 
 config();
@@ -14,4 +14,4 @@ const sql = createPgClient(databaseUrl);
 
 await applySchema(sql, { reset });
 
-console.log(`Schema applied (reset=${reset}) to ${databaseUrl}`);
+console.log(`Schema applied (reset=${reset}) to ${redactDatabaseUrl(databaseUrl)}`);
