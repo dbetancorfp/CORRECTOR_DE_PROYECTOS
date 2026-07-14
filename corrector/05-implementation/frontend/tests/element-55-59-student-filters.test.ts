@@ -119,4 +119,51 @@ describe('Elements #55–#59 — corrector-students-form: reactive filters', () 
     expect(table.textContent).toContain('MnP454');
     el.remove();
   });
+
+  it('#56-#59 cascade: selecting año→legislación→ciclo→módulo narrows the table and resets downstream selections', async () => {
+    const el = mount(makeStudentService(), makeLegislationService(), makeCycleService(), makeModuleService());
+    await flush();
+
+    // The filter selects (#56-59) share their <option> lists with the "Nuevo
+    // alumno" cascade (#49-52) — drive that cascade first so #57-59 actually
+    // have options to select, same as a real user would see after the page
+    // has loaded a legislación/ciclo/módulo at least once.
+    (el.shadowRoot!.querySelector('[data-element-id="49"]') as HTMLSelectElement).value = '2020';
+    el.shadowRoot!.querySelector('[data-element-id="49"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+    (el.shadowRoot!.querySelector('[data-element-id="50"]') as HTMLSelectElement).value = '1';
+    el.shadowRoot!.querySelector('[data-element-id="50"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+    (el.shadowRoot!.querySelector('[data-element-id="51"]') as HTMLSelectElement).value = '1';
+    el.shadowRoot!.querySelector('[data-element-id="51"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+
+    (el.shadowRoot!.querySelector('[data-element-id="56"]') as HTMLSelectElement).value = '2020';
+    el.shadowRoot!.querySelector('[data-element-id="56"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+
+    (el.shadowRoot!.querySelector('[data-element-id="57"]') as HTMLSelectElement).value = '1';
+    el.shadowRoot!.querySelector('[data-element-id="57"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+
+    expect((el.shadowRoot!.querySelector('[data-element-id="58"]') as HTMLSelectElement).disabled).toBe(false);
+    (el.shadowRoot!.querySelector('[data-element-id="58"]') as HTMLSelectElement).value = '1';
+    el.shadowRoot!.querySelector('[data-element-id="58"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+
+    expect((el.shadowRoot!.querySelector('[data-element-id="59"]') as HTMLSelectElement).disabled).toBe(false);
+    (el.shadowRoot!.querySelector('[data-element-id="59"]') as HTMLSelectElement).value = '1';
+    el.shadowRoot!.querySelector('[data-element-id="59"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    expect(el.shadowRoot!.querySelector('[data-element-id="60"]')).not.toBeNull();
+
+    // Clearing the legislation resets ciclo/módulo back to disabled.
+    (el.shadowRoot!.querySelector('[data-element-id="57"]') as HTMLSelectElement).value = '';
+    el.shadowRoot!.querySelector('[data-element-id="57"]')!.dispatchEvent(new Event('change', { bubbles: true }));
+    await flush();
+    expect((el.shadowRoot!.querySelector('[data-element-id="58"]') as HTMLSelectElement).disabled).toBe(true);
+    expect((el.shadowRoot!.querySelector('[data-element-id="59"]') as HTMLSelectElement).disabled).toBe(true);
+    el.remove();
+  });
 });
