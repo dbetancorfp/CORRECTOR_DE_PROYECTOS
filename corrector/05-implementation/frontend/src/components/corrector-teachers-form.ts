@@ -16,6 +16,7 @@ import { FormCascadeEngine } from '../controllers/form-cascade-engine';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
+import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -33,6 +34,7 @@ export class CorrectorTeachersForm extends HTMLElement {
   private _controller!: TeacherController;
   private _cascade!: FormCascadeEngine;
   private _disposables: Array<() => void> = [];
+  private _nav = makeNavClickHandlers<AdminTab>(this, 'corrector:admin-nav-selected', ADMIN_TAB_PATHS);
 
   private _rows: TeacherRow[] = [];
 
@@ -235,25 +237,13 @@ export class CorrectorTeachersForm extends HTMLElement {
     this._render();
   }
 
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: AdminTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:admin-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: ADMIN_TAB_PATHS[tab] },
-    }));
-  };
-
   private _render(): void {
     render(this._template(), this.shadowRoot!);
   }
 
   private _template(): TemplateResult {
     return html`
-      ${renderAdminNav('profesorado', this._handleLogoutClick, this._handleNavigateClick)}
+      ${renderAdminNav('profesorado', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
       <div role="alert">${this._formErrorMessage}</div>
       <form>

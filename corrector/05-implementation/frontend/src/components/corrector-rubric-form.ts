@@ -12,6 +12,7 @@ import { RubricController, DEFAULT_LEVEL_NAMES, MAX_LEVEL_COUNT, nextBuilderLeve
 import type { BuilderLevel } from '../controllers/rubric-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
+import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 
@@ -35,6 +36,7 @@ export class CorrectorRubricForm extends HTMLElement {
 
   private _controller!: RubricController;
   private _disposables: Array<() => void> = [];
+  private _nav = makeNavClickHandlers<GestionTab>(this, 'corrector:gestion-nav-selected', GESTION_TAB_PATHS);
 
   private _moduleFilter = '';
   private _moduleFilterTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -298,18 +300,6 @@ export class CorrectorRubricForm extends HTMLElement {
     this._render();
   }
 
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: GestionTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:gestion-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: GESTION_TAB_PATHS[tab] },
-    }));
-  };
-
   private _render(): void {
     render(this._template(), this.shadowRoot!);
   }
@@ -334,7 +324,7 @@ export class CorrectorRubricForm extends HTMLElement {
     const extraLevels = this._builderLevels.filter((l) => !['Excelente', 'Bien', 'Mal'].includes(l.name));
 
     return html`
-      ${renderGestionNav('rubrica', this._handleLogoutClick, this._handleNavigateClick)}
+      ${renderGestionNav('rubrica', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
       <fieldset>
         <legend>Filtrar por módulo:</legend>

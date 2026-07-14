@@ -8,6 +8,7 @@ import type { AdminTab } from './admin-nav';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
+import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -24,6 +25,7 @@ export class CorrectorLegislationForm extends HTMLElement {
 
   private _controller!: LegislationController;
   private _disposables: Array<() => void> = [];
+  private _nav = makeNavClickHandlers<AdminTab>(this, 'corrector:admin-nav-selected', ADMIN_TAB_PATHS);
 
   private _rows: Legislation[] = [];
 
@@ -158,18 +160,6 @@ export class CorrectorLegislationForm extends HTMLElement {
     void this._handleDelete(row);
   };
 
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: AdminTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:admin-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: ADMIN_TAB_PATHS[tab] },
-    }));
-  };
-
   private async _handleDelete(row: Legislation): Promise<void> {
     this._rowErrorMessage = '';
     await runDeleteRowFlow(
@@ -189,7 +179,7 @@ export class CorrectorLegislationForm extends HTMLElement {
     const visibleRows = this._controller.filterRows(this._rows, this._yearFilter, this._nameFilter);
 
     return html`
-      ${renderAdminNav('legislacion', this._handleLogoutClick, this._handleNavigateClick)}
+      ${renderAdminNav('legislacion', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
       <div role="alert">${this._formErrorMessage}</div>
       <form>

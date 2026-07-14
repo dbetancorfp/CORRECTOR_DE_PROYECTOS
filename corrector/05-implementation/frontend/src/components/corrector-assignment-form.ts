@@ -19,6 +19,7 @@ import type { StudentRow } from '../controllers/student-controller';
 import { AssignmentController } from '../controllers/assignment-controller';
 import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
+import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
@@ -48,6 +49,7 @@ export class CorrectorAssignmentForm extends HTMLElement {
   private _studentController!: StudentController;
   private _assignmentController!: AssignmentController;
   private _disposables: Array<() => void> = [];
+  private _nav = makeNavClickHandlers<GestionTab>(this, 'corrector:gestion-nav-selected', GESTION_TAB_PATHS);
 
   private _rows: ProjectRow[] = [];
 
@@ -384,18 +386,6 @@ export class CorrectorAssignmentForm extends HTMLElement {
     this._render();
   }
 
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: GestionTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:gestion-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: GESTION_TAB_PATHS[tab] },
-    }));
-  };
-
   private _render(): void {
     render(this._template(), this.shadowRoot!);
   }
@@ -403,7 +393,7 @@ export class CorrectorAssignmentForm extends HTMLElement {
   private _template(): TemplateResult {
     const assignDisabled = this._selectedProjectId === null || this._selectedCandidateIds.size === 0 || this._assignLoading;
     return html`
-      ${renderGestionNav('asignacion', this._handleLogoutClick, this._handleNavigateClick)}
+      ${renderGestionNav('asignacion', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
       <div role="alert">${this._rowErrorMessage}</div>
 
