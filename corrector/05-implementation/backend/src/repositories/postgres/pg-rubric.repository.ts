@@ -6,7 +6,7 @@ import type {
   RubricRepository,
 } from '../rubric.repository';
 import type { SqlExecutor, TransactionalSqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { assertFound, assertRowsAffected } from './pg-repository-error';
 
 export class PgRubricRepository implements RubricRepository {
   constructor(private readonly sql: TransactionalSqlExecutor) {}
@@ -49,10 +49,7 @@ export class PgRubricRepository implements RubricRepository {
         WHERE id = ${itemId}
         RETURNING id, rubric_id AS "rubricId", description, display_order AS "displayOrder"
       `;
-      const item = rows[0];
-      if (!item) {
-        throw new PgRepositoryError(`Rubric item ${itemId} not found`, 'NOT_FOUND');
-      }
+      const item = assertFound(rows[0], `Rubric item ${itemId} not found`);
       if (data.levels !== undefined) {
         await tx`DELETE FROM rubric_level WHERE rubric_item_id = ${itemId}`;
         await this._insertLevels(tx, itemId, data.levels);
@@ -67,9 +64,7 @@ export class PgRubricRepository implements RubricRepository {
       DELETE FROM rubric_item WHERE id = ${itemId}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Rubric item ${itemId} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Rubric item ${itemId} not found`);
   }
 
   async hasCorrectionItems(itemId: number): Promise<boolean> {

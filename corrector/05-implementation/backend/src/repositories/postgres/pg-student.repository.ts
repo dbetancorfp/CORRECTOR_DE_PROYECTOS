@@ -5,7 +5,7 @@ import type {
   StudentRepository,
 } from '../student.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { assertRowsAffected } from './pg-repository-error';
 
 export class PgStudentRepository implements StudentRepository {
   constructor(private readonly sql: SqlExecutor) {}
@@ -83,9 +83,7 @@ export class PgStudentRepository implements StudentRepository {
       WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Student ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Student ${id} not found`);
     const updated = await this.findById(id);
     return updated!;
   }
@@ -95,9 +93,7 @@ export class PgStudentRepository implements StudentRepository {
       DELETE FROM student WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Student ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Student ${id} not found`);
   }
 
   async isAssignedToProject(id: number): Promise<boolean> {

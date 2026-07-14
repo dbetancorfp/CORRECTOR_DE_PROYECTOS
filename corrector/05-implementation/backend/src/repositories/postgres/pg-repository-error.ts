@@ -7,3 +7,19 @@ export class PgRepositoryError extends Error {
     super(message);
   }
 }
+
+// UPDATE/DELETE ... RETURNING id affecting 0 rows is how every Pg*Repository
+// detects "not found" — the same 3-4 line if-throw was repeated after
+// nearly every update()/delete() across all 8 repositories.
+export function assertFound<T>(row: T | undefined, notFoundMessage: string): T {
+  if (!row) {
+    throw new PgRepositoryError(notFoundMessage, 'NOT_FOUND');
+  }
+  return row;
+}
+
+export function assertRowsAffected(rowCount: number, notFoundMessage: string): void {
+  if (rowCount === 0) {
+    throw new PgRepositoryError(notFoundMessage, 'NOT_FOUND');
+  }
+}

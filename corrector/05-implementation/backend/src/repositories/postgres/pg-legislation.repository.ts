@@ -4,7 +4,7 @@ import type {
   LegislationRepository,
 } from '../legislation.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { assertFound, assertRowsAffected } from './pg-repository-error';
 
 export class PgLegislationRepository implements LegislationRepository {
   constructor(private readonly sql: SqlExecutor) {}
@@ -58,11 +58,7 @@ export class PgLegislationRepository implements LegislationRepository {
       WHERE id = ${id}
       RETURNING id, name, start_year AS "startYear"
     `;
-    const updated = rows[0];
-    if (!updated) {
-      throw new PgRepositoryError(`Legislation ${id} not found`, 'NOT_FOUND');
-    }
-    return updated;
+    return assertFound(rows[0], `Legislation ${id} not found`);
   }
 
   async delete(id: number): Promise<void> {
@@ -71,9 +67,7 @@ export class PgLegislationRepository implements LegislationRepository {
       WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Legislation ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Legislation ${id} not found`);
   }
 
   async hasModules(id: number): Promise<boolean> {

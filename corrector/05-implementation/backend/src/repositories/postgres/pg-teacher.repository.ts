@@ -6,7 +6,7 @@ import type {
   TeacherRepository,
 } from '../teacher.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { PgRepositoryError, assertRowsAffected } from './pg-repository-error';
 
 const MODULE_ALREADY_ASSIGNED_MESSAGE = /teacher_module_module_id_key/;
 
@@ -119,9 +119,7 @@ export class PgTeacherRepository implements TeacherRepository {
       WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Teacher ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Teacher ${id} not found`);
     return this._findListItem(id);
   }
 
@@ -130,9 +128,7 @@ export class PgTeacherRepository implements TeacherRepository {
       DELETE FROM teacher WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Teacher ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Teacher ${id} not found`);
   }
 
   async hasCorrections(id: number): Promise<boolean> {

@@ -1,6 +1,6 @@
 import type { Cycle, CycleFilters, CycleRepository } from '../cycle.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { assertFound, assertRowsAffected } from './pg-repository-error';
 
 export class PgCycleRepository implements CycleRepository {
   constructor(private readonly sql: SqlExecutor) {}
@@ -58,11 +58,7 @@ export class PgCycleRepository implements CycleRepository {
       WHERE id = ${id}
       RETURNING id, name
     `;
-    const updated = rows[0];
-    if (!updated) {
-      throw new PgRepositoryError(`Cycle ${id} not found`, 'NOT_FOUND');
-    }
-    return updated;
+    return assertFound(rows[0], `Cycle ${id} not found`);
   }
 
   async delete(id: number): Promise<void> {
@@ -70,9 +66,7 @@ export class PgCycleRepository implements CycleRepository {
       DELETE FROM cycle WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Cycle ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Cycle ${id} not found`);
   }
 
   async hasModules(id: number): Promise<boolean> {

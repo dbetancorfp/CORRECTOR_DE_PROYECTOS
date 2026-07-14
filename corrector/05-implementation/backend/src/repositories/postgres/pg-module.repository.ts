@@ -5,7 +5,7 @@ import type {
   ModuleRepository,
 } from '../module.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-import { PgRepositoryError } from './pg-repository-error';
+import { assertFound, assertRowsAffected } from './pg-repository-error';
 
 export class PgModuleRepository implements ModuleRepository {
   constructor(private readonly sql: SqlExecutor) {}
@@ -99,11 +99,7 @@ export class PgModuleRepository implements ModuleRepository {
       JOIN cycle c ON c.id = u.cycle_id
       JOIN legislation l ON l.id = u.legislation_id
     `;
-    const updated = rows[0];
-    if (!updated) {
-      throw new PgRepositoryError(`Module ${id} not found`, 'NOT_FOUND');
-    }
-    return updated;
+    return assertFound(rows[0], `Module ${id} not found`);
   }
 
   async delete(id: number): Promise<void> {
@@ -114,9 +110,7 @@ export class PgModuleRepository implements ModuleRepository {
       DELETE FROM module WHERE id = ${id}
       RETURNING id
     `;
-    if (rows.length === 0) {
-      throw new PgRepositoryError(`Module ${id} not found`, 'NOT_FOUND');
-    }
+    assertRowsAffected(rows.length, `Module ${id} not found`);
   }
 
   async hasProjects(id: number): Promise<boolean> {
