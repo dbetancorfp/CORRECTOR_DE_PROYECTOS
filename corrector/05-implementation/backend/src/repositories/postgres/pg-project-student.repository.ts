@@ -5,12 +5,7 @@ import type {
   ProjectStudentSummary,
 } from '../project-student.repository';
 import type { SqlExecutor, TransactionalSqlExecutor } from '../../db/sql-executor';
-
-class PgRepositoryError extends Error {
-  constructor(message: string, public readonly code: string) {
-    super(message);
-  }
-}
+import { PgRepositoryError } from './pg-repository-error';
 
 const YEAR_CONFLICT_MESSAGE = /already belongs to a project in academic year/;
 

@@ -2,7 +2,6 @@ import { Router } from 'express';
 import type { TeacherRepository } from '../repositories/teacher.repository';
 import type { SessionRepository } from '../repositories/session.repository';
 import { AuthService } from '../services/auth.service';
-import { mapError } from './error';
 
 export function createAuthRouter(
   teacherRepo: TeacherRepository,
@@ -21,15 +20,10 @@ export function createAuthRouter(
       res.status(400).json({ error: 'Password is required' });
       return;
     }
-    try {
-      const result = await service.login(username, password);
-      res
-        .cookie('session_id', result.sessionToken, { httpOnly: true, sameSite: 'strict' })
-        .json({ role: result.role, mustChangePassword: result.mustChangePassword });
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    const result = await service.login(username, password);
+    res
+      .cookie('session_id', result.sessionToken, { httpOnly: true, sameSite: 'strict' })
+      .json({ role: result.role, mustChangePassword: result.mustChangePassword });
   });
 
   router.post('/logout', async (req, res) => {
@@ -71,13 +65,8 @@ export function createAuthRouter(
       return;
     }
     const teacherId = req.user?.id ?? 0;
-    try {
-      await service.changePassword(teacherId, currentPassword ?? '', newPassword, confirmPassword ?? '');
-      res.json({ ok: true });
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    await service.changePassword(teacherId, currentPassword ?? '', newPassword, confirmPassword ?? '');
+    res.json({ ok: true });
   });
 
   return router;

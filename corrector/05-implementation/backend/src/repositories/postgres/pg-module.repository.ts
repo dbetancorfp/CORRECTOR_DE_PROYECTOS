@@ -5,12 +5,7 @@ import type {
   ModuleRepository,
 } from '../module.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-
-class PgRepositoryError extends Error {
-  constructor(message: string, public readonly code: string) {
-    super(message);
-  }
-}
+import { PgRepositoryError } from './pg-repository-error';
 
 export class PgModuleRepository implements ModuleRepository {
   constructor(private readonly sql: SqlExecutor) {}

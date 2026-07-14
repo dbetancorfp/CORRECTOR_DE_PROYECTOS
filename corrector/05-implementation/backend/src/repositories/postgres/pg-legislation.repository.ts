@@ -4,12 +4,7 @@ import type {
   LegislationRepository,
 } from '../legislation.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-
-class PgRepositoryError extends Error {
-  constructor(message: string, public readonly code: string) {
-    super(message);
-  }
-}
+import { PgRepositoryError } from './pg-repository-error';
 
 export class PgLegislationRepository implements LegislationRepository {
   constructor(private readonly sql: SqlExecutor) {}

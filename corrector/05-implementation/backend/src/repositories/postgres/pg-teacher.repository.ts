@@ -6,12 +6,7 @@ import type {
   TeacherRepository,
 } from '../teacher.repository';
 import type { SqlExecutor } from '../../db/sql-executor';
-
-class PgRepositoryError extends Error {
-  constructor(message: string, public readonly code: string) {
-    super(message);
-  }
-}
+import { PgRepositoryError } from './pg-repository-error';
 
 const MODULE_ALREADY_ASSIGNED_MESSAGE = /teacher_module_module_id_key/;
 

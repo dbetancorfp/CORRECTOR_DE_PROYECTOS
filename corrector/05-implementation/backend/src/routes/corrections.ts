@@ -5,7 +5,6 @@ import type { ModuleRepository } from '../repositories/module.repository';
 import { CorrectionService } from '../services/correction.service';
 import { ScoreCalculator } from '../services/score-calculator';
 import { requireAuth } from '../middleware/auth';
-import { mapError } from './error';
 
 export function createCorrectionsRouter(
   corrRepo: CorrectionRepository,
@@ -46,21 +45,16 @@ export function createCorrectionsRouter(
       }
     }
 
-    try {
-      const result = await service.upsert({
-        studentId: studentId ?? 0,
-        projectId: projectId ?? 0,
-        moduleId: moduleId ?? 0,
-        rubricId: rubricId ?? 0,
-        teacherId: user.id,
-        academicYear: academicYear ?? '',
-        items: items ?? [],
-      });
-      res.status(201).json(result);
-    } catch (err) {
-      const { status, body } = mapError(err);
-      res.status(status).json(body);
-    }
+    const result = await service.upsert({
+      studentId: studentId ?? 0,
+      projectId: projectId ?? 0,
+      moduleId: moduleId ?? 0,
+      rubricId: rubricId ?? 0,
+      teacherId: user.id,
+      academicYear: academicYear ?? '',
+      items: items ?? [],
+    });
+    res.status(201).json(result);
   });
 
   return router;
