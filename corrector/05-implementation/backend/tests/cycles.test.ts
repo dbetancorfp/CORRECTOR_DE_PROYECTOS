@@ -82,7 +82,7 @@ describe('Element #16 — CycleService: create persists only the name', () => {
     const result = await service.create('DAM');
     expect(result.id).toBeDefined();
     expect(result.name).toBe('DAM');
-    expect((result as Record<string, unknown>).legislationId).toBeUndefined();
+    expect((result as unknown as Record<string, unknown>).legislationId).toBeUndefined();
   });
 });
 

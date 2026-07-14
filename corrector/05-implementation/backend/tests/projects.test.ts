@@ -78,7 +78,7 @@ describe('Element #66 — ProjectService: create', () => {
   it('persists project with name, academicYear and moduleId', async () => {
     let savedData: unknown;
     const repo = makeRepo({
-      create: async (data) => { savedData = data; return { id: 1, ...data as object, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 }; },
+      create: async (data) => { savedData = data; return { id: 1, ...data, moduleName: 'DEW', cycleName: 'DAW', studentCount: 0 }; },
     });
     const service = new ProjectService(repo);
     await service.create({ name: 'App inventario', academicYear: '2024-2025', moduleId: 1 });

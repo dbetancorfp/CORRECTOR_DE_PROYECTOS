@@ -5,7 +5,7 @@ import { describe, it, expect } from 'bun:test';
 import { RubricService } from '../src/services/rubric.service';
 import { RubricImporter } from '../src/services/rubric-importer';
 import type { RubricRepository } from '../src/repositories/rubric.repository';
-import type { FileParserService } from '../src/services/file-parser.service';
+import type { RubricParserService } from '../src/services/file-parser.service';
 
 const BASE_URL = 'http://localhost:3456';
 
@@ -19,6 +19,7 @@ const baseRubric = {
   items: [
     {
       id: 1,
+      rubricId: 1,
       description: 'Diseño de la interfaz',
       displayOrder: 1,
       levels: [
@@ -33,7 +34,13 @@ const baseRubric = {
 function makeRepo(overrides: Partial<RubricRepository> = {}): RubricRepository {
   return {
     findByModule: async () => baseRubric,
-    addItem: async (moduleId, item) => ({ id: 99, ...item, rubricId: 1 }),
+    addItem: async (moduleId, item) => ({
+      id: 99,
+      rubricId: 1,
+      description: item.description,
+      displayOrder: item.displayOrder,
+      levels: item.levels.map((l, i) => ({ id: i + 1, ...l })),
+    }),
     updateItem: async () => baseRubric.items[0],
     deleteItem: async () => {},
     hasCorrectionItems: async () => false,
@@ -44,9 +51,8 @@ function makeRepo(overrides: Partial<RubricRepository> = {}): RubricRepository {
   };
 }
 
-function makeParser(overrides: Partial<FileParserService> = {}): FileParserService {
+function makeParser(overrides: Partial<RubricParserService> = {}): RubricParserService {
   return {
-    parseStudents: async () => [],
     parseRubric: async () => ({
       items: [
         { description: 'Documentación', levels: [

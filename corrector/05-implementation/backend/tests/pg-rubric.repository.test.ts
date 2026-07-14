@@ -116,7 +116,7 @@ describe('PgRubricRepository', () => {
     ]);
     const repo = new PgRubricRepository(sql);
     await repo.replaceAll(1, '2024-2025', [
-      { academicYear: '2024-2025', description: 'Diseño', displayOrder: 1, levels: [{ name: 'Excelente', score: 10, displayOrder: 1 }] },
+      { description: 'Diseño', displayOrder: 1, levels: [{ name: 'Excelente', score: 10, displayOrder: 1 }] },
     ]);
     expect(sql.calls.length).toBe(4);
   });

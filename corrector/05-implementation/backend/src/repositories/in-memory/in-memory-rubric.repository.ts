@@ -3,6 +3,7 @@ import type {
   RubricFull,
   RubricItemFull,
   AddRubricItemData,
+  RubricItemInput,
 } from '../rubric.repository';
 import type { Store } from './store';
 import { nextId } from './store';
@@ -104,7 +105,7 @@ export class InMemoryRubricRepository implements RubricRepository {
   async replaceAll(
     moduleId: number,
     academicYear: string,
-    items: AddRubricItemData[],
+    items: RubricItemInput[],
   ): Promise<void> {
     let rubric = this.store.rubrics.find(
       (r) => r.moduleId === moduleId && r.academicYear === academicYear,

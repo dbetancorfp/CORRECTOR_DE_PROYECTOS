@@ -2,6 +2,7 @@ import type {
   AddRubricItemData,
   RubricFull,
   RubricItemFull,
+  RubricItemInput,
   RubricLevel,
   RubricRepository,
 } from '../rubric.repository';
@@ -92,7 +93,7 @@ export class PgRubricRepository implements RubricRepository {
     return rows[0]?.sum ?? 0;
   }
 
-  async replaceAll(moduleId: number, academicYear: string, items: AddRubricItemData[]): Promise<void> {
+  async replaceAll(moduleId: number, academicYear: string, items: RubricItemInput[]): Promise<void> {
     await this.sql.begin(async (tx) => {
       const rubricId = await this._findOrCreateRubric(tx, moduleId, academicYear);
       await tx`DELETE FROM rubric_item WHERE rubric_id = ${rubricId}`;

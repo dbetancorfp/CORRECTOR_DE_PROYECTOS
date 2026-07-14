@@ -19,10 +19,20 @@ const baseTeacher = {
   modules: [{ id: 1, name: 'DEW' }],
 };
 
+const baseAuthTeacher = {
+  id: 1,
+  username: 'mariagon',
+  passwordHash: '$2fakehash',
+  role: 'profesor' as const,
+  accountLocked: false,
+  failedLoginAttempts: 0,
+  mustChangePassword: false,
+};
+
 function makeRepo(overrides: Partial<TeacherRepository> = {}): TeacherRepository {
   return {
     findAll: async () => [baseTeacher],
-    findById: async () => baseTeacher,
+    findById: async () => baseAuthTeacher,
     findByUsername: async () => null,
     save: async () => baseTeacher,
     update: async () => baseTeacher,
@@ -61,7 +71,7 @@ describe('Element #35 — TeacherService: username validation', () => {
   });
 
   it('throws DUPLICATE when username already exists', async () => {
-    const repo = makeRepo({ findByUsername: async () => baseTeacher });
+    const repo = makeRepo({ findByUsername: async () => baseAuthTeacher });
     const service = new TeacherService(repo);
     await expect(service.create({ username: 'mariagon', password: '12345678', moduleId: 1 }))
       .rejects.toMatchObject({ code: 'DUPLICATE' });
@@ -79,7 +89,7 @@ describe('Element #36 — TeacherService: password validation', () => {
   it('stores password as bcrypt hash, never plain text', async () => {
     let savedHash: string | undefined;
     const repo = makeRepo({
-      save: async (data) => { savedHash = (data as Record<string, string>).passwordHash; return baseTeacher; },
+      save: async (data) => { savedHash = data.passwordHash; return baseTeacher; },
     });
     const service = new TeacherService(repo);
     await service.create({ username: 'mariagon', password: '12345678', moduleId: 1 });
@@ -141,7 +151,7 @@ describe('Element #46 — TeacherService: unlock account', () => {
   it('resets account_locked and failed_login_attempts to 0', async () => {
     let unlockedId: number | undefined;
     const repo = makeRepo({
-      findById: async () => ({ ...baseTeacher, accountLocked: true, failedLoginAttempts: 3 }),
+      findById: async () => ({ ...baseAuthTeacher, accountLocked: true, failedLoginAttempts: 3 }),
       resetFailedAttempts: async (id) => { unlockedId = id; },
       lockAccount: async () => {},
     });

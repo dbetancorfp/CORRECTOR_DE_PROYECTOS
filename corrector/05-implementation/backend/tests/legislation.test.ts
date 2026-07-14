@@ -93,16 +93,16 @@ describe('Element #6 — LegislationService: start year validation', () => {
 
 describe('Element #7 — LegislationService: create', () => {
   it('persists legislation and returns new entity', async () => {
-    let persisted: { name: string; startYear: number } | null = null;
+    const persisted: Array<{ name: string; startYear: number }> = [];
     const repo = makeRepo({
       create: async (name, startYear) => {
-        persisted = { name, startYear };
+        persisted.push({ name, startYear });
         return { id: 99, name, startYear };
       },
     });
     const service = new LegislationService(repo);
     const result = await service.create('LOE', 2006);
-    expect(persisted).toEqual({ name: 'LOE', startYear: 2006 });
+    expect(persisted[0]).toEqual({ name: 'LOE', startYear: 2006 });
     expect(result.id).toBe(99);
   });
 });

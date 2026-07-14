@@ -95,7 +95,7 @@ describe('Elements #49–#52 — StudentService: cascade fields required', () =>
 describe('Element #53 — StudentService: create', () => {
   it('persists student in student table and creates student_module link', async () => {
     let createdData: unknown;
-    const repo = makeRepo({ create: async (data) => { createdData = data; return { id: 1, ...data as object, cycleName: 'DAW', modules: [] }; } });
+    const repo = makeRepo({ create: async (data) => { createdData = data; return { id: 1, ...data, cycleName: 'DAW', modules: [] }; } });
     const service = new StudentService(repo);
     await service.create({ name: 'JJ499', cycleId: 1, moduleId: 1 });
     expect((createdData as Record<string, unknown>).name).toBe('JJ499');

@@ -27,11 +27,18 @@ export interface AddRubricLevelData {
   displayOrder: number;
 }
 
-export interface AddRubricItemData {
-  academicYear: string;
+// replaceAll() already takes academicYear as its own parameter and applies
+// it to every item it (re)creates — an item never carries its own
+// academicYear there, unlike addItem()/updateItem() where it's the only
+// place academicYear comes from.
+export interface RubricItemInput {
   description: string;
   displayOrder: number;
   levels: AddRubricLevelData[];
+}
+
+export interface AddRubricItemData extends RubricItemInput {
+  academicYear: string;
 }
 
 export interface RubricRepository {
@@ -42,5 +49,5 @@ export interface RubricRepository {
   hasCorrectionItems(itemId: number): Promise<boolean>;
   isFrozen(id: number, academicYear?: string): Promise<boolean>;
   getExcelenteSumExcluding(moduleId: number, excludeItemId?: number): Promise<number>;
-  replaceAll(moduleId: number, academicYear: string, items: AddRubricItemData[]): Promise<void>;
+  replaceAll(moduleId: number, academicYear: string, items: RubricItemInput[]): Promise<void>;
 }

@@ -56,12 +56,12 @@ const rubric = {
   academicYear: '2024-2025',
   frozen: false,
   items: [
-    { id: 1, description: 'Diseño', displayOrder: 1, levels: [
+    { id: 1, rubricId: 1, description: 'Diseño', displayOrder: 1, levels: [
       { id: 1, name: 'Excelente', score: 5.0, displayOrder: 1 },
       { id: 2, name: 'Bien',      score: 3.0, displayOrder: 2 },
       { id: 3, name: 'Mal',       score: 0.0, displayOrder: 3 },
     ]},
-    { id: 2, description: 'Documentación', displayOrder: 2, levels: [
+    { id: 2, rubricId: 1, description: 'Documentación', displayOrder: 2, levels: [
       { id: 4, name: 'Excelente', score: 5.0, displayOrder: 1 },
       { id: 5, name: 'Bien',      score: 3.0, displayOrder: 2 },
       { id: 6, name: 'Mal',       score: 0.0, displayOrder: 3 },
@@ -75,6 +75,7 @@ function makeRubricRepo(overrides: Partial<RubricRepository> = {}): RubricReposi
     addItem: async () => rubric.items[0],
     updateItem: async () => rubric.items[0],
     deleteItem: async () => {},
+    hasCorrectionItems: async () => false,
     isFrozen: async () => false,
     getExcelenteSumExcluding: async () => 0,
     replaceAll: async () => {},
@@ -84,12 +85,15 @@ function makeRubricRepo(overrides: Partial<RubricRepository> = {}): RubricReposi
 
 function makeCorrectionRepo(overrides: Partial<CorrectionRepository> = {}): CorrectionRepository {
   return {
+    findAll: async () => [],
     findByStudentAndProject: async () => null,
     upsert: async (data) => ({
       id: 1,
       studentId: data.studentId,
+      projectId: data.projectId,
       moduleId: data.moduleId,
       rubricId: data.rubricId,
+      academicYear: data.academicYear,
       finalScore: 8.0,
       items: data.items,
     }),
@@ -157,8 +161,10 @@ describe('Elements #110 #111 — CorrectionService: upsert correction', () => {
     const existingCorrection = {
       id: 1,
       studentId: 1,
+      projectId: 1,
       moduleId: 1,
       rubricId: 1,
+      academicYear: '2024-2025',
       finalScore: 7.0,
       items: [{ rubricItemId: 1, rubricLevelId: 2 }, { rubricItemId: 2, rubricLevelId: 5 }],
     };
