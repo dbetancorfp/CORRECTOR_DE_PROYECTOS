@@ -1,8 +1,8 @@
 import type { Teacher, TeacherService } from '../services/teacher.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
+import { CascadeQueries } from './cascade-queries';
 
 const MIN_USERNAME_LENGTH = 4;
 const MAX_USERNAME_LENGTH = 20;
@@ -45,36 +45,18 @@ function validatePassword(password: string): boolean {
   return password.length >= MIN_PASSWORD_LENGTH;
 }
 
-export class TeacherController {
+export class TeacherController extends CascadeQueries {
   constructor(
     private readonly teacherService: TeacherService,
-    private readonly legislationService: LegislationService,
-    private readonly cycleService: CycleService,
-    private readonly moduleService: ModuleService,
-  ) {}
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ) {
+    super(legislationService, cycleService, moduleService);
+  }
 
   async list(): Promise<TeacherRow[]> {
     return this.filterRows('', '', '', '');
-  }
-
-  async loadLegislations(): Promise<Legislation[]> {
-    return cascade.loadLegislations(this.legislationService);
-  }
-
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
-  }
-
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
-  }
-
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
-  }
-
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
   }
 
   async create(

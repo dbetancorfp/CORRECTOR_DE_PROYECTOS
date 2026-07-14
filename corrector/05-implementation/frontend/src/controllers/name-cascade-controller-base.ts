@@ -1,7 +1,4 @@
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import { CascadeQueries } from './cascade-queries';
 import type { NameCascadeController, NameCascadeErrors, NameCascadeItem, NameCascadeRow } from './name-cascade-crud-form';
 import type { CreateResult } from './create-row-flow';
 import type { EditResult } from './edit-row-flow';
@@ -23,35 +20,9 @@ export interface DeleteServiceResult {
 // identical; only the actual service call, field mapping, and user-facing
 // messages differ (a genuine domain difference — Student has a real
 // cycleId FK, Project derives academic_year from the chosen year instead).
-export abstract class NameCascadeControllerBase<Item extends NameCascadeItem> implements NameCascadeController<Item> {
-  constructor(
-    protected readonly legislationService: LegislationService,
-    protected readonly cycleService: CycleService,
-    protected readonly moduleService: ModuleService,
-  ) {}
-
+export abstract class NameCascadeControllerBase<Item extends NameCascadeItem> extends CascadeQueries implements NameCascadeController<Item> {
   async list(): Promise<NameCascadeRow<Item>[]> {
     return this.filterRows('', '', '', '', '');
-  }
-
-  async loadLegislations(): Promise<Legislation[]> {
-    return cascade.loadLegislations(this.legislationService);
-  }
-
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
-  }
-
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
-  }
-
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
-  }
-
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
   }
 
   protected abstract _validateName(name: string): boolean;

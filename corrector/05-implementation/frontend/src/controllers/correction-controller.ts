@@ -2,41 +2,27 @@ import type { CorrectionService, CorrectionItemInput, CorrectionResult } from '.
 import type { ProjectService, Project } from '../services/project.service';
 import type { ProjectStudentService, AssignedStudent } from '../services/project-student.service';
 import type { RubricService, RubricItem } from '../services/rubric.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
+import { CascadeQueries } from './cascade-queries';
 
 export type SaveState =
   | { status: 'success' }
   | { status: 'blocked'; message: string }
   | { status: 'error'; message: string };
 
-export class CorrectionController {
+export class CorrectionController extends CascadeQueries {
   constructor(
     private readonly correctionService: CorrectionService,
     private readonly projectService: ProjectService,
     private readonly projectStudentService: ProjectStudentService,
     private readonly rubricService: RubricService,
-    private readonly legislationService: LegislationService,
-    private readonly cycleService: CycleService,
-    private readonly moduleService: ModuleService,
-  ) {}
-
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
-  }
-
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
-  }
-
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
-  }
-
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ) {
+    super(legislationService, cycleService, moduleService);
   }
 
   async loadProjects(moduleId: number | null): Promise<Project[]> {

@@ -1,8 +1,8 @@
 import type { RubricService, RubricItem, LevelInput } from '../services/rubric.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
+import { CascadeQueries } from './cascade-queries';
 
 // Canonical level order, worst to best is Mal < Regular < Bien < Muy bien <
 // Excelente. The builder starts with the 3 defaults (Excelente, Bien, Mal);
@@ -52,28 +52,14 @@ function toLevelInputs(levels: BuilderLevel[]): LevelInput[] {
   }));
 }
 
-export class RubricController {
+export class RubricController extends CascadeQueries {
   constructor(
     private readonly rubricService: RubricService,
-    private readonly legislationService: LegislationService,
-    private readonly cycleService: CycleService,
-    private readonly moduleService: ModuleService,
-  ) {}
-
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
-  }
-
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
-  }
-
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
-  }
-
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ) {
+    super(legislationService, cycleService, moduleService);
   }
 
   async loadRubric(moduleId: number, academicYear: string): Promise<RubricItem[]> {
