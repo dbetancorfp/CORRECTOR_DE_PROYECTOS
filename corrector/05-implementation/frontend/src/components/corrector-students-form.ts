@@ -1,24 +1,16 @@
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
 import { HttpStudentService } from '../services/student.service';
-import type { StudentService } from '../services/student.service';
-import { HttpLegislationService } from '../services/legislation.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import { HttpCycleService } from '../services/cycle.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import { HttpModuleService } from '../services/module.service';
-import type { Module, ModuleService } from '../services/module.service';
+import type { Student, StudentService } from '../services/student.service';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
 import { StudentController } from '../controllers/student-controller';
 import type { StudentRow } from '../controllers/student-controller';
-import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
-import { renderOptionSelect } from './option-select';
-import { FormCascadeEngine } from '../controllers/form-cascade-engine';
-import { runDeleteRowFlow } from '../controllers/delete-row-flow';
-import { runCreateRowFlow } from '../controllers/create-row-flow';
-import { runEditRowFlow } from '../controllers/edit-row-flow';
-
-const FILTER_DEBOUNCE_MS = 300;
+import { NameCascadeCrudForm } from '../controllers/name-cascade-crud-form';
+import type { NameCascadeController, NameCascadeSketchIds } from '../controllers/name-cascade-crud-form';
+import type { CascadeSketchNumbers } from '../controllers/form-cascade-engine';
 
 // corrector-students-form
 // sketchNumbers: 48 (nombre), 49 (año — navegación), 50 (legislación —
@@ -26,111 +18,57 @@ const FILTER_DEBOUNCE_MS = 300;
 // vía student_module), 53 (Nuevo), 54 (Subir lista), 55 (filtro nombre), 56
 // (filtro año), 57 (filtro legislación), 58 (filtro ciclo), 59 (filtro
 // módulo), 60 (tabla)
-export class CorrectorStudentsForm extends HTMLElement {
+export class CorrectorStudentsForm extends NameCascadeCrudForm<Student> {
   studentService?: StudentService;
-  legislationService?: LegislationService;
-  cycleService?: CycleService;
-  moduleService?: ModuleService;
 
-  private _controller!: StudentController;
-  private _cascade!: FormCascadeEngine;
-  private _disposables: Array<() => void> = [];
-
-  private _rows: StudentRow[] = [];
-
-  private _name = '';
-  private _nameError = false;
-  private _formLoading = false;
-  private _formErrorMessage = '';
-
-  private _nameFilter = '';
-  private _yearFilter = '';
-  private _legislationFilter = '';
-  private _cycleFilter = '';
-  private _moduleFilter = '';
-  private _filterTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  private _editingId: number | null = null;
-  private _editName = '';
-  private _editLoading = false;
-  private _editErrorMessage = '';
-
-  private _rowErrorMessage = '';
+  private _studentController!: StudentController;
   private _uploadLoading = false;
   private _uploadErrorMessage = '';
 
-  connectedCallback(): void {
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
-    const legislationService = this.legislationService ?? new HttpLegislationService();
-    const cycleService = this.cycleService ?? new HttpCycleService();
-    const moduleService = this.moduleService ?? new HttpModuleService();
-    this._controller = new StudentController(
+  protected _gestionTab(): GestionTab {
+    return 'alumnos';
+  }
+
+  protected _cascadeSketchNumbers(): CascadeSketchNumbers {
+    return { year: 49, legislation: 50, cycle: 51, module: 52 };
+  }
+
+  protected _sketchIds(): NameCascadeSketchIds {
+    return { name: 48, submit: 53, nameFilter: 55, yearFilter: 56, legislationFilter: 57, cycleFilter: 58, moduleFilter: 59, table: 60 };
+  }
+
+  protected _createLegend(): string {
+    return 'Nuevo alumno:';
+  }
+
+  protected _namePlaceholder(): string {
+    return 'Nombre del alumno';
+  }
+
+  protected _nameFilterPlaceholder(): string {
+    return 'Filtrar por nombre';
+  }
+
+  protected _emptyMessage(): string {
+    return 'No hay alumnos registrados';
+  }
+
+  protected _deleteConfirmMessage(row: StudentRow): string {
+    return `¿Eliminar al alumno ${row.name}?`;
+  }
+
+  protected _buildController(
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ): NameCascadeController<Student> {
+    this._studentController = new StudentController(
       this.studentService ?? new HttpStudentService(),
       legislationService,
       cycleService,
       moduleService,
     );
-    this._cascade = new FormCascadeEngine(
-      legislationService, cycleService, moduleService,
-      { year: 49, legislation: 50, cycle: 51, module: 52 },
-      () => this._render(),
-    );
-    this._render();
-    void this._loadInitial();
-    this._disposables.push(() => {
-      if (this._filterTimeout) clearTimeout(this._filterTimeout);
-    });
-  }
-
-  disconnectedCallback(): void {
-    this._disposables.forEach((dispose) => dispose());
-    this._disposables = [];
-  }
-
-  private async _loadInitial(): Promise<void> {
-    const [rows] = await Promise.all([
-      this._controller.list(),
-      this._cascade.loadYearOptions(),
-    ]);
-    this._rows = rows;
-    this._render();
-  }
-
-  private _handleNameInput = (e: Event): void => {
-    this._name = (e.target as HTMLInputElement).value;
-    this._nameError = false;
-    this._render();
-  };
-
-  private _handleSubmitClick = (): void => {
-    void this._submitCreate();
-  };
-
-  private async _submitCreate(): Promise<void> {
-    await runCreateRowFlow(
-      (loading) => { this._formLoading = loading; },
-      (message) => { this._formErrorMessage = message; },
-      () => this._render(),
-      () => this._controller.create(
-        this._name.trim(),
-        this._cascade.selectedYear,
-        this._cascade.selectedLegislation,
-        this._cascade.selectedCycle,
-        this._cascade.selectedModule,
-      ),
-      (item) => {
-        const selectedModuleObj = this._cascade.moduleOptions.find((m) => String(m.id) === this._cascade.selectedModule);
-        const startYear = this._cascade.selectedYear === '' ? null : Number(this._cascade.selectedYear);
-        this._rows = [...this._rows, { ...item, legislationName: selectedModuleObj?.legislationName ?? null, startYear }];
-        this._name = '';
-        this._nameError = false;
-        this._cascade.reset();
-      },
-      (errors) => {
-        this._nameError = errors.name;
-        this._cascade.errors = { year: errors.year, legislation: errors.legislation, cycle: errors.cycle, module: errors.module };
-      },
-    );
+    return this._studentController;
   }
 
   private _handleUploadChange = (e: Event): void => {
@@ -145,11 +83,11 @@ export class CorrectorStudentsForm extends HTMLElement {
     this._uploadErrorMessage = '';
     this._render();
 
-    const state = await this._controller.upload(file);
+    const state = await this._studentController.upload(file);
     this._uploadLoading = false;
 
     if (state.status === 'success') {
-      this._rows = await this._controller.list();
+      this._rows = await this._studentController.list();
       this._render();
       return;
     }
@@ -158,193 +96,23 @@ export class CorrectorStudentsForm extends HTMLElement {
     this._render();
   }
 
-  private _handleNameFilterInput = (e: Event): void => {
-    this._nameFilter = (e.target as HTMLInputElement).value;
-    this._scheduleFilter();
-  };
-
-  private _handleYearFilterChange = (e: Event): void => {
-    this._yearFilter = (e.target as HTMLSelectElement).value;
-    this._scheduleFilter();
-  };
-
-  private _handleLegislationFilterChange = (e: Event): void => {
-    this._legislationFilter = (e.target as HTMLSelectElement).value;
-    this._cycleFilter = '';
-    this._moduleFilter = '';
-    this._scheduleFilter();
-  };
-
-  private _handleCycleFilterChange = (e: Event): void => {
-    this._cycleFilter = (e.target as HTMLSelectElement).value;
-    this._moduleFilter = '';
-    this._scheduleFilter();
-  };
-
-  private _handleModuleFilterChange = (e: Event): void => {
-    this._moduleFilter = (e.target as HTMLSelectElement).value;
-    this._scheduleFilter();
-  };
-
-  private _scheduleFilter(): void {
-    this._render();
-    if (this._filterTimeout) clearTimeout(this._filterTimeout);
-    this._filterTimeout = setTimeout(() => void this._applyFilters(), FILTER_DEBOUNCE_MS);
-  }
-
-  private async _applyFilters(): Promise<void> {
-    this._rows = await this._controller.filterRows(this._nameFilter, this._yearFilter, this._legislationFilter, this._cycleFilter, this._moduleFilter);
-    this._render();
-  }
-
-  private _startEdit = (row: StudentRow): void => {
-    this._editingId = row.id;
-    this._editName = row.name;
-    this._editErrorMessage = '';
-    this._render();
-  };
-
-  private _handleEditNameInput = (e: Event): void => {
-    this._editName = (e.target as HTMLInputElement).value;
-  };
-
-  private _handleSaveEditClick = (id: number): void => {
-    void this._saveEdit(id);
-  };
-
-  private async _saveEdit(id: number): Promise<void> {
-    await runEditRowFlow(
-      (loading) => { this._editLoading = loading; },
-      () => this._render(),
-      () => this._controller.update(id, this._editName.trim()),
-      (item) => {
-        this._rows = this._rows.map((row) => (row.id === id ? { ...row, name: item.name } : row));
-        this._editingId = null;
-      },
-      (message) => { this._editErrorMessage = message; },
-    );
-  }
-
-  private _handleDeleteClick = (row: StudentRow): void => {
-    void this._handleDelete(row);
-  };
-
-  private async _handleDelete(row: StudentRow): Promise<void> {
-    this._rowErrorMessage = '';
-    await runDeleteRowFlow(
-      `¿Eliminar al alumno ${row.name}?`,
-      () => this._controller.delete(row.id),
-      () => { this._rows = this._rows.filter((r) => r.id !== row.id); },
-      (message) => { this._rowErrorMessage = message; },
-    );
-    this._render();
-  }
-
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: GestionTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:gestion-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: GESTION_TAB_PATHS[tab] },
-    }));
-  };
-
-  private _render(): void {
-    render(this._template(), this.shadowRoot!);
-  }
-
-  private _template(): TemplateResult {
+  protected _renderCreateExtra(): TemplateResult {
     return html`
-      ${renderGestionNav('alumnos', this._handleLogoutClick, this._handleNavigateClick)}
-
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nuevo alumno:</legend>
-          <input
-            data-element-id="48"
-            type="text"
-            placeholder="Nombre del alumno"
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-          />
-          ${this._cascade.render()}
-          <div>
-            <button
-              data-element-id="53"
-              type="button"
-              ?disabled=${this._formLoading}
-              @click=${this._handleSubmitClick}
-            >
-              Nuevo
-            </button>
-            <input
-              data-element-id="54"
-              type="file"
-              accept=".csv,.json,.yaml,.yml"
-              ?disabled=${this._uploadLoading}
-              @change=${this._handleUploadChange}
-            />
-          </div>
-        </fieldset>
-      </form>
-      <div role="alert">${this._uploadErrorMessage}</div>
-
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="55"
-          type="text"
-          placeholder="Filtrar por nombre"
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-        ${renderOptionSelect({
-          sketchNumber: 56, options: this._cascade.yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-          selectedValue: this._yearFilter, placeholder: 'Seleccionar año', onChange: this._handleYearFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 57, options: this._cascade.legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-          selectedValue: this._legislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleLegislationFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 58, options: this._cascade.cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-          selectedValue: this._cycleFilter, placeholder: 'Seleccionar ciclo',
-          disabled: this._legislationFilter === '', onChange: this._handleCycleFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 59, options: this._cascade.moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-          selectedValue: this._moduleFilter, placeholder: 'Seleccionar módulo',
-          disabled: this._cycleFilter === '', onChange: this._handleModuleFilterChange,
-        })}
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="60">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Módulo</th>
-            <th>Ciclo</th>
-            <th>Legislación</th>
-            <th>Año de inicio</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay alumnos registrados</p>` : ''}
+      <input
+        data-element-id="54"
+        type="file"
+        accept=".csv,.json,.yaml,.yml"
+        ?disabled=${this._uploadLoading}
+        @change=${this._handleUploadChange}
+      />
     `;
   }
 
-  private _rowTemplate(row: StudentRow): TemplateResult {
+  protected _renderBelowForm(): TemplateResult {
+    return html`<div role="alert">${this._uploadErrorMessage}</div>`;
+  }
+
+  protected _rowTemplate(row: StudentRow): TemplateResult {
     return html`
       <tr>
         <td>${row.name}</td>
@@ -358,7 +126,7 @@ export class CorrectorStudentsForm extends HTMLElement {
     `;
   }
 
-  private _editRowTemplate(row: StudentRow): TemplateResult {
+  protected _editRowTemplate(row: StudentRow): TemplateResult {
     return html`
       <tr>
         <td><input type="text" .value=${this._editName} @input=${this._handleEditNameInput} /></td>

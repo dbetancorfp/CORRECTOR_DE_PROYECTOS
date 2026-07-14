@@ -1,38 +1,15 @@
 import type { Project, ProjectService } from '../services/project.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
+import { NameCascadeControllerBase } from './name-cascade-controller-base';
+import type { EntityServiceResult, DeleteServiceResult } from './name-cascade-controller-base';
+import type { NameCascadeRow } from './name-cascade-crud-form';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
 
-export interface ProjectRow extends Project {
-  legislationName: string | null;
-  startYear: number | null;
-}
-
-export interface FieldErrors {
-  name: boolean;
-  year: boolean;
-  legislation: boolean;
-  cycle: boolean;
-  module: boolean;
-}
-
-export type SaveState =
-  | { status: 'success'; item: Project }
-  | { status: 'validation-error'; errors: FieldErrors }
-  | { status: 'error'; message: string };
-
-export type DeleteState =
-  | { status: 'success' }
-  | { status: 'blocked'; message: string }
-  | { status: 'error'; message: string };
-
-function validateName(name: string): boolean {
-  return name.length >= MIN_NAME_LENGTH && name.length <= MAX_NAME_LENGTH;
-}
+export type ProjectRow = NameCascadeRow<Project>;
 
 // A project has no direct start_year field — its year lives in
 // academic_year ("YYYY-YYYY"). #62/#68 only offer a single start year, so
@@ -47,87 +24,46 @@ function parseStartYear(academicYear: string): number | null {
   return Number.isNaN(year) ? null : year;
 }
 
-export class ProjectController {
+export class ProjectController extends NameCascadeControllerBase<Project> {
   constructor(
     private readonly projectService: ProjectService,
-    private readonly legislationService: LegislationService,
-    private readonly cycleService: CycleService,
-    private readonly moduleService: ModuleService,
-  ) {}
-
-  async list(): Promise<ProjectRow[]> {
-    return this.filterRows('', '', '', '', '');
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ) {
+    super(legislationService, cycleService, moduleService);
   }
 
-  async loadLegislations(): Promise<Legislation[]> {
-    return cascade.loadLegislations(this.legislationService);
+  protected _validateName(name: string): boolean {
+    return name.length >= MIN_NAME_LENGTH && name.length <= MAX_NAME_LENGTH;
   }
 
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
+  protected async _createEntity(name: string, yearRaw: string, _cycleIdRaw: string, moduleIdRaw: string): Promise<EntityServiceResult<Project>> {
+    return this.projectService.create({ name, academicYear: toAcademicYear(Number(yearRaw)), moduleId: Number(moduleIdRaw) });
   }
 
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
+  protected _createErrorMessage(): string {
+    return 'No se pudo guardar el proyecto';
   }
 
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
+  protected async _updateEntity(id: number, name: string): Promise<EntityServiceResult<Project>> {
+    return this.projectService.update(id, { name });
   }
 
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
+  protected _updateErrorMessage(): string {
+    return 'No se pudo actualizar el proyecto';
   }
 
-  async create(
-    name: string,
-    yearRaw: string,
-    legislationIdRaw: string,
-    cycleIdRaw: string,
-    moduleIdRaw: string,
-  ): Promise<SaveState> {
-    const errors: FieldErrors = {
-      name: !validateName(name),
-      year: yearRaw.trim() === '',
-      legislation: legislationIdRaw.trim() === '',
-      cycle: cycleIdRaw.trim() === '',
-      module: moduleIdRaw.trim() === '',
-    };
-    if (Object.values(errors).some(Boolean)) {
-      return { status: 'validation-error', errors };
-    }
-
-    const result = await this.projectService.create({
-      name,
-      academicYear: toAcademicYear(Number(yearRaw)),
-      moduleId: Number(moduleIdRaw),
-    });
-    if (result.ok) return { status: 'success', item: result.item };
-    return { status: 'error', message: 'No se pudo guardar el proyecto' };
+  protected async _deleteEntity(id: number): Promise<DeleteServiceResult> {
+    return this.projectService.delete(id);
   }
 
-  async update(id: number, name: string): Promise<SaveState> {
-    const errors: FieldErrors = { name: !validateName(name), year: false, legislation: false, cycle: false, module: false };
-    if (errors.name) {
-      return { status: 'validation-error', errors };
-    }
-
-    const result = await this.projectService.update(id, { name });
-    if (result.ok) return { status: 'success', item: result.item };
-    return { status: 'error', message: 'No se pudo actualizar el proyecto' };
+  protected _deleteBlockedMessage(): string {
+    return 'No se puede eliminar: el proyecto tiene alumnos asignados.';
   }
 
-  async delete(id: number): Promise<DeleteState> {
-    const result = await this.projectService.delete(id);
-    if (result.ok) return { status: 'success' };
-
-    if (result.code === 'HAS_DEPENDANTS') {
-      return {
-        status: 'blocked',
-        message: 'No se puede eliminar: el proyecto tiene alumnos asignados.',
-      };
-    }
-    return { status: 'error', message: 'No se pudo eliminar el proyecto' };
+  protected _deleteErrorMessage(): string {
+    return 'No se pudo eliminar el proyecto';
   }
 
   async filterRows(

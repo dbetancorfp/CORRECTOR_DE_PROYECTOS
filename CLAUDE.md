@@ -275,6 +275,15 @@ One file per component. Shadow DOM always open. Render with lit-html only. Never
 TypeScript compiled with `bun build` — source in `corrector/05-implementation/frontend/src/`,
 output in `corrector/05-implementation/frontend/dist/`.
 
+**The hard constraint is "no nested Shadow DOM", not "no shared code".** Never compose a
+screen out of separate `corrector-*` custom elements nested inside another one's Shadow DOM —
+`data-element-id="N"` must sit on the native element for Cypress `.type()`/`.click()` and for
+`shadowRoot.querySelector()` in unit tests, and a second nested shadow root breaks both. Sharing
+behaviour across near-identical screens via plain functions/classes (`admin-nav.ts`,
+`FormCascadeEngine`, or an **abstract base class extending `HTMLElement`** that a screen's
+single custom element extends) is fine and encouraged once duplication between screens is real
+— there is still exactly one registered custom element, one Shadow DOM, per screen.
+
 ### Component skeleton
 
 ```ts

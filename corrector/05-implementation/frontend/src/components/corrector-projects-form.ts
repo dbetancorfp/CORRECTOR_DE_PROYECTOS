@@ -1,24 +1,16 @@
-import { html, render } from 'lit-html';
+import { html } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
 import { HttpProjectService } from '../services/project.service';
-import type { ProjectService } from '../services/project.service';
-import { HttpLegislationService } from '../services/legislation.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import { HttpCycleService } from '../services/cycle.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import { HttpModuleService } from '../services/module.service';
-import type { Module, ModuleService } from '../services/module.service';
+import type { Project, ProjectService } from '../services/project.service';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
 import { ProjectController } from '../controllers/project-controller';
 import type { ProjectRow } from '../controllers/project-controller';
-import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
-import { renderOptionSelect } from './option-select';
-import { FormCascadeEngine } from '../controllers/form-cascade-engine';
-import { runDeleteRowFlow } from '../controllers/delete-row-flow';
-import { runCreateRowFlow } from '../controllers/create-row-flow';
-import { runEditRowFlow } from '../controllers/edit-row-flow';
-
-const FILTER_DEBOUNCE_MS = 300;
+import { NameCascadeCrudForm } from '../controllers/name-cascade-crud-form';
+import type { NameCascadeController, NameCascadeSketchIds } from '../controllers/name-cascade-crud-form';
+import type { CascadeSketchNumbers } from '../controllers/form-cascade-engine';
 
 // corrector-projects-form
 // sketchNumbers: 61 (nombre), 62 (año — navegación, convertido a
@@ -26,288 +18,55 @@ const FILTER_DEBOUNCE_MS = 300;
 // navegación, project no tiene cycle_id propio), 65 (módulo — FK real
 // project.module_id), 66 (Nuevo), 67 (filtro nombre), 68 (filtro año), 69
 // (filtro legislación), 70 (filtro ciclo), 71 (filtro módulo), 72 (tabla)
-export class CorrectorProjectsForm extends HTMLElement {
+export class CorrectorProjectsForm extends NameCascadeCrudForm<Project> {
   projectService?: ProjectService;
-  legislationService?: LegislationService;
-  cycleService?: CycleService;
-  moduleService?: ModuleService;
 
-  private _controller!: ProjectController;
-  private _cascade!: FormCascadeEngine;
-  private _disposables: Array<() => void> = [];
+  protected _gestionTab(): GestionTab {
+    return 'proyectos';
+  }
 
-  private _rows: ProjectRow[] = [];
+  protected _cascadeSketchNumbers(): CascadeSketchNumbers {
+    return { year: 62, legislation: 63, cycle: 64, module: 65 };
+  }
 
-  private _name = '';
-  private _nameError = false;
-  private _formLoading = false;
-  private _formErrorMessage = '';
+  protected _sketchIds(): NameCascadeSketchIds {
+    return { name: 61, submit: 66, nameFilter: 67, yearFilter: 68, legislationFilter: 69, cycleFilter: 70, moduleFilter: 71, table: 72 };
+  }
 
-  private _nameFilter = '';
-  private _yearFilter = '';
-  private _legislationFilter = '';
-  private _cycleFilter = '';
-  private _moduleFilter = '';
-  private _filterTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected _createLegend(): string {
+    return 'Nuevo proyecto:';
+  }
 
-  private _editingId: number | null = null;
-  private _editName = '';
-  private _editLoading = false;
-  private _editErrorMessage = '';
+  protected _namePlaceholder(): string {
+    return 'Nombre del proyecto';
+  }
 
-  private _rowErrorMessage = '';
+  protected _nameFilterPlaceholder(): string {
+    return 'Filtrar por proyecto';
+  }
 
-  connectedCallback(): void {
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
-    const legislationService = this.legislationService ?? new HttpLegislationService();
-    const cycleService = this.cycleService ?? new HttpCycleService();
-    const moduleService = this.moduleService ?? new HttpModuleService();
-    this._controller = new ProjectController(
+  protected _emptyMessage(): string {
+    return 'No hay proyectos registrados';
+  }
+
+  protected _deleteConfirmMessage(row: ProjectRow): string {
+    return `¿Eliminar el proyecto ${row.name}?`;
+  }
+
+  protected _buildController(
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ): NameCascadeController<Project> {
+    return new ProjectController(
       this.projectService ?? new HttpProjectService(),
       legislationService,
       cycleService,
       moduleService,
     );
-    this._cascade = new FormCascadeEngine(
-      legislationService, cycleService, moduleService,
-      { year: 62, legislation: 63, cycle: 64, module: 65 },
-      () => this._render(),
-    );
-    this._render();
-    void this._loadInitial();
-    this._disposables.push(() => {
-      if (this._filterTimeout) clearTimeout(this._filterTimeout);
-    });
   }
 
-  disconnectedCallback(): void {
-    this._disposables.forEach((dispose) => dispose());
-    this._disposables = [];
-  }
-
-  private async _loadInitial(): Promise<void> {
-    const [rows] = await Promise.all([
-      this._controller.list(),
-      this._cascade.loadYearOptions(),
-    ]);
-    this._rows = rows;
-    this._render();
-  }
-
-  private _handleNameInput = (e: Event): void => {
-    this._name = (e.target as HTMLInputElement).value;
-    this._nameError = false;
-    this._render();
-  };
-
-  private _handleSubmitClick = (): void => {
-    void this._submitCreate();
-  };
-
-  private async _submitCreate(): Promise<void> {
-    await runCreateRowFlow(
-      (loading) => { this._formLoading = loading; },
-      (message) => { this._formErrorMessage = message; },
-      () => this._render(),
-      () => this._controller.create(
-        this._name.trim(),
-        this._cascade.selectedYear,
-        this._cascade.selectedLegislation,
-        this._cascade.selectedCycle,
-        this._cascade.selectedModule,
-      ),
-      (item) => {
-        const selectedModuleObj = this._cascade.moduleOptions.find((m) => String(m.id) === this._cascade.selectedModule);
-        const startYear = this._cascade.selectedYear === '' ? null : Number(this._cascade.selectedYear);
-        this._rows = [...this._rows, { ...item, legislationName: selectedModuleObj?.legislationName ?? null, startYear }];
-        this._name = '';
-        this._nameError = false;
-        this._cascade.reset();
-      },
-      (errors) => {
-        this._nameError = errors.name;
-        this._cascade.errors = { year: errors.year, legislation: errors.legislation, cycle: errors.cycle, module: errors.module };
-      },
-    );
-  }
-
-  private _handleNameFilterInput = (e: Event): void => {
-    this._nameFilter = (e.target as HTMLInputElement).value;
-    this._scheduleFilter();
-  };
-
-  private _handleYearFilterChange = (e: Event): void => {
-    this._yearFilter = (e.target as HTMLSelectElement).value;
-    this._scheduleFilter();
-  };
-
-  private _handleLegislationFilterChange = (e: Event): void => {
-    this._legislationFilter = (e.target as HTMLSelectElement).value;
-    this._cycleFilter = '';
-    this._moduleFilter = '';
-    this._scheduleFilter();
-  };
-
-  private _handleCycleFilterChange = (e: Event): void => {
-    this._cycleFilter = (e.target as HTMLSelectElement).value;
-    this._moduleFilter = '';
-    this._scheduleFilter();
-  };
-
-  private _handleModuleFilterChange = (e: Event): void => {
-    this._moduleFilter = (e.target as HTMLSelectElement).value;
-    this._scheduleFilter();
-  };
-
-  private _scheduleFilter(): void {
-    this._render();
-    if (this._filterTimeout) clearTimeout(this._filterTimeout);
-    this._filterTimeout = setTimeout(() => void this._applyFilters(), FILTER_DEBOUNCE_MS);
-  }
-
-  private async _applyFilters(): Promise<void> {
-    this._rows = await this._controller.filterRows(this._nameFilter, this._yearFilter, this._legislationFilter, this._cycleFilter, this._moduleFilter);
-    this._render();
-  }
-
-  private _startEdit = (row: ProjectRow): void => {
-    this._editingId = row.id;
-    this._editName = row.name;
-    this._editErrorMessage = '';
-    this._render();
-  };
-
-  private _handleEditNameInput = (e: Event): void => {
-    this._editName = (e.target as HTMLInputElement).value;
-  };
-
-  private _handleSaveEditClick = (id: number): void => {
-    void this._saveEdit(id);
-  };
-
-  private async _saveEdit(id: number): Promise<void> {
-    await runEditRowFlow(
-      (loading) => { this._editLoading = loading; },
-      () => this._render(),
-      () => this._controller.update(id, this._editName.trim()),
-      (item) => {
-        this._rows = this._rows.map((row) => (row.id === id ? { ...row, name: item.name } : row));
-        this._editingId = null;
-      },
-      (message) => { this._editErrorMessage = message; },
-    );
-  }
-
-  private _handleDeleteClick = (row: ProjectRow): void => {
-    void this._handleDelete(row);
-  };
-
-  private async _handleDelete(row: ProjectRow): Promise<void> {
-    this._rowErrorMessage = '';
-    await runDeleteRowFlow(
-      `¿Eliminar el proyecto ${row.name}?`,
-      () => this._controller.delete(row.id),
-      () => { this._rows = this._rows.filter((r) => r.id !== row.id); },
-      (message) => { this._rowErrorMessage = message; },
-    );
-    this._render();
-  }
-
-  private _handleLogoutClick = (): void => {
-    this.dispatchEvent(new CustomEvent('corrector:logout', { bubbles: true, composed: true }));
-  };
-
-  private _handleNavigateClick = (tab: GestionTab): void => {
-    this.dispatchEvent(new CustomEvent('corrector:gestion-nav-selected', {
-      bubbles: true,
-      composed: true,
-      detail: { to: GESTION_TAB_PATHS[tab] },
-    }));
-  };
-
-  private _render(): void {
-    render(this._template(), this.shadowRoot!);
-  }
-
-  private _template(): TemplateResult {
-    return html`
-      ${renderGestionNav('proyectos', this._handleLogoutClick, this._handleNavigateClick)}
-
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nuevo proyecto:</legend>
-          <input
-            data-element-id="61"
-            type="text"
-            placeholder="Nombre del proyecto"
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-          />
-          ${this._cascade.render()}
-          <button
-            data-element-id="66"
-            type="button"
-            ?disabled=${this._formLoading}
-            @click=${this._handleSubmitClick}
-          >
-            Nuevo
-          </button>
-        </fieldset>
-      </form>
-
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="67"
-          type="text"
-          placeholder="Filtrar por proyecto"
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-        ${renderOptionSelect({
-          sketchNumber: 68, options: this._cascade.yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-          selectedValue: this._yearFilter, placeholder: 'Seleccionar año', onChange: this._handleYearFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 69, options: this._cascade.legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-          selectedValue: this._legislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleLegislationFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 70, options: this._cascade.cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-          selectedValue: this._cycleFilter, placeholder: 'Seleccionar ciclo',
-          disabled: this._legislationFilter === '', onChange: this._handleCycleFilterChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 71, options: this._cascade.moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-          selectedValue: this._moduleFilter, placeholder: 'Seleccionar módulo',
-          disabled: this._cycleFilter === '', onChange: this._handleModuleFilterChange,
-        })}
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="72">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Módulo</th>
-            <th>Ciclo</th>
-            <th>Legislación</th>
-            <th>Año de inicio</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay proyectos registrados</p>` : ''}
-    `;
-  }
-
-  private _rowTemplate(row: ProjectRow): TemplateResult {
+  protected _rowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
         <td>${row.name}</td>
@@ -321,7 +80,7 @@ export class CorrectorProjectsForm extends HTMLElement {
     `;
   }
 
-  private _editRowTemplate(row: ProjectRow): TemplateResult {
+  protected _editRowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
         <td><input type="text" .value=${this._editName} @input=${this._handleEditNameInput} /></td>

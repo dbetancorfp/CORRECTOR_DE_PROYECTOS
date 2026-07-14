@@ -1,124 +1,60 @@
 import type { Student, StudentService } from '../services/student.service';
-import type { Legislation, LegislationService } from '../services/legislation.service';
-import type { Cycle, CycleService } from '../services/cycle.service';
-import type { Module, ModuleService } from '../services/module.service';
-import * as cascade from './academic-cascade';
+import type { LegislationService } from '../services/legislation.service';
+import type { CycleService } from '../services/cycle.service';
+import type { ModuleService } from '../services/module.service';
+import { NameCascadeControllerBase } from './name-cascade-controller-base';
+import type { EntityServiceResult, DeleteServiceResult } from './name-cascade-controller-base';
+import type { NameCascadeRow } from './name-cascade-crud-form';
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
 
-export interface StudentRow extends Student {
-  legislationName: string | null;
-  startYear: number | null;
-}
-
-export interface FieldErrors {
-  name: boolean;
-  year: boolean;
-  legislation: boolean;
-  cycle: boolean;
-  module: boolean;
-}
-
-export type SaveState =
-  | { status: 'success'; item: Student }
-  | { status: 'validation-error'; errors: FieldErrors }
-  | { status: 'error'; message: string };
-
-export type DeleteState =
-  | { status: 'success' }
-  | { status: 'blocked'; message: string }
-  | { status: 'error'; message: string };
+export type StudentRow = NameCascadeRow<Student>;
 
 export type UploadState =
   | { status: 'success'; created: number }
   | { status: 'error'; message: string };
 
-function validateName(name: string): boolean {
-  return name.length >= MIN_NAME_LENGTH && name.length <= MAX_NAME_LENGTH;
-}
-
-export class StudentController {
+export class StudentController extends NameCascadeControllerBase<Student> {
   constructor(
     private readonly studentService: StudentService,
-    private readonly legislationService: LegislationService,
-    private readonly cycleService: CycleService,
-    private readonly moduleService: ModuleService,
-  ) {}
-
-  async list(): Promise<StudentRow[]> {
-    return this.filterRows('', '', '', '', '');
+    legislationService: LegislationService,
+    cycleService: CycleService,
+    moduleService: ModuleService,
+  ) {
+    super(legislationService, cycleService, moduleService);
   }
 
-  async loadLegislations(): Promise<Legislation[]> {
-    return cascade.loadLegislations(this.legislationService);
+  protected _validateName(name: string): boolean {
+    return name.length >= MIN_NAME_LENGTH && name.length <= MAX_NAME_LENGTH;
   }
 
-  async loadYearOptions(): Promise<number[]> {
-    return cascade.loadYearOptions(this.legislationService);
+  protected async _createEntity(name: string, _yearRaw: string, cycleIdRaw: string, moduleIdRaw: string): Promise<EntityServiceResult<Student>> {
+    return this.studentService.create({ name, cycleId: Number(cycleIdRaw), moduleId: Number(moduleIdRaw) });
   }
 
-  async loadLegislationOptions(year: number | null): Promise<Legislation[]> {
-    return cascade.loadLegislationOptions(this.legislationService, year);
+  protected _createErrorMessage(): string {
+    return 'No se pudo guardar el alumno';
   }
 
-  async loadCycleOptions(legislationId: number | null): Promise<Cycle[]> {
-    return cascade.loadCycleOptions(this.cycleService, legislationId);
+  protected async _updateEntity(id: number, name: string): Promise<EntityServiceResult<Student>> {
+    return this.studentService.update(id, { name });
   }
 
-  async loadModuleOptions(cycleId: number | null): Promise<Module[]> {
-    return cascade.loadModuleOptions(this.moduleService, cycleId);
+  protected _updateErrorMessage(): string {
+    return 'No se pudo actualizar el alumno';
   }
 
-  async create(
-    name: string,
-    yearRaw: string,
-    legislationIdRaw: string,
-    cycleIdRaw: string,
-    moduleIdRaw: string,
-  ): Promise<SaveState> {
-    const errors: FieldErrors = {
-      name: !validateName(name),
-      year: yearRaw.trim() === '',
-      legislation: legislationIdRaw.trim() === '',
-      cycle: cycleIdRaw.trim() === '',
-      module: moduleIdRaw.trim() === '',
-    };
-    if (Object.values(errors).some(Boolean)) {
-      return { status: 'validation-error', errors };
-    }
-
-    const result = await this.studentService.create({
-      name,
-      cycleId: Number(cycleIdRaw),
-      moduleId: Number(moduleIdRaw),
-    });
-    if (result.ok) return { status: 'success', item: result.item };
-    return { status: 'error', message: 'No se pudo guardar el alumno' };
+  protected async _deleteEntity(id: number): Promise<DeleteServiceResult> {
+    return this.studentService.delete(id);
   }
 
-  async update(id: number, name: string): Promise<SaveState> {
-    const errors: FieldErrors = { name: !validateName(name), year: false, legislation: false, cycle: false, module: false };
-    if (errors.name) {
-      return { status: 'validation-error', errors };
-    }
-
-    const result = await this.studentService.update(id, { name });
-    if (result.ok) return { status: 'success', item: result.item };
-    return { status: 'error', message: 'No se pudo actualizar el alumno' };
+  protected _deleteBlockedMessage(): string {
+    return 'No se puede eliminar: el alumno está asignado a un proyecto.';
   }
 
-  async delete(id: number): Promise<DeleteState> {
-    const result = await this.studentService.delete(id);
-    if (result.ok) return { status: 'success' };
-
-    if (result.code === 'HAS_DEPENDANTS') {
-      return {
-        status: 'blocked',
-        message: 'No se puede eliminar: el alumno está asignado a un proyecto.',
-      };
-    }
-    return { status: 'error', message: 'No se pudo eliminar el alumno' };
+  protected _deleteErrorMessage(): string {
+    return 'No se pudo eliminar el alumno';
   }
 
   async upload(file: File): Promise<UploadState> {
