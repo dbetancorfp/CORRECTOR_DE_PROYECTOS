@@ -16,6 +16,7 @@
   "include": [
     "corrector/05-implementation/backend/**/*.ts",
     "corrector/05-implementation/frontend/src/**/*.ts",
+    "corrector/05-implementation/shared/**/*.ts",
     "lib/**/*.ts"
   ],
   "exclude": [

@@ -4,32 +4,12 @@ import type { StudentRepository } from '../repositories/student.repository';
 import type { Project, ProjectRepository } from '../repositories/project.repository';
 import type { ProjectStudentRepository } from '../repositories/project-student.repository';
 import { GradeCalculator } from './grade-calculator';
-
-export interface ModuleGradeEntry {
-  studentName: string;
-  projectName: string;
-  moduleScore: number;
-}
-
-export interface CycleGradeEntry {
-  studentName: string;
-  projectName: string;
-  moduleScores: Record<string, number>;
-  finalScore: number;
-}
-
-export interface CycleGradeResult {
-  modules: Array<{ id: number; name: string; weeklyHours: number }>;
-  grades: CycleGradeEntry[];
-}
-
-export interface CorrectionStatusEntry {
-  moduleId: number;
-  moduleName: string;
-  totalStudents: number;
-  correctedStudents: number;
-  status: 'complete' | 'incomplete';
-}
+import type {
+  ModuleGradeEntry,
+  CycleGradeEntry,
+  CycleGradeResult,
+  CorrectionStatusEntry,
+} from '../../../shared/grade-types';
 
 export class GradeService {
   constructor(

@@ -1,28 +1,11 @@
-export interface ModuleGradeEntry {
-  studentName: string;
-  projectName: string;
-  moduleScore: number;
-}
+import type {
+  ModuleGradeEntry,
+  CycleGradeEntry,
+  CycleGradeResult,
+  CorrectionStatusEntry,
+} from '../../../shared/grade-types';
 
-export interface CycleGradeEntry {
-  studentName: string;
-  projectName: string;
-  moduleScores: Record<string, number>;
-  finalScore: number;
-}
-
-export interface CycleGradeResult {
-  modules: Array<{ id: number; name: string; weeklyHours: number }>;
-  grades: CycleGradeEntry[];
-}
-
-export interface CorrectionStatusEntry {
-  moduleId: number;
-  moduleName: string;
-  totalStudents: number;
-  correctedStudents: number;
-  status: 'complete' | 'incomplete';
-}
+export type { ModuleGradeEntry, CycleGradeEntry, CycleGradeResult, CorrectionStatusEntry };
 
 export interface ApiFailure {
   ok: false;
