@@ -21,6 +21,7 @@ import { renderGestionNav, GESTION_TAB_PATHS } from './gestion-nav';
 import type { GestionTab } from './gestion-nav';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
+import { runEditRowFlow } from '../controllers/edit-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -346,22 +347,17 @@ export class CorrectorAssignmentForm extends HTMLElement {
   };
 
   private async _saveEdit(id: number): Promise<void> {
-    this._editLoading = true;
-    this._render();
-
-    const state = await this._projectController.update(id, this._editName.trim());
-    this._editLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = this._rows.map((row) => (row.id === id ? { ...row, name: state.item.name } : row));
-      if (id === this._selectedProjectId) this._selectedProjectName = state.item.name;
-      this._editingId = null;
-      this._render();
-      return;
-    }
-
-    this._editErrorMessage = state.status === 'validation-error' ? 'Datos no válidos' : state.message;
-    this._render();
+    await runEditRowFlow(
+      (loading) => { this._editLoading = loading; },
+      () => this._render(),
+      () => this._projectController.update(id, this._editName.trim()),
+      (item) => {
+        this._rows = this._rows.map((row) => (row.id === id ? { ...row, name: item.name } : row));
+        if (id === this._selectedProjectId) this._selectedProjectName = item.name;
+        this._editingId = null;
+      },
+      (message) => { this._editErrorMessage = message; },
+    );
   }
 
   private _handleDeleteClick = (row: ProjectRow, e: Event): void => {

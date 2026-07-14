@@ -6,6 +6,8 @@ import { LegislationController } from '../controllers/legislation-controller';
 import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
+import { runCreateRowFlow } from '../controllers/create-row-flow';
+import { runEditRowFlow } from '../controllers/edit-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -85,32 +87,23 @@ export class CorrectorLegislationForm extends HTMLElement {
   };
 
   private async _submitCreate(): Promise<void> {
-    this._formLoading = true;
-    this._formErrorMessage = '';
-    this._render();
-
-    const state = await this._controller.create(this._name.trim(), Number(this._startYear));
-    this._formLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = [...this._rows, state.item];
-      this._name = '';
-      this._startYear = '';
-      this._nameError = false;
-      this._startYearError = false;
-      this._render();
-      return;
-    }
-
-    if (state.status === 'validation-error') {
-      this._nameError = state.errors.name;
-      this._startYearError = state.errors.startYear;
-      this._render();
-      return;
-    }
-
-    this._formErrorMessage = state.message;
-    this._render();
+    await runCreateRowFlow(
+      (loading) => { this._formLoading = loading; },
+      (message) => { this._formErrorMessage = message; },
+      () => this._render(),
+      () => this._controller.create(this._name.trim(), Number(this._startYear)),
+      (item) => {
+        this._rows = [...this._rows, item];
+        this._name = '';
+        this._startYear = '';
+        this._nameError = false;
+        this._startYearError = false;
+      },
+      (errors) => {
+        this._nameError = errors.name;
+        this._startYearError = errors.startYear;
+      },
+    );
   }
 
   private _handleYearFilterInput = (e: Event): void => {
@@ -149,21 +142,16 @@ export class CorrectorLegislationForm extends HTMLElement {
   };
 
   private async _saveEdit(id: number): Promise<void> {
-    this._editLoading = true;
-    this._render();
-
-    const state = await this._controller.update(id, this._editName.trim(), Number(this._editStartYear));
-    this._editLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = this._rows.map((row) => (row.id === id ? state.item : row));
-      this._editingId = null;
-      this._render();
-      return;
-    }
-
-    this._editErrorMessage = state.status === 'validation-error' ? 'Datos no válidos' : state.message;
-    this._render();
+    await runEditRowFlow(
+      (loading) => { this._editLoading = loading; },
+      () => this._render(),
+      () => this._controller.update(id, this._editName.trim(), Number(this._editStartYear)),
+      (item) => {
+        this._rows = this._rows.map((row) => (row.id === id ? item : row));
+        this._editingId = null;
+      },
+      (message) => { this._editErrorMessage = message; },
+    );
   }
 
   private _handleDeleteClick = (row: Legislation): void => {

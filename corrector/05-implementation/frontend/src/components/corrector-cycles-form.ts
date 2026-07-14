@@ -10,6 +10,8 @@ import { renderAdminNav, ADMIN_TAB_PATHS } from './admin-nav';
 import type { AdminTab } from './admin-nav';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
+import { runCreateRowFlow } from '../controllers/create-row-flow';
+import { runEditRowFlow } from '../controllers/edit-row-flow';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -113,36 +115,27 @@ export class CorrectorCyclesForm extends HTMLElement {
   };
 
   private async _submitCreate(): Promise<void> {
-    this._formLoading = true;
-    this._formErrorMessage = '';
-    this._render();
-
-    const state = await this._controller.create(this._name.trim(), this._selectedYear, this._selectedLegislation);
-    this._formLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = [...this._rows, state.item];
-      this._name = '';
-      this._selectedYear = '';
-      this._selectedLegislation = '';
-      this._legislationOptions = [];
-      this._nameError = false;
-      this._yearError = false;
-      this._legislationError = false;
-      this._render();
-      return;
-    }
-
-    if (state.status === 'validation-error') {
-      this._nameError = state.errors.name;
-      this._yearError = state.errors.year;
-      this._legislationError = state.errors.legislation;
-      this._render();
-      return;
-    }
-
-    this._formErrorMessage = state.message;
-    this._render();
+    await runCreateRowFlow(
+      (loading) => { this._formLoading = loading; },
+      (message) => { this._formErrorMessage = message; },
+      () => this._render(),
+      () => this._controller.create(this._name.trim(), this._selectedYear, this._selectedLegislation),
+      (item) => {
+        this._rows = [...this._rows, item];
+        this._name = '';
+        this._selectedYear = '';
+        this._selectedLegislation = '';
+        this._legislationOptions = [];
+        this._nameError = false;
+        this._yearError = false;
+        this._legislationError = false;
+      },
+      (errors) => {
+        this._nameError = errors.name;
+        this._yearError = errors.year;
+        this._legislationError = errors.legislation;
+      },
+    );
   }
 
   private _handleYearFilterInput = (e: Event): void => {
@@ -186,21 +179,16 @@ export class CorrectorCyclesForm extends HTMLElement {
   };
 
   private async _saveEdit(id: number): Promise<void> {
-    this._editLoading = true;
-    this._render();
-
-    const state = await this._controller.update(id, this._editName.trim());
-    this._editLoading = false;
-
-    if (state.status === 'success') {
-      this._rows = this._rows.map((row) => (row.id === id ? state.item : row));
-      this._editingId = null;
-      this._render();
-      return;
-    }
-
-    this._editErrorMessage = state.status === 'validation-error' ? 'Datos no válidos' : state.message;
-    this._render();
+    await runEditRowFlow(
+      (loading) => { this._editLoading = loading; },
+      () => this._render(),
+      () => this._controller.update(id, this._editName.trim()),
+      (item) => {
+        this._rows = this._rows.map((row) => (row.id === id ? item : row));
+        this._editingId = null;
+      },
+      (message) => { this._editErrorMessage = message; },
+    );
   }
 
   private _handleDeleteClick = (row: Cycle): void => {
