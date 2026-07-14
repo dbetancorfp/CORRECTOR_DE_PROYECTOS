@@ -16,6 +16,8 @@ import { HttpModuleService } from '../services/module.service';
 import type { Module, ModuleService } from '../services/module.service';
 import { CorrectionController } from '../controllers/correction-controller';
 import { renderOptionSelect } from './option-select';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const LEVEL_ORDER = ['Excelente', 'Muy bien', 'Bien', 'Regular', 'Mal'];
 
@@ -70,6 +72,7 @@ export class CorrectorCorrectionForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new CorrectionController(
       this.correctionService ?? new HttpCorrectionService(),
       this.projectService ?? new HttpProjectService(),
@@ -286,95 +289,100 @@ export class CorrectorCorrectionForm extends HTMLElement {
 
   private _template(): TemplateResult {
     return html`
-      <nav>
-        <span>Corrector de proyectos</span>
-        <button data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
+      <nav class=${classesFor('nav')}>
+        <span class="font-semibold text-gray-900">Corrector de proyectos</span>
+        <button class=${classesFor('button', 'secondary', 'sm')} data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
       </nav>
-      <h2>Corregir proyecto</h2>
+      <div class="p-4">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Corregir proyecto</h2>
 
-      <fieldset>
-        <legend>Filtrar por módulo:</legend>
-        ${renderOptionSelect({
-          sketchNumber: 101, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-          selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 102, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-          selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
-          disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 103, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-          selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
-          disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 104, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-          selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
-          disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 105, options: this._projects, getId: (p) => p.id, getLabel: (p) => p.name,
-          selectedValue: this._selectedProjectId, placeholder: 'Seleccionar proyecto',
-          disabled: this._selectedModule === '', onChange: this._handleProjectChange,
-        })}
-      </fieldset>
-
-      <div role="alert">${this._noRubricWarning ? 'Este módulo no tiene rúbrica definida. No se puede corregir.' : ''}</div>
-
-      ${this._currentProject && !this._noRubricWarning ? html`
-        <div class="checkbox-column">
-          <label><input type="checkbox" data-element-id="106" .checked=${this._groupMode} @change=${this._handleGroupToggle} /> Corregir por grupo</label>
-          ${this._assignedStudents.map((s, i) => html`
-            <label>
-              <input
-                type="checkbox"
-                data-element-id=${107 + i <= 109 ? String(107 + i) : ''}
-                ?checked=${this._groupMode || this._checkedStudentIds.has(s.studentId)}
-                ?disabled=${this._groupMode}
-                @change=${(e: Event) => this._handleStudentToggle(s.studentId, e)}
-              />
-              ${s.name}
-            </label>
-          `)}
-        </div>
-
-        <div role="alert">${this._saveErrorMessage}</div>
-        ${this._rubric ? this._correctionTable(this._rubric.items) : ''}
-
-        <div class="score-bar">
-          <div class="score-line">
-            <span>Puntuación obtenida en la rúbrica:</span>
-            <strong data-element-id="112">${this._selections.size > 0 ? this._rawScore() : '—'}</strong>
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por módulo:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            ${renderOptionSelect({
+              sketchNumber: 101, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+              selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 102, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+              selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+              disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 103, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+              selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+              disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 104, options: this._moduleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+              selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
+              disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 105, options: this._projects, getId: (p) => p.id, getLabel: (p) => p.name,
+              selectedValue: this._selectedProjectId, placeholder: 'Seleccionar proyecto',
+              disabled: this._selectedModule === '', onChange: this._handleProjectChange,
+            })}
           </div>
-          <div class="score-line">
-            <span>Puntuación obtenida sobre 10:</span>
-            <strong data-element-id="113">${this._selections.size > 0 ? this._normalisedScore() : '—'}</strong>
+        </fieldset>
+
+        <div role="alert" class=${this._noRubricWarning ? classesFor('paragraph', 'danger') : ''}>${this._noRubricWarning ? 'Este módulo no tiene rúbrica definida. No se puede corregir.' : ''}</div>
+
+        ${this._currentProject && !this._noRubricWarning ? html`
+          <div class="checkbox-column flex flex-wrap gap-4 mb-4">
+            <label class="flex items-center gap-2"><input type="checkbox" class=${classesFor('checkbox')} data-element-id="106" .checked=${this._groupMode} @change=${this._handleGroupToggle} /> Corregir por grupo</label>
+            ${this._assignedStudents.map((s, i) => html`
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  class=${classesFor('checkbox')}
+                  data-element-id=${107 + i <= 109 ? String(107 + i) : ''}
+                  ?checked=${this._groupMode || this._checkedStudentIds.has(s.studentId)}
+                  ?disabled=${this._groupMode}
+                  @change=${(e: Event) => this._handleStudentToggle(s.studentId, e)}
+                />
+                ${s.name}
+              </label>
+            `)}
           </div>
-        </div>
-      ` : ''}
+
+          <div role="alert" class=${this._saveErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._saveErrorMessage}</div>
+          ${this._rubric ? this._correctionTable(this._rubric.items) : ''}
+
+          <div class="score-bar flex gap-8 mt-4">
+            <div class="score-line">
+              <span class="text-gray-600">Puntuación obtenida en la rúbrica:</span>
+              <strong class="text-gray-900" data-element-id="112">${this._selections.size > 0 ? this._rawScore() : '—'}</strong>
+            </div>
+            <div class="score-line">
+              <span class="text-gray-600">Puntuación obtenida sobre 10:</span>
+              <strong class="text-gray-900" data-element-id="113">${this._selections.size > 0 ? this._normalisedScore() : '—'}</strong>
+            </div>
+          </div>
+        ` : ''}
+      </div>
     `;
   }
 
   private _correctionTable(items: RubricItem[]): TemplateResult {
     return html`
-      <table style="border: 1px solid black; border-collapse: collapse;" data-element-id="110">
+      <table class=${classesFor('table')} data-element-id="110">
         <tr>
-          <th style="width: 350px;">Item</th>
-          ${LEVEL_ORDER.map((name) => html`<th>${name}</th>`)}
+          <th class=${classesFor('table-header-cell') + ' w-[350px]'}>Item</th>
+          ${LEVEL_ORDER.map((name) => html`<th class=${classesFor('table-header-cell')}>${name}</th>`)}
         </tr>
         ${items.map((item) => html`
           <tr>
-            <td>${item.description}</td>
+            <td class=${classesFor('table-editable-cell')}>${item.description}</td>
             ${LEVEL_ORDER.map((name) => {
               const level = item.levels.find((l) => l.name === name);
-              if (!level) return html`<td></td>`;
+              if (!level) return html`<td class=${classesFor('table-editable-cell')}></td>`;
               const selected = this._selections.get(item.id) === level.id;
               return html`
                 <td
+                  class=${classesFor('table-editable-cell') + (selected ? ' bg-primary-100 cursor-pointer' : ' cursor-pointer hover:bg-gray-50')}
                   data-level=${name}
                   aria-selected=${selected ? 'true' : 'false'}
-                  style=${selected ? 'background-color: lightgray; cursor: pointer;' : 'cursor: pointer;'}
                   @click=${() => this._handleCellClick(item.id, level.id)}
                 >
                   ${level.score}

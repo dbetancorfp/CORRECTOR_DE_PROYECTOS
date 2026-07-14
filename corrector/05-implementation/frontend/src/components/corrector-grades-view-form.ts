@@ -16,6 +16,8 @@ import { HttpModuleService } from '../services/module.service';
 import type { Module, ModuleService } from '../services/module.service';
 import { GradesViewController, moduleAbbreviation } from '../controllers/grades-view-controller';
 import type { GradeTableData } from '../controllers/grades-view-controller';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 // corrector-grades-view-form
 // sketchNumbers: 114 (año — navegación), 115 (legislación), 116 (ciclo —
@@ -61,6 +63,7 @@ export class CorrectorGradesViewForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new GradesViewController(
       this.gradeService ?? new HttpGradeService(),
       this.authService ?? new HttpAuthService(),
@@ -234,76 +237,80 @@ export class CorrectorGradesViewForm extends HTMLElement {
 
   private _template(): TemplateResult {
     return html`
-      <nav>
-        <span>Corrector de proyectos</span>
-        <button data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
+      <nav class=${classesFor('nav')}>
+        <span class="font-semibold text-gray-900">Corrector de proyectos</span>
+        <button class=${classesFor('button', 'secondary', 'sm')} data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
       </nav>
-      <h2>Ver notas</h2>
+      <div class="p-4">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Ver notas</h2>
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <select data-element-id="114" @change=${this._handleYearChange}>
-          <option value="">Seleccionar año</option>
-          ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
-        </select>
-        <select data-element-id="115" ?disabled=${this._selectedYear === ''} @change=${this._handleLegislationChange}>
-          <option value="">Seleccionar legislación</option>
-          ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
-        </select>
-        <select data-element-id="116" ?disabled=${this._selectedLegislation === ''} @change=${this._handleCycleChange}>
-          <option value="">Seleccionar ciclo</option>
-          ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
-        </select>
-        <select data-element-id="117" ?disabled=${this._selectedCycle === ''} @change=${this._handleModuleChange}>
-          <option value="">Seleccionar módulo</option>
-          ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
-        </select>
-        <select data-element-id="118" ?disabled=${this._selectedModule === ''} @change=${this._handleProjectChange}>
-          <option value="">Seleccionar proyecto</option>
-          ${this._projects.map((p) => html`<option value=${p.id} ?selected=${String(p.id) === this._selectedProjectId}>${p.name}</option>`)}
-        </select>
-      </fieldset>
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <select data-element-id="114" class=${classesFor('select')} @change=${this._handleYearChange}>
+              <option value="">Seleccionar año</option>
+              ${this._yearOptions.map((year) => html`<option value=${year} ?selected=${String(year) === this._selectedYear}>${year}</option>`)}
+            </select>
+            <select data-element-id="115" class=${classesFor('select')} ?disabled=${this._selectedYear === ''} @change=${this._handleLegislationChange}>
+              <option value="">Seleccionar legislación</option>
+              ${this._legislationOptions.map((leg) => html`<option value=${leg.id} ?selected=${String(leg.id) === this._selectedLegislation}>${leg.name}</option>`)}
+            </select>
+            <select data-element-id="116" class=${classesFor('select')} ?disabled=${this._selectedLegislation === ''} @change=${this._handleCycleChange}>
+              <option value="">Seleccionar ciclo</option>
+              ${this._cycleOptions.map((cycle) => html`<option value=${cycle.id} ?selected=${String(cycle.id) === this._selectedCycle}>${cycle.name}</option>`)}
+            </select>
+            <select data-element-id="117" class=${classesFor('select')} ?disabled=${this._selectedCycle === ''} @change=${this._handleModuleChange}>
+              <option value="">Seleccionar módulo</option>
+              ${this._moduleOptions.map((mod) => html`<option value=${mod.id} ?selected=${String(mod.id) === this._selectedModule}>${mod.name}</option>`)}
+            </select>
+            <select data-element-id="118" class=${classesFor('select')} ?disabled=${this._selectedModule === ''} @change=${this._handleProjectChange}>
+              <option value="">Seleccionar proyecto</option>
+              ${this._projects.map((p) => html`<option value=${p.id} ?selected=${String(p.id) === this._selectedProjectId}>${p.name}</option>`)}
+            </select>
+          </div>
+        </fieldset>
 
-      <div data-element-id="122">
-        ${this._statusBadges.map((b) => html`
-          <span data-status=${b.status} style=${b.status === 'complete' ? 'background:green;color:white;' : 'background:red;color:white;'}>
-            ${moduleAbbreviation(b.moduleName)}
-          </span>
-        `)}
+        <div class="flex gap-2 mb-4" data-element-id="122">
+          ${this._statusBadges.map((b) => html`
+            <span data-status=${b.status} class=${'inline-flex items-center rounded px-2 py-1 text-sm font-medium text-white ' + (b.status === 'complete' ? 'bg-green-600' : 'bg-danger-600')}>
+              ${moduleAbbreviation(b.moduleName)}
+            </span>
+          `)}
+        </div>
+
+        ${this._renderTable()}
+
+        <div role="alert" class=${this._printErrorMessage ? classesFor('paragraph', 'danger') + ' mt-3' : ''}>${this._printErrorMessage}</div>
+        <button type="button" class=${classesFor('submit-button', 'primary') + ' mt-3'} data-element-id="120" ?disabled=${!this._canPrint() || this._printLoading} @click=${this._handlePrintClick}>Imprimir</button>
       </div>
-
-      ${this._renderTable()}
-
-      <div role="alert">${this._printErrorMessage}</div>
-      <button type="button" data-element-id="120" ?disabled=${!this._canPrint() || this._printLoading} @click=${this._handlePrintClick}>Imprimir</button>
     `;
   }
 
   private _renderTable(): TemplateResult {
     const data = this._visibleRows();
-    if (!data) return html`<table data-element-id="119"></table>`;
+    if (!data) return html`<table class=${classesFor('table')} data-element-id="119"></table>`;
 
     if (data.role === 'profesor') {
       return html`
-        <table style="border: 1px solid black;" data-element-id="119">
-          <tr><th>Proyecto</th><th>Nombre alumno</th><th>Nota</th></tr>
-          ${data.rows.map((r) => html`<tr><td>${r.projectName}</td><td data-col="studentName">${r.studentName}</td><td>${r.moduleScore}</td></tr>`)}
+        <table class=${classesFor('table')} data-element-id="119">
+          <tr><th class=${classesFor('table-header-cell')}>Proyecto</th><th class=${classesFor('table-header-cell')}>Nombre alumno</th><th class=${classesFor('table-header-cell')}>Nota</th></tr>
+          ${data.rows.map((r) => html`<tr><td class=${classesFor('table-editable-cell')}>${r.projectName}</td><td class=${classesFor('table-editable-cell')} data-col="studentName">${r.studentName}</td><td class=${classesFor('table-editable-cell')}>${r.moduleScore}</td></tr>`)}
         </table>
       `;
     }
 
     return html`
-      <table style="border: 1px solid black;" data-element-id="119">
+      <table class=${classesFor('table')} data-element-id="119">
         <tr>
-          <th>Proyecto</th><th>Nombre alumno</th>
-          ${data.modules.map((m) => html`<th>${m.name}</th>`)}
-          <th>Nota final</th>
+          <th class=${classesFor('table-header-cell')}>Proyecto</th><th class=${classesFor('table-header-cell')}>Nombre alumno</th>
+          ${data.modules.map((m) => html`<th class=${classesFor('table-header-cell')}>${m.name}</th>`)}
+          <th class=${classesFor('table-header-cell')}>Nota final</th>
         </tr>
         ${data.rows.map((r) => html`
           <tr>
-            <td>${r.projectName}</td><td data-col="studentName">${r.studentName}</td>
-            ${data.modules.map((m) => html`<td>${r.moduleScores[String(m.id)] ?? ''}</td>`)}
-            <td>${r.finalScore}</td>
+            <td class=${classesFor('table-editable-cell')}>${r.projectName}</td><td class=${classesFor('table-editable-cell')} data-col="studentName">${r.studentName}</td>
+            ${data.modules.map((m) => html`<td class=${classesFor('table-editable-cell')}>${r.moduleScores[String(m.id)] ?? ''}</td>`)}
+            <td class=${classesFor('table-editable-cell')}>${r.finalScore}</td>
           </tr>
         `)}
       </table>

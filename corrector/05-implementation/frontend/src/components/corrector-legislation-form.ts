@@ -9,8 +9,11 @@ import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
 import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-legislation-form
 // sketchNumbers: 4 (tab), 5 (siglas), 6 (año inicio), 7 (Guardar), 8 (filtro año),
@@ -50,6 +53,7 @@ export class CorrectorLegislationForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new LegislationController(this.legislationService ?? new HttpLegislationService());
     this._render();
     void this._loadRows();
@@ -181,82 +185,93 @@ export class CorrectorLegislationForm extends HTMLElement {
     return html`
       ${renderAdminNav('legislacion', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nueva legislación:</legend>
-          <input
-            data-element-id="5"
-            type="text"
-            placeholder="Siglas (ej. LOMLOE)"
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-            @keydown=${this._handleFormKeydown}
-          />
-          <input
-            data-element-id="6"
-            type="text"
-            placeholder="Año de inicio"
-            .value=${this._startYear}
-            aria-invalid=${this._startYearError ? 'true' : 'false'}
-            @input=${this._handleStartYearInput}
-            @keydown=${this._handleFormKeydown}
-          />
-          <button
-            data-element-id="7"
-            type="button"
-            ?disabled=${this._formLoading}
-            @click=${this._handleSubmitClick}
-          >
-            Guardar
-          </button>
+      <div class="p-4">
+        <div role="alert" class=${this._formErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._formErrorMessage}</div>
+        <form>
+          <fieldset class="border border-gray-200 rounded p-4 mb-4">
+            <legend class="font-medium text-gray-900 px-1">Nueva legislación:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input
+                data-element-id="5"
+                type="text"
+                class=${classesFor('text-input', this._nameError ? 'danger' : undefined)}
+                placeholder="Siglas (ej. LOMLOE)"
+                .value=${this._name}
+                aria-invalid=${this._nameError ? 'true' : 'false'}
+                @input=${this._handleNameInput}
+                @keydown=${this._handleFormKeydown}
+              />
+              <input
+                data-element-id="6"
+                type="text"
+                class=${classesFor('number-input', this._startYearError ? 'danger' : undefined)}
+                placeholder="Año de inicio"
+                .value=${this._startYear}
+                aria-invalid=${this._startYearError ? 'true' : 'false'}
+                @input=${this._handleStartYearInput}
+                @keydown=${this._handleFormKeydown}
+              />
+              <button
+                data-element-id="7"
+                type="button"
+                class=${classesFor('submit-button', 'primary')}
+                ?disabled=${this._formLoading}
+                @click=${this._handleSubmitClick}
+              >
+                Guardar
+              </button>
+            </div>
+          </fieldset>
+        </form>
+
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <input
+              data-element-id="8"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por año de inicio"
+              .value=${this._yearFilter}
+              @input=${this._handleYearFilterInput}
+            />
+            <input
+              data-element-id="9"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por siglas"
+              .value=${this._nameFilter}
+              @input=${this._handleNameFilterInput}
+            />
+          </div>
         </fieldset>
-      </form>
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="8"
-          type="text"
-          placeholder="Filtrar por año de inicio"
-          .value=${this._yearFilter}
-          @input=${this._handleYearFilterInput}
-        />
-        <input
-          data-element-id="9"
-          type="text"
-          placeholder="Filtrar por siglas"
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="10">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Año inicial</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${visibleRows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay legislaciones registradas</p>` : ''}
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id="10">
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Nombre</th>
+              <th class=${classesFor('table-header-cell')}>Año inicial</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${visibleRows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay legislaciones registradas</p>` : ''}
+      </div>
     `;
   }
 
   private _rowTemplate(row: Legislation): TemplateResult {
     return html`
       <tr>
-        <td>${row.name}</td>
-        <td>${row.startYear}</td>
-        <td><button data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}>${row.name}</td>
+        <td class=${TD_CLASS}>${row.startYear}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -264,22 +279,25 @@ export class CorrectorLegislationForm extends HTMLElement {
   private _editRowTemplate(row: Legislation): TemplateResult {
     return html`
       <tr>
-        <td>
+        <td class=${TD_CLASS}>
           <input
             type="text"
+            class=${classesFor('text-input')}
             .value=${this._editName}
             @input=${this._handleEditNameInput}
           />
         </td>
-        <td>
+        <td class=${TD_CLASS}>
           <input
             type="text"
+            class=${classesFor('number-input')}
             .value=${this._editStartYear}
             @input=${this._handleEditStartYearInput}
           />
         </td>
-        <td>
+        <td class=${TD_CLASS}>
           <button
+            class=${classesFor('button', 'secondary', 'sm')}
             data-action="save"
             ?disabled=${this._editLoading}
             @click=${() => this._handleSaveEditClick(row.id)}
@@ -287,7 +305,7 @@ export class CorrectorLegislationForm extends HTMLElement {
             Guardar
           </button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }

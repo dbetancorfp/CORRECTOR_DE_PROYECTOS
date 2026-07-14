@@ -1,5 +1,6 @@
 import { html } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
+import { classesFor } from '../styles/classes-for';
 
 // Shared nav + 4-tab bar markup for Admin screens. Not a custom element on
 // purpose — a second Shadow DOM boundary nested inside corrector-*-form's own
@@ -47,21 +48,22 @@ export function renderAdminNav(
   onNavigate: (tab: AdminTab) => void,
 ): TemplateResult {
   return html`
-    <nav>
-      <span>Corrector de proyectos</span>
-      <button data-action="logout" @click=${onLogout}>Salir</button>
+    <nav class=${classesFor('nav')}>
+      <span class="font-semibold text-gray-900">Corrector de proyectos</span>
+      <button class=${classesFor('button', 'secondary', 'sm')} data-action="logout" @click=${onLogout}>Salir</button>
     </nav>
-    <div class="tabs">
+    <div class="tabs flex border-b border-gray-200 px-4">
       ${TAB_ORDER.map((tab) => {
         const elementId = TAB_ELEMENT_IDS[tab];
         const idAttr = elementId === null ? undefined : elementId;
+        const tabClass = `px-4 py-2 ${classesFor('tab', tab === activeTab ? 'primary' : undefined)}`;
         if (tab === activeTab) {
-          return html`<button data-element-id=${idAttr ?? ''} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
+          return html`<button class=${tabClass} data-element-id=${idAttr ?? ''} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
         }
         if (elementId === null) {
-          return html`<button role="tab" aria-selected="false" disabled>${TAB_LABELS[tab]}</button>`;
+          return html`<button class=${tabClass} role="tab" aria-selected="false" disabled>${TAB_LABELS[tab]}</button>`;
         }
-        return html`<button data-element-id=${idAttr ?? ''} role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
+        return html`<button class=${tabClass} data-element-id=${idAttr ?? ''} role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
       })}
     </div>
   `;

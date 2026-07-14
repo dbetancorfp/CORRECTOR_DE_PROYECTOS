@@ -117,6 +117,36 @@ const service = new RubricaService(new PgRubricaRepository(db));
 Los componentes solo renderizan y emiten eventos. No llaman a la API directamente.
 La comunicación con el backend pasa por un servicio inyectado o por CustomEvents.
 
+### Estilo visual — Tailwind vía Shadow DOM (obligatorio, un único punto de mapeo)
+
+Cada componente usa `attachShadow({mode:'open'})` — el CSS de Tailwind
+compilado en `index.html` **nunca llega al shadow root**. Dos pasos
+obligatorios en todo componente nuevo o modificado:
+
+1. En `connectedCallback`, antes del primer `_render()`:
+   ```ts
+   import { attachSharedStyles } from '../styles/shadow-styles';
+   // ...
+   if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+   attachSharedStyles(this.shadowRoot!);
+   ```
+2. En la plantilla lit-html, las clases de cada elemento visual/interactivo
+   vienen **siempre** de `classesFor(type, variant, size)`
+   (`src/styles/classes-for.ts`), usando el `type`/`variant`/`size` que el
+   Agente 1 ya asignó en `ui-spec.json` para ese `sketchNumber`:
+   ```ts
+   import { classesFor } from '../styles/classes-for';
+   // ...
+   html`<button class="${classesFor('button', 'primary', 'md')}" data-element-id="7">Guardar</button>`
+   ```
+
+**Nunca** escribas lógica `if (variant === 'primary') { classes = '...' }`
+inline en un componente — eso repetiría exactamente la duplicación que
+costó varias rondas arreglar en SonarCloud (ver `docs/design-system.md`).
+Si un elemento necesita una clase que `classesFor()` no cubre, añádela a
+`classes-for.ts` (y a la tabla en `docs/design-system.md`) primero, no la
+pongas suelta en el componente.
+
 ---
 
 ## Reglas de implementación
@@ -152,12 +182,15 @@ Para cada componente en `ui-spec.json`:
 1. Crea `src/frontend/corrector-<name>.ts`
 2. Implementa `connectedCallback`, `disconnectedCallback`, `_render`
 3. Usa lit-html y el patrón disposables de CLAUDE.md
+4. Llama `attachSharedStyles(this.shadowRoot!)` en `connectedCallback` y usa
+   `classesFor(type, variant, size)` para las clases de cada elemento
+   visual/interactivo (ver "Estilo visual" más arriba) — nunca mapeo inline
 
 ### Paso 4 — Verificar todos los tests en verde
 
 ```bash
 bun test   # debe pasar al 100%
-bun build src/frontend/index.ts --outdir dist/frontend --target browser
+bun run build   # JS (bun build) + CSS de Tailwind (bunx tailwindcss)
 ```
 
 ### Paso 5 — Verificar Quality Gate de SonarCloud

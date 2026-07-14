@@ -16,6 +16,8 @@ import { runCreateRowFlow } from './create-row-flow';
 import type { CreateResult } from './create-row-flow';
 import { runEditRowFlow } from './edit-row-flow';
 import type { EditResult } from './edit-row-flow';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -119,6 +121,7 @@ export abstract class NameCascadeCrudForm<Item extends NameCascadeItem> extends 
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     const legislationService = this.legislationService ?? new HttpLegislationService();
     const cycleService = this.cycleService ?? new HttpCycleService();
     const moduleService = this.moduleService ?? new HttpModuleService();
@@ -289,44 +292,51 @@ export abstract class NameCascadeCrudForm<Item extends NameCascadeItem> extends 
     return html`
       ${renderGestionNav(this._gestionTab(), this._handleLogoutClick, this._handleNavigateClick)}
 
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>${this._createLegend()}</legend>
-          <input
-            data-element-id=${ids.name}
-            type="text"
-            placeholder=${this._namePlaceholder()}
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-          />
-          ${this._cascade.render()}
-          <div>
-            <button
-              data-element-id=${ids.submit}
-              type="button"
-              ?disabled=${this._formLoading}
-              @click=${this._handleSubmitClick}
-            >
-              Nuevo
-            </button>
-            ${this._renderCreateExtra()}
-          </div>
-        </fieldset>
-      </form>
-      ${this._renderBelowForm()}
+      <div class="p-4">
+        <div role="alert" class=${this._formErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._formErrorMessage}</div>
+        <form>
+          <fieldset class="border border-gray-200 rounded p-4 mb-4">
+            <legend class="font-medium text-gray-900 px-1">${this._createLegend()}</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input
+                data-element-id=${ids.name}
+                type="text"
+                class=${classesFor('text-input', this._nameError ? 'danger' : undefined)}
+                placeholder=${this._namePlaceholder()}
+                .value=${this._name}
+                aria-invalid=${this._nameError ? 'true' : 'false'}
+                @input=${this._handleNameInput}
+              />
+              ${this._cascade.render()}
+              <div class="flex items-center gap-2">
+                <button
+                  data-element-id=${ids.submit}
+                  type="button"
+                  class=${classesFor('submit-button', 'primary')}
+                  ?disabled=${this._formLoading}
+                  @click=${this._handleSubmitClick}
+                >
+                  Nuevo
+                </button>
+                ${this._renderCreateExtra()}
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        ${this._renderBelowForm()}
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id=${ids.nameFilter}
-          type="text"
-          placeholder=${this._nameFilterPlaceholder()}
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-        ${renderOptionSelect({
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+          <input
+            data-element-id=${ids.nameFilter}
+            type="text"
+            class=${classesFor('reactive-filter')}
+            placeholder=${this._nameFilterPlaceholder()}
+            .value=${this._nameFilter}
+            @input=${this._handleNameFilterInput}
+          />
+          ${renderOptionSelect({
           sketchNumber: ids.yearFilter, options: this._cascade.yearOptions, getId: (y) => y, getLabel: (y) => String(y),
           selectedValue: this._yearFilter, placeholder: 'Seleccionar año', onChange: this._handleYearFilterChange,
         })}
@@ -344,26 +354,28 @@ export abstract class NameCascadeCrudForm<Item extends NameCascadeItem> extends 
           selectedValue: this._moduleFilter, placeholder: 'Seleccionar módulo',
           disabled: this._cycleFilter === '', onChange: this._handleModuleFilterChange,
         })}
-      </fieldset>
+          </div>
+        </fieldset>
 
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id=${ids.table}>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Módulo</th>
-            <th>Ciclo</th>
-            <th>Legislación</th>
-            <th>Año de inicio</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>${this._emptyMessage()}</p>` : ''}
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id=${ids.table}>
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Nombre</th>
+              <th class=${classesFor('table-header-cell')}>Módulo</th>
+              <th class=${classesFor('table-header-cell')}>Ciclo</th>
+              <th class=${classesFor('table-header-cell')}>Legislación</th>
+              <th class=${classesFor('table-header-cell')}>Año de inicio</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>${this._emptyMessage()}</p>` : ''}
+      </div>
     `;
   }
 }

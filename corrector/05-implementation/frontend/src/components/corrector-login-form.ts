@@ -2,6 +2,8 @@ import { html, render } from 'lit-html';
 import { HttpAuthService } from '../services/auth.service';
 import type { AuthService, TeacherRole } from '../services/auth.service';
 import { LoginController } from '../controllers/login-controller';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 type Phase = 'login' | 'change-password';
 
@@ -30,6 +32,7 @@ export class CorrectorLoginForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new LoginController(this.authService ?? new HttpAuthService());
     this._render();
   }
@@ -148,60 +151,80 @@ export class CorrectorLoginForm extends HTMLElement {
 
   private _loginTemplate() {
     return html`
-      <div role="alert">${this._errorMessage}</div>
-      <input
-        data-element-id="1"
-        type="text"
-        placeholder="Usuario"
-        .value=${this._username}
-        aria-invalid=${this._usernameError ? 'true' : 'false'}
-        @input=${this._handleUsernameInput}
-        @keydown=${this._handleKeydown}
-      />
-      <input
-        data-element-id="2"
-        type="password"
-        placeholder="Contraseña"
-        .value=${this._password}
-        aria-invalid=${this._passwordError ? 'true' : 'false'}
-        @input=${this._handlePasswordInput}
-        @keydown=${this._handleKeydown}
-      />
-      <button
-        data-element-id="3"
-        ?disabled=${this._loading}
-        @click=${this._handleSubmitClick}
-      >
-        Acceder
-      </button>
+      <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="bg-white border border-gray-200 rounded shadow-sm p-8 w-full max-w-sm">
+          <h1 class="text-lg font-semibold text-gray-900 mb-6 text-center">Corrector de Proyectos</h1>
+          <div role="alert" class=${this._errorMessage ? classesFor('paragraph', 'danger') + ' mb-3' : ''}>${this._errorMessage}</div>
+          <div class="flex flex-col gap-3">
+            <input
+              data-element-id="1"
+              type="text"
+              class=${classesFor('text-input', this._usernameError ? 'danger' : undefined, 'lg')}
+              placeholder="Usuario"
+              .value=${this._username}
+              aria-invalid=${this._usernameError ? 'true' : 'false'}
+              @input=${this._handleUsernameInput}
+              @keydown=${this._handleKeydown}
+            />
+            <input
+              data-element-id="2"
+              type="password"
+              class=${classesFor('password-input', this._passwordError ? 'danger' : undefined, 'lg')}
+              placeholder="Contraseña"
+              .value=${this._password}
+              aria-invalid=${this._passwordError ? 'true' : 'false'}
+              @input=${this._handlePasswordInput}
+              @keydown=${this._handleKeydown}
+            />
+            <button
+              data-element-id="3"
+              class=${classesFor('submit-button', 'primary', 'lg')}
+              ?disabled=${this._loading}
+              @click=${this._handleSubmitClick}
+            >
+              Acceder
+            </button>
+          </div>
+        </div>
+      </div>
     `;
   }
 
   private _changePasswordTemplate() {
     return html`
-      <div role="alert">${this._errorMessage}</div>
-      <input data-element-id="2" type="password" disabled .value=${this._password} />
-      <input
-        type="password"
-        placeholder="Nueva contraseña"
-        .value=${this._newPassword}
-        @input=${this._handleNewPasswordInput}
-        @keydown=${this._handleKeydown}
-      />
-      <input
-        type="password"
-        placeholder="Confirmar contraseña"
-        .value=${this._confirmPassword}
-        @input=${this._handleConfirmPasswordInput}
-        @keydown=${this._handleKeydown}
-      />
-      <button
-        data-element-id="3"
-        ?disabled=${this._loading}
-        @click=${this._handleSubmitClick}
-      >
-        Cambiar contraseña
-      </button>
+      <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="bg-white border border-gray-200 rounded shadow-sm p-8 w-full max-w-sm">
+          <h1 class="text-lg font-semibold text-gray-900 mb-6 text-center">Cambiar contraseña</h1>
+          <div role="alert" class=${this._errorMessage ? classesFor('paragraph', 'danger') + ' mb-3' : ''}>${this._errorMessage}</div>
+          <div class="flex flex-col gap-3">
+            <input data-element-id="2" type="password" class=${classesFor('password-input', undefined, 'lg')} disabled .value=${this._password} />
+            <input
+              type="password"
+              class=${classesFor('password-input', undefined, 'lg')}
+              placeholder="Nueva contraseña"
+              .value=${this._newPassword}
+              @input=${this._handleNewPasswordInput}
+              @keydown=${this._handleKeydown}
+            />
+            <input
+              type="password"
+              class=${classesFor('password-input', undefined, 'lg')}
+              placeholder="Confirmar contraseña"
+              .value=${this._confirmPassword}
+              @input=${this._handleConfirmPasswordInput}
+              @keydown=${this._handleKeydown}
+            />
+            <button
+              data-element-id="3"
+              class=${classesFor('submit-button', 'primary', 'lg')}
+              ?disabled=${this._loading}
+              @click=${this._handleSubmitClick}
+            >
+              Cambiar contraseña
+            </button>
+          </div>
+        </div>
+      </div>
     `;
   }
 }

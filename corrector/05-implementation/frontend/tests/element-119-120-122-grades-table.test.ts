@@ -150,7 +150,7 @@ describe('Elements #119/#120/#122 — corrector-grades-view-form: table, print a
     const badges = el.shadowRoot!.querySelector('[data-element-id="122"]') as HTMLElement;
     const badge = badges.querySelector('span')!;
     expect(badge.textContent?.trim()).toBe('DEW');
-    expect(badge.getAttribute('style')).toContain('background:green');
+    expect(badge.getAttribute('data-status')).toBe('complete');
     el.remove();
   });
 
@@ -174,7 +174,7 @@ describe('Elements #119/#120/#122 — corrector-grades-view-form: table, print a
     await flush();
 
     const badge = (el.shadowRoot!.querySelector('[data-element-id="122"]') as HTMLElement).querySelector('span')!;
-    expect(badge.getAttribute('style')).toContain('background:red');
+    expect(badge.getAttribute('data-status')).toBe('incomplete');
     el.remove();
   });
 

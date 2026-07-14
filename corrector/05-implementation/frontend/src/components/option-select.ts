@@ -1,5 +1,6 @@
 import { html, nothing } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
+import { classesFor } from '../styles/classes-for';
 
 // Every cascade/filter <select> across the CRUD screens (Alumnos, Proyectos,
 // Profesorado, Ciclos, Módulos, Rúbrica, Corregir, Asignación) renders the
@@ -7,7 +8,8 @@ import type { TemplateResult } from 'lit-html';
 // current value pre-selected — even though the screens differ in how many
 // cascade levels they have and what order they're in. Extracted once that
 // markup showed up as real SonarCloud duplication (not just superficial
-// similarity) across all 8 files.
+// similarity) across all 8 files. Also the single point that applies
+// Tailwind classes to every <select> in the app — see docs/design-system.md.
 export interface OptionSelectProps<T> {
   sketchNumber: number;
   options: T[];
@@ -24,6 +26,7 @@ export function renderOptionSelect<T>(props: OptionSelectProps<T>): TemplateResu
   return html`
     <select
       data-element-id=${props.sketchNumber}
+      class=${classesFor('select', props.invalid ? 'danger' : undefined)}
       ?disabled=${props.disabled ?? false}
       aria-invalid=${props.invalid === undefined ? nothing : (props.invalid ? 'true' : 'false')}
       @change=${props.onChange}

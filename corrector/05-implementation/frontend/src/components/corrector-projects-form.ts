@@ -11,6 +11,9 @@ import type { GestionTab } from './gestion-nav';
 import { NameCascadeCrudForm } from '../controllers/name-cascade-crud-form';
 import type { NameCascadeController, NameCascadeSketchIds } from '../controllers/name-cascade-crud-form';
 import type { CascadeSketchNumbers } from '../controllers/form-cascade-engine';
+import { classesFor } from '../styles/classes-for';
+
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-projects-form
 // sketchNumbers: 61 (nombre), 62 (año — navegación, convertido a
@@ -69,13 +72,13 @@ export class CorrectorProjectsForm extends NameCascadeCrudForm<Project> {
   protected _rowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
-        <td>${row.name}</td>
-        <td>${row.moduleName}</td>
-        <td>${row.cycleName}</td>
-        <td>${row.legislationName ?? ''}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td><button data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}>${row.name}</td>
+        <td class=${TD_CLASS}>${row.moduleName}</td>
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.legislationName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -83,15 +86,15 @@ export class CorrectorProjectsForm extends NameCascadeCrudForm<Project> {
   protected _editRowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
-        <td><input type="text" .value=${this._editName} @input=${this._handleEditNameInput} /></td>
-        <td>${row.moduleName}</td>
-        <td>${row.cycleName}</td>
-        <td>${row.legislationName ?? ''}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>
-          <button data-action="save" ?disabled=${this._editLoading} @click=${() => this._handleSaveEditClick(row.id)}>Guardar</button>
+        <td class=${TD_CLASS}><input type="text" class=${classesFor('text-input')} .value=${this._editName} @input=${this._handleEditNameInput} /></td>
+        <td class=${TD_CLASS}>${row.moduleName}</td>
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.legislationName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>
+          <button class=${classesFor('button', 'secondary', 'sm')} data-action="save" ?disabled=${this._editLoading} @click=${() => this._handleSaveEditClick(row.id)}>Guardar</button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }

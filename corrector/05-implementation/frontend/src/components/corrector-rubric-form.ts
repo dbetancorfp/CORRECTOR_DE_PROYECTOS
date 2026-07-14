@@ -15,8 +15,11 @@ import type { GestionTab } from './gestion-nav';
 import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-rubric-form
 // sketchNumbers: 86 (filtro por nombre de módulo — narrows options in #90),
@@ -65,6 +68,7 @@ export class CorrectorRubricForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new RubricController(
       this.rubricService ?? new HttpRubricService(),
       this.legislationService ?? new HttpLegislationService(),
@@ -310,9 +314,10 @@ export class CorrectorRubricForm extends HTMLElement {
       if (!level) return html``;
       const readonly = name === 'Mal';
       return html`
-        <td data-element-id=${elementId ?? ''}>
+        <td class=${TD_CLASS} data-element-id=${elementId ?? ''}>
           <input
             type="number"
+            class=${classesFor('number-input')}
             .value=${String(level.score)}
             ?readonly=${readonly}
             ?disabled=${readonly}
@@ -326,73 +331,77 @@ export class CorrectorRubricForm extends HTMLElement {
     return html`
       ${renderGestionNav('rubrica', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <fieldset>
-        <legend>Filtrar por módulo:</legend>
-        <input data-element-id="86" type="text" placeholder="Filtrar por proyecto" .value=${this._moduleFilter} @input=${this._handleModuleFilterInput} />
-        ${renderOptionSelect({
-          sketchNumber: 87, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-          selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 88, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-          selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
-          disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 89, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-          selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
-          disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
-        })}
-        ${renderOptionSelect({
-          sketchNumber: 90, options: this._visibleModuleOptions(), getId: (m) => m.id, getLabel: (m) => m.name,
-          selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
-          disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
-        })}
-      </fieldset>
+      <div class="p-4">
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por módulo:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <input data-element-id="86" type="text" class=${classesFor('reactive-filter')} placeholder="Filtrar por proyecto" .value=${this._moduleFilter} @input=${this._handleModuleFilterInput} />
+            ${renderOptionSelect({
+              sketchNumber: 87, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+              selectedValue: this._selectedYear, placeholder: 'Seleccionar año', onChange: this._handleYearChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 88, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+              selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+              disabled: this._selectedYear === '', onChange: this._handleLegislationChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 89, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+              selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+              disabled: this._selectedLegislation === '', onChange: this._handleCycleChange,
+            })}
+            ${renderOptionSelect({
+              sketchNumber: 90, options: this._visibleModuleOptions(), getId: (m) => m.id, getLabel: (m) => m.name,
+              selectedValue: this._selectedModule, placeholder: 'Seleccionar módulo',
+              disabled: this._selectedCycle === '', onChange: this._handleModuleChange,
+            })}
+          </div>
+        </fieldset>
 
-      <fieldset>
-        <legend>${this._editingItemId === null ? 'Nuevo item:' : 'Editar item:'}</legend>
-        <div role="alert">${this._builderErrorMessage}</div>
-        <button type="button" data-element-id="91" ?disabled=${this._builderLevels.length >= MAX_LEVEL_COUNT} @click=${this._handleAddLevelClick}>Nuevo nivel</button>
-        <table class="rubrictable" data-element-id="92">
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">${this._editingItemId === null ? 'Nuevo item:' : 'Editar item:'}</legend>
+          <div role="alert" class=${this._builderErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._builderErrorMessage}</div>
+          <button type="button" class=${classesFor('button', 'secondary', 'sm') + ' mb-2'} data-element-id="91" ?disabled=${this._builderLevels.length >= MAX_LEVEL_COUNT} @click=${this._handleAddLevelClick}>Nuevo nivel</button>
+          <table class=${classesFor('table')} data-element-id="92">
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Item</th>
+              ${this._builderLevels.map((l) => html`<th class=${classesFor('table-header-cell')}>${l.name}</th>`)}
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+            <tr>
+              <td class=${TD_CLASS} data-element-id="93">
+                <input type="text" class=${classesFor('text-input')} .value=${this._builderDescription} @input=${this._handleBuilderDescriptionInput} />
+              </td>
+              ${levelCell('Excelente', '94')}
+              ${levelCell('Bien', '95')}
+              ${extraLevels.map((l) => levelCell(l.name))}
+              ${levelCell('Mal', '96')}
+              <td class=${TD_CLASS}><button type="button" class=${classesFor('icon-button', 'danger')} data-element-id="97" @click=${this._handleClearBuilderClick}>Icono borrar</button></td>
+            </tr>
+          </table>
+          <div class="flex items-center justify-between mt-3">
+            <button type="button" class=${classesFor('submit-button', 'primary')} data-element-id="98" ?disabled=${this._builderLoading || this._selectedModule === ''} @click=${this._handleSaveItemClick}>Añadir item</button>
+            <input data-element-id="99" type="file" class=${classesFor('file-upload')} accept=".csv,.json,.yaml,.yml" ?disabled=${this._uploadLoading || this._selectedModule === ''} @change=${this._handleUploadChange} />
+          </div>
+          <div role="alert" class=${this._uploadErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._uploadErrorMessage}</div>
+        </fieldset>
+
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id="100">
           <tr>
-            <th>Item</th>
-            ${this._builderLevels.map((l) => html`<th>${l.name}</th>`)}
-            <th>Borrar</th>
+            <th class=${classesFor('table-header-cell')}>Item</th>
+            <th class=${classesFor('table-header-cell')}>Excelente</th>
+            <th class=${classesFor('table-header-cell')}>Muy bien</th>
+            <th class=${classesFor('table-header-cell')}>Bien</th>
+            <th class=${classesFor('table-header-cell')}>Regular</th>
+            <th class=${classesFor('table-header-cell')}>Mal</th>
+            <th class=${classesFor('table-header-cell')}>Editar</th>
+            <th class=${classesFor('table-header-cell')}>Borrar</th>
           </tr>
-          <tr>
-            <td data-element-id="93">
-              <input type="text" .value=${this._builderDescription} @input=${this._handleBuilderDescriptionInput} />
-            </td>
-            ${levelCell('Excelente', '94')}
-            ${levelCell('Bien', '95')}
-            ${extraLevels.map((l) => levelCell(l.name))}
-            ${levelCell('Mal', '96')}
-            <td><button type="button" data-element-id="97" @click=${this._handleClearBuilderClick}>Icono borrar</button></td>
-          </tr>
+          ${this._items.map((item) => this._rowTemplate(item))}
         </table>
-        <div class="buttons-to-extreme">
-          <button type="button" data-element-id="98" ?disabled=${this._builderLoading || this._selectedModule === ''} @click=${this._handleSaveItemClick}>Añadir item</button>
-          <input data-element-id="99" type="file" accept=".csv,.json,.yaml,.yml" ?disabled=${this._uploadLoading || this._selectedModule === ''} @change=${this._handleUploadChange} />
-        </div>
-        <div role="alert">${this._uploadErrorMessage}</div>
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table style="border: 1px solid black; border-collapse: collapse;" data-element-id="100">
-        <tr>
-          <th>Item</th>
-          <th>Excelente</th>
-          <th>Muy bien</th>
-          <th>Bien</th>
-          <th>Regular</th>
-          <th>Mal</th>
-          <th>Editar</th>
-          <th>Borrar</th>
-        </tr>
-        ${this._items.map((item) => this._rowTemplate(item))}
-      </table>
-      ${this._items.length === 0 ? html`<p>No hay ítems en la rúbrica</p>` : ''}
+        ${this._items.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay ítems en la rúbrica</p>` : ''}
+      </div>
     `;
   }
 
@@ -403,14 +412,14 @@ export class CorrectorRubricForm extends HTMLElement {
     };
     return html`
       <tr>
-        <td>${item.description}</td>
-        <td>${scoreFor('Excelente')}</td>
-        <td>${scoreFor('Muy bien')}</td>
-        <td>${scoreFor('Bien')}</td>
-        <td>${scoreFor('Regular')}</td>
-        <td>${scoreFor('Mal')}</td>
-        <td><button data-action="edit" @click=${() => this._handleEditRowClick(item)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteRowClick(item)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}>${item.description}</td>
+        <td class=${TD_CLASS}>${scoreFor('Excelente')}</td>
+        <td class=${TD_CLASS}>${scoreFor('Muy bien')}</td>
+        <td class=${TD_CLASS}>${scoreFor('Bien')}</td>
+        <td class=${TD_CLASS}>${scoreFor('Regular')}</td>
+        <td class=${TD_CLASS}>${scoreFor('Mal')}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._handleEditRowClick(item)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteRowClick(item)}>Icono borrar</button></td>
       </tr>
     `;
   }

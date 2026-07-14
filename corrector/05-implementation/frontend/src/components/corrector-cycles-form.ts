@@ -13,8 +13,11 @@ import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
 import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-cycles-form
 // sketchNumbers: 12 (tab), 13 (nombre), 14 (selector año — navegación), 15
@@ -59,6 +62,7 @@ export class CorrectorCyclesForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new CycleController(
       this.cycleService ?? new HttpCycleService(),
       this.legislationService ?? new HttpLegislationService(),
@@ -216,87 +220,98 @@ export class CorrectorCyclesForm extends HTMLElement {
     return html`
       ${renderAdminNav('ciclos', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nuevo ciclo:</legend>
-          <input
-            data-element-id="13"
-            type="text"
-            placeholder="Nombre del ciclo"
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-          />
-          ${renderOptionSelect({
-            sketchNumber: 14, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
-            invalid: this._yearError, onChange: this._handleYearChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 15, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
-            disabled: this._selectedYear === '', invalid: this._legislationError, onChange: this._handleLegislationChange,
-          })}
-          <button
-            data-element-id="16"
-            type="button"
-            ?disabled=${this._formLoading}
-            @click=${this._handleSubmitClick}
-          >
-            Guardar
-          </button>
+      <div class="p-4">
+        <div role="alert" class=${this._formErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._formErrorMessage}</div>
+        <form>
+          <fieldset class="border border-gray-200 rounded p-4 mb-4">
+            <legend class="font-medium text-gray-900 px-1">Nuevo ciclo:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input
+                data-element-id="13"
+                type="text"
+                class=${classesFor('text-input', this._nameError ? 'danger' : undefined)}
+                placeholder="Nombre del ciclo"
+                .value=${this._name}
+                aria-invalid=${this._nameError ? 'true' : 'false'}
+                @input=${this._handleNameInput}
+              />
+              ${renderOptionSelect({
+                sketchNumber: 14, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+                selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
+                invalid: this._yearError, onChange: this._handleYearChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 15, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+                selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+                disabled: this._selectedYear === '', invalid: this._legislationError, onChange: this._handleLegislationChange,
+              })}
+              <button
+                data-element-id="16"
+                type="button"
+                class=${classesFor('submit-button', 'primary')}
+                ?disabled=${this._formLoading}
+                @click=${this._handleSubmitClick}
+              >
+                Guardar
+              </button>
+            </div>
+          </fieldset>
+        </form>
+
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <input
+              data-element-id="17"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por año de inicio de la legislación"
+              .value=${this._yearFilter}
+              @input=${this._handleYearFilterInput}
+            />
+            <input
+              data-element-id="18"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por legislación"
+              .value=${this._legislationFilter}
+              @input=${this._handleLegislationFilterInput}
+            />
+            <input
+              data-element-id="19"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por ciclo"
+              .value=${this._nameFilter}
+              @input=${this._handleNameFilterInput}
+            />
+          </div>
         </fieldset>
-      </form>
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="17"
-          type="text"
-          placeholder="Filtrar por año de inicio de la legislación"
-          .value=${this._yearFilter}
-          @input=${this._handleYearFilterInput}
-        />
-        <input
-          data-element-id="18"
-          type="text"
-          placeholder="Filtrar por legislación"
-          .value=${this._legislationFilter}
-          @input=${this._handleLegislationFilterInput}
-        />
-        <input
-          data-element-id="19"
-          type="text"
-          placeholder="Filtrar por ciclo"
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="20">
-        <thead>
-          <tr>
-            <th>Ciclo</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay ciclos registrados</p>` : ''}
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id="20">
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Ciclo</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay ciclos registrados</p>` : ''}
+      </div>
     `;
   }
 
   private _rowTemplate(row: Cycle): TemplateResult {
     return html`
       <tr>
-        <td>${row.name}</td>
-        <td><button data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}>${row.name}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -304,15 +319,17 @@ export class CorrectorCyclesForm extends HTMLElement {
   private _editRowTemplate(row: Cycle): TemplateResult {
     return html`
       <tr>
-        <td>
+        <td class=${TD_CLASS}>
           <input
             type="text"
+            class=${classesFor('text-input')}
             .value=${this._editName}
             @input=${this._handleEditNameInput}
           />
         </td>
-        <td>
+        <td class=${TD_CLASS}>
           <button
+            class=${classesFor('button', 'secondary', 'sm')}
             data-action="save"
             ?disabled=${this._editLoading}
             @click=${() => this._handleSaveEditClick(row.id)}
@@ -320,7 +337,7 @@ export class CorrectorCyclesForm extends HTMLElement {
             Guardar
           </button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }

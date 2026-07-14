@@ -2,6 +2,8 @@ import { html, render } from 'lit-html';
 import { HttpAuthService } from '../services/auth.service';
 import type { AuthService, TeacherRole } from '../services/auth.service';
 import { ProfesorLandingController } from '../controllers/profesor-landing-controller';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 // corrector-profesor-landing
 // sketchNumber: 47 (Imprimir notas — tutor only)
@@ -23,6 +25,7 @@ export class CorrectorProfesorLanding extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new ProfesorLandingController(this.authService ?? new HttpAuthService());
     this._render();
     void this._loadRole();
@@ -72,17 +75,17 @@ export class CorrectorProfesorLanding extends HTMLElement {
 
   private _template() {
     return html`
-      <nav>
-        <span>Corrector de proyectos</span>
-        <span>Bienvenido</span>
-        <button data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
+      <nav class=${classesFor('nav')}>
+        <span class="font-semibold text-gray-900">Corrector de proyectos</span>
+        <span class="text-gray-600">Bienvenido</span>
+        <button class=${classesFor('button', 'secondary', 'sm')} data-action="logout" @click=${this._handleLogoutClick}>Salir</button>
       </nav>
-      <section class="landing-actions">
-        <button type="button" data-action="navigate-gestionar" @click=${this._handleGestionarClick}>Gestionar</button>
-        <button type="button" data-action="navigate-corregir" @click=${this._handleCorregirClick}>Corregir</button>
-        <button type="button" data-action="navigate-notas" @click=${this._handleVerNotasClick}>Visualizar notas</button>
+      <section class="landing-actions p-8 flex flex-col gap-3 max-w-sm mx-auto">
+        <button type="button" class=${classesFor('button', 'primary', 'lg')} data-action="navigate-gestionar" @click=${this._handleGestionarClick}>Gestionar</button>
+        <button type="button" class=${classesFor('button', 'primary', 'lg')} data-action="navigate-corregir" @click=${this._handleCorregirClick}>Corregir</button>
+        <button type="button" class=${classesFor('button', 'primary', 'lg')} data-action="navigate-notas" @click=${this._handleVerNotasClick}>Visualizar notas</button>
         ${this._role === 'tutor'
-          ? html`<button type="button" data-element-id="47" @click=${this._handlePrintNotesClick}>Imprimir notas</button>`
+          ? html`<button type="button" class=${classesFor('button', 'secondary', 'lg')} data-element-id="47" @click=${this._handlePrintNotesClick}>Imprimir notas</button>`
           : ''}
       </section>
     `;

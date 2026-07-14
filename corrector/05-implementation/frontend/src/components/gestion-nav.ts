@@ -1,5 +1,6 @@
 import { html } from 'lit-html';
 import type { TemplateResult } from 'lit-html';
+import { classesFor } from '../styles/classes-for';
 
 // Shared nav + 4-tab bar for the Profesor "Gestionar" screens. Same reasoning
 // as admin-nav.ts: a plain template function rendered into the caller's own
@@ -40,21 +41,22 @@ export function renderGestionNav(
   onNavigate: (tab: GestionTab) => void,
 ): TemplateResult {
   return html`
-    <nav>
-      <span>Corrector de proyectos</span>
-      <button data-action="logout" @click=${onLogout}>Salir</button>
+    <nav class=${classesFor('nav')}>
+      <span class="font-semibold text-gray-900">Corrector de proyectos</span>
+      <button class=${classesFor('button', 'secondary', 'sm')} data-action="logout" @click=${onLogout}>Salir</button>
     </nav>
-    <h2>Gestión</h2>
-    <div class="tabs">
+    <h2 class="text-lg font-semibold text-gray-900 px-4 pt-3">Gestión</h2>
+    <div class="tabs flex border-b border-gray-200 px-4">
       ${TAB_ORDER.map((tab) => {
         const dataAction = `tab-${tab}`;
+        const tabClass = `px-4 py-2 ${classesFor('tab', tab === activeTab ? 'primary' : undefined)}`;
         if (tab === activeTab) {
-          return html`<button data-action=${dataAction} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
+          return html`<button class=${tabClass} data-action=${dataAction} role="tab" aria-selected="true">${TAB_LABELS[tab]}</button>`;
         }
         if (!TAB_IMPLEMENTED[tab]) {
-          return html`<button data-action=${dataAction} role="tab" aria-selected="false" disabled>${TAB_LABELS[tab]}</button>`;
+          return html`<button class=${tabClass} data-action=${dataAction} role="tab" aria-selected="false" disabled>${TAB_LABELS[tab]}</button>`;
         }
-        return html`<button data-action=${dataAction} role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
+        return html`<button class=${tabClass} data-action=${dataAction} role="tab" aria-selected="false" @click=${() => onNavigate(tab)}>${TAB_LABELS[tab]}</button>`;
       })}
     </div>
   `;

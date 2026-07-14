@@ -84,6 +84,34 @@ Usa estos tipos **exactamente** (son los valores del enum del schema):
 
 ---
 
+## Sistema de diseño visual
+
+Lee `docs/design-system.md` — es la fuente única de verdad de la paleta,
+la escala de tamaños y la tabla tipo → variant/size. Asigna
+`props.variant` y `props.size` (cuando el tipo los admite, ver esa tabla)
+a **todo** elemento visual o interactivo, no solo botones — hoy la mayoría
+de `select`/`text-input`/`checkbox`/`table` no llevan ninguno de los dos y
+quedan sin ningún gancho visual. Reglas:
+
+- `variant` reutiliza el enum ya existente en el schema (`primary |
+  secondary | danger | ghost | link`) — **nunca** un valor fuera de ese
+  enum. Por tipo (ver `docs/design-system.md`): botones `primary` (o se
+  omite), inputs/selects se omite salvo que el elemento deba mostrar
+  estado de error → `danger`; tabs se omite (inactivo) salvo el tab activo
+  de cada pantalla → `primary`; iconos de borrar → `danger`; el resto se
+  omite.
+- `size` solo en los tipos marcados como "interactivos" en esa tabla
+  (`button`, `submit-button`, `icon-button`, `text-input`,
+  `password-input`, `number-input`, `select`, `reactive-filter`,
+  `file-upload`) — `md` por defecto salvo que el boceto sugiera otro
+  tamaño (p. ej. un botón de acción secundaria más pequeño → `sm`).
+- **Nunca** inventes un `type`, `variant` o clase Tailwind fuera de esa
+  tabla — si un elemento no encaja en ningún tipo existente, pregúntale al
+  usuario antes de añadir uno nuevo (y actualiza `docs/design-system.md` +
+  `classes-for.ts` primero, no lo dejes para el Agente 7).
+
+---
+
 ## Estructura de salida: UISpecSchema
 
 El JSON final debe seguir exactamente esta estructura:
@@ -258,8 +286,9 @@ Lee estos ficheros **antes de procesar ninguna pantalla**:
 
 1. `corrector/01-boceto/boceto-metadata.json` — lista de pantallas y sus sketchNumbers
 2. `corrector/01-boceto/html-source-prototype/boceto-elements.md` — registro de todos los elementos
-3. `corrector/03-generated-artifacts/ui-spec.json` (si existe) — para evitar sobreescribir trabajo previo; si existe pregunta al usuario antes de continuar
-4. **Especificaciones técnicas JavaScript** — lee los siguientes ficheros para conocer los patrones de implementación que guiarán las `interactions` y `props` de cada componente:
+3. `docs/design-system.md` — paleta, escala de tamaños y tabla tipo → variant/size (ver sección "Sistema de diseño visual" más abajo)
+4. `corrector/03-generated-artifacts/ui-spec.json` (si existe) — para evitar sobreescribir trabajo previo; si existe pregunta al usuario antes de continuar
+5. **Especificaciones técnicas JavaScript** — lee los siguientes ficheros para conocer los patrones de implementación que guiarán las `interactions` y `props` de cada componente:
    - `corrector/00-especificaciones-tecnicas/dom-y-web-components.md` — Custom Elements, Shadow DOM, ciclo de vida, disposables, composedPath, slots
    - `corrector/00-especificaciones-tecnicas/web-components-avanzados-y-performance.md` — CustomEvent con bubbles/composed, arquitectura presentacional/contenedor/servicio, Core Web Vitals
 
@@ -274,7 +303,7 @@ Para cada pantalla del array `screens` en boceto-metadata.json (en orden):
 3. Para **cada elemento** anotado con `data-element-id` en el HTML:
    - Asigna el `sketchNumber` exacto del atributo `data-element-id`
    - Clasifica el `type` usando la tabla de clasificación
-   - Documenta `label`, `props`, `states` (mínimo 2), `interactions`, `accessibility`, `validation` (si aplica), `depends_on` (si aplica), `note` (si aplica)
+   - Documenta `label`, `props` (incluyendo siempre `variant`/`size` según "Sistema de diseño visual" más arriba), `states` (mínimo 2), `interactions`, `accessibility`, `validation` (si aplica), `depends_on` (si aplica), `note` (si aplica)
    - Aplica las reglas de dominio críticas para los elementos #49, #53, #77, #85–#88
 4. Incluye **todos** los sketchNumbers listados para esa pantalla — cero omisiones
 

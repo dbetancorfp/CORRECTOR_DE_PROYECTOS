@@ -17,8 +17,11 @@ import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
 import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-teachers-form
 // sketchNumbers: 34 (tab), 35 (usuario), 36 (contraseña), 37 (año —
@@ -60,6 +63,7 @@ export class CorrectorTeachersForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     const legislationService = this.legislationService ?? new HttpLegislationService();
     const cycleService = this.cycleService ?? new HttpCycleService();
     const moduleService = this.moduleService ?? new HttpModuleService();
@@ -245,88 +249,101 @@ export class CorrectorTeachersForm extends HTMLElement {
     return html`
       ${renderAdminNav('profesorado', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nuevo profesor:</legend>
-          <input
-            data-element-id="35"
-            type="text"
-            placeholder="Nombre de usuario"
-            .value=${this._username}
-            aria-invalid=${this._usernameError ? 'true' : 'false'}
-            @input=${this._handleUsernameInput}
-          />
-          <input
-            data-element-id="36"
-            type="password"
-            placeholder="Contraseña"
-            .value=${this._password}
-            aria-invalid=${this._passwordError ? 'true' : 'false'}
-            @input=${this._handlePasswordInput}
-          />
-          ${this._cascade.render()}
-          <button
-            data-element-id="41"
-            type="button"
-            ?disabled=${this._formLoading}
-            @click=${this._handleSubmitClick}
-          >
-            Guardar
-          </button>
+      <div class="p-4">
+        <div role="alert" class=${this._formErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._formErrorMessage}</div>
+        <form>
+          <fieldset class="border border-gray-200 rounded p-4 mb-4">
+            <legend class="font-medium text-gray-900 px-1">Nuevo profesor:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input
+                data-element-id="35"
+                type="text"
+                class=${classesFor('text-input', this._usernameError ? 'danger' : undefined)}
+                placeholder="Nombre de usuario"
+                .value=${this._username}
+                aria-invalid=${this._usernameError ? 'true' : 'false'}
+                @input=${this._handleUsernameInput}
+              />
+              <input
+                data-element-id="36"
+                type="password"
+                class=${classesFor('password-input', this._passwordError ? 'danger' : undefined)}
+                placeholder="Contraseña"
+                .value=${this._password}
+                aria-invalid=${this._passwordError ? 'true' : 'false'}
+                @input=${this._handlePasswordInput}
+              />
+              ${this._cascade.render()}
+              <button
+                data-element-id="41"
+                type="button"
+                class=${classesFor('submit-button', 'primary')}
+                ?disabled=${this._formLoading}
+                @click=${this._handleSubmitClick}
+              >
+                Guardar
+              </button>
+            </div>
+          </fieldset>
+        </form>
+
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <input
+              data-element-id="42"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por año de inicio"
+              .value=${this._yearFilter}
+              @input=${this._handleYearFilterInput}
+            />
+            <input
+              data-element-id="43"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por legislación"
+              .value=${this._legislationFilter}
+              @input=${this._handleLegislationFilterInput}
+            />
+            <input
+              data-element-id="44"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por ciclo"
+              .value=${this._cycleFilter}
+              @input=${this._handleCycleFilterInput}
+            />
+            <input
+              data-element-id="45"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por módulo"
+              .value=${this._moduleFilter}
+              @input=${this._handleModuleFilterInput}
+            />
+          </div>
         </fieldset>
-      </form>
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="42"
-          type="text"
-          placeholder="Filtrar por año de inicio"
-          .value=${this._yearFilter}
-          @input=${this._handleYearFilterInput}
-        />
-        <input
-          data-element-id="43"
-          type="text"
-          placeholder="Filtrar por legislación"
-          .value=${this._legislationFilter}
-          @input=${this._handleLegislationFilterInput}
-        />
-        <input
-          data-element-id="44"
-          type="text"
-          placeholder="Filtrar por ciclo"
-          .value=${this._cycleFilter}
-          @input=${this._handleCycleFilterInput}
-        />
-        <input
-          data-element-id="45"
-          type="text"
-          placeholder="Filtrar por módulo"
-          .value=${this._moduleFilter}
-          @input=${this._handleModuleFilterInput}
-        />
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="46">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Contraseña</th>
-            <th>Año</th>
-            <th>Ciclo</th>
-            <th>Módulos</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay profesores registrados</p>` : ''}
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id="46">
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Usuario</th>
+              <th class=${classesFor('table-header-cell')}>Contraseña</th>
+              <th class=${classesFor('table-header-cell')}>Año</th>
+              <th class=${classesFor('table-header-cell')}>Ciclo</th>
+              <th class=${classesFor('table-header-cell')}>Módulos</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay profesores registrados</p>` : ''}
+      </div>
     `;
   }
 
@@ -334,16 +351,16 @@ export class CorrectorTeachersForm extends HTMLElement {
     const passwordDisplay = row.passwordStatus === 'default' ? '12345678' : '********';
     return html`
       <tr>
-        <td>${row.username}</td>
-        <td>${passwordDisplay}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>${row.cycleName ?? ''}</td>
-        <td>${row.modules.map((m) => m.name).join(', ')}</td>
-        <td>
-          <button data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button>
-          ${row.accountLocked ? html`<button data-action="unlock" @click=${() => this._handleUnlockClick(row)}>Desbloquear</button>` : ''}
+        <td class=${TD_CLASS}>${row.username}</td>
+        <td class=${TD_CLASS}>${passwordDisplay}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>${row.cycleName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.modules.map((m) => m.name).join(', ')}</td>
+        <td class=${TD_CLASS}>
+          <button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button>
+          ${row.accountLocked ? html`<button class=${classesFor('button', 'secondary', 'sm')} data-action="unlock" @click=${() => this._handleUnlockClick(row)}>Desbloquear</button>` : ''}
         </td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -352,15 +369,16 @@ export class CorrectorTeachersForm extends HTMLElement {
     const passwordDisplay = row.passwordStatus === 'default' ? '12345678' : '********';
     return html`
       <tr>
-        <td>
-          <input type="text" .value=${this._editUsername} @input=${this._handleEditUsernameInput} />
+        <td class=${TD_CLASS}>
+          <input type="text" class=${classesFor('text-input')} .value=${this._editUsername} @input=${this._handleEditUsernameInput} />
         </td>
-        <td>${passwordDisplay}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>${row.cycleName ?? ''}</td>
-        <td>${row.modules.map((m) => m.name).join(', ')}</td>
-        <td>
+        <td class=${TD_CLASS}>${passwordDisplay}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>${row.cycleName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.modules.map((m) => m.name).join(', ')}</td>
+        <td class=${TD_CLASS}>
           <button
+            class=${classesFor('button', 'secondary', 'sm')}
             data-action="save"
             ?disabled=${this._editLoading}
             @click=${() => this._handleSaveEditClick(row.id)}
@@ -368,7 +386,7 @@ export class CorrectorTeachersForm extends HTMLElement {
             Guardar
           </button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }

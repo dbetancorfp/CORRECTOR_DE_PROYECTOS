@@ -20,7 +20,7 @@
           "sketchNumber": 1,
           "type": "text-input",
           "label": "Usuario",
-          "props": { "placeholder": "Usuario", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Usuario", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field on first render", "visual_cues": ["placeholder text visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User is typing their username", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into the field" },
@@ -39,7 +39,7 @@
           "sketchNumber": 2,
           "type": "password-input",
           "label": "Contraseña",
-          "props": { "placeholder": "Contraseña", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Contraseña", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty password field", "visual_cues": ["placeholder text visible", "characters masked"], "condition": "Initial render" },
             { "name": "focus", "description": "User is entering password", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into field" },
@@ -100,7 +100,7 @@
           "sketchNumber": 5,
           "type": "text-input",
           "label": "Siglas",
-          "props": { "placeholder": "Nombre del ciclo", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del ciclo", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field ready to receive siglas", "visual_cues": ["placeholder visible"], "condition": "Initial render or after save" },
             { "name": "focus", "description": "User is typing abbreviation", "visual_cues": ["focus ring visible"], "condition": "User clicks or tabs into field" },
@@ -121,7 +121,7 @@
           "sketchNumber": 6,
           "type": "number-input",
           "label": "Año de inicio",
-          "props": { "placeholder": "Año de inicio de la legislación", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Año de inicio de la legislación", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User is entering year", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
@@ -156,7 +156,7 @@
           "sketchNumber": 8,
           "type": "reactive-filter",
           "label": "Filtrar por año de inicio",
-          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por año de inicio", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User is typing filter value", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
@@ -171,7 +171,7 @@
           "sketchNumber": 9,
           "type": "reactive-filter",
           "label": "Filtrar por legislación",
-          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por legislación", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User is typing", "visual_cues": ["focus ring visible"], "condition": "User clicks into field" },
@@ -242,7 +242,7 @@
           "sketchNumber": 13,
           "type": "text-input",
           "label": "Nombre del ciclo",
-          "props": { "placeholder": "Nombre del ciclo", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del ciclo", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing cycle name", "visual_cues": ["focus ring"], "condition": "Field clicked or tabbed" },
@@ -262,7 +262,7 @@
           "sketchNumber": 14,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder option shown"], "condition": "Initial render" },
             { "name": "focus", "description": "Dropdown open", "visual_cues": ["focus ring", "options list visible"], "condition": "User clicks select" },
@@ -281,7 +281,7 @@
           "sketchNumber": 15,
           "type": "select",
           "label": "Filtrar por legislación",
-          "props": { "placeholder": "Filtrar por legislación", "is_read_only": false },
+          "props": { "placeholder": "Filtrar por legislación", "size": "md", "is_read_only": false },
           "note": "Navigation filter only — the cycle entity has no legislation FK. Selecting a value narrows available options but is not persisted.",
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder option shown"], "condition": "Initial render" },
@@ -318,7 +318,7 @@
           "sketchNumber": 17,
           "type": "reactive-filter",
           "label": "Filtrar por año de inicio",
-          "props": { "placeholder": "Filtrar por año de inicio de la legislación", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por año de inicio de la legislación", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by year", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
@@ -332,7 +332,7 @@
           "sketchNumber": 18,
           "type": "reactive-filter",
           "label": "Filtrar por legislación",
-          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por legislación", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by legislation name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
@@ -346,7 +346,7 @@
           "sketchNumber": 19,
           "type": "reactive-filter",
           "label": "Filtrar por ciclo",
-          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por ciclo", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rows visible", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by cycle name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User has typed" }
@@ -414,7 +414,7 @@
           "sketchNumber": 23,
           "type": "text-input",
           "label": "Nombre del módulo",
-          "props": { "placeholder": "Nombre del módulo", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del módulo", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing module name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
@@ -432,7 +432,7 @@
           "sketchNumber": 24,
           "type": "number-input",
           "label": "Horas semanales",
-          "props": { "placeholder": "Horas semanales", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Horas semanales", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing hours", "visual_cues": ["focus ring"], "condition": "Field clicked" },
@@ -450,7 +450,7 @@
           "sketchNumber": 25,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["selected value shown"], "condition": "User picks option" },
@@ -466,7 +466,7 @@
           "sketchNumber": 26,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
@@ -482,7 +482,7 @@
           "sketchNumber": 27,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder option"], "condition": "Initial render" },
             { "name": "disabled", "description": "No legislation or year selected yet", "visual_cues": ["greyed out", "not interactive"], "condition": "Parent selects #25 or #26 have no value" },
@@ -514,7 +514,7 @@
           "sketchNumber": 29,
           "type": "reactive-filter",
           "label": "Filtrar por año de inicio",
-          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por año de inicio", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by year", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -528,7 +528,7 @@
           "sketchNumber": 30,
           "type": "reactive-filter",
           "label": "Filtrar por legislación",
-          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por legislación", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by legislation", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -542,7 +542,7 @@
           "sketchNumber": 31,
           "type": "reactive-filter",
           "label": "Filtrar por ciclo",
-          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por ciclo", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by ciclo", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -556,7 +556,7 @@
           "sketchNumber": 32,
           "type": "reactive-filter",
           "label": "Filtrar por módulo",
-          "props": { "placeholder": "Filtrar por módulo", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por módulo", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by module name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -612,7 +612,7 @@
           "sketchNumber": 35,
           "type": "text-input",
           "label": "Nombre del profesor",
-          "props": { "placeholder": "Nombre del profesor", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del profesor", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing username", "visual_cues": ["focus ring"], "condition": "Field clicked" },
@@ -630,7 +630,7 @@
           "sketchNumber": 36,
           "type": "password-input",
           "label": "Contraseña",
-          "props": { "placeholder": "Contraseña", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Contraseña", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty password field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User entering password", "visual_cues": ["focus ring", "masked characters"], "condition": "Field clicked" },
@@ -647,7 +647,7 @@
           "sketchNumber": 37,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
@@ -663,7 +663,7 @@
           "sketchNumber": 38,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
@@ -680,7 +680,7 @@
           "sketchNumber": 39,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for parent selects", "visual_cues": ["greyed out"], "condition": "#37 or #38 have no value" },
@@ -698,7 +698,7 @@
           "sketchNumber": 40,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#39 has no value" },
@@ -730,7 +730,7 @@
           "sketchNumber": 42,
           "type": "reactive-filter",
           "label": "Filtrar por año de inicio",
-          "props": { "placeholder": "Filtrar por año de inicio", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por año de inicio", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -744,7 +744,7 @@
           "sketchNumber": 43,
           "type": "reactive-filter",
           "label": "Filtrar por legislación",
-          "props": { "placeholder": "Filtrar por legislación", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por legislación", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -758,7 +758,7 @@
           "sketchNumber": 44,
           "type": "reactive-filter",
           "label": "Filtrar por ciclo",
-          "props": { "placeholder": "Filtrar por ciclo", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por ciclo", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -772,7 +772,7 @@
           "sketchNumber": 45,
           "type": "reactive-filter",
           "label": "Filtrar por módulo",
-          "props": { "placeholder": "Filtrar por módulo", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por módulo", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty filter", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering active", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -842,7 +842,7 @@
           "sketchNumber": 48,
           "type": "text-input",
           "label": "Nombre del alumno",
-          "props": { "placeholder": "Nombre del alumno", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del alumno", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing student name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
@@ -860,7 +860,7 @@
           "sketchNumber": 49,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
@@ -876,7 +876,7 @@
           "sketchNumber": 50,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
@@ -893,7 +893,7 @@
           "sketchNumber": 51,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for legislation selection", "visual_cues": ["greyed out"], "condition": "#50 has no value" },
@@ -911,7 +911,7 @@
           "sketchNumber": 52,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#51 has no value" },
@@ -942,7 +942,7 @@
           "sketchNumber": 54,
           "type": "file-upload",
           "label": "Subir lista de alumnos",
-          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.json,.yaml,.yml" },
+          "props": { "variant": "secondary", "icon": "upload", "size": "md", "accepts": ".csv, .json, .yaml, .yml" },
           "states": [
             { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
             { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
@@ -958,7 +958,7 @@
           "sketchNumber": 55,
           "type": "reactive-filter",
           "label": "Filtrar por nombre",
-          "props": { "placeholder": "Filtrar por nombre", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por nombre", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by student name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -972,7 +972,7 @@
           "sketchNumber": 56,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -986,7 +986,7 @@
           "sketchNumber": 57,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1000,7 +1000,7 @@
           "sketchNumber": 58,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
@@ -1015,7 +1015,7 @@
           "sketchNumber": 59,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
@@ -1058,7 +1058,7 @@
           "sketchNumber": 61,
           "type": "text-input",
           "label": "Nombre del proyecto",
-          "props": { "placeholder": "Nombre del proyecto", "is_read_only": false, "is_editable": true },
+          "props": { "placeholder": "Nombre del proyecto", "size": "md", "is_read_only": false, "is_editable": true },
           "states": [
             { "name": "default", "description": "Empty field", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "focus", "description": "User typing project name", "visual_cues": ["focus ring"], "condition": "Field clicked" },
@@ -1076,7 +1076,7 @@
           "sketchNumber": 62,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" },
@@ -1092,7 +1092,7 @@
           "sketchNumber": 63,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" },
@@ -1109,7 +1109,7 @@
           "sketchNumber": 64,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for legislation selection", "visual_cues": ["greyed out"], "condition": "#63 has no value" },
@@ -1127,7 +1127,7 @@
           "sketchNumber": 65,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#64 has no value" },
@@ -1158,7 +1158,7 @@
           "sketchNumber": 67,
           "type": "reactive-filter",
           "label": "Filtrar por proyecto",
-          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por proyecto", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rows shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by project name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -1172,7 +1172,7 @@
           "sketchNumber": 68,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1186,7 +1186,7 @@
           "sketchNumber": 69,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1200,7 +1200,7 @@
           "sketchNumber": 70,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
@@ -1215,7 +1215,7 @@
           "sketchNumber": 71,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter applied", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
@@ -1258,7 +1258,7 @@
           "sketchNumber": 73,
           "type": "reactive-filter",
           "label": "Filtrar por proyecto",
-          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por proyecto", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all projects shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by project name", "visual_cues": ["non-empty text", "filtered"], "condition": "User typed" }
@@ -1272,7 +1272,7 @@
           "sketchNumber": 74,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No project-year filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1286,7 +1286,7 @@
           "sketchNumber": 75,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1300,7 +1300,7 @@
           "sketchNumber": 76,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
@@ -1315,7 +1315,7 @@
           "sketchNumber": 77,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
@@ -1330,7 +1330,7 @@
           "sketchNumber": 78,
           "type": "reactive-filter",
           "label": "Filtrar por nombre",
-          "props": { "placeholder": "Filtrar por nombre", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por nombre", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all students shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering students by name", "visual_cues": ["non-empty text", "filtered"], "condition": "User typed" }
@@ -1344,7 +1344,7 @@
           "sketchNumber": 79,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No student-year filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year filter active", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1358,7 +1358,7 @@
           "sketchNumber": 80,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1372,7 +1372,7 @@
           "sketchNumber": 81,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Ciclo filter active", "visual_cues": ["ciclo shown"], "condition": "User picks option" }
@@ -1387,7 +1387,7 @@
           "sketchNumber": 82,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Module filter active", "visual_cues": ["module shown"], "condition": "User picks option" }
@@ -1472,7 +1472,7 @@
           "sketchNumber": 86,
           "type": "reactive-filter",
           "label": "Filtrar por proyecto",
-          "props": { "placeholder": "Filtrar por proyecto", "is_reactive": true, "debounce_ms": 300 },
+          "props": { "placeholder": "Filtrar por proyecto", "size": "md", "is_reactive": true, "debounce_ms": 300 },
           "states": [
             { "name": "default", "description": "Empty, all rubric items shown", "visual_cues": ["placeholder visible"], "condition": "Initial render" },
             { "name": "active", "description": "Filtering by module name", "visual_cues": ["non-empty text", "filtered rows"], "condition": "User typed" }
@@ -1487,7 +1487,7 @@
           "sketchNumber": 87,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1501,7 +1501,7 @@
           "sketchNumber": 88,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1516,7 +1516,7 @@
           "sketchNumber": 89,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for legislation", "visual_cues": ["greyed out"], "condition": "#88 has no value" },
@@ -1532,7 +1532,7 @@
           "sketchNumber": 90,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#89 has no value" },
@@ -1678,7 +1678,7 @@
           "sketchNumber": 99,
           "type": "file-upload",
           "label": "Subir rúbrica",
-          "props": { "variant": "secondary", "icon": "upload", "accepts": ".csv,.json,.yaml,.yml" },
+          "props": { "variant": "secondary", "icon": "upload", "size": "md", "accepts": ".csv, .json, .yaml, .yml" },
           "states": [
             { "name": "default", "description": "Ready for file selection", "visual_cues": ["secondary button with upload icon"], "condition": "Initial render" },
             { "name": "hover", "description": "Cursor over button", "visual_cues": ["highlighted background"], "condition": "Mouse hovers" },
@@ -1723,7 +1723,7 @@
           "sketchNumber": 101,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1737,7 +1737,7 @@
           "sketchNumber": 102,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation chosen", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1752,7 +1752,7 @@
           "sketchNumber": 103,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for legislation", "visual_cues": ["greyed out"], "condition": "#102 has no value" },
@@ -1768,7 +1768,7 @@
           "sketchNumber": 104,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo", "visual_cues": ["greyed out"], "condition": "#103 has no value" },
@@ -1784,7 +1784,7 @@
           "sketchNumber": 105,
           "type": "select",
           "label": "Seleccionar proyecto",
-          "props": { "placeholder": "Seleccionar proyecto", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar proyecto", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No project selected", "visual_cues": ["placeholder"], "condition": "Initial render or module not chosen yet" },
             { "name": "disabled", "description": "Waiting for module selection", "visual_cues": ["greyed out"], "condition": "#104 has no value" },
@@ -1941,7 +1941,7 @@
           "sketchNumber": 114,
           "type": "select",
           "label": "Seleccionar año",
-          "props": { "placeholder": "Seleccionar año", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar año", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No year selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Year chosen; cascade continues", "visual_cues": ["year shown"], "condition": "User picks option" }
@@ -1955,7 +1955,7 @@
           "sketchNumber": 115,
           "type": "select",
           "label": "Seleccionar legislación",
-          "props": { "placeholder": "Seleccionar legislación", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar legislación", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No legislation filter", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "selected", "description": "Legislation filter active", "visual_cues": ["legislation shown"], "condition": "User picks option" }
@@ -1970,7 +1970,7 @@
           "sketchNumber": 116,
           "type": "select",
           "label": "Seleccionar ciclo",
-          "props": { "placeholder": "Seleccionar ciclo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar ciclo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No ciclo selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for year selection", "visual_cues": ["greyed out"], "condition": "#114 has no value" },
@@ -1986,7 +1986,7 @@
           "sketchNumber": 117,
           "type": "select",
           "label": "Seleccionar módulo",
-          "props": { "placeholder": "Seleccionar módulo", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar módulo", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No module selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for ciclo selection", "visual_cues": ["greyed out"], "condition": "#116 has no value" },
@@ -2002,7 +2002,7 @@
           "sketchNumber": 118,
           "type": "select",
           "label": "Seleccionar proyecto",
-          "props": { "placeholder": "Seleccionar proyecto", "is_read_only": false },
+          "props": { "placeholder": "Seleccionar proyecto", "size": "md", "is_read_only": false },
           "states": [
             { "name": "default", "description": "No project selected", "visual_cues": ["placeholder"], "condition": "Initial render" },
             { "name": "disabled", "description": "Waiting for module selection", "visual_cues": ["greyed out"], "condition": "#117 has no value" },

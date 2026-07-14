@@ -206,7 +206,7 @@ describe('Elements #106-113 — corrector-correction-form: checkboxes, grading a
     const table = el.shadowRoot!.querySelector('[data-element-id="110"]') as HTMLTableElement;
     const rows = Array.from(table.querySelectorAll('tr'));
     const row = rows.find((r) => r.textContent?.includes('Item A'))!;
-    const selectedCell = Array.from(row.querySelectorAll('td')).find((c) => c.getAttribute('style')?.includes('lightgray'));
+    const selectedCell = Array.from(row.querySelectorAll('td')).find((c) => c.getAttribute('aria-selected') === 'true');
     expect(selectedCell?.textContent?.trim()).toBe('1');
     el.remove();
   });

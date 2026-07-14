@@ -23,8 +23,11 @@ import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
 import { renderOptionSelect } from './option-select';
 import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-assignment-form
 // sketchNumbers: 73-77 (filtro proyecto: nombre/año/legislación/ciclo/
@@ -96,6 +99,7 @@ export class CorrectorAssignmentForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     const legislationService = this.legislationService ?? new HttpLegislationService();
     const cycleService = this.cycleService ?? new HttpCycleService();
     const moduleService = this.moduleService ?? new HttpModuleService();
@@ -395,112 +399,121 @@ export class CorrectorAssignmentForm extends HTMLElement {
     return html`
       ${renderGestionNav('asignacion', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <div role="alert">${this._rowErrorMessage}</div>
+      <div class="p-4">
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
 
-      <div class="doscolfilter">
-        <fieldset>
-          <legend>Filtrar por proyecto:</legend>
-          <input data-element-id="73" type="text" placeholder="Filtrar por proyecto" .value=${this._projectNameFilter} @input=${this._handleProjectNameFilterInput} />
-          ${renderOptionSelect({
-            sketchNumber: 74, options: this._projectYearOptions, getId: (y) => y, getLabel: (y) => String(y),
-            selectedValue: this._projectYearFilter, placeholder: 'Seleccionar año', onChange: this._handleProjectYearFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 75, options: this._projectLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-            selectedValue: this._projectLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleProjectLegislationFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 76, options: this._projectCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-            selectedValue: this._projectCycleFilter, placeholder: 'Seleccionar ciclo',
-            disabled: this._projectLegislationFilter === '', onChange: this._handleProjectCycleFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 77, options: this._projectModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-            selectedValue: this._projectModuleFilter, placeholder: 'Seleccionar módulo',
-            disabled: this._projectCycleFilter === '', onChange: this._handleProjectModuleFilterChange,
-          })}
-        </fieldset>
-
-        <fieldset>
-          <legend>Filtrar por alumno:</legend>
-          <input data-element-id="78" type="text" placeholder="Filtrar por nombre" .value=${this._studentNameFilter} @input=${this._handleStudentNameFilterInput} />
-          ${renderOptionSelect({
-            sketchNumber: 79, options: this._studentYearOptions, getId: (y) => y, getLabel: (y) => String(y),
-            selectedValue: this._studentYearFilter, placeholder: 'Seleccionar año', onChange: this._handleStudentYearFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 80, options: this._studentLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-            selectedValue: this._studentLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleStudentLegislationFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 81, options: this._studentCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-            selectedValue: this._studentCycleFilter, placeholder: 'Seleccionar ciclo',
-            disabled: this._studentLegislationFilter === '', onChange: this._handleStudentCycleFilterChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 82, options: this._studentModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
-            selectedValue: this._studentModuleFilter, placeholder: 'Seleccionar módulo',
-            disabled: this._studentCycleFilter === '', onChange: this._handleStudentModuleFilterChange,
-          })}
-        </fieldset>
-      </div>
-
-      <div class="trescolfilter">
-        <fieldset data-element-id="83">
-          <legend>Proyecto:</legend>
-          ${this._selectedProjectName ?? ''}
-        </fieldset>
-
-        <div role="alert">${this._assignErrorMessage}</div>
-        <button data-element-id="121" type="button" ?disabled=${assignDisabled} @click=${this._handleAssignClick}>Agregar alumnos</button>
-
-        <fieldset data-element-id="84">
-          <legend>Alumnos:</legend>
-          ${this._assignedStudents.map((s) => html`
-            <div>
-              ${s.name}
-              <button data-action="unassign" @click=${() => this._handleUnassignClick(s.studentId)}>Quitar</button>
+        <div class="doscolfilter grid grid-cols-2 gap-4 mb-4">
+          <fieldset class="border border-gray-200 rounded p-4">
+            <legend class="font-medium text-gray-900 px-1">Filtrar por proyecto:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input data-element-id="73" type="text" class=${classesFor('reactive-filter')} placeholder="Filtrar por proyecto" .value=${this._projectNameFilter} @input=${this._handleProjectNameFilterInput} />
+              ${renderOptionSelect({
+                sketchNumber: 74, options: this._projectYearOptions, getId: (y) => y, getLabel: (y) => String(y),
+                selectedValue: this._projectYearFilter, placeholder: 'Seleccionar año', onChange: this._handleProjectYearFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 75, options: this._projectLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+                selectedValue: this._projectLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleProjectLegislationFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 76, options: this._projectCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+                selectedValue: this._projectCycleFilter, placeholder: 'Seleccionar ciclo',
+                disabled: this._projectLegislationFilter === '', onChange: this._handleProjectCycleFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 77, options: this._projectModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+                selectedValue: this._projectModuleFilter, placeholder: 'Seleccionar módulo',
+                disabled: this._projectCycleFilter === '', onChange: this._handleProjectModuleFilterChange,
+              })}
             </div>
-          `)}
-          ${this._candidates.map((s) => html`
-            <label>
-              <input type="checkbox" data-student=${s.id} .checked=${this._selectedCandidateIds.has(s.id)} @change=${(e: Event) => this._handleCandidateToggle(s.id, e)} />
-              ${s.name}
-            </label>
-          `)}
-        </fieldset>
-      </div>
+          </fieldset>
 
-      <table data-element-id="85">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Módulo</th>
-            <th>Ciclo</th>
-            <th>Legislación</th>
-            <th>Año de inicio</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay proyectos registrados</p>` : ''}
+          <fieldset class="border border-gray-200 rounded p-4">
+            <legend class="font-medium text-gray-900 px-1">Filtrar por alumno:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input data-element-id="78" type="text" class=${classesFor('reactive-filter')} placeholder="Filtrar por nombre" .value=${this._studentNameFilter} @input=${this._handleStudentNameFilterInput} />
+              ${renderOptionSelect({
+                sketchNumber: 79, options: this._studentYearOptions, getId: (y) => y, getLabel: (y) => String(y),
+                selectedValue: this._studentYearFilter, placeholder: 'Seleccionar año', onChange: this._handleStudentYearFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 80, options: this._studentLegislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+                selectedValue: this._studentLegislationFilter, placeholder: 'Seleccionar legislación', onChange: this._handleStudentLegislationFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 81, options: this._studentCycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+                selectedValue: this._studentCycleFilter, placeholder: 'Seleccionar ciclo',
+                disabled: this._studentLegislationFilter === '', onChange: this._handleStudentCycleFilterChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 82, options: this._studentModuleOptions, getId: (m) => m.id, getLabel: (m) => m.name,
+                selectedValue: this._studentModuleFilter, placeholder: 'Seleccionar módulo',
+                disabled: this._studentCycleFilter === '', onChange: this._handleStudentModuleFilterChange,
+              })}
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="trescolfilter flex flex-col gap-3 mb-4">
+          <fieldset class="border border-gray-200 rounded p-4" data-element-id="83">
+            <legend class="font-medium text-gray-900 px-1">Proyecto:</legend>
+            <span class="text-gray-900">${this._selectedProjectName ?? ''}</span>
+          </fieldset>
+
+          <div role="alert" class=${this._assignErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._assignErrorMessage}</div>
+          <button class=${classesFor('submit-button', 'primary')} data-element-id="121" type="button" ?disabled=${assignDisabled} @click=${this._handleAssignClick}>Agregar alumnos</button>
+
+          <fieldset class="border border-gray-200 rounded p-4" data-element-id="84">
+            <legend class="font-medium text-gray-900 px-1">Alumnos:</legend>
+            <div class="flex flex-col gap-2">
+              ${this._assignedStudents.map((s) => html`
+                <div class="flex items-center gap-2">
+                  <span class="text-gray-900">${s.name}</span>
+                  <button class=${classesFor('button', 'secondary', 'sm')} data-action="unassign" @click=${() => this._handleUnassignClick(s.studentId)}>Quitar</button>
+                </div>
+              `)}
+              ${this._candidates.map((s) => html`
+                <label class="flex items-center gap-2">
+                  <input type="checkbox" class=${classesFor('checkbox')} data-student=${s.id} .checked=${this._selectedCandidateIds.has(s.id)} @change=${(e: Event) => this._handleCandidateToggle(s.id, e)} />
+                  ${s.name}
+                </label>
+              `)}
+            </div>
+          </fieldset>
+        </div>
+
+        <table class=${classesFor('table')} data-element-id="85">
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Nombre</th>
+              <th class=${classesFor('table-header-cell')}>Módulo</th>
+              <th class=${classesFor('table-header-cell')}>Ciclo</th>
+              <th class=${classesFor('table-header-cell')}>Legislación</th>
+              <th class=${classesFor('table-header-cell')}>Año de inicio</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay proyectos registrados</p>` : ''}
+      </div>
     `;
   }
 
   private _rowTemplate(row: ProjectRow): TemplateResult {
+    const selected = row.id === this._selectedProjectId;
     return html`
-      <tr @click=${() => this._handleRowClick(row)}>
-        <td>${row.name}</td>
-        <td>${row.moduleName}</td>
-        <td>${row.cycleName}</td>
-        <td>${row.legislationName ?? ''}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td><button data-action="edit" @click=${(e: Event) => this._startEdit(row, e)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${(e: Event) => this._handleDeleteClick(row, e)}>Icono borrar</button></td>
+      <tr class=${'cursor-pointer hover:bg-gray-50' + (selected ? ' bg-primary-50' : '')} @click=${() => this._handleRowClick(row)}>
+        <td class=${TD_CLASS}>${row.name}</td>
+        <td class=${TD_CLASS}>${row.moduleName}</td>
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.legislationName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${(e: Event) => this._startEdit(row, e)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${(e: Event) => this._handleDeleteClick(row, e)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -508,15 +521,15 @@ export class CorrectorAssignmentForm extends HTMLElement {
   private _editRowTemplate(row: ProjectRow): TemplateResult {
     return html`
       <tr>
-        <td><input type="text" .value=${this._editName} @input=${this._handleEditNameInput} @click=${(e: Event) => e.stopPropagation()} /></td>
-        <td>${row.moduleName}</td>
-        <td>${row.cycleName}</td>
-        <td>${row.legislationName ?? ''}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>
-          <button data-action="save" ?disabled=${this._editLoading} @click=${(e: Event) => this._handleSaveEditClick(row.id, e)}>Guardar</button>
+        <td class=${TD_CLASS}><input type="text" class=${classesFor('text-input')} .value=${this._editName} @input=${this._handleEditNameInput} @click=${(e: Event) => e.stopPropagation()} /></td>
+        <td class=${TD_CLASS}>${row.moduleName}</td>
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.legislationName ?? ''}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>
+          <button class=${classesFor('button', 'secondary', 'sm')} data-action="save" ?disabled=${this._editLoading} @click=${(e: Event) => this._handleSaveEditClick(row.id, e)}>Guardar</button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }

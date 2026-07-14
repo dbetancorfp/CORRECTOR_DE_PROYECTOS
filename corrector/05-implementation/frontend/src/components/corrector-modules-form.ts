@@ -15,8 +15,11 @@ import { runDeleteRowFlow } from '../controllers/delete-row-flow';
 import { runCreateRowFlow } from '../controllers/create-row-flow';
 import { runEditRowFlow } from '../controllers/edit-row-flow';
 import { makeNavClickHandlers } from '../controllers/nav-click-handlers';
+import { attachSharedStyles } from '../styles/shadow-styles';
+import { classesFor } from '../styles/classes-for';
 
 const FILTER_DEBOUNCE_MS = 300;
+const TD_CLASS = classesFor('table-editable-cell');
 
 // corrector-modules-form
 // sketchNumbers: 22 (tab), 23 (nombre), 24 (horas semanales), 25 (legislación —
@@ -66,6 +69,7 @@ export class CorrectorModulesForm extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    attachSharedStyles(this.shadowRoot!);
     this._controller = new ModuleController(
       this.moduleService ?? new HttpModuleService(),
       this.legislationService ?? new HttpLegislationService(),
@@ -271,115 +275,128 @@ export class CorrectorModulesForm extends HTMLElement {
     return html`
       ${renderAdminNav('modulos', this._nav.handleLogoutClick, this._nav.handleNavigateClick)}
 
-      <div role="alert">${this._formErrorMessage}</div>
-      <form>
-        <fieldset>
-          <legend>Nuevo módulo:</legend>
-          <input
-            data-element-id="23"
-            type="text"
-            placeholder="Nombre del módulo"
-            .value=${this._name}
-            aria-invalid=${this._nameError ? 'true' : 'false'}
-            @input=${this._handleNameInput}
-          />
-          <input
-            data-element-id="24"
-            type="text"
-            placeholder="Horas semanales"
-            .value=${this._weeklyHours}
-            aria-invalid=${this._weeklyHoursError ? 'true' : 'false'}
-            @input=${this._handleWeeklyHoursInput}
-          />
-          ${renderOptionSelect({
-            sketchNumber: 25, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
-            selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
-            invalid: this._legislationError, onChange: this._handleLegislationChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 26, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
-            selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
-            disabled: this._selectedLegislation === '', invalid: this._yearError, onChange: this._handleYearChange,
-          })}
-          ${renderOptionSelect({
-            sketchNumber: 27, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
-            selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
-            disabled: this._selectedLegislation === '' || this._selectedYear === '', invalid: this._cycleError, onChange: this._handleCycleChange,
-          })}
-          <button
-            data-element-id="28"
-            type="button"
-            ?disabled=${this._formLoading}
-            @click=${this._handleSubmitClick}
-          >
-            Guardar
-          </button>
+      <div class="p-4">
+        <div role="alert" class=${this._formErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._formErrorMessage}</div>
+        <form>
+          <fieldset class="border border-gray-200 rounded p-4 mb-4">
+            <legend class="font-medium text-gray-900 px-1">Nuevo módulo:</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <input
+                data-element-id="23"
+                type="text"
+                class=${classesFor('text-input', this._nameError ? 'danger' : undefined)}
+                placeholder="Nombre del módulo"
+                .value=${this._name}
+                aria-invalid=${this._nameError ? 'true' : 'false'}
+                @input=${this._handleNameInput}
+              />
+              <input
+                data-element-id="24"
+                type="text"
+                class=${classesFor('number-input', this._weeklyHoursError ? 'danger' : undefined)}
+                placeholder="Horas semanales"
+                .value=${this._weeklyHours}
+                aria-invalid=${this._weeklyHoursError ? 'true' : 'false'}
+                @input=${this._handleWeeklyHoursInput}
+              />
+              ${renderOptionSelect({
+                sketchNumber: 25, options: this._legislationOptions, getId: (l) => l.id, getLabel: (l) => l.name,
+                selectedValue: this._selectedLegislation, placeholder: 'Seleccionar legislación',
+                invalid: this._legislationError, onChange: this._handleLegislationChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 26, options: this._yearOptions, getId: (y) => y, getLabel: (y) => String(y),
+                selectedValue: this._selectedYear, placeholder: 'Seleccionar año',
+                disabled: this._selectedLegislation === '', invalid: this._yearError, onChange: this._handleYearChange,
+              })}
+              ${renderOptionSelect({
+                sketchNumber: 27, options: this._cycleOptions, getId: (c) => c.id, getLabel: (c) => c.name,
+                selectedValue: this._selectedCycle, placeholder: 'Seleccionar ciclo',
+                disabled: this._selectedLegislation === '' || this._selectedYear === '', invalid: this._cycleError, onChange: this._handleCycleChange,
+              })}
+              <button
+                data-element-id="28"
+                type="button"
+                class=${classesFor('submit-button', 'primary')}
+                ?disabled=${this._formLoading}
+                @click=${this._handleSubmitClick}
+              >
+                Guardar
+              </button>
+            </div>
+          </fieldset>
+        </form>
+
+        <fieldset class="border border-gray-200 rounded p-4 mb-4">
+          <legend class="font-medium text-gray-900 px-1">Filtrar por:</legend>
+          <div class="flex flex-wrap items-end gap-3">
+            <input
+              data-element-id="29"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por año de inicio"
+              .value=${this._yearFilter}
+              @input=${this._handleYearFilterInput}
+            />
+            <input
+              data-element-id="30"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por legislación"
+              .value=${this._legislationFilter}
+              @input=${this._handleLegislationFilterInput}
+            />
+            <input
+              data-element-id="31"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por ciclo"
+              .value=${this._cycleFilter}
+              @input=${this._handleCycleFilterInput}
+            />
+            <input
+              data-element-id="32"
+              type="text"
+              class=${classesFor('reactive-filter')}
+              placeholder="Filtrar por módulo"
+              .value=${this._nameFilter}
+              @input=${this._handleNameFilterInput}
+            />
+          </div>
         </fieldset>
-      </form>
 
-      <fieldset>
-        <legend>Filtrar por:</legend>
-        <input
-          data-element-id="29"
-          type="text"
-          placeholder="Filtrar por año de inicio"
-          .value=${this._yearFilter}
-          @input=${this._handleYearFilterInput}
-        />
-        <input
-          data-element-id="30"
-          type="text"
-          placeholder="Filtrar por legislación"
-          .value=${this._legislationFilter}
-          @input=${this._handleLegislationFilterInput}
-        />
-        <input
-          data-element-id="31"
-          type="text"
-          placeholder="Filtrar por ciclo"
-          .value=${this._cycleFilter}
-          @input=${this._handleCycleFilterInput}
-        />
-        <input
-          data-element-id="32"
-          type="text"
-          placeholder="Filtrar por módulo"
-          .value=${this._nameFilter}
-          @input=${this._handleNameFilterInput}
-        />
-      </fieldset>
-
-      <div role="alert">${this._rowErrorMessage}</div>
-      <table data-element-id="33">
-        <thead>
-          <tr>
-            <th>Módulo</th>
-            <th>Ciclo</th>
-            <th>Año de inicio</th>
-            <th>Legislación</th>
-            <th>Horas semanales</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
-        </tbody>
-      </table>
-      ${this._rows.length === 0 ? html`<p>No hay módulos registrados</p>` : ''}
+        <div role="alert" class=${this._rowErrorMessage ? classesFor('paragraph', 'danger') : ''}>${this._rowErrorMessage}</div>
+        <table class=${classesFor('table')} data-element-id="33">
+          <thead>
+            <tr>
+              <th class=${classesFor('table-header-cell')}>Módulo</th>
+              <th class=${classesFor('table-header-cell')}>Ciclo</th>
+              <th class=${classesFor('table-header-cell')}>Año de inicio</th>
+              <th class=${classesFor('table-header-cell')}>Legislación</th>
+              <th class=${classesFor('table-header-cell')}>Horas semanales</th>
+              <th class=${classesFor('table-header-cell')}>Editar</th>
+              <th class=${classesFor('table-header-cell')}>Borrar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this._rows.map((row) => (row.id === this._editingId ? this._editRowTemplate(row) : this._rowTemplate(row)))}
+          </tbody>
+        </table>
+        ${this._rows.length === 0 ? html`<p class=${classesFor('paragraph')}>No hay módulos registrados</p>` : ''}
+      </div>
     `;
   }
 
   private _rowTemplate(row: ModuleRow): TemplateResult {
     return html`
       <tr>
-        <td>${row.name}</td>
-        <td>${row.cycleName}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>${row.legislationName}</td>
-        <td>${row.weeklyHours}</td>
-        <td><button data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
-        <td><button data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
+        <td class=${TD_CLASS}>${row.name}</td>
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>${row.legislationName}</td>
+        <td class=${TD_CLASS}>${row.weeklyHours}</td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button')} data-action="edit" @click=${() => this._startEdit(row)}>Icono editar</button></td>
+        <td class=${TD_CLASS}><button class=${classesFor('icon-button', 'danger')} data-action="delete" @click=${() => this._handleDeleteClick(row)}>Icono borrar</button></td>
       </tr>
     `;
   }
@@ -387,17 +404,18 @@ export class CorrectorModulesForm extends HTMLElement {
   private _editRowTemplate(row: ModuleRow): TemplateResult {
     return html`
       <tr>
-        <td>
-          <input type="text" .value=${this._editName} @input=${this._handleEditNameInput} />
+        <td class=${TD_CLASS}>
+          <input type="text" class=${classesFor('text-input')} .value=${this._editName} @input=${this._handleEditNameInput} />
         </td>
-        <td>${row.cycleName}</td>
-        <td>${row.startYear ?? ''}</td>
-        <td>${row.legislationName}</td>
-        <td>
-          <input type="text" .value=${this._editWeeklyHours} @input=${this._handleEditWeeklyHoursInput} />
+        <td class=${TD_CLASS}>${row.cycleName}</td>
+        <td class=${TD_CLASS}>${row.startYear ?? ''}</td>
+        <td class=${TD_CLASS}>${row.legislationName}</td>
+        <td class=${TD_CLASS}>
+          <input type="text" class=${classesFor('number-input')} .value=${this._editWeeklyHours} @input=${this._handleEditWeeklyHoursInput} />
         </td>
-        <td>
+        <td class=${TD_CLASS}>
           <button
+            class=${classesFor('button', 'secondary', 'sm')}
             data-action="save"
             ?disabled=${this._editLoading}
             @click=${() => this._handleSaveEditClick(row.id)}
@@ -405,7 +423,7 @@ export class CorrectorModulesForm extends HTMLElement {
             Guardar
           </button>
         </td>
-        <td></td>
+        <td class=${TD_CLASS}></td>
       </tr>
     `;
   }
