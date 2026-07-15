@@ -27,3 +27,26 @@ export interface CorrectionStatusEntry {
   correctedStudents: number;
   status: 'complete' | 'incomplete';
 }
+
+// Element #120 — content of the grades PDF, scoped to one project's students.
+// Mirrors GradeTableData (frontend/src/controllers/grades-view-controller.ts)
+// so the PDF matches what table #119 shows on screen for the same role.
+export interface ProjectProfesorGradeRow {
+  studentName: string;
+  moduleScore: number;
+}
+
+export interface ProjectTutorGradeRow {
+  studentName: string;
+  moduleScores: Record<string, number>;
+  finalScore: number;
+}
+
+export type ProjectGradeTable =
+  | { role: 'profesor'; projectName: string; moduleName: string; rows: ProjectProfesorGradeRow[] }
+  | {
+      role: 'tutor';
+      projectName: string;
+      modules: Array<{ id: number; name: string }>;
+      rows: ProjectTutorGradeRow[];
+    };

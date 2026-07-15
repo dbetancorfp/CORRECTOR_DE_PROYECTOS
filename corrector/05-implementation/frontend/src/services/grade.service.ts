@@ -72,7 +72,7 @@ export class HttpGradeService implements GradeService {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `notas-${projectId}.pdf`;
+    link.download = `notas_${projectId}_${academicYear}.pdf`;
     link.click();
     URL.revokeObjectURL(url);
     return { ok: true };

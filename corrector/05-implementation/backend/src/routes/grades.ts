@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { requireTutor } from '../middleware/auth';
+import { requireAuth, requireTutor } from '../middleware/auth';
 import { GradeService } from '../services/grade.service';
+import { generateGradesPdf } from '../services/pdf-generator';
 
 export function createGradesRouter(gradeService: GradeService): Router {
   const router = Router();
@@ -19,7 +20,7 @@ export function createGradesRouter(gradeService: GradeService): Router {
     res.json(result);
   });
 
-  router.get('/projects/:id/grades/pdf', async (req, res) => {
+  router.get('/projects/:id/grades/pdf', requireAuth, async (req, res) => {
     const projectId = Number(req.params.id);
     const academicYear = req.query.academicYear as string | undefined;
 
@@ -34,10 +35,13 @@ export function createGradesRouter(gradeService: GradeService): Router {
       return;
     }
 
+    const table = await gradeService.getProjectGradeTable(project, academicYear, req.user!.role);
+    const pdf = await generateGradesPdf(table, academicYear);
+
     res
       .set('Content-Type', 'application/pdf')
-      .set('Content-Disposition', `attachment; filename="grades-${projectId}.pdf"`)
-      .send(Buffer.from('%PDF-1.4\n%%EOF\n'));
+      .set('Content-Disposition', `attachment; filename="notas_${projectId}_${academicYear}.pdf"`)
+      .send(pdf);
   });
 
   router.get('/cycles/:id/correction-status', async (req, res) => {

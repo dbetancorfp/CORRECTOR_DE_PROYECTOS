@@ -140,27 +140,136 @@ describe('Element #119 — GET /api/cycles/:id/grades (tutor panoramic view)', (
 });
 
 describe('Element #120 — GET /api/projects/:id/grades/pdf', () => {
+  const authHeaders = { 'Cookie': 'session_id=profesor-session' };
+
   it('returns 200 with Content-Type: application/pdf', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf?academicYear=2024-2025`);
+    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf?academicYear=2024-2025`, { headers: authHeaders });
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('application/pdf');
   });
 
-  it('returns Content-Disposition header for file download', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf?academicYear=2024-2025`);
+  it('returns Content-Disposition header with notas_<project>_<year>.pdf filename', async () => {
+    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf?academicYear=2024-2025`, { headers: authHeaders });
     const disposition = res.headers.get('content-disposition') ?? '';
     expect(disposition).toContain('attachment');
-    expect(disposition).toContain('.pdf');
+    expect(disposition).toContain('notas_1_2024-2025.pdf');
   });
 
   it('returns 400 when academicYear is not provided', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf`);
+    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf`, { headers: authHeaders });
     expect(res.status).toBe(400);
   });
 
   it('returns 404 when project does not exist', async () => {
-    const res = await fetch(`${BASE_URL}/api/projects/99999/grades/pdf?academicYear=2024-2025`);
+    const res = await fetch(`${BASE_URL}/api/projects/99999/grades/pdf?academicYear=2024-2025`, { headers: authHeaders });
     expect(res.status).toBe(404);
+  });
+
+  it('returns 401 when there is no session', async () => {
+    const res = await fetch(`${BASE_URL}/api/projects/1/grades/pdf?academicYear=2024-2025`);
+    expect(res.status).toBe(401);
+  });
+});
+
+// ── Element #120 — PDF content mirrors table #119 (real data, not the placeholder) ──
+
+describe('Element #120 — GET /api/projects/:id/grades/pdf (real content)', () => {
+  const adminHeaders = { 'Content-Type': 'application/json', 'Cookie': 'session_id=admin-session' };
+  const profesorHeaders = { 'Cookie': 'session_id=profesor-session' };
+  const tutorHeaders = { 'Cookie': 'session_id=tutor-session' };
+  const YEAR = '2024-2025';
+
+  async function postJson(path: string, body: unknown, headers: Record<string, string>): Promise<any> {
+    const res = await fetch(`${BASE_URL}${path}`, { method: 'POST', headers, body: JSON.stringify(body) });
+    if (![200, 201].includes(res.status)) {
+      throw new Error(`POST ${path} failed: ${res.status} ${await res.text()}`);
+    }
+    return res.json();
+  }
+
+  async function createRubricItem(moduleId: number, levels: Array<{ name: string; score: number; displayOrder: number }>): Promise<{ id: number; rubricId: number; levels: Array<{ id: number; name: string }> }> {
+    return postJson(`/api/modules/${moduleId}/rubric/items`, {
+      academicYear: YEAR,
+      description: 'Item',
+      displayOrder: 1,
+      levels,
+    }, adminHeaders);
+  }
+
+  async function fetchPdfText(projectId: number, headers: Record<string, string>): Promise<string> {
+    const res = await fetch(`${BASE_URL}/api/projects/${projectId}/grades/pdf?academicYear=${YEAR}`, { headers });
+    expect(res.status).toBe(200);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const { PDFParse } = await import('pdf-parse');
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
+    await parser.destroy();
+    return result.text;
+  }
+
+  it('profesor view: PDF text contains student names and module scores matching GET /api/modules/:id/grades', async () => {
+    const moduleA = await postJson('/api/modules', { name: 'ModA', weeklyHours: 7, cycleId: 1, legislationId: 2 }, adminHeaders);
+    const moduleB = await postJson('/api/modules', { name: 'ModB', weeklyHours: 3, cycleId: 1, legislationId: 2 }, adminHeaders);
+
+    const itemA = await createRubricItem(moduleA.id, [
+      { name: 'Excelente', score: 8.0, displayOrder: 1 },
+      { name: 'Bien', score: 2.0, displayOrder: 2 },
+    ]);
+    const itemB = await createRubricItem(moduleB.id, [
+      { name: 'Alto', score: 6.0, displayOrder: 1 },
+      { name: 'Bajo', score: 0.0, displayOrder: 2 },
+    ]);
+    const [excelenteA, bienA] = itemA.levels;
+    const [altoB, bajoB] = itemB.levels;
+
+    const student1 = await postJson('/api/students', { name: 'Ana Gomez', cycleId: 1, moduleId: moduleA.id }, adminHeaders);
+    const student2 = await postJson('/api/students', { name: 'Bea Ruiz', cycleId: 1, moduleId: moduleA.id }, adminHeaders);
+
+    const project = await postJson('/api/projects', { name: 'PDF Test Project', academicYear: YEAR, moduleId: moduleA.id }, adminHeaders);
+    await postJson(`/api/projects/${project.id}/students`, { studentIds: [student1.id, student2.id] }, adminHeaders);
+
+    await postJson('/api/corrections', {
+      studentId: student1.id, projectId: project.id, moduleId: moduleA.id, rubricId: itemA.rubricId,
+      academicYear: YEAR, items: [{ rubricItemId: itemA.id, rubricLevelId: excelenteA.id }],
+    }, adminHeaders);
+    await postJson('/api/corrections', {
+      studentId: student2.id, projectId: project.id, moduleId: moduleA.id, rubricId: itemA.rubricId,
+      academicYear: YEAR, items: [{ rubricItemId: itemA.id, rubricLevelId: bienA.id }],
+    }, adminHeaders);
+    await postJson('/api/corrections', {
+      studentId: student1.id, projectId: project.id, moduleId: moduleB.id, rubricId: itemB.rubricId,
+      academicYear: YEAR, items: [{ rubricItemId: itemB.id, rubricLevelId: bajoB.id }],
+    }, adminHeaders);
+    await postJson('/api/corrections', {
+      studentId: student2.id, projectId: project.id, moduleId: moduleB.id, rubricId: itemB.rubricId,
+      academicYear: YEAR, items: [{ rubricItemId: itemB.id, rubricLevelId: altoB.id }],
+    }, adminHeaders);
+
+    // ── Profesor view: single module (moduleA), matches GET /api/modules/:id/grades ──
+    const moduleGradesRes = await fetch(`${BASE_URL}/api/modules/${moduleA.id}/grades?academicYear=${YEAR}`);
+    const moduleGrades = (await moduleGradesRes.json()).grades as Array<{ studentName: string; moduleScore: number }>;
+    const score1 = moduleGrades.find((g) => g.studentName === 'Ana Gomez')!.moduleScore;
+    const score2 = moduleGrades.find((g) => g.studentName === 'Bea Ruiz')!.moduleScore;
+
+    const profesorPdfText = await fetchPdfText(project.id, profesorHeaders);
+    expect(profesorPdfText).toContain('Ana Gomez');
+    expect(profesorPdfText).toContain('Bea Ruiz');
+    expect(profesorPdfText).toContain(String(score1));
+    expect(profesorPdfText).toContain(String(score2));
+
+    // ── Tutor view: panoramic across cycle modules, matches GET /api/cycles/:id/grades ──
+    const cycleGradesRes = await fetch(`${BASE_URL}/api/cycles/1/grades?academicYear=${YEAR}`, { headers: tutorHeaders });
+    const cycleGrades = (await cycleGradesRes.json()).grades as Array<{ studentName: string; finalScore: number }>;
+    const final1 = cycleGrades.find((g) => g.studentName === 'Ana Gomez')!.finalScore;
+    const final2 = cycleGrades.find((g) => g.studentName === 'Bea Ruiz')!.finalScore;
+
+    const tutorPdfText = await fetchPdfText(project.id, tutorHeaders);
+    expect(tutorPdfText).toContain('Ana Gomez');
+    expect(tutorPdfText).toContain('Bea Ruiz');
+    expect(tutorPdfText).toContain('ModA');
+    expect(tutorPdfText).toContain('ModB');
+    expect(tutorPdfText).toContain(String(final1));
+    expect(tutorPdfText).toContain(String(final2));
   });
 });
 

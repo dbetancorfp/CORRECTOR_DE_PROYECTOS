@@ -1157,12 +1157,16 @@ Ordenado: por nombre de proyecto ASC, luego por nombre de alumno ASC.
 #### Response 200
 
 - **Content-Type**: `application/pdf`
-- **Content-Disposition**: `attachment; filename="notas_<project>_<year>.pdf"`
+- **Content-Disposition**: `attachment; filename="notas_<project>_<year>.pdf"` (`<project>` = project id)
+- Contenido: refleja la tabla #119 para el rol de la sesión — un profesor ve solo el
+  módulo del proyecto (columna "Nota"); un tutor ve la panorámica del ciclo (una
+  columna por módulo + "Nota final"), igual que en pantalla.
 
 #### Errores
 
 | Código | Condición |
 |--------|-----------|
+| 401 | No hay sesión activa |
 | 404 | Proyecto no existe |
 | 400 | academicYear no proporcionado |
 

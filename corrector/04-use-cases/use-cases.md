@@ -507,7 +507,7 @@
 - [ ] Dado role = 'profesor', #117 muestra solo su módulo
 - [ ] Dado role = 'tutor', #117 muestra todos los módulos del ciclo seleccionado
 - [ ] Dado todos los 5 selectores con valor, #119 cargada y #120 habilitado
-- [ ] Dado #120 pulsado, PDF generado y descargado; contenido igual a #119
+- [x] Dado #120 pulsado, PDF generado y descargado; contenido igual a #119
 - [ ] Dado role = 'tutor', nota final en #119 = sum(nota_módulo × horas) / sum(horas), redondeado a 2 decimales, máximo 10
 - [ ] Dado algún selector sin valor, #120 deshabilitado
 - [ ] Dado sin correcciones para el proyecto, #119 muestra estado vacío

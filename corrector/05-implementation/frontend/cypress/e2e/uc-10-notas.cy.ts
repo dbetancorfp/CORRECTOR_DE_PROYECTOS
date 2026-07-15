@@ -143,7 +143,12 @@ describe('UC-10: Visualización e impresión de Notas', () => {
       // Intercept the PDF request to check headers without relying on the file download
       cy.intercept('GET', '/api/projects/*/grades/pdf*').as('pdf');
       cy.get('[data-element-id="120"]').click();
-      cy.wait('@pdf').its('response.headers.content-type').should('include', 'application/pdf');
+      cy.wait('@pdf').then((interception) => {
+        expect(interception.response?.headers['content-type']).to.include('application/pdf');
+        // A real pdfkit document (fonts embedded, at least the title/table
+        // drawn) is well over 1 KB — the old hardcoded stub was 20 bytes.
+        expect(Number(interception.response?.headers['content-length'])).to.be.greaterThan(1000);
+      });
     });
 
     it('sorts rows in table #119 alphabetically by project then student name', () => {
