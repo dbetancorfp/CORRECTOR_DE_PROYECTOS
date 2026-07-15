@@ -4,9 +4,9 @@
 (Formación Profesional, España) que permite gestionar y calificar proyectos de
 fin de ciclo mediante rúbricas estructuradas.
 
-La aplicación se construye con un pipeline **RAG Spec-Driven Development**: los
+La aplicación se construye con un pipeline **Spec-Driven Development**: los
 prototipos HTML anotados con `data-element-id` y una transcripción de requisitos
-se convierten, a través de 10 agentes Claude especializados, en código backend +
+se convierten, a través de 10 agentes Claude Code especializados, en código backend +
 frontend completamente trazable y testado.
 
 ---
@@ -25,7 +25,7 @@ frontend completamente trazable y testado.
 
     ---
 
-    Pipeline RAG, los 10 agentes, base de datos pgvector y stack completo.
+    Los 10 agentes, cómo ejecuta cada uno Claude Code y el stack completo.
 
     [:octicons-arrow-right-24: Ver arquitectura](arquitectura.md)
 

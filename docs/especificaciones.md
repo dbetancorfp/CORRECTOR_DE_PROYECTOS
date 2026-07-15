@@ -284,12 +284,11 @@ AVIF ~45–55% mejor que JPEG. WebP ~25–35%. Fallback progresivo con `<picture
 
 ## Ficheros fuente
 
-Los ficheros markdown completos están en `corrector/00-especificaciones-tecnicas/`
-y son la entrada al pipeline RAG:
+Los ficheros markdown completos están en `corrector/00-especificaciones-tecnicas/`:
 
 | Fichero | Contenido |
 |---------|-----------|
-| [`day-01-fundamentos-y-oop.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-01-fundamentos-y-oop.md) | var/let/const · this · bind/call/apply · Array funcional · Set/Map · class · prototipos · mixins |
-| [`day-02-asincronia-y-modulos.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-02-asincronia-y-modulos.md) | Truthy/falsy · rest/spread · destructuring · closures · generators · event loop · callbacks · promises · async/await · módulos ES |
-| [`day-03-dom-y-web-components.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-03-dom-y-web-components.md) | DOM · Custom Elements · ciclo de vida · Shadow DOM · Templates · Constructable Stylesheets · slots · campos privados · composedPath · disposables |
-| [`day-04-web-components-avanzados-y-performance.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/day-04-web-components-avanzados-y-performance.md) | CustomEvent · arquitectura presentacional/contenedor/servicio · Core Web Vitals · preconnect/preload · font-display · imágenes · HTTP/3 · Cache-Control · Brotli · AVIF/WebP |
+| [`fundamentos-y-oop.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/fundamentos-y-oop.md) | var/let/const · this · bind/call/apply · Array funcional · Set/Map · class · prototipos · mixins |
+| [`asincronia-y-modulos.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/asincronia-y-modulos.md) | Truthy/falsy · rest/spread · destructuring · closures · generators · event loop · callbacks · promises · async/await · módulos ES |
+| [`dom-y-web-components.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/dom-y-web-components.md) | DOM · Custom Elements · ciclo de vida · Shadow DOM · Templates · Constructable Stylesheets · slots · campos privados · composedPath · disposables |
+| [`web-components-avanzados-y-performance.md`](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/blob/main/corrector/00-especificaciones-tecnicas/web-components-avanzados-y-performance.md) | CustomEvent · arquitectura presentacional/contenedor/servicio · Core Web Vitals · preconnect/preload · font-display · imágenes · HTTP/3 · Cache-Control · Brotli · AVIF/WebP |

@@ -70,8 +70,8 @@ Ejemplos: `corrector/01-boceto/html-source-prototype/boceto-elements.md`,
 
 ### 5. Consistencia interna docs ↔ CLAUDE.md
 
-- El stack en `docs/arquitectura.html` debe coincidir con el de CLAUDE.md.
-- Los agentes listados en `docs/arquitectura.html` deben coincidir con los de CLAUDE.md.
+- El stack en `docs/arquitectura.md` debe coincidir con el de CLAUDE.md.
+- Los agentes listados en `docs/arquitectura.md` deben coincidir con los de CLAUDE.md.
 - Los nombres de slash commands en docs deben coincidir con los de `.claude/commands/`.
 - Las rutas de artefactos en docs deben coincidir con la estructura real.
 
@@ -80,7 +80,7 @@ Ejemplos: `corrector/01-boceto/html-source-prototype/boceto-elements.md`,
 - Un mismo dato (ej. número de elementos, número de UCs, número de tablas SQL) no debe
   aparecer con valores distintos en páginas diferentes.
 - Las páginas de estado (callouts, badges, nodos del timeline) deben ser coherentes
-  entre `index.html`, `arquitectura.html` y `flujo.html`.
+  entre `index.md`, `arquitectura.md` y `flujo.md`.
 
 ### 7. CLAUDE.md auto-referencia
 
@@ -162,14 +162,22 @@ Revisa CLAUDE.md contra las fuentes de verdad. Busca todas las categorías del a
 
 ### Paso 3 — Auditar docs/
 
-Audita cada fichero HTML en `docs/`:
-- `index.html`
-- `arquitectura.html`
-- `flujo.html`
-- `funcional.html`
-- `casos-de-uso.html`
-- `guia.html`
-- `especificaciones.html`
+Audita cada fichero Markdown en `docs/` (fuente MkDocs — no quedan `.html`, se migró
+en 2026-06-06):
+- `index.md`
+- `arquitectura.md`
+- `flujo.md`
+- `funcional.md`
+- `casos-de-uso.md`
+- `guia.md`
+- `especificaciones.md`
+- `solid.md`
+- `sonarcloud.md`
+- `design-system.md`
+- `entradas/*.md`
+
+Antes de dar por cerrada la lista, comprueba con `ls docs/` que no falta ningún fichero
+nuevo — esta lista se ha quedado desactualizada ya una vez.
 
 Para cada uno: busca todas las categorías de inconsistencia. Sé exhaustivo. Si un dato
 aparece 5 veces en el mismo fichero y las 5 son incorrectas, repórtalo una sola vez

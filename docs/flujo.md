@@ -104,68 +104,68 @@ flowchart TD
 
 ### Fase 0 — Boceto Parse
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `boceto-metadata.json` | `corrector/01-boceto/` | ✅ phase: `boceto-parse` |
-| `boceto-elements.md` | `corrector/01-boceto/` | ✅ phase: `boceto-parse` |
+| `boceto-metadata.json` | `corrector/01-boceto/` | Filesystem local |
+| `boceto-elements.md` | `corrector/01-boceto/` | Filesystem local |
 
 ### Fase 1 ∥ — UI Spec
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `ui-spec.json` | `corrector/03-generated-artifacts/` | ✅ phase: `ui-spec` |
+| `ui-spec.json` | `corrector/03-generated-artifacts/` | Filesystem local |
 
 ### Fase 2 ∥ — Interview
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `transcripcion.md` *(completa)* | `corrector/02-conversacion-cliente/` | ✅ phase: `interview` |
+| `transcripcion.md` *(completa)* | `corrector/02-conversacion-cliente/` | Filesystem local |
 | `boceto-suggestions.md` | `corrector/02-conversacion-cliente/` | ❌ Solo lectura humana |
 
 ### Fase 3 — Alignment Gate
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `alignment-report.json` | `corrector/03-generated-artifacts/` | ❌ Solo local |
+| `alignment-report.json` | `corrector/03-generated-artifacts/` | Filesystem local |
 
 ### Fase 4 — Functional Spec
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `functional-spec.json` | `corrector/03-generated-artifacts/` | ✅ phase: `func-spec` |
+| `functional-spec.json` | `corrector/03-generated-artifacts/` | Filesystem local |
 
 ### GATE HUMANO
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `reconciliation.json` | `corrector/03-generated-artifacts/` | ❌ Solo local |
+| `reconciliation.json` | `corrector/03-generated-artifacts/` | Filesystem local |
 
 ### Fase 5 — Use Cases & API
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `use-cases.md` | `corrector/04-use-cases/` | ✅ phase: `use-case` |
-| `api-contracts.md` | `corrector/05-implementation/backend/` | ✅ phase: `use-case` |
+| `use-cases.md` | `corrector/04-use-cases/` | Filesystem local |
+| `api-contracts.md` | `corrector/05-implementation/backend/` | Filesystem local |
 
 ### Fase 6 — TDD (Red)
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `backend/tests/*.test.ts` | `corrector/05-implementation/` | ✅ phase: `test-red` |
-| `frontend/tests/*.test.ts` | `corrector/05-implementation/` | ✅ phase: `test-red` |
+| `backend/tests/*.test.ts` | `corrector/05-implementation/` | Filesystem local |
+| `frontend/tests/*.test.ts` | `corrector/05-implementation/` | Filesystem local |
 
 ### Fase 7 — Implementación
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `backend/src/` | `corrector/05-implementation/` | ✅ phase: `code` |
-| `frontend/src/` | `corrector/05-implementation/` | ✅ phase: `code` |
+| `backend/src/` | `corrector/05-implementation/` | Filesystem local |
+| `frontend/src/` | `corrector/05-implementation/` | Filesystem local |
 
 ### Fase 8 — E2E
 
-| Artefacto | Ruta | RAG |
+| Artefacto | Ruta | Persistencia |
 |-----------|------|-----|
-| `cypress/e2e/*.cy.ts` | `corrector/05-implementation/frontend/` | ✅ phase: `e2e` |
+| `cypress/e2e/*.cy.ts` | `corrector/05-implementation/frontend/` | Filesystem local |
 
 ## Roles de los agentes del pipeline
 

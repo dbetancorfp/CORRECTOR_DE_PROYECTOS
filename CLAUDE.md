@@ -35,9 +35,8 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 
 | Layer | Technology |
 |-------|------------|
-| LLM / Agents | Claude API `claude-sonnet-4-6` |
-| Embeddings | OpenAI `text-embedding-3-small` |
-| RAG database | PostgreSQL 16 + pgvector 0.7 |
+| Agent execution | Claude Code — slash commands point to a role file in `lib/agents/*/*.md`; Claude Code adopts that persona and runs directly in-session (see "Handoff pattern" below) |
+| Artifact storage | Local filesystem (`corrector/01-05/`) — no database, no vector search (see "Planned but not built" below) |
 | Backend | **Bun** + Express + TypeScript |
 | Schema validation | Zod 3.x |
 | Frontend | Web Components (native) + lit-html standalone + Tailwind CSS 3.x + TypeScript |
@@ -47,7 +46,7 @@ UI-facing strings and domain vocabulary may use Spanish where it reflects real u
 | Docs | MkDocs + Material for MkDocs — source `.md` in `docs/` → `mkdocs build` → `site/` → GitHub Pages |
 | CI/CD | GitHub Actions |
 
-## RAG Spec-Driven Development Pipeline
+## Spec-Driven Development Pipeline
 
 ### The sketchNumber invariant
 
@@ -81,7 +80,7 @@ No element may appear in a downstream phase unless it was numbered in the boceto
 | 8 | Ingeniero E2E | Genera tests Cypress e2e por caso de uso — flujo principal + alternativo crítico | `use-cases.md` + `ui-spec.json` + `functional-spec.json` + `api-contracts.md` | `corrector/05-implementation/frontend/cypress/e2e/*.cy.ts` |
 | 9 | Revisor / QA | Audita SOLID en tests e implementación; rechaza y re-ejecuta agentes hasta que cumplan | Implementación completa + tests unitarios + tests e2e + `docs/solid.md` | `review-report.md` · PASS/FAIL + bucle de corrección |
 | ★ | Migration Generator *(on demand)* | Genera el SQL de migración cuando `schema.sql` cambia entre iteraciones | `schema.sql` actual + versión anterior (git) + `migrations/` | `migrations/YYYYMMDD_NNN_*.sql` |
-| ★ | CI Setup *(on demand)* | Genera y mantiene los workflows de GitHub Actions (CI + E2E) | `CLAUDE.md` + `package.json` + `.github/workflows/` | `.github/workflows/ci.yml` + `e2e.yml` |
+| ★ | CI Setup *(on demand)* | Genera y mantiene los workflows de GitHub Actions | `CLAUDE.md` + `package.json` + `.github/workflows/` | `.github/workflows/sonarcloud.yml` (bun test + SonarCloud) + `deploy-docs.yml` (MkDocs → GitHub Pages) — **no hay workflow de Cypress; e2e solo corre en local** |
 
 **1 ∥ 2** — ejecución en paralelo; el Agente 3 espera a que ambos terminen.
 Each `describe()` block in test files must reference a `sketchNumber`.
@@ -114,45 +113,37 @@ If only the interview transcript changes (Agent 2 re-run):
 
 Applies to pipeline agents 0–9 (linear flow only):
 
-**Generate → Validate (Zod) → Persist (RAG) → Next agent queries RAG**
+**Each agent is a role file (`lib/agents/<agent>/<agent>.md`) that Claude Code reads and
+executes directly in-session** — triggered by its slash command
+(`.claude/commands/<agent>.md`, a one-line pointer to the role file) or the `Skill` tool.
+There is no separate orchestrator process and no database in between: the agent reads its
+declared inputs from the local filesystem (`corrector/01-05/`), generates its output, and
+writes it back to the local filesystem for the next agent to read directly.
 
-Exceptions:
-- **Validador de Alineación (3)** — reads only, does not persist to RAG; produces `alignment-report.json` as a local file. Downstream agents that need it (Agent 6) must read it from the local filesystem, not from RAG.
-- **`schema.sql`** — human input, never persisted to RAG. Any agent that needs it reads it directly from the local filesystem.
-- **GATE HUMANO** — human decision step; produces `reconciliation.json` as a local file, not persisted to RAG
-- **Markdown artifacts** (`boceto-suggestions.md`, `use-cases.md`, `api-contracts.md`) — no Zod validation; persisted to RAG as raw text. `boceto-suggestions.md` is consumed by the human only (Man in the Loop) — no downstream agent reads it.
-- **On-demand agents (★)** — operate independently, do not participate in RAG handoff
+Exception: `lib/agents/designer-front/designer-front.js` is a real standalone Bun script
+that calls the Anthropic API directly (model `claude-sonnet-4-6`) and writes its output via
+`lib/tools/artifact-manager.js` — also to the local filesystem, never to a database. It
+predates the Claude-Code-native approach above and is not required to run the pipeline;
+`business-analyst.js`, `implementer.js`, `tdd-engineer.js` and `requirement-architect.js`
+also exist but are unimplemented stubs (`throw new Error('Not implemented')`) — those four
+agents run exclusively via their `.md` role file, like the other nine.
 
-### RAG table: `knowledge_base`
+Validation: `ui-spec.json`, `functional-spec.json`, `reconciliation.json` and
+`alignment-report.json` each have a real Zod schema in `lib/schemas/` (see "Zod schemas"
+below). Markdown artifacts (`boceto-suggestions.md`, `use-cases.md`, `api-contracts.md`)
+have no schema — they're free-form prose, reviewed by the human or the next agent reading
+them directly.
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `content` | TEXT | Serialised JSON artifact |
-| `embedding` | vector(1536) | HNSW index |
-| `phase` | VARCHAR | See valid values below |
-| `sketch_number` | INT \| NULL | Traceability key. `NULL` for artifacts not scoped to a single element (e.g. `use-cases.md`, `api-contracts.md`, `alignment-report.json`) |
-| `feature_id` | TEXT | e.g. `corrector-v1` |
-| `agent` | TEXT | Producer |
-| `version` | INT | Incremental — same feature + phase can have multiple versions |
+### Planned but not built
 
-Valid `phase` values:
-
-| Phase | Agent | Artifact |
-|-------|-------|----------|
-| `boceto-parse` | 0 Boceto Parser | `boceto-metadata.json` · `boceto-elements.md` |
-| `ui-spec` | 1 Diseñador Front | `ui-spec.json` |
-| `interview` | 2 Analista de Negocio | `transcripcion.md` · `boceto-suggestions.md` *(Man in the Loop — human review only)* |
-| `func-spec` | 4 Generador Func. Spec | `functional-spec.json` |
-| `use-case` | 5 Arquitecto de Requisitos | `use-cases.md` · `api-contracts.md` |
-| `test-red` | 6 Ingeniero TDD | `*.test.ts` |
-| `code` | 7 Implementador | Backend TS · Web Components TS |
-| `e2e` | 8 Ingeniero E2E | `cypress/e2e/*.cy.ts` |
-| `review` | 9 Revisor / QA | Informe de revisión |
-
-Note: `alignment` (Agent 3) and `gate` (GATE HUMANO) artifacts are local files only — not persisted to RAG.
-
-Retrieval: hybrid search — vector similarity + structured filters on `phase`, `feature_id`,
-`sketch_number`.
+An earlier design considered a shared `knowledge_base` table (PostgreSQL + pgvector, OpenAI
+`text-embedding-3-small` embeddings, hybrid vector + structured-filter retrieval on `phase` /
+`feature_id` / `sketch_number`) so agents could query prior artifacts instead of reading files
+directly. **None of this exists.** `lib/tools/rag-client.js` and `lib/orchestrator/pipeline.js`
+are both empty `// PLANNED — not yet implemented` stubs that nothing imports, and `schema.sql`
+has no `pgvector` extension or `knowledge_base` table. If you're picking this up: either build
+it for real, or delete the stub files — don't let them keep implying a mechanism that isn't
+there.
 
 ### Zod schemas
 
@@ -258,11 +249,17 @@ corrector/
       cypress/
         e2e/                           # Agent 8 output — Cypress e2e tests
 
-lib/agents/        # One subfolder per agent: role definition (.md) + implementation (.js)
-                   #   e.g. lib/agents/designer-front/designer-front.{md,js}
-lib/schemas/       # Zod schemas
-lib/tools/         # claude-client, rag-client, artifact-manager, handoff-validator
-lib/orchestrator/  # Pipeline state machine
+lib/agents/        # One subfolder per agent: role definition (.md) — the file every
+                   #   slash command and the Skill tool actually read and execute.
+                   #   designer-front/designer-front.js is the one real standalone
+                   #   implementation (calls the Anthropic API directly); business-analyst,
+                   #   implementer, tdd-engineer and requirement-architect also have a .js
+                   #   file but it's an unimplemented stub; the other 9 agents are .md-only.
+lib/schemas/       # Zod schemas — ui-spec, functional-spec, reconciliation, alignment-report
+lib/tools/         # artifact-manager + sketch-parser (real, used by designer-front.js);
+                   #   claude-client (real, used only by designer-front.js); rag-client,
+                   #   element-mapper, handoff-validator, test-generator — unimplemented stubs
+lib/orchestrator/  # Unimplemented stub — no state machine actually runs
 cli/commands/      # CLI commands
 .claude/commands/  # Slash command entry points (.md)
 docs/              # MkDocs source (.md) → GitHub Pages via mkdocs build

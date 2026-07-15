@@ -1,9 +1,10 @@
 # Arquitectura técnica
 
-Esta aplicación se construye mediante un pipeline **RAG Spec-Driven Development**:
-los prototipos HTML anotados con números de boceto y una conversación de requisitos
-se convierten, a través de 10 agentes Claude, en código backend + frontend completamente
-trazable y testado.
+Esta aplicación se construye mediante un pipeline **Spec-Driven Development**: los
+prototipos HTML anotados con números de boceto y una conversación de requisitos se
+convierten, a través de 10 agentes Claude Code, en código backend + frontend completamente
+trazable y testado. Cada agente corre directamente en la sesión de Claude Code — no hay
+base de datos RAG detrás (ver [Ejecución de agentes y almacenamiento](#ejecucion-de-agentes-y-almacenamiento)).
 
 ## El principio sketchNumber
 
@@ -161,22 +162,32 @@ Los agentes 1 y 2 se ejecutan en paralelo.
 | **CI Setup** | `/ci-setup` | Primera vez o cambio de stack |
 | **Doc Reviewer** | `/doc-reviewer` | En cualquier momento |
 
-## Capa RAG: PostgreSQL + pgvector
+## Ejecución de agentes y almacenamiento
 
-Cada artefacto generado se valida con un **Zod schema** y se persiste en la tabla
-`knowledge_base`. Los agentes recuperan contexto mediante búsqueda híbrida: similaridad
-vectorial + filtros estructurados.
+**No hay orquestador ni base de datos intermedia.** Cada agente es un fichero de rol
+(`lib/agents/<agente>/<agente>.md`) que Claude Code lee y ejecuta directamente en la
+propia sesión — disparado por su slash command (`.claude/commands/<agente>.md`, un
+puntero de una línea al fichero de rol) o por la herramienta `Skill`. El agente lee sus
+entradas declaradas del filesystem local (`corrector/01-05/`), genera su salida y la
+escribe de vuelta al filesystem para que el siguiente agente la lea directamente.
 
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| `id` | UUID | Clave primaria |
-| `content` | TEXT | Artefacto JSON serializado |
-| `embedding` | vector(1536) | OpenAI `text-embedding-3-small` · índice HNSW |
-| `phase` | VARCHAR | `boceto-parse` · `ui-spec` · `interview` · `func-spec` · `use-case` · `test-red` · `e2e` · `code` · `review` |
-| `sketch_number` | INT \| NULL | Clave de trazabilidad. `NULL` para artefactos no acotados a un elemento |
-| `feature_id` | TEXT | Identificador de funcionalidad (ej. `corrector-v1`) |
-| `agent` | TEXT | Agente que generó la fila |
-| `version` | INT | Versión incremental del artefacto |
+Excepción: `lib/agents/designer-front/designer-front.js` es un script Bun real que
+llama a la API de Anthropic directamente (modelo `claude-sonnet-4-6`) y guarda su salida
+vía `lib/tools/artifact-manager.js` — también al filesystem local, nunca a una base de
+datos. Es anterior al enfoque nativo de Claude Code y no hace falta para correr el
+pipeline; `business-analyst.js`, `implementer.js`, `tdd-engineer.js` y
+`requirement-architect.js` también existen pero son stubs sin implementar
+(`throw new Error('Not implemented')`) — esos cuatro agentes corren exclusivamente vía
+su fichero `.md`, igual que los otros nueve.
+
+!!! warning "Planeado pero no construido"
+    Un diseño anterior contemplaba una tabla compartida `knowledge_base` (PostgreSQL +
+    pgvector, embeddings OpenAI `text-embedding-3-small`, búsqueda híbrida vectorial +
+    filtros estructurados) para que los agentes consultaran artefactos previos en vez de
+    leer ficheros directamente. **Nada de esto existe.** `lib/tools/rag-client.js` y
+    `lib/orchestrator/pipeline.js` son stubs vacíos (`// PLANNED — not yet implemented`)
+    que nadie importa, y `schema.sql` no tiene extensión `pgvector` ni tabla
+    `knowledge_base`.
 
 ### Schemas Zod clave
 
@@ -201,9 +212,8 @@ a este proyecto en [Principios SOLID](solid.md).
 
 | Capa | Tecnología |
 |------|-----------|
-| LLM / Agentes | Claude API (`claude-sonnet-4-6`) |
-| Embeddings | OpenAI `text-embedding-3-small` |
-| Base de datos RAG | PostgreSQL 16 + pgvector 0.7 |
+| Ejecución de agentes | Claude Code — slash commands apuntan a un fichero de rol en `lib/agents/*/*.md`; Claude Code adopta esa persona y corre en la propia sesión |
+| Almacenamiento de artefactos | Filesystem local (`corrector/01-05/`) — sin base de datos, sin búsqueda vectorial |
 | Backend | Bun + Express + TypeScript |
 | Validación de schema | Zod 3.x |
 | Frontend | Web Components nativos + lit-html standalone + Tailwind CSS 3.x + TypeScript |
@@ -397,9 +407,10 @@ CORRECTOR_DE_PROYECTOS/
 │   │   ├── reviewer/              # reviewer.md
 │   │   ├── index.js               # Barrel de exports
 │   │   └── validator.js           # Utilidad compartida
-│   ├── schemas/             # Zod schemas
-│   ├── tools/               # claude-client · rag-client · artifact-manager
-│   └── orchestrator/        # State machine del pipeline
+│   ├── schemas/             # Zod schemas — ui-spec, functional-spec, reconciliation, alignment-report
+│   ├── tools/               # artifact-manager · sketch-parser · claude-client (reales, solo usa designer-front.js)
+│   │                        #   rag-client · element-mapper · handoff-validator · test-generator (stubs sin implementar)
+│   └── orchestrator/        # Stub sin implementar — no hay state machine real
 ├── cli/commands/            # run-agent · commit · reconcile · validate
 ├── .claude/commands/        # Slash command entry points (.md)
 ├── docs/                    # Esta documentación (fuente MkDocs)
