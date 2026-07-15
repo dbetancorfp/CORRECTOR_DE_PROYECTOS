@@ -31,13 +31,15 @@ no supera la auditoría, identificar al agente responsable y re-ejecutarlo.
 | Tests E2E | `corrector/05-implementation/frontend/cypress/e2e/` | Cobertura de flujos |
 | `docs/solid.md` | `docs/solid.md` | Fuente de verdad de los principios |
 | `functional-spec.json` | `corrector/03-generated-artifacts/` | Criterios de aceptación |
+| `use-cases.md` | `corrector/04-use-cases/use-cases.md` | Checklist de criterios de aceptación a marcar como cumplidos |
 
 ---
 
-## Artefacto de salida
+## Artefactos de salida
 
 ```
 corrector/05-implementation/review-report.md   — Informe de revisión completo
+corrector/04-use-cases/use-cases.md            — Checkboxes [x] actualizados (ver Paso 6)
 ```
 
 ---
@@ -103,6 +105,7 @@ servicio; `this.client = new AnthropicClient()` dentro de un agente.
 | **Naming** | Nombres descriptivos; sin abreviaciones crípticas |
 | **Tests cubren SOLID** | Los tests inyectan dependencias por constructor, usan interfaces como dobles |
 | **Cobertura mínima** | Cada `acceptanceCriteria` del functional-spec tiene al menos un `it()` |
+| **Checklist actualizado** | Cada criterio de `use-cases.md` con test verde identificado queda marcado `[x]` (ver Paso 6) |
 
 ---
 
@@ -155,6 +158,16 @@ Crea `corrector/05-implementation/review-report.md` con esta estructura:
 |--------|-----------|--------|
 | Agente 6 — TDD | ✅ PASS / ❌ FAIL | — / Re-ejecutar |
 | Agente 7 — Implementador | ✅ PASS / ❌ FAIL | — / Re-ejecutar |
+
+## Criterios de aceptación marcados (use-cases.md)
+| Criterio | Test que lo verifica |
+|----------|----------------------|
+| [texto del criterio] | [fichero.test.ts — nombre del it()] |
+
+## Criterios sin cobertura verificable
+| Criterio | Motivo | Agente responsable |
+|----------|--------|--------------------|
+| [texto del criterio] | Sin test específico / test no cubre el enunciado exacto | Agente 6 |
 ```
 
 ### Paso 4b — Verificar Quality Gate de SonarCloud
@@ -177,6 +190,26 @@ Consulta el estado actual del Quality Gate en el dashboard. Si está en ❌:
 | Duplicación > 3 % | Agente 7 — extraer funciones |
 
 4. Incluye el fallo de Sonar en el bucle de corrección del Paso 5
+
+### Paso 4c — Abrir la Issue de GitHub si el resultado es FAIL
+
+Tú eres quien detecta las violaciones — eres también quien debe abrir y, al llegar a
+PASS, cerrar su Issue de GitHub. Ningún otro agente tiene el detalle exacto de qué
+violó qué principio ni en qué fichero.
+
+Requiere `gh` CLI autenticado (`gh auth status`). Si no está disponible, omite este
+paso y dilo explícitamente al informar al usuario — no bloquea el bucle de corrección,
+es trazabilidad secundaria al resultado del gate.
+
+Si `review-report.md` tiene `Resultado: FAIL ❌` (violaciones SOLID y/o Quality Gate
+de SonarCloud en ❌):
+
+1. Busca una Issue abierta con la etiqueta `agente-9`:
+   `gh issue list --label agente-9 --state open`
+2. Si no existe, créala:
+   `gh issue create --title "[Agente 9] Violaciones SOLID / Quality Gate pendientes" --label agente-9 --body "<resumen de review-report.md: violaciones + agente responsable de cada una>"`
+3. Si ya existe (una iteración anterior del bucle la abrió), actualízala con un
+   comentario reflejando el estado tras esta pasada: qué se corrigió, qué queda.
 
 ### Paso 5 — Bucle de corrección (si hay violaciones)
 
@@ -207,5 +240,51 @@ Cuando todos los checks son ✅:
 
 1. Actualiza `review-report.md` con resultado final `PASS ✅`
 2. Ejecuta `bun test` — confirma que sigue en verde tras las correcciones
-3. Informa al usuario: número de iteraciones, violaciones corregidas, ficheros auditados
-4. Ejecuta `/doc-reviewer` para verificar consistencia de la documentación
+3. Marca en `use-cases.md` los criterios de aceptación cumplidos (ver Paso 6b)
+4. Cierra la Issue de GitHub del gate si existía (ver Paso 6c)
+5. Informa al usuario: número de iteraciones, violaciones corregidas, ficheros auditados,
+   criterios marcados en `use-cases.md`, Issue cerrada (o motivo de omisión)
+6. Ejecuta `/doc-reviewer` para verificar consistencia de la documentación
+
+### Paso 6b — Marcar criterios de aceptación cumplidos en use-cases.md
+
+Ningún otro agente del pipeline vuelve a `use-cases.md` una vez generado — nace con todas
+las casillas `[ ]` (Agente 5 las escribe antes de que exista implementación) y nadie las
+actualiza después. Esta responsabilidad recae en el Agente 9 porque es el único que ve
+implementación + tests unitarios + tests E2E ya en verde a la vez.
+
+**Alcance**: solo los casos de uso y sketchNumbers cubiertos por esta revisión (los que
+tocan el Agente 6/7/8 que estás auditando). No hagas un barrido retroactivo de todo
+`use-cases.md` en cada ejecución — eso es una tarea de limpieza puntual aparte, no parte
+del ciclo normal de revisión.
+
+Para cada criterio `- [ ]` dentro del alcance:
+
+1. Busca un `it()` (unitario o E2E) que verifique ese criterio **de forma específica** —
+   no basta con que exista algún test en la zona; la aserción debe corresponder al
+   enunciado exacto del criterio.
+2. Si lo encuentras y está en verde: marca la casilla `- [x]` y anota en `review-report.md`
+   la referencia (fichero + nombre del test) bajo una sección **Criterios de aceptación
+   marcados**.
+3. Si NO lo encuentras, o el test existe pero no cubre exactamente lo que dice el
+   criterio: **deja la casilla sin marcar** y añádelo a `review-report.md` bajo
+   **Criterios sin cobertura verificable**, con el agente responsable de cerrarlo
+   (normalmente Agente 6 — falta el test).
+
+!!! warning "No marcar por conveniencia"
+    Nunca marques `[x]` un criterio porque "probablemente ya funciona" o porque el
+    checkbox lleva tiempo sin actualizarse. Solo se marca cuando puedes señalar el test
+    concreto que lo prueba y ese test está en verde ahora mismo.
+
+### Paso 6c — Cerrar la Issue de GitHub del gate (si existía)
+
+1. Busca una Issue abierta con la etiqueta `agente-9`.
+2. Si existe, ciérrala referenciando cómo se resolvió:
+   `gh issue close <n> --comment "Resuelto: PASS tras N iteraciones. Violaciones corregidas: <lista>. SonarCloud Quality Gate: ✅."`
+3. Si no existe ninguna abierta (no hubo FAIL en esta ejecución, o `gh` no estaba
+   disponible en el Paso 4c), no hagas nada.
+
+!!! warning "No cerrar sin re-verificar"
+    Cierra la Issue únicamente cuando TÚ, en esta misma ejecución, has confirmado
+    `PASS ✅` en el checklist SOLID completo **y** el Quality Gate de SonarCloud. Nunca
+    la cierres porque el bucle "lleva muchas iteraciones" o porque el usuario tiene prisa.

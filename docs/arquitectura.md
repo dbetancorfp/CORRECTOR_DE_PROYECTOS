@@ -313,6 +313,11 @@ Las tareas del proyecto se gestionan exclusivamente mediante
 Cada Issue representa una unidad de trabajo trazable: nueva funcionalidad, corrección,
 tarea de pipeline o violación de calidad detectada por el Agente 9.
 
+Las Issues generadas automáticamente por el pipeline las abre y cierra siempre el mismo
+agente — el que detecta el fallo es el único con contexto para confirmar, en su propia
+re-ejecución, que quedó resuelto. Ver la tabla completa de disparadores y responsables
+en [Flujo del pipeline](flujo.md#gestion-de-tareas).
+
 !!! tip "Regla de trazabilidad"
     Cualquier cambio al código o a la documentación que no sea trivial debe referenciar
     su Issue de origen en el mensaje de commit: `fix: corregir cálculo de nota (#42)`.

@@ -104,11 +104,43 @@ Si `valid: false`, **detente** e informa al usuario con el detalle de cada issue
 de continuar. No avances al Agente 4 hasta que el usuario corrija los problemas y
 re-ejecute este agente.
 
+### Paso 3b — Abrir o cerrar la Issue de GitHub del gate
+
+Tú eres quien detecta este fallo — eres también quien debe abrir y, más adelante, cerrar
+su Issue de GitHub. Ningún otro agente tiene el contexto exacto de qué check falló y por
+qué; delegarlo a otro agente obligaría a re-derivar ese contexto desde cero.
+
+Requiere `gh` CLI autenticado (`gh auth status`). Si no está disponible, omite este paso
+y dilo explícitamente en el Paso 4 — no bloquees el pipeline por esto, es trazabilidad
+secundaria al resultado del gate.
+
+**Si `valid: false`:**
+
+1. Busca una Issue abierta con la etiqueta `agente-3`:
+   `gh issue list --label agente-3 --state open`
+2. Si no existe, créala:
+   `gh issue create --title "[Agente 3] Alineación boceto↔entrevista↔schema" --label agente-3 --body "<checks fallidos, con sketchNumber y descripción de cada issue>"`
+3. Si ya existe, no dupliques — añade un comentario solo si el detalle ha cambiado desde
+   la última ejecución: `gh issue comment <n> --body "<nuevo detalle>"`.
+
+**Si `valid: true`:**
+
+1. Busca una Issue abierta con la etiqueta `agente-3`.
+2. Si existe, ciérrala referenciando qué la resolvió:
+   `gh issue close <n> --comment "Resuelto: los tres checks pasan tras <resumen del cambio>."`
+3. Si no existe ninguna abierta, no hagas nada — no había nada que cerrar.
+
+!!! warning "No cerrar sin re-verificar"
+    Cierra la Issue únicamente cuando TÚ, en esta misma ejecución, has confirmado
+    `valid: true` en los tres checks. Nunca la cierres porque "probablemente ya se
+    arregló" o porque el usuario lo da por hecho — vuelve a correr los tres checks primero.
+
 ### Paso 4 — Confirmar
 
 Informa al usuario de:
 - Estado de cada check (pass / fail)
 - Número de issues por check
+- Issue de GitHub abierta o cerrada en el Paso 3b (o motivo por el que se omitió)
 - Si `valid: true`: confirmación de que el pipeline puede continuar al Agente 4
 
 ### Paso 5 — Actualizar documentación y verificar consistencia

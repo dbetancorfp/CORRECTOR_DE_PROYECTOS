@@ -190,16 +190,26 @@ flowchart TD
 Cualquier tarea, decisión de cambio o incidencia detectada durante el pipeline
 se registra como un **[Issue de GitHub](https://github.com/dbetancorfp/CORRECTOR_DE_PROYECTOS/issues)**.
 
-Casos típicos donde se abre un Issue:
+Casos típicos donde se abre un Issue, y quién la crea y la cierra:
 
-| Momento del pipeline | Motivo del Issue |
-|---------------------|-----------------|
-| GATE HUMANO rechaza | Elementos huérfanos en `reconciliation.json` |
-| Agente 3 falla | Inconsistencias boceto ↔ entrevista ↔ schema |
-| Agente 9 devuelve FAIL | Violaciones SOLID pendientes de corregir |
-| **SonarCloud Quality Gate ❌** | Bugs, vulnerabilidades, cobertura < 80 % o duplicación > 3 % |
-| Re-entrada por cambio de boceto | Nuevos elementos o pantallas a trazar |
-| Re-entrada por cambio de schema | Migración SQL necesaria |
+| Momento del pipeline | Motivo del Issue | Crea | Cierra |
+|---------------------|-----------------|------|--------|
+| GATE HUMANO rechaza | Elementos huérfanos en `reconciliation.json` | Humano / comando `reconcile` | El mismo, al reconciliar con `valid: true` |
+| Agente 3 falla | Inconsistencias boceto ↔ entrevista ↔ schema | Agente 3 | Agente 3, en su re-ejecución tras el fix (`valid: true`) |
+| Agente 9 devuelve FAIL | Violaciones SOLID pendientes de corregir | Agente 9 | Agente 9, cuando su propio bucle de corrección llega a PASS |
+| **SonarCloud Quality Gate ❌** | Bugs, vulnerabilidades, cobertura < 80 % o duplicación > 3 % | Agente 9 | Agente 9, cuando el gate vuelve a ✅ |
+| Re-entrada por cambio de boceto | Nuevos elementos o pantallas a trazar | Humano (inicia la re-entrada) | Agente 3, al validar de nuevo tras la re-entrada |
+| Re-entrada por cambio de schema | Migración SQL necesaria | Humano (inicia la re-entrada) | Agente 3, al validar de nuevo tras la re-entrada |
+
+!!! tip "Regla: quien detecta, abre; quien re-verifica, cierra"
+    El agente que crea la Issue es siempre el mismo que la cierra. Solo el agente que
+    detectó el fallo tiene el contexto exacto de qué falló, y solo él puede confirmar
+    con su propia re-ejecución que la condición está realmente resuelta — nunca un
+    agente distinto, y nunca por conveniencia ("probablemente ya se arregló"). Ver
+    `alignment-validator.md` (Paso 3b) y `reviewer.md` (Pasos 4c y 6c) para el detalle
+    de implementación. Requiere `gh` CLI autenticado; si no está disponible, el agente
+    reporta el fallo/resolución igualmente en su artefacto de salida y lo dice
+    explícitamente al usuario, sin bloquear el pipeline por ello.
 
 !!! info "SonarCloud"
     El análisis estático corre automáticamente en cada push y PR.
